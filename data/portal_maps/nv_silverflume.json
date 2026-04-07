@@ -1,0 +1,62 @@
+{
+  "state": "NV",
+  "portal": "SilverFlume",
+  "url": "https://www.nvsilverflume.gov",
+  "waf": {
+    "type": "Incapsula/Imperva",
+    "captcha": "hCaptcha",
+    "sitekey": "dd6e16a7-972e-47d2-93d0-96642fb6d8de",
+    "bypass_method": "Anti-Captcha HCaptchaTaskProxyless + onCaptchaFinished injection",
+    "cost_per_solve": 0.002,
+    "solve_time_seconds": 20
+  },
+  "checklist_flow": {
+    "step1_url": "/checklist?aboutyou",
+    "step1_label": "Type of Business",
+    "step1_actions": {
+      "expand_nevada_business": "toggleQuestionaire(document.querySelector('#nonNevadaEntityDiv a'), 'nonNevadaEntityP')",
+      "entity_types": {
+        "LLC": {"radio_name": "subEntityTypeID", "radio_value": "153", "label": "Domestic Limited-Liability Company (NRS 86)"},
+        "Corporation": {"radio_name": "subEntityTypeID", "radio_value": "71", "label": "Domestic Corporation (NRS 78)"},
+        "Close_Corporation": {"radio_name": "subEntityTypeID", "radio_value": "21", "label": "Domestic Close Corporation (NRS 78A)"},
+        "LP_87A": {"radio_name": "subEntityTypeID", "radio_value": "112", "label": "Domestic Limited Partnership (NRS 87A)"},
+        "LP_88": {"radio_name": "subEntityTypeID", "radio_value": "132", "label": "Domestic Limited Partnership (NRS 88)"},
+        "LLLP_87A": {"radio_name": "subEntityTypeID", "radio_value": "192", "label": "Domestic Limited-Liability Limited Partnership (NRS 87A)"},
+        "LLLP_88": {"radio_name": "subEntityTypeID", "radio_value": "210", "label": "Domestic Limited-Liability Limited Partnership (NRS 88)"},
+        "LLP": {"radio_name": "subEntityTypeID", "radio_value": "214", "label": "Domestic Limited-Liability Partnership (NRS 87)"},
+        "Professional_Corp": {"radio_name": "subEntityTypeID", "radio_value": "297", "label": "Domestic Professional Corporation (NRS 89)"},
+        "Professional_LLC": {"radio_name": "subEntityTypeID", "radio_value": "324", "label": "Domestic Professional LLC (NRS 89)"},
+        "Business_Trust": {"radio_name": "subEntityTypeID", "radio_value": "6", "label": "Domestic Business Trust (NRS 88A)"}
+      },
+      "enable_next": "enableNextBtn()",
+      "next_button": "input[name='next']"
+    },
+    "step2_url": "/checklist?businessdescription",
+    "step2_label": "Business Description",
+    "step3_url": "/checklist?location",
+    "step3_label": "Nevada Locations",
+    "step4_url": "/checklist?employees",
+    "step4_label": "Employees",
+    "step5_url": "/checklist?tax",
+    "step5_label": "Tax Requirements"
+  },
+  "filing_pages": {
+    "register_account": "/register",
+    "login": "/home/login",
+    "start_business": "/startBusiness",
+    "dashboard": "/dashboard",
+    "checkout": "/cart"
+  },
+  "fees": {
+    "articles_of_organization": 75,
+    "initial_list": 150,
+    "business_license": 200,
+    "total": 425,
+    "expedited_24h": 125,
+    "expedited_2h": 500,
+    "expedited_1h": 1000,
+    "cc_surcharge_pct": 2.5
+  },
+  "mapped_at": "2026-03-28T15:30:00Z",
+  "status": "partial - steps 2-5 and filing forms still need mapping"
+}

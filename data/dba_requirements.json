@@ -1,0 +1,492 @@
+{
+  "dba_requirements": {
+    "AL": {
+      "state_name": "Alabama",
+      "filed_at": "county",
+      "filing_fee": 30,
+      "publication_required": false,
+      "renewal_period": "none",
+      "online_filing": false,
+      "notes": "Filed with county probate court. Varies by county."
+    },
+    "AK": {
+      "state_name": "Alaska",
+      "filed_at": "state",
+      "filing_fee": 25,
+      "publication_required": false,
+      "renewal_period": "5 years",
+      "online_filing": true,
+      "portal_url": "https://www.commerce.alaska.gov/cbp/main/",
+      "form_name": "Business License (includes trade name)"
+    },
+    "AZ": {
+      "state_name": "Arizona",
+      "filed_at": "county",
+      "filing_fee": 10,
+      "publication_required": true,
+      "publication_details": "Publish in newspaper of general circulation for 3 consecutive weeks",
+      "renewal_period": "5 years",
+      "online_filing": false,
+      "notes": "Filed with county recorder. Publication in newspaper required."
+    },
+    "AR": {
+      "state_name": "Arkansas",
+      "filed_at": "county",
+      "filing_fee": 25,
+      "publication_required": false,
+      "renewal_period": "none",
+      "online_filing": false,
+      "notes": "Filed with county clerk."
+    },
+    "CA": {
+      "state_name": "California",
+      "filed_at": "county",
+      "filing_fee": 26,
+      "publication_required": true,
+      "publication_details": "Must publish in newspaper of general circulation in county for 4 consecutive weeks within 30 days of filing",
+      "renewal_period": "5 years",
+      "online_filing": false,
+      "notes": "Filed with county clerk. Must also file proof of publication."
+    },
+    "CO": {
+      "state_name": "Colorado",
+      "filed_at": "state",
+      "filing_fee": 20,
+      "publication_required": false,
+      "renewal_period": "none (perpetual with periodic report)",
+      "online_filing": true,
+      "portal_url": "https://www.sos.state.co.us/pubs/business/businessHome.html",
+      "form_name": "Statement of Trade Name"
+    },
+    "CT": {
+      "state_name": "Connecticut",
+      "filed_at": "city",
+      "filing_fee": 10,
+      "publication_required": false,
+      "renewal_period": "none",
+      "online_filing": false,
+      "notes": "Filed with town clerk where business is located."
+    },
+    "DE": {
+      "state_name": "Delaware",
+      "filed_at": "county",
+      "filing_fee": 25,
+      "publication_required": false,
+      "renewal_period": "5 years",
+      "online_filing": false,
+      "notes": "Filed with county prothonotary's office."
+    },
+    "DC": {
+      "state_name": "District of Columbia",
+      "filed_at": "district",
+      "filing_fee": 55,
+      "publication_required": false,
+      "renewal_period": "2 years",
+      "online_filing": true,
+      "portal_url": "https://corponline.dcra.dc.gov/",
+      "form_name": "Trade Name Registration"
+    },
+    "FL": {
+      "state_name": "Florida",
+      "filed_at": "state",
+      "filing_fee": 50,
+      "publication_required": false,
+      "renewal_period": "5 years",
+      "online_filing": true,
+      "portal_url": "https://efile.sunbiz.org",
+      "form_name": "Fictitious Name Registration"
+    },
+    "GA": {
+      "state_name": "Georgia",
+      "filed_at": "county",
+      "filing_fee": 25,
+      "publication_required": true,
+      "publication_details": "Publish in county legal organ once a week for 2 consecutive weeks",
+      "renewal_period": "none",
+      "online_filing": false,
+      "notes": "Filed with county superior court clerk."
+    },
+    "HI": {
+      "state_name": "Hawaii",
+      "filed_at": "state",
+      "filing_fee": 50,
+      "publication_required": false,
+      "renewal_period": "none (perpetual)",
+      "online_filing": true,
+      "portal_url": "https://hbe.ehawaii.gov/documents/trade.html",
+      "form_name": "Trade Name Application"
+    },
+    "ID": {
+      "state_name": "Idaho",
+      "filed_at": "county",
+      "filing_fee": 25,
+      "publication_required": false,
+      "renewal_period": "none",
+      "online_filing": false,
+      "notes": "Certificate of Assumed Business Name filed with county recorder."
+    },
+    "IL": {
+      "state_name": "Illinois",
+      "filed_at": "county",
+      "filing_fee": 25,
+      "publication_required": true,
+      "publication_details": "Publish in newspaper of general circulation in county for 3 consecutive weeks",
+      "renewal_period": "5 years",
+      "online_filing": false,
+      "notes": "Filed with county clerk. Publication required."
+    },
+    "IN": {
+      "state_name": "Indiana",
+      "filed_at": "county",
+      "filing_fee": 18,
+      "publication_required": false,
+      "renewal_period": "none",
+      "online_filing": true,
+      "portal_url": "https://inbiz.in.gov/",
+      "form_name": "Assumed Business Name"
+    },
+    "IA": {
+      "state_name": "Iowa",
+      "filed_at": "county",
+      "filing_fee": 5,
+      "publication_required": false,
+      "renewal_period": "5 years",
+      "online_filing": false,
+      "notes": "Filed with county recorder. One of the cheapest states."
+    },
+    "KS": {
+      "state_name": "Kansas",
+      "filed_at": "county",
+      "filing_fee": 35,
+      "publication_required": false,
+      "renewal_period": "none",
+      "online_filing": false,
+      "notes": "Filed with county register of deeds."
+    },
+    "KY": {
+      "state_name": "Kentucky",
+      "filed_at": "county",
+      "filing_fee": 20,
+      "publication_required": false,
+      "renewal_period": "none",
+      "online_filing": false,
+      "notes": "Filed with county clerk."
+    },
+    "LA": {
+      "state_name": "Louisiana",
+      "filed_at": "county",
+      "filing_fee": 75,
+      "publication_required": false,
+      "renewal_period": "5 years",
+      "online_filing": false,
+      "notes": "Filed with parish clerk of court (parishes, not counties)."
+    },
+    "ME": {
+      "state_name": "Maine",
+      "filed_at": "city",
+      "filing_fee": 20,
+      "publication_required": false,
+      "renewal_period": "none",
+      "online_filing": false,
+      "notes": "Filed with city/town clerk."
+    },
+    "MD": {
+      "state_name": "Maryland",
+      "filed_at": "state",
+      "filing_fee": 25,
+      "publication_required": false,
+      "renewal_period": "none",
+      "online_filing": true,
+      "portal_url": "https://egov.maryland.gov/BusinessExpress",
+      "form_name": "Trade Name Application"
+    },
+    "MA": {
+      "state_name": "Massachusetts",
+      "filed_at": "city",
+      "filing_fee": 40,
+      "publication_required": false,
+      "renewal_period": "4 years",
+      "online_filing": false,
+      "notes": "Filed with city/town clerk. Called 'Business Certificate' or 'DBA Certificate'."
+    },
+    "MI": {
+      "state_name": "Michigan",
+      "filed_at": "county",
+      "filing_fee": 10,
+      "publication_required": false,
+      "renewal_period": "5 years",
+      "online_filing": false,
+      "notes": "Filed with county clerk. Called 'Certificate of Assumed Name'."
+    },
+    "MN": {
+      "state_name": "Minnesota",
+      "filed_at": "state",
+      "filing_fee": 50,
+      "publication_required": false,
+      "renewal_period": "10 years",
+      "online_filing": true,
+      "portal_url": "https://mblsportal.sos.state.mn.us/",
+      "form_name": "Certificate of Assumed Name"
+    },
+    "MS": {
+      "state_name": "Mississippi",
+      "filed_at": "county",
+      "filing_fee": 25,
+      "publication_required": false,
+      "renewal_period": "none",
+      "online_filing": false,
+      "notes": "Filed with county chancery clerk."
+    },
+    "MO": {
+      "state_name": "Missouri",
+      "filed_at": "county",
+      "filing_fee": 7,
+      "publication_required": false,
+      "renewal_period": "5 years",
+      "online_filing": false,
+      "notes": "Filed with county recorder. Very affordable."
+    },
+    "MT": {
+      "state_name": "Montana",
+      "filed_at": "state",
+      "filing_fee": 20,
+      "publication_required": false,
+      "renewal_period": "none",
+      "online_filing": true,
+      "portal_url": "https://sosmt.gov/business/",
+      "form_name": "Registration of Assumed Business Name"
+    },
+    "NE": {
+      "state_name": "Nebraska",
+      "filed_at": "state",
+      "filing_fee": 100,
+      "publication_required": true,
+      "publication_details": "Must publish in legal newspaper in county for 3 consecutive weeks",
+      "renewal_period": "5 years",
+      "online_filing": true,
+      "portal_url": "https://www.nebraska.gov/sos/corp/corpsearch.cgi",
+      "form_name": "Application for Registration of Trade Name"
+    },
+    "NV": {
+      "state_name": "Nevada",
+      "filed_at": "county",
+      "filing_fee": 25,
+      "publication_required": false,
+      "renewal_period": "5 years",
+      "online_filing": false,
+      "notes": "Filed with county clerk. Called 'Fictitious Firm Name'."
+    },
+    "NH": {
+      "state_name": "New Hampshire",
+      "filed_at": "city",
+      "filing_fee": 2,
+      "publication_required": false,
+      "renewal_period": "none",
+      "online_filing": false,
+      "notes": "Filed with city/town clerk. Very cheap."
+    },
+    "NJ": {
+      "state_name": "New Jersey",
+      "filed_at": "county",
+      "filing_fee": 50,
+      "publication_required": false,
+      "renewal_period": "5 years",
+      "online_filing": false,
+      "notes": "Called 'Alternate Name' for LLCs; 'Trade Name' for sole proprietors."
+    },
+    "NM": {
+      "state_name": "New Mexico",
+      "filed_at": "state_not_required",
+      "filing_fee": 0,
+      "publication_required": false,
+      "renewal_period": "N/A",
+      "online_filing": false,
+      "notes": "New Mexico does not require DBA filing for LLCs. Sole proprietors may file voluntarily."
+    },
+    "NY": {
+      "state_name": "New York",
+      "filed_at": "county",
+      "filing_fee": 25,
+      "publication_required": true,
+      "publication_details": "Must publish in 2 newspapers (one daily, one weekly) designated by county clerk for 6 consecutive weeks",
+      "renewal_period": "5 years",
+      "online_filing": false,
+      "notes": "Filed with county clerk. Publication is expensive — $300-$1500+ depending on county."
+    },
+    "NC": {
+      "state_name": "North Carolina",
+      "filed_at": "county",
+      "filing_fee": 26,
+      "publication_required": false,
+      "renewal_period": "5 years",
+      "online_filing": false,
+      "notes": "Filed with county register of deeds. Called 'Assumed Name Certificate'."
+    },
+    "ND": {
+      "state_name": "North Dakota",
+      "filed_at": "state",
+      "filing_fee": 25,
+      "publication_required": false,
+      "renewal_period": "5 years",
+      "online_filing": true,
+      "portal_url": "https://firststop.sos.nd.gov/",
+      "form_name": "Registration of Trade Name"
+    },
+    "OH": {
+      "state_name": "Ohio",
+      "filed_at": "county",
+      "filing_fee": 39,
+      "publication_required": false,
+      "renewal_period": "5 years",
+      "online_filing": false,
+      "notes": "Filed with county recorder. Called 'Fictitious Name Registration'."
+    },
+    "OK": {
+      "state_name": "Oklahoma",
+      "filed_at": "county",
+      "filing_fee": 25,
+      "publication_required": false,
+      "renewal_period": "none",
+      "online_filing": false,
+      "notes": "Filed with county clerk. Called 'Trade Name Report'."
+    },
+    "OR": {
+      "state_name": "Oregon",
+      "filed_at": "state",
+      "filing_fee": 50,
+      "publication_required": false,
+      "renewal_period": "2 years",
+      "online_filing": true,
+      "portal_url": "https://sos.oregon.gov/business/Pages/register.aspx",
+      "form_name": "Assumed Business Name Registration"
+    },
+    "PA": {
+      "state_name": "Pennsylvania",
+      "filed_at": "state",
+      "filing_fee": 70,
+      "publication_required": true,
+      "publication_details": "Publish in 2 newspapers (one of general circulation, one legal journal) in county",
+      "renewal_period": "10 years",
+      "online_filing": true,
+      "portal_url": "https://www.dos.pa.gov/BusinessCharities/Business/RegistrationForms/Pages/default.aspx",
+      "form_name": "Registration of Fictitious Name"
+    },
+    "RI": {
+      "state_name": "Rhode Island",
+      "filed_at": "city",
+      "filing_fee": 40,
+      "publication_required": false,
+      "renewal_period": "none",
+      "online_filing": false,
+      "notes": "Filed with city/town clerk."
+    },
+    "SC": {
+      "state_name": "South Carolina",
+      "filed_at": "county",
+      "filing_fee": 10,
+      "publication_required": false,
+      "renewal_period": "none",
+      "online_filing": false,
+      "notes": "Filed with county register of deeds."
+    },
+    "SD": {
+      "state_name": "South Dakota",
+      "filed_at": "county",
+      "filing_fee": 10,
+      "publication_required": false,
+      "renewal_period": "none",
+      "online_filing": false,
+      "notes": "Filed with county register of deeds."
+    },
+    "TN": {
+      "state_name": "Tennessee",
+      "filed_at": "county",
+      "filing_fee": 20,
+      "publication_required": false,
+      "renewal_period": "5 years",
+      "online_filing": false,
+      "notes": "Filed with county register of deeds. Called 'Assumed Name Certificate'."
+    },
+    "TX": {
+      "state_name": "Texas",
+      "filed_at": "county",
+      "filing_fee": 25,
+      "publication_required": false,
+      "renewal_period": "10 years",
+      "online_filing": false,
+      "notes": "Filed with county clerk. Called 'Assumed Name Certificate'. Must file in each county where business is conducted."
+    },
+    "UT": {
+      "state_name": "Utah",
+      "filed_at": "state",
+      "filing_fee": 22,
+      "publication_required": false,
+      "renewal_period": "none",
+      "online_filing": true,
+      "portal_url": "https://secure.utah.gov/bes/",
+      "form_name": "DBA Application"
+    },
+    "VT": {
+      "state_name": "Vermont",
+      "filed_at": "city",
+      "filing_fee": 10,
+      "publication_required": false,
+      "renewal_period": "none",
+      "online_filing": false,
+      "notes": "Filed with city/town clerk."
+    },
+    "VA": {
+      "state_name": "Virginia",
+      "filed_at": "state",
+      "filing_fee": 10,
+      "publication_required": false,
+      "renewal_period": "5 years",
+      "online_filing": true,
+      "portal_url": "https://cis.scc.virginia.gov/",
+      "form_name": "Fictitious Name Certificate"
+    },
+    "WA": {
+      "state_name": "Washington",
+      "filed_at": "state",
+      "filing_fee": 5,
+      "publication_required": false,
+      "renewal_period": "none",
+      "online_filing": true,
+      "portal_url": "https://ccfs.sos.wa.gov/",
+      "form_name": "Trade Name Registration"
+    },
+    "WV": {
+      "state_name": "West Virginia",
+      "filed_at": "county",
+      "filing_fee": 15,
+      "publication_required": false,
+      "renewal_period": "none",
+      "online_filing": false,
+      "notes": "Filed with county clerk."
+    },
+    "WI": {
+      "state_name": "Wisconsin",
+      "filed_at": "county",
+      "filing_fee": 15,
+      "publication_required": false,
+      "renewal_period": "5 years",
+      "online_filing": false,
+      "notes": "Filed with county register of deeds."
+    },
+    "WY": {
+      "state_name": "Wyoming",
+      "filed_at": "state",
+      "filing_fee": 100,
+      "publication_required": false,
+      "renewal_period": "none",
+      "online_filing": true,
+      "portal_url": "https://wyobiz.wyo.gov/",
+      "form_name": "Trade Name Registration"
+    }
+  },
+  "publication_required_states": ["AZ", "CA", "GA", "IL", "NE", "NY", "PA"],
+  "state_level_filing_states": ["AK", "CO", "DC", "FL", "HI", "MD", "MN", "MT", "NE", "ND", "OR", "PA", "UT", "VA", "WA", "WY"],
+  "county_level_filing_states": ["AL", "AR", "AZ", "CA", "DE", "GA", "IA", "ID", "IL", "IN", "KS", "KY", "LA", "MI", "MO", "MS", "NC", "NJ", "NV", "NY", "OH", "OK", "SC", "SD", "TN", "TX", "WI", "WV"],
+  "city_level_filing_states": ["CT", "MA", "ME", "NH", "RI", "VT"],
+  "not_required_states": ["NM"]
+}

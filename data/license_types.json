@@ -1,0 +1,191 @@
+{
+  "license_types": [
+    {
+      "id": "dba",
+      "name": "DBA / Fictitious Business Name",
+      "aliases": ["DBA", "Fictitious Business Name", "Assumed Name", "Trade Name", "Doing Business As", "DBA Filing"],
+      "authority_level": "state_or_county",
+      "typical_fee_range": [10, 100],
+      "typical_processing_time": "1-10 business days",
+      "common_requirements": ["Completed application", "Filing fee", "Newspaper publication (some states)"],
+      "states_required": "all",
+      "states_notes": "Required in all states when operating under a name different from legal entity name",
+      "our_service_fee": 29
+    },
+    {
+      "id": "general_business_license",
+      "name": "General Business License",
+      "aliases": ["Business License", "Business Tax Certificate", "Business Registration", "Business Permit"],
+      "authority_level": "city_or_county",
+      "typical_fee_range": [25, 500],
+      "typical_processing_time": "1-15 business days",
+      "common_requirements": ["Completed application", "Proof of business formation", "Zoning approval", "Filing fee"],
+      "states_required": "most",
+      "states_notes": "Requirements vary by city/county. Some states have state-level licenses, most are local.",
+      "our_service_fee": 49
+    },
+    {
+      "id": "liquor_license",
+      "name": "Liquor License",
+      "aliases": ["Alcohol License", "ABC License", "Beverage License", "Liquor Permit", "Beer & Wine License"],
+      "authority_level": "state",
+      "typical_fee_range": [300, 14000],
+      "typical_processing_time": "30-180 days",
+      "common_requirements": ["Background check", "Premises inspection", "Public notice/hearing", "Proof of lease or ownership", "Floor plan", "Completion of responsible beverage service training"],
+      "states_required": "all_if_applicable",
+      "states_notes": "Required in all states for selling/serving alcohol. Types vary (on-premise, off-premise, beer/wine only, full liquor).",
+      "our_service_fee": 99
+    },
+    {
+      "id": "food_beverage",
+      "name": "Food & Beverage / Food Handler",
+      "aliases": ["Food Handler Permit", "Food Service License", "Food Establishment Permit", "Health Permit", "Food Handler's Card"],
+      "authority_level": "county_or_city",
+      "typical_fee_range": [50, 1000],
+      "typical_processing_time": "1-30 business days",
+      "common_requirements": ["Health department inspection", "Food handler training/certification", "Fire inspection", "Completed application", "Floor plan"],
+      "states_required": "all_if_applicable",
+      "states_notes": "Required for all food service businesses. County health department typically issues.",
+      "our_service_fee": 99
+    },
+    {
+      "id": "str_license",
+      "name": "Short-Term Rental (STR) License",
+      "aliases": ["STR License", "Vacation Rental Permit", "Short-Term Rental Permit", "Airbnb License", "Transient Occupancy Permit"],
+      "authority_level": "city_or_county",
+      "typical_fee_range": [50, 2000],
+      "typical_processing_time": "7-60 business days",
+      "common_requirements": ["Property ownership proof", "Safety inspection", "Fire/smoke detectors", "Liability insurance", "TOT registration", "Neighbor notification (some jurisdictions)"],
+      "states_required": "varies",
+      "states_notes": "Varies widely by city/county. Many jurisdictions cap number of permits or ban STRs in certain zones.",
+      "our_service_fee": 99
+    },
+    {
+      "id": "professional_license",
+      "name": "Professional License",
+      "aliases": ["Professional Certification", "Occupational License", "Contractor License", "Real Estate License", "Cosmetology License"],
+      "authority_level": "state",
+      "typical_fee_range": [50, 1000],
+      "typical_processing_time": "14-90 business days",
+      "common_requirements": ["Education/training requirements", "Examination", "Background check", "Continuing education", "Proof of insurance (some professions)"],
+      "states_required": "all_if_applicable",
+      "states_notes": "State-specific licensing for regulated professions: contractors, real estate agents, cosmetologists, CPAs, etc.",
+      "our_service_fee": 99
+    },
+    {
+      "id": "home_occupation",
+      "name": "Home Occupation Permit",
+      "aliases": ["Home Business Permit", "Home-Based Business License", "Home Occupation License"],
+      "authority_level": "city",
+      "typical_fee_range": [0, 250],
+      "typical_processing_time": "1-14 business days",
+      "common_requirements": ["Zoning compliance", "No customer visits (some areas)", "No signage", "No employees at home (some areas)", "Proof of residence"],
+      "states_required": "varies",
+      "states_notes": "Many cities require this for home-based businesses. Some exempt businesses below certain revenue thresholds.",
+      "our_service_fee": 49
+    },
+    {
+      "id": "sales_tax_permit",
+      "name": "Sales Tax Permit",
+      "aliases": ["Sales Tax License", "Seller's Permit", "Resale Certificate", "Sales Tax Registration", "Reseller's License"],
+      "authority_level": "state",
+      "typical_fee_range": [0, 50],
+      "typical_processing_time": "1-10 business days",
+      "common_requirements": ["State tax registration", "EIN or SSN", "Business formation documents", "Estimated sales volume"],
+      "states_required": "most",
+      "states_notes": "Required in 45 states (not AK, DE, MT, NH, OR for state-level). Some states are free to register.",
+      "our_service_fee": 49
+    },
+    {
+      "id": "health_department",
+      "name": "Health Department Permit",
+      "aliases": ["Health Permit", "Sanitary Permit", "Health Inspection Certificate", "Environmental Health Permit"],
+      "authority_level": "county",
+      "typical_fee_range": [50, 1500],
+      "typical_processing_time": "7-30 business days",
+      "common_requirements": ["Health inspection", "HACCP plan (food)", "Water/waste compliance", "Employee health certifications"],
+      "states_required": "all_if_applicable",
+      "states_notes": "Required for food service, childcare, health/beauty, and other businesses affecting public health.",
+      "our_service_fee": 99
+    },
+    {
+      "id": "building_zoning",
+      "name": "Building/Zoning Permit",
+      "aliases": ["Zoning Permit", "Building Permit", "Use Permit", "Certificate of Occupancy", "Change of Use Permit"],
+      "authority_level": "city",
+      "typical_fee_range": [50, 5000],
+      "typical_processing_time": "7-90 business days",
+      "common_requirements": ["Site plan", "Building plans", "Zoning compliance verification", "Fire safety review", "ADA compliance"],
+      "states_required": "all_if_applicable",
+      "states_notes": "Required when changing the use of a building or doing construction. City/county planning department issues.",
+      "our_service_fee": 99
+    },
+    {
+      "id": "signage_permit",
+      "name": "Signage Permit",
+      "aliases": ["Sign Permit", "Business Sign Permit", "Signage License"],
+      "authority_level": "city",
+      "typical_fee_range": [25, 500],
+      "typical_processing_time": "5-30 business days",
+      "common_requirements": ["Sign design/dimensions", "Location on property", "Electrical permit (if illuminated)", "Zoning compliance"],
+      "states_required": "varies",
+      "states_notes": "Most cities require permits for exterior business signage. Size, type, and illumination rules vary.",
+      "our_service_fee": 49
+    },
+    {
+      "id": "special_event",
+      "name": "Special Event Permit",
+      "aliases": ["Event Permit", "Temporary Event License", "Special Use Permit", "Festival Permit"],
+      "authority_level": "city",
+      "typical_fee_range": [25, 2000],
+      "typical_processing_time": "14-60 business days",
+      "common_requirements": ["Event plan", "Insurance certificate", "Security plan", "Noise ordinance compliance", "Health/fire approval", "Traffic management plan"],
+      "states_required": "varies",
+      "states_notes": "Required for events on public property or large private events. Apply well in advance.",
+      "our_service_fee": 99
+    },
+    {
+      "id": "cannabis_license",
+      "name": "Cannabis License",
+      "aliases": ["Marijuana License", "Cannabis Business License", "Dispensary License", "Cannabis Cultivation License"],
+      "authority_level": "state_and_local",
+      "typical_fee_range": [1000, 100000],
+      "typical_processing_time": "60-365 days",
+      "common_requirements": ["Background check", "Security plan", "Business plan", "Financial disclosures", "Premises inspection", "Zoning compliance", "Community impact assessment", "Significant capital requirements"],
+      "states_required": "legal_states_only",
+      "states_notes": "Only available in states with legal cannabis. Types: retail, cultivation, manufacturing, distribution, testing. Extremely competitive and expensive.",
+      "our_service_fee": 99
+    },
+    {
+      "id": "childcare_license",
+      "name": "Childcare License",
+      "aliases": ["Daycare License", "Child Care Facility License", "Family Child Care License", "Preschool License"],
+      "authority_level": "state",
+      "typical_fee_range": [25, 500],
+      "typical_processing_time": "30-120 business days",
+      "common_requirements": ["Background check (all staff)", "CPR/First Aid certification", "Facility inspection", "Fire safety inspection", "Staff-to-child ratios", "Training hours", "Health and safety standards"],
+      "states_required": "all_if_applicable",
+      "states_notes": "Required in all states for childcare facilities. Home-based providers may have different requirements than centers.",
+      "our_service_fee": 99
+    },
+    {
+      "id": "auto_dealer",
+      "name": "Auto Dealer License",
+      "aliases": ["Dealer License", "Motor Vehicle Dealer License", "Used Car Dealer License", "Auto Broker License"],
+      "authority_level": "state",
+      "typical_fee_range": [100, 2500],
+      "typical_processing_time": "30-90 business days",
+      "common_requirements": ["Surety bond ($10K-$50K)", "Business premises with display area", "Background check", "Completion of dealer training", "Liability insurance", "Sales tax registration"],
+      "states_required": "all_if_applicable",
+      "states_notes": "Required to buy/sell vehicles commercially. Different tiers for new vs used. Wholesale licenses available in some states.",
+      "our_service_fee": 99
+    }
+  ],
+  "pricing": {
+    "dba_filing": 29,
+    "business_license_guidance": 0,
+    "business_license_filing": 49,
+    "specialty_license_assistance": 99,
+    "license_needs_report": 0
+  }
+}

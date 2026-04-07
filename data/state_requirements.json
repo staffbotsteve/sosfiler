@@ -1,0 +1,432 @@
+{
+  "CA": {
+    "state_name": "California",
+    "entity_types": ["LLC", "Corp", "S-Corp", "Nonprofit"],
+    "filing_office": "California Secretary of State",
+    "filing_url": "https://bizfileonline.sos.ca.gov",
+    "articles_requirements": {
+      "document_name": "Articles of Organization",
+      "form_number": "LLC-1",
+      "required_fields": ["llc_name", "purpose", "registered_agent_name", "registered_agent_address", "management_type", "organizer_name", "organizer_address"],
+      "management_options": ["member-managed", "manager-managed"],
+      "name_requirements": "Must contain 'LLC', 'L.L.C.', or 'Limited Liability Company'. Cannot contain 'bank', 'trust', 'trustee', 'incorporated', 'inc.', 'corporation', 'corp.'",
+      "purpose_required": false,
+      "purpose_default": "Any lawful purpose"
+    },
+    "registered_agent": {
+      "required": true,
+      "type": "individual_or_entity",
+      "must_be_in_state": true,
+      "form": "LLC-1 (included)"
+    },
+    "annual_report": {
+      "required": true,
+      "form": "LLC-12 (Statement of Information)",
+      "frequency": "biennial",
+      "due": "Within 90 days of filing, then every 2 years during filing month",
+      "fee": 20,
+      "late_penalty": 250
+    },
+    "franchise_tax": {
+      "required": true,
+      "amount": 800,
+      "due": "15th day of 4th month after formation, then annually by April 15",
+      "notes": "Minimum $800/year regardless of income. First-year exemption for LLCs formed 2021-2023."
+    },
+    "publication_required": false,
+    "processing_time": "3-5 business days online",
+    "expedited_available": true,
+    "expedited_time": "24 hours",
+    "online_filing": true
+  },
+  "TX": {
+    "state_name": "Texas",
+    "entity_types": ["LLC", "Corp", "S-Corp", "Nonprofit"],
+    "filing_office": "Texas Secretary of State",
+    "filing_url": "https://direct.sos.state.tx.us/acct/acct-login.asp",
+    "articles_requirements": {
+      "document_name": "Certificate of Formation",
+      "form_number": "Form 205",
+      "required_fields": ["llc_name", "registered_agent_name", "registered_agent_address", "purpose", "management_type", "organizer_name", "governing_authority", "member_names"],
+      "management_options": ["member-managed", "manager-managed"],
+      "name_requirements": "Must contain 'Limited Liability Company', 'LLC', or 'L.L.C.'",
+      "purpose_required": true,
+      "purpose_default": "The purpose for which the limited liability company is organized is for the transaction of any and all lawful purposes for which a limited liability company may be organized under the Texas Business Organizations Code."
+    },
+    "registered_agent": {
+      "required": true,
+      "type": "individual_or_entity",
+      "must_be_in_state": true,
+      "form": "Included in Form 205"
+    },
+    "annual_report": {
+      "required": false,
+      "notes": "Texas does not require annual reports for LLCs. Public Information Report filed with franchise tax."
+    },
+    "franchise_tax": {
+      "required": true,
+      "amount": "0.375%-0.75% of margin",
+      "due": "May 15 annually",
+      "notes": "No tax due if revenue under $1.23M (2024). Must still file No Tax Due report."
+    },
+    "publication_required": false,
+    "processing_time": "5-7 business days",
+    "expedited_available": false,
+    "online_filing": true
+  },
+  "FL": {
+    "state_name": "Florida",
+    "entity_types": ["LLC", "Corp", "S-Corp", "Nonprofit"],
+    "filing_office": "Florida Division of Corporations",
+    "filing_url": "https://efile.sunbiz.org",
+    "articles_requirements": {
+      "document_name": "Articles of Organization",
+      "form_number": "Online filing",
+      "required_fields": ["llc_name", "principal_address", "mailing_address", "registered_agent_name", "registered_agent_address", "manager_or_member_info", "effective_date"],
+      "management_options": ["member-managed", "manager-managed"],
+      "name_requirements": "Must contain 'Limited Liability Company', 'L.L.C.', or 'LLC'",
+      "purpose_required": false,
+      "purpose_default": "Any and all lawful business"
+    },
+    "registered_agent": {
+      "required": true,
+      "type": "individual_or_entity",
+      "must_be_in_state": true,
+      "form": "Included in Articles filing"
+    },
+    "annual_report": {
+      "required": true,
+      "form": "Annual Report",
+      "frequency": "annual",
+      "due": "May 1 each year",
+      "fee": 138.75,
+      "late_penalty": 400
+    },
+    "franchise_tax": {
+      "required": false,
+      "notes": "Florida does not impose a franchise tax on LLCs"
+    },
+    "publication_required": false,
+    "processing_time": "1-2 business days online",
+    "expedited_available": false,
+    "online_filing": true
+  },
+  "NY": {
+    "state_name": "New York",
+    "entity_types": ["LLC", "Corp", "S-Corp", "Nonprofit"],
+    "filing_office": "New York Department of State",
+    "filing_url": "https://appext20.dos.ny.gov/corp_public/corpsearch.entity_search_entry",
+    "articles_requirements": {
+      "document_name": "Articles of Organization",
+      "form_number": "DOS 1336",
+      "required_fields": ["llc_name", "county", "registered_agent_address", "organizer_name", "organizer_address"],
+      "management_options": ["member-managed", "manager-managed"],
+      "name_requirements": "Must contain 'LLC', 'L.L.C.', or 'Limited Liability Company'",
+      "purpose_required": false,
+      "purpose_default": "Any lawful purpose"
+    },
+    "registered_agent": {
+      "required": true,
+      "type": "secretary_of_state_as_agent",
+      "must_be_in_state": true,
+      "form": "Included in Articles"
+    },
+    "annual_report": {
+      "required": true,
+      "form": "Biennial Statement",
+      "frequency": "biennial",
+      "due": "Every 2 years during anniversary month",
+      "fee": 9,
+      "late_penalty": null
+    },
+    "franchise_tax": {
+      "required": false,
+      "notes": "NY LLCs pay filing fees based on NY-source gross income"
+    },
+    "publication_required": true,
+    "publication_details": "Must publish in 2 newspapers (one daily, one weekly) for 6 consecutive weeks within 120 days of formation. County clerk designates newspapers. Cost varies $300-$1500+ depending on county.",
+    "processing_time": "7-10 business days",
+    "expedited_available": true,
+    "expedited_time": "24 hours",
+    "online_filing": true
+  },
+  "DE": {
+    "state_name": "Delaware",
+    "entity_types": ["LLC", "Corp", "S-Corp", "Nonprofit"],
+    "filing_office": "Delaware Division of Corporations",
+    "filing_url": "https://icis.corp.delaware.gov/ecorp/logintax.aspx",
+    "articles_requirements": {
+      "document_name": "Certificate of Formation",
+      "form_number": "Online filing",
+      "required_fields": ["llc_name", "registered_agent_name", "registered_agent_address"],
+      "management_options": ["member-managed", "manager-managed"],
+      "name_requirements": "Must contain 'Limited Liability Company', 'LLC', or 'L.L.C.'",
+      "purpose_required": false,
+      "purpose_default": "Not required"
+    },
+    "registered_agent": {
+      "required": true,
+      "type": "must_be_delaware_entity_or_resident",
+      "must_be_in_state": true,
+      "form": "Included in Certificate"
+    },
+    "annual_report": {
+      "required": false,
+      "notes": "Delaware LLCs don't file annual reports but must pay annual tax"
+    },
+    "franchise_tax": {
+      "required": true,
+      "amount": 300,
+      "due": "June 1 annually",
+      "notes": "Flat $300/year for LLCs. Corporations use authorized shares or assumed par value method."
+    },
+    "publication_required": false,
+    "processing_time": "Same day to 3 weeks depending on method",
+    "expedited_available": true,
+    "expedited_time": "Same day ($100), 24-hour ($50)",
+    "online_filing": true
+  },
+  "WY": {
+    "state_name": "Wyoming",
+    "entity_types": ["LLC", "Corp", "S-Corp", "Nonprofit"],
+    "filing_office": "Wyoming Secretary of State",
+    "filing_url": "https://wyobiz.wyo.gov/Business/FilingSearch.aspx",
+    "articles_requirements": {
+      "document_name": "Articles of Organization",
+      "form_number": "Online filing",
+      "required_fields": ["llc_name", "registered_agent_name", "registered_agent_address", "organizer_name"],
+      "management_options": ["member-managed", "manager-managed"],
+      "name_requirements": "Must contain 'LLC', 'L.L.C.', or 'Limited Liability Company'",
+      "purpose_required": false,
+      "purpose_default": "Any lawful business"
+    },
+    "registered_agent": {
+      "required": true,
+      "type": "individual_or_entity",
+      "must_be_in_state": true,
+      "form": "Included in Articles"
+    },
+    "annual_report": {
+      "required": true,
+      "form": "Annual Report",
+      "frequency": "annual",
+      "due": "First day of anniversary month",
+      "fee": 60,
+      "late_penalty": null,
+      "notes": "Minimum $60 or $60 per $250,000 in assets in WY"
+    },
+    "franchise_tax": {
+      "required": false,
+      "notes": "No franchise tax. No state income tax."
+    },
+    "publication_required": false,
+    "processing_time": "Same day to 2 business days online",
+    "expedited_available": false,
+    "online_filing": true
+  },
+  "NV": {
+    "state_name": "Nevada",
+    "entity_types": ["LLC", "Corp", "S-Corp", "Nonprofit"],
+    "filing_office": "Nevada Secretary of State",
+    "filing_url": "https://www.nvsilverflume.gov/home",
+    "articles_requirements": {
+      "document_name": "Articles of Organization",
+      "form_number": "Online via SilverFlume",
+      "required_fields": ["llc_name", "registered_agent_name", "registered_agent_address", "manager_or_member_managed", "organizer_name"],
+      "management_options": ["member-managed", "manager-managed"],
+      "name_requirements": "Must contain 'Limited-Liability Company', 'Limited Liability Company', 'Ltd. Liability Co.', 'LLC', or 'L.L.C.'",
+      "purpose_required": false,
+      "purpose_default": "Any lawful purpose"
+    },
+    "registered_agent": {
+      "required": true,
+      "type": "individual_or_entity",
+      "must_be_in_state": true,
+      "form": "Included in Articles"
+    },
+    "annual_report": {
+      "required": true,
+      "form": "Annual List of Managers or Members",
+      "frequency": "annual",
+      "due": "Last day of anniversary month",
+      "fee": 150,
+      "late_penalty": 150
+    },
+    "franchise_tax": {
+      "required": false,
+      "notes": "No franchise tax, no state income tax. Must pay $200 business license fee annually."
+    },
+    "publication_required": false,
+    "processing_time": "1-2 business days online",
+    "expedited_available": true,
+    "expedited_time": "24 hours ($125), 2 hours ($500), 1 hour ($1000)",
+    "online_filing": true
+  },
+  "WA": {
+    "state_name": "Washington",
+    "entity_types": ["LLC", "Corp", "S-Corp", "Nonprofit"],
+    "filing_office": "Washington Secretary of State",
+    "filing_url": "https://ccfs.sos.wa.gov",
+    "articles_requirements": {
+      "document_name": "Certificate of Formation",
+      "form_number": "Online filing",
+      "required_fields": ["llc_name", "registered_agent_name", "registered_agent_address", "principal_office", "duration", "management_type", "organizer_name"],
+      "management_options": ["member-managed", "manager-managed"],
+      "name_requirements": "Must contain 'Limited Liability Company', 'LLC', 'L.L.C.', or 'Ltd. Liability Co.'",
+      "purpose_required": false,
+      "purpose_default": "Not required"
+    },
+    "registered_agent": {
+      "required": true,
+      "type": "individual_or_entity",
+      "must_be_in_state": true,
+      "form": "Included in Certificate"
+    },
+    "annual_report": {
+      "required": true,
+      "form": "Annual Report",
+      "frequency": "annual",
+      "due": "End of formation anniversary month",
+      "fee": 71,
+      "late_penalty": null
+    },
+    "franchise_tax": {
+      "required": false,
+      "notes": "No franchise tax. No state income tax. B&O tax applies to gross receipts."
+    },
+    "publication_required": false,
+    "processing_time": "3-5 business days",
+    "expedited_available": true,
+    "expedited_time": "2 business days ($50)",
+    "online_filing": true
+  },
+  "IL": {
+    "state_name": "Illinois",
+    "entity_types": ["LLC", "Corp", "S-Corp", "Nonprofit"],
+    "filing_office": "Illinois Secretary of State",
+    "filing_url": "https://www.ilsos.gov/corporatellc/",
+    "articles_requirements": {
+      "document_name": "Articles of Organization",
+      "form_number": "LLC-5.5",
+      "required_fields": ["llc_name", "registered_agent_name", "registered_agent_address", "principal_address", "purpose", "management_type", "organizer_name", "effective_date"],
+      "management_options": ["member-managed", "manager-managed"],
+      "name_requirements": "Must contain 'LLC', 'L.L.C.', or 'Limited Liability Company'",
+      "purpose_required": true,
+      "purpose_default": "The transaction of any or all lawful purposes for which a Limited Liability Company may be organized under the Illinois Limited Liability Company Act."
+    },
+    "registered_agent": {
+      "required": true,
+      "type": "individual_or_entity",
+      "must_be_in_state": true,
+      "form": "Included in LLC-5.5"
+    },
+    "annual_report": {
+      "required": true,
+      "form": "Annual Report",
+      "frequency": "annual",
+      "due": "First day of anniversary month",
+      "fee": 75,
+      "late_penalty": 100
+    },
+    "franchise_tax": {
+      "required": false,
+      "notes": "Illinois abolished its franchise tax effective 2024"
+    },
+    "publication_required": false,
+    "processing_time": "5-10 business days",
+    "expedited_available": true,
+    "expedited_time": "1 business day ($100)",
+    "online_filing": true
+  },
+  "GA": {
+    "state_name": "Georgia",
+    "entity_types": ["LLC", "Corp", "S-Corp", "Nonprofit"],
+    "filing_office": "Georgia Secretary of State",
+    "filing_url": "https://ecorp.sos.ga.gov/BusinessSearch",
+    "articles_requirements": {
+      "document_name": "Articles of Organization",
+      "form_number": "Online filing",
+      "required_fields": ["llc_name", "registered_agent_name", "registered_agent_address", "principal_address", "organizer_name", "management_type"],
+      "management_options": ["member-managed", "manager-managed"],
+      "name_requirements": "Must contain 'Limited Liability Company', 'LLC', 'L.L.C.', or similar abbreviation",
+      "purpose_required": false,
+      "purpose_default": "Not required"
+    },
+    "registered_agent": {
+      "required": true,
+      "type": "individual_or_entity",
+      "must_be_in_state": true,
+      "form": "Included in Articles"
+    },
+    "annual_report": {
+      "required": true,
+      "form": "Annual Registration",
+      "frequency": "annual",
+      "due": "April 1 each year",
+      "fee": 50,
+      "late_penalty": null
+    },
+    "franchise_tax": {
+      "required": false,
+      "notes": "Georgia does not impose a separate franchise tax on LLCs"
+    },
+    "publication_required": true,
+    "publication_details": "Must publish notice of formation in the legal organ of the county where the registered office is located, once a week for 2 consecutive weeks. Typically $40-100.",
+    "processing_time": "3-5 business days",
+    "expedited_available": false,
+    "online_filing": true
+  },
+  "_all_states_annual_reports": {
+    "AL": { "frequency": "annual", "due": "April 15", "fee": 50 },
+    "AK": { "frequency": "biennial", "due": "January 2 (every 2 years)", "fee": 100 },
+    "AZ": { "frequency": "none", "due": "N/A", "fee": 0 },
+    "AR": { "frequency": "annual", "due": "May 1", "fee": 150 },
+    "CA": { "frequency": "biennial", "due": "Within 90 days then every 2 years", "fee": 20 },
+    "CO": { "frequency": "annual", "due": "Anniversary month", "fee": 10 },
+    "CT": { "frequency": "annual", "due": "Anniversary month", "fee": 80 },
+    "DE": { "frequency": "annual", "due": "June 1 (tax only)", "fee": 300 },
+    "DC": { "frequency": "biennial", "due": "April 1 (every 2 years)", "fee": 300 },
+    "FL": { "frequency": "annual", "due": "May 1", "fee": 138.75 },
+    "GA": { "frequency": "annual", "due": "April 1", "fee": 50 },
+    "HI": { "frequency": "annual", "due": "Anniversary quarter", "fee": 15 },
+    "ID": { "frequency": "annual", "due": "Anniversary month", "fee": 0 },
+    "IL": { "frequency": "annual", "due": "Anniversary month", "fee": 75 },
+    "IN": { "frequency": "biennial", "due": "Anniversary month (every 2 years)", "fee": 31 },
+    "IA": { "frequency": "biennial", "due": "April 1 (every 2 years)", "fee": 60 },
+    "KS": { "frequency": "annual", "due": "April 15", "fee": 55 },
+    "KY": { "frequency": "annual", "due": "June 30", "fee": 15 },
+    "LA": { "frequency": "annual", "due": "Anniversary date", "fee": 35 },
+    "ME": { "frequency": "annual", "due": "June 1", "fee": 85 },
+    "MD": { "frequency": "annual", "due": "April 15", "fee": 300 },
+    "MA": { "frequency": "annual", "due": "Anniversary date", "fee": 500 },
+    "MI": { "frequency": "annual", "due": "February 15", "fee": 25 },
+    "MN": { "frequency": "annual", "due": "December 31", "fee": 0 },
+    "MS": { "frequency": "none", "due": "N/A", "fee": 0 },
+    "MO": { "frequency": "none", "due": "N/A", "fee": 0 },
+    "MT": { "frequency": "annual", "due": "April 15", "fee": 20 },
+    "NE": { "frequency": "biennial", "due": "April 1 (every 2 years)", "fee": 26 },
+    "NV": { "frequency": "annual", "due": "Anniversary month", "fee": 150 },
+    "NH": { "frequency": "annual", "due": "April 1", "fee": 100 },
+    "NJ": { "frequency": "annual", "due": "Anniversary month", "fee": 75 },
+    "NM": { "frequency": "none", "due": "N/A", "fee": 0 },
+    "NY": { "frequency": "biennial", "due": "Anniversary month (every 2 years)", "fee": 9 },
+    "NC": { "frequency": "annual", "due": "April 15", "fee": 200 },
+    "ND": { "frequency": "annual", "due": "November 15", "fee": 50 },
+    "OH": { "frequency": "none", "due": "N/A", "fee": 0 },
+    "OK": { "frequency": "annual", "due": "Anniversary date", "fee": 25 },
+    "OR": { "frequency": "annual", "due": "Anniversary date", "fee": 100 },
+    "PA": { "frequency": "decennial", "due": "Every 10 years", "fee": 70 },
+    "RI": { "frequency": "annual", "due": "Anniversary month", "fee": 50 },
+    "SC": { "frequency": "none", "due": "N/A", "fee": 0 },
+    "SD": { "frequency": "annual", "due": "Anniversary month", "fee": 50 },
+    "TN": { "frequency": "annual", "due": "April 1", "fee": 300 },
+    "TX": { "frequency": "annual", "due": "May 15 (franchise tax report)", "fee": 0 },
+    "UT": { "frequency": "annual", "due": "Anniversary month", "fee": 18 },
+    "VT": { "frequency": "annual", "due": "Anniversary quarter", "fee": 35 },
+    "VA": { "frequency": "annual", "due": "Anniversary month", "fee": 50 },
+    "WA": { "frequency": "annual", "due": "Anniversary month", "fee": 71 },
+    "WV": { "frequency": "annual", "due": "July 1", "fee": 25 },
+    "WI": { "frequency": "annual", "due": "Anniversary quarter", "fee": 25 },
+    "WY": { "frequency": "annual", "due": "Anniversary month", "fee": 60 }
+  }
+}

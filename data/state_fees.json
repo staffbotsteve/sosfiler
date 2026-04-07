@@ -1,0 +1,620 @@
+{
+  "LLC": {
+    "AL": {
+      "filing_fee": 200,
+      "name_reservation": 28,
+      "expedited": null,
+      "notes": "Probate court filing; county-specific"
+    },
+    "AK": {
+      "filing_fee": 250,
+      "name_reservation": 25,
+      "expedited": null,
+      "notes": ""
+    },
+    "AZ": {
+      "filing_fee": 50,
+      "name_reservation": 10,
+      "expedited": 35,
+      "notes": "Must also publish in newspaper ($100-300 varies)"
+    },
+    "AR": {
+      "filing_fee": 45,
+      "name_reservation": 25,
+      "expedited": null,
+      "notes": ""
+    },
+    "CA": {
+      "filing_fee": 70,
+      "name_reservation": 10,
+      "expedited": 350,
+      "notes": "$800 annual franchise tax due within 3-4 months (exempt first year for LLCs formed 2021-2023)"
+    },
+    "CO": {
+      "filing_fee": 50,
+      "name_reservation": 25,
+      "expedited": null,
+      "notes": "Online filing only"
+    },
+    "CT": {
+      "filing_fee": 120,
+      "name_reservation": 60,
+      "expedited": null,
+      "notes": ""
+    },
+    "DE": {
+      "filing_fee": 90,
+      "name_reservation": 75,
+      "expedited": 100,
+      "notes": "$300 annual franchise tax"
+    },
+    "DC": {
+      "filing_fee": 99,
+      "name_reservation": 50,
+      "expedited": null,
+      "notes": ""
+    },
+    "FL": {
+      "filing_fee": 125,
+      "name_reservation": 25,
+      "expedited": null,
+      "notes": "Includes $25 registered agent designation"
+    },
+    "GA": {
+      "filing_fee": 100,
+      "name_reservation": 25,
+      "expedited": null,
+      "notes": "Must publish notice of formation"
+    },
+    "HI": {
+      "filing_fee": 50,
+      "name_reservation": 10,
+      "expedited": 25,
+      "notes": ""
+    },
+    "ID": {
+      "filing_fee": 100,
+      "name_reservation": 20,
+      "expedited": 20,
+      "notes": ""
+    },
+    "IL": {
+      "filing_fee": 150,
+      "name_reservation": 25,
+      "expedited": 100,
+      "notes": ""
+    },
+    "IN": {
+      "filing_fee": 95,
+      "name_reservation": 20,
+      "expedited": null,
+      "notes": "Online filing via INBiz"
+    },
+    "IA": {
+      "filing_fee": 50,
+      "name_reservation": 10,
+      "expedited": null,
+      "notes": ""
+    },
+    "KS": {
+      "filing_fee": 160,
+      "name_reservation": 30,
+      "expedited": null,
+      "notes": "Includes publication cost estimate"
+    },
+    "KY": {
+      "filing_fee": 40,
+      "name_reservation": 15,
+      "expedited": null,
+      "notes": ""
+    },
+    "LA": {
+      "filing_fee": 100,
+      "name_reservation": 25,
+      "expedited": null,
+      "notes": ""
+    },
+    "ME": {
+      "filing_fee": 175,
+      "name_reservation": 20,
+      "expedited": 50,
+      "notes": ""
+    },
+    "MD": {
+      "filing_fee": 100,
+      "name_reservation": 25,
+      "expedited": 50,
+      "notes": ""
+    },
+    "MA": {
+      "filing_fee": 500,
+      "name_reservation": 30,
+      "expedited": null,
+      "notes": "One of the most expensive states"
+    },
+    "MI": {
+      "filing_fee": 50,
+      "name_reservation": 25,
+      "expedited": 50,
+      "notes": ""
+    },
+    "MN": {
+      "filing_fee": 155,
+      "name_reservation": 35,
+      "expedited": null,
+      "notes": "Online filing available"
+    },
+    "MS": {
+      "filing_fee": 50,
+      "name_reservation": 25,
+      "expedited": null,
+      "notes": ""
+    },
+    "MO": {
+      "filing_fee": 50,
+      "name_reservation": 25,
+      "expedited": null,
+      "notes": ""
+    },
+    "MT": {
+      "filing_fee": 70,
+      "name_reservation": 10,
+      "expedited": null,
+      "notes": ""
+    },
+    "NE": {
+      "filing_fee": 105,
+      "name_reservation": 30,
+      "expedited": null,
+      "notes": "Must publish in newspaper"
+    },
+    "NV": {
+      "filing_fee": 425,
+      "name_reservation": 25,
+      "expedited": 125,
+      "notes": "Bundled: $75 Articles + $150 Initial List + $200 Business License. All required at filing."
+    },
+    "NH": {
+      "filing_fee": 100,
+      "name_reservation": 15,
+      "expedited": null,
+      "notes": ""
+    },
+    "NJ": {
+      "filing_fee": 125,
+      "name_reservation": 50,
+      "expedited": null,
+      "notes": ""
+    },
+    "NM": {
+      "filing_fee": 50,
+      "name_reservation": 20,
+      "expedited": 100,
+      "notes": "No annual report required"
+    },
+    "NY": {
+      "filing_fee": 200,
+      "name_reservation": 20,
+      "expedited": 25,
+      "notes": "Must publish in 2 newspapers ($300-1500 varies by county)"
+    },
+    "NC": {
+      "filing_fee": 125,
+      "name_reservation": 30,
+      "expedited": null,
+      "notes": ""
+    },
+    "ND": {
+      "filing_fee": 135,
+      "name_reservation": 10,
+      "expedited": null,
+      "notes": ""
+    },
+    "OH": {
+      "filing_fee": 99,
+      "name_reservation": 39,
+      "expedited": 100,
+      "notes": ""
+    },
+    "OK": {
+      "filing_fee": 100,
+      "name_reservation": 10,
+      "expedited": null,
+      "notes": ""
+    },
+    "OR": {
+      "filing_fee": 100,
+      "name_reservation": 50,
+      "expedited": null,
+      "notes": ""
+    },
+    "PA": {
+      "filing_fee": 125,
+      "name_reservation": 70,
+      "expedited": null,
+      "notes": "Must advertise intent in 2 newspapers"
+    },
+    "RI": {
+      "filing_fee": 150,
+      "name_reservation": 50,
+      "expedited": null,
+      "notes": ""
+    },
+    "SC": {
+      "filing_fee": 110,
+      "name_reservation": 25,
+      "expedited": null,
+      "notes": ""
+    },
+    "SD": {
+      "filing_fee": 150,
+      "name_reservation": 25,
+      "expedited": null,
+      "notes": ""
+    },
+    "TN": {
+      "filing_fee": 300,
+      "name_reservation": 20,
+      "expedited": null,
+      "notes": "Per-member fee: $300 minimum or $50/member"
+    },
+    "TX": {
+      "filing_fee": 300,
+      "name_reservation": 40,
+      "expedited": null,
+      "notes": "No state income tax. Franchise tax applies over $1.23M revenue."
+    },
+    "UT": {
+      "filing_fee": 54,
+      "name_reservation": 22,
+      "expedited": null,
+      "notes": ""
+    },
+    "VT": {
+      "filing_fee": 125,
+      "name_reservation": 20,
+      "expedited": null,
+      "notes": ""
+    },
+    "VA": {
+      "filing_fee": 100,
+      "name_reservation": 10,
+      "expedited": 200,
+      "notes": ""
+    },
+    "WA": {
+      "filing_fee": 200,
+      "name_reservation": 30,
+      "expedited": 50,
+      "notes": "No state income tax"
+    },
+    "WV": {
+      "filing_fee": 100,
+      "name_reservation": 15,
+      "expedited": null,
+      "notes": ""
+    },
+    "WI": {
+      "filing_fee": 130,
+      "name_reservation": 15,
+      "expedited": 25,
+      "notes": ""
+    },
+    "WY": {
+      "filing_fee": 100,
+      "name_reservation": 50,
+      "expedited": null,
+      "notes": "No state income tax. No franchise tax. Privacy-friendly."
+    }
+  },
+  "Corp": {
+    "AL": {
+      "filing_fee": 200,
+      "name_reservation": 28,
+      "expedited": null
+    },
+    "AK": {
+      "filing_fee": 250,
+      "name_reservation": 25,
+      "expedited": null
+    },
+    "AZ": {
+      "filing_fee": 60,
+      "name_reservation": 10,
+      "expedited": 35
+    },
+    "AR": {
+      "filing_fee": 45,
+      "name_reservation": 25,
+      "expedited": null
+    },
+    "CA": {
+      "filing_fee": 100,
+      "name_reservation": 10,
+      "expedited": 350
+    },
+    "CO": {
+      "filing_fee": 50,
+      "name_reservation": 25,
+      "expedited": null
+    },
+    "CT": {
+      "filing_fee": 250,
+      "name_reservation": 60,
+      "expedited": null
+    },
+    "DE": {
+      "filing_fee": 89,
+      "name_reservation": 75,
+      "expedited": 100
+    },
+    "DC": {
+      "filing_fee": 220,
+      "name_reservation": 50,
+      "expedited": null
+    },
+    "FL": {
+      "filing_fee": 70,
+      "name_reservation": 25,
+      "expedited": null
+    },
+    "GA": {
+      "filing_fee": 100,
+      "name_reservation": 25,
+      "expedited": null
+    },
+    "HI": {
+      "filing_fee": 50,
+      "name_reservation": 10,
+      "expedited": 25
+    },
+    "ID": {
+      "filing_fee": 100,
+      "name_reservation": 20,
+      "expedited": 20
+    },
+    "IL": {
+      "filing_fee": 150,
+      "name_reservation": 25,
+      "expedited": 100
+    },
+    "IN": {
+      "filing_fee": 95,
+      "name_reservation": 20,
+      "expedited": null
+    },
+    "IA": {
+      "filing_fee": 50,
+      "name_reservation": 10,
+      "expedited": null
+    },
+    "KS": {
+      "filing_fee": 90,
+      "name_reservation": 30,
+      "expedited": null
+    },
+    "KY": {
+      "filing_fee": 40,
+      "name_reservation": 15,
+      "expedited": null
+    },
+    "LA": {
+      "filing_fee": 75,
+      "name_reservation": 25,
+      "expedited": null
+    },
+    "ME": {
+      "filing_fee": 145,
+      "name_reservation": 20,
+      "expedited": 50
+    },
+    "MD": {
+      "filing_fee": 100,
+      "name_reservation": 25,
+      "expedited": 50
+    },
+    "MA": {
+      "filing_fee": 275,
+      "name_reservation": 30,
+      "expedited": null
+    },
+    "MI": {
+      "filing_fee": 60,
+      "name_reservation": 25,
+      "expedited": 50
+    },
+    "MN": {
+      "filing_fee": 155,
+      "name_reservation": 35,
+      "expedited": null
+    },
+    "MS": {
+      "filing_fee": 50,
+      "name_reservation": 25,
+      "expedited": null
+    },
+    "MO": {
+      "filing_fee": 58,
+      "name_reservation": 25,
+      "expedited": null
+    },
+    "MT": {
+      "filing_fee": 70,
+      "name_reservation": 10,
+      "expedited": null
+    },
+    "NE": {
+      "filing_fee": 60,
+      "name_reservation": 30,
+      "expedited": null
+    },
+    "NV": {
+      "filing_fee": 75,
+      "name_reservation": 25,
+      "expedited": 125
+    },
+    "NH": {
+      "filing_fee": 100,
+      "name_reservation": 15,
+      "expedited": null
+    },
+    "NJ": {
+      "filing_fee": 125,
+      "name_reservation": 50,
+      "expedited": null
+    },
+    "NM": {
+      "filing_fee": 100,
+      "name_reservation": 20,
+      "expedited": 100
+    },
+    "NY": {
+      "filing_fee": 125,
+      "name_reservation": 20,
+      "expedited": 25
+    },
+    "NC": {
+      "filing_fee": 125,
+      "name_reservation": 30,
+      "expedited": null
+    },
+    "ND": {
+      "filing_fee": 100,
+      "name_reservation": 10,
+      "expedited": null
+    },
+    "OH": {
+      "filing_fee": 99,
+      "name_reservation": 39,
+      "expedited": 100
+    },
+    "OK": {
+      "filing_fee": 50,
+      "name_reservation": 10,
+      "expedited": null
+    },
+    "OR": {
+      "filing_fee": 100,
+      "name_reservation": 50,
+      "expedited": null
+    },
+    "PA": {
+      "filing_fee": 125,
+      "name_reservation": 70,
+      "expedited": null
+    },
+    "RI": {
+      "filing_fee": 230,
+      "name_reservation": 50,
+      "expedited": null
+    },
+    "SC": {
+      "filing_fee": 135,
+      "name_reservation": 25,
+      "expedited": null
+    },
+    "SD": {
+      "filing_fee": 150,
+      "name_reservation": 25,
+      "expedited": null
+    },
+    "TN": {
+      "filing_fee": 100,
+      "name_reservation": 20,
+      "expedited": null
+    },
+    "TX": {
+      "filing_fee": 300,
+      "name_reservation": 40,
+      "expedited": null
+    },
+    "UT": {
+      "filing_fee": 70,
+      "name_reservation": 22,
+      "expedited": null
+    },
+    "VT": {
+      "filing_fee": 125,
+      "name_reservation": 20,
+      "expedited": null
+    },
+    "VA": {
+      "filing_fee": 75,
+      "name_reservation": 10,
+      "expedited": 200
+    },
+    "WA": {
+      "filing_fee": 180,
+      "name_reservation": 30,
+      "expedited": 50
+    },
+    "WV": {
+      "filing_fee": 65,
+      "name_reservation": 15,
+      "expedited": null
+    },
+    "WI": {
+      "filing_fee": 100,
+      "name_reservation": 15,
+      "expedited": 25
+    },
+    "WY": {
+      "filing_fee": 100,
+      "name_reservation": 50,
+      "expedited": null
+    }
+  },
+  "state_names": {
+    "AL": "Alabama",
+    "AK": "Alaska",
+    "AZ": "Arizona",
+    "AR": "Arkansas",
+    "CA": "California",
+    "CO": "Colorado",
+    "CT": "Connecticut",
+    "DE": "Delaware",
+    "DC": "District of Columbia",
+    "FL": "Florida",
+    "GA": "Georgia",
+    "HI": "Hawaii",
+    "ID": "Idaho",
+    "IL": "Illinois",
+    "IN": "Indiana",
+    "IA": "Iowa",
+    "KS": "Kansas",
+    "KY": "Kentucky",
+    "LA": "Louisiana",
+    "ME": "Maine",
+    "MD": "Maryland",
+    "MA": "Massachusetts",
+    "MI": "Michigan",
+    "MN": "Minnesota",
+    "MS": "Mississippi",
+    "MO": "Missouri",
+    "MT": "Montana",
+    "NE": "Nebraska",
+    "NV": "Nevada",
+    "NH": "New Hampshire",
+    "NJ": "New Jersey",
+    "NM": "New Mexico",
+    "NY": "New York",
+    "NC": "North Carolina",
+    "ND": "North Dakota",
+    "OH": "Ohio",
+    "OK": "Oklahoma",
+    "OR": "Oregon",
+    "PA": "Pennsylvania",
+    "RI": "Rhode Island",
+    "SC": "South Carolina",
+    "SD": "South Dakota",
+    "TN": "Tennessee",
+    "TX": "Texas",
+    "UT": "Utah",
+    "VT": "Vermont",
+    "VA": "Virginia",
+    "WA": "Washington",
+    "WV": "West Virginia",
+    "WI": "Wisconsin",
+    "WY": "Wyoming"
+  }
+}

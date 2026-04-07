@@ -1,0 +1,15 @@
+# SOSFiler — Python Dependencies
+fastapi==0.115.6
+uvicorn[standard]==0.34.0
+python-dotenv==1.0.1
+pydantic[email]==2.10.4
+stripe==11.4.1
+sendgrid==6.11.0
+openai==1.58.1
+reportlab==4.2.5
+playwright==1.49.1
+python-dateutil==2.9.0
+python-multipart==0.0.18
+httpx==0.28.1
+aiosqlite==0.20.0
+PyJWT==2.9.0

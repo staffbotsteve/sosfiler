@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" type="image/png" href="/favicon.png">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Business Licenses & Permits — SOSFiler</title>
+<meta name="description" content="DBA filings, business licenses, and specialty permits — all 50 states. AI-powered license assistant tells you exactly what you need.">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#0A0A0A">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0A0A0A;
+  --surface: #141414;
+  --card: #141414;
+  --border: #1E1E1E;
+  --text: #FFFFFF;
+  --text-secondary: #999999;
+  --muted: #999999;
+  --accent: #CCFF00;
+  --accent2: #39FF14;
+  --cyan: #00FFE5;
+  --green: #39FF14;
+  --red: #FF3366;
+  --yellow: #FF6B00;
+  --purple: #a78bfa;
+  --glow: rgba(204,255,0,0.4);
+  --glow-sm: rgba(204,255,0,0.15);
+  --gradient: linear-gradient(135deg, #CCFF00, #39FF14);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+a { color: var(--cyan); text-decoration: none; transition: color 0.2s ease; }
+a:hover { color: var(--accent); text-decoration: none; }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+
+.container { max-width: 1100px; margin: 0 auto; padding: 0 20px; }
+section { padding: 60px 0; }
+
+/* Nav */
+nav {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(10,10,10,0.92);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-bottom: 1px solid var(--border);
+  padding: 16px 0;
+}
+nav .container { display: flex; justify-content: space-between; align-items: center; }
+nav .logo { font-size: 22px; font-weight: 800; color: #fff; }
+nav .logo span { color: var(--accent); }
+nav .nav-links { display: flex; gap: 24px; align-items: center; }
+nav .nav-links a { color: var(--muted); font-size: 14px; font-weight: 500; transition: color 0.2s ease; }
+nav .nav-links a:hover { color: #fff; text-decoration: none; }
+.btn {
+  display: inline-block; padding: 12px 28px;
+  background: var(--accent);
+  color: #000; font-weight: 700; border-radius: 8px;
+  border: none; cursor: pointer; font-size: 15px;
+  transition: all 0.2s ease;
+  font-family: 'Inter', sans-serif;
+}
+.btn:hover { box-shadow: 0 0 20px var(--glow), 0 8px 30px rgba(204,255,0,0.2); transform: translateY(-1px); text-decoration: none; color: #000; }
+
+.section-title { text-align: center; margin-bottom: 16px; }
+.section-title h2 { font-size: clamp(24px, 4vw, 36px); font-weight: 800; letter-spacing: -0.01em; }
+.section-title p { color: var(--muted); font-size: 16px; margin-top: 8px; max-width: 600px; margin-left: auto; margin-right: auto; }
+
+/* Hero */
+.hero {
+  padding: 80px 0 40px;
+  text-align: center;
+  background: radial-gradient(ellipse at top center, rgba(204,255,0,0.06) 0%, transparent 55%);
+  position: relative;
+}
+.hero::after {
+  content: '';
+  position: absolute; bottom: 0; left: 0; right: 0; height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(204,255,0,0.2), transparent);
+}
+.hero h1 { font-size: clamp(28px, 5vw, 48px); font-weight: 900; margin-bottom: 16px; letter-spacing: -0.02em; }
+.hero .subtitle { font-size: 18px; color: var(--muted); max-width: 600px; margin: 0 auto 32px; }
+
+/* License grid */
+.license-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin-top: 30px; }
+.license-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-top: 2px solid var(--accent);
+  border-radius: 12px;
+  padding: 24px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.license-card:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: 0 0 20px rgba(204,255,0,0.06); }
+.license-card .icon { font-size: 32px; margin-bottom: 12px; }
+.license-card h4 { font-size: 16px; color: #fff; margin-bottom: 6px; font-weight: 700; }
+.license-card .fee { font-size: 14px; color: var(--accent); font-weight: 600; margin-bottom: 6px; }
+.license-card p { font-size: 13px; color: var(--muted); }
+.license-card .authority { font-size: 12px; color: var(--muted); margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border); }
+
+/* Wizard */
+.wizard {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-top: 2px solid var(--accent);
+  border-radius: 16px;
+  padding: 32px;
+  max-width: 560px;
+  margin: 40px auto 0;
+  transition: box-shadow 0.2s ease;
+}
+.wizard:hover { box-shadow: 0 0 30px rgba(204,255,0,0.05); }
+.wizard h3 { font-size: 20px; margin-bottom: 16px; text-align: center; font-weight: 700; }
+.wizard input, .wizard select {
+  width: 100%; padding: 14px;
+  background: #1A1A1A;
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 16px;
+  font-family: 'Inter', sans-serif;
+  margin-bottom: 12px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.wizard input:focus, .wizard select:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 2px rgba(204,255,0,0.15); }
+
+/* Results */
+.result-card {
+  background: #1A1A1A;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px;
+  margin-top: 12px;
+}
+.result-card .badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; margin-bottom: 8px; }
+.badge-online { background: rgba(57,255,20,0.15); color: var(--green); }
+.badge-mail { background: rgba(255,107,0,0.15); color: var(--yellow); }
+.badge-guidance { background: rgba(0,255,229,0.15); color: var(--cyan); }
+
+.spinner { width: 32px; height: 32px; border: 3px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 12px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Pricing cards */
+.pricing-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-top: 30px; }
+.pricing-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 24px;
+  text-align: center;
+  transition: all 0.2s ease;
+}
+.pricing-card:hover { border-color: var(--accent); box-shadow: 0 0 20px rgba(204,255,0,0.06); }
+.pricing-card .price { font-size: 32px; font-weight: 900; color: var(--accent); text-shadow: 0 0 20px var(--glow-sm); }
+.pricing-card .price-label { font-size: 13px; color: var(--muted); }
+.pricing-card h4 { margin: 12px 0 8px; font-weight: 700; }
+.pricing-card p { font-size: 13px; color: var(--muted); }
+.pricing-card.free .price { color: var(--green); text-shadow: 0 0 20px rgba(57,255,20,0.3); }
+
+/* Footer */
+footer {
+  border-top: 1px solid var(--border);
+  padding: 40px 0;
+  text-align: center;
+  color: var(--muted);
+  font-size: 13px;
+}
+footer a { color: var(--cyan); }
+
+/* Mobile */
+.hamburger { display: none; background: none; border: none; color: #fff; font-size: 24px; cursor: pointer; min-width: 44px; min-height: 44px; }
+@media (max-width: 768px) {
+  .hamburger { display: flex; align-items: center; justify-content: center; }
+  nav .nav-links { display: none; position: absolute; top: 60px; left: 0; right: 0; background: rgba(10,10,10,0.98); backdrop-filter: blur(24px); border-bottom: 1px solid var(--border); flex-direction: column; padding: 20px; gap: 16px; }
+  nav .nav-links.open { display: flex; }
+  nav .nav-links a { min-height: 44px; display: flex; align-items: center; }
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="container">
+    <a href="/" class="logo"><img src="/logo.png" alt="SOSFiler" style="height:36px;vertical-align:middle;"></a>
+    <button class="hamburger" onclick="document.querySelector('.nav-links').classList.toggle('open')" aria-label="Menu">☰</button>
+    <div class="nav-links">
+      <a href="/">Home</a>
+      <a href="/dashboard.html">Dashboard</a>
+      <a href="#licenses">Licenses</a>
+      <a href="#wizard">License Wizard</a>
+      <a href="/app.html" class="btn" style="padding: 10px 24px; font-size: 14px;">Start Your LLC →</a>
+    </div>
+  </div>
+</nav>
+
+<!-- Hero -->
+<section class="hero">
+  <div class="container">
+    <h1>Business Licenses & Permits<br>Made Simple.</h1>
+    <p class="subtitle">DBA filings, business licenses, specialty permits — all 50 states. Our AI assistant tells you exactly what you need and helps you file.</p>
+  </div>
+</section>
+
+<!-- Pricing -->
+<section style="background: rgba(204,255,0,0.015);">
+  <div class="container">
+    <div class="section-title">
+      <h2>Simple Pricing</h2>
+      <p>Government fees are additional and vary by jurisdiction.</p>
+    </div>
+    <div class="pricing-grid">
+      <div class="pricing-card free">
+        <div class="price">Free</div>
+        <div class="price-label">always</div>
+        <h4>"What Licenses Do I Need?"</h4>
+        <p>AI-powered report listing every license and permit your business needs.</p>
+      </div>
+      <div class="pricing-card">
+        <div class="price">$29</div>
+        <div class="price-label">+ gov fees</div>
+        <h4>DBA Filing</h4>
+        <p>Fictitious business name filing in any state. Publication handled where required.</p>
+      </div>
+      <div class="pricing-card">
+        <div class="price">$49</div>
+        <div class="price-label">+ gov fees</div>
+        <h4>Business License</h4>
+        <p>General business license filing — we handle the paperwork or guide you through it.</p>
+      </div>
+      <div class="pricing-card">
+        <div class="price">$99</div>
+        <div class="price-label">+ gov fees</div>
+        <h4>Specialty License</h4>
+        <p>Liquor, food, STR, cannabis, professional, childcare, auto dealer — the complex stuff.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- License Wizard -->
+<section id="wizard">
+  <div class="container">
+    <div class="section-title">
+      <h2>🤖 What Licenses Do I Need?</h2>
+      <p>Enter your business details — our AI returns a complete list of required licenses with costs and next steps. Free.</p>
+    </div>
+    <div class="wizard">
+      <h3>License Requirements Wizard</h3>
+      <input type="text" id="wizCity" placeholder="City (e.g., Austin)">
+      <select id="wizState">
+        <option value="">Select State...</option>
+      </select>
+      <input type="text" id="wizBizType" placeholder="Business type (e.g., restaurant, consulting, retail store)">
+      <button class="btn" style="width: 100%; font-size: 16px; padding: 16px;">Find My Licenses →</button>
+      <div id="wizardResult"></div>
+    </div>
+  </div>
+</section>
+
+<!-- All License Types -->
+<section id="licenses" style="background: rgba(204,255,0,0.015);">
+  <div class="container">
+    <div class="section-title">
+      <h2>All License Types</h2>
+      <p>Click any license to check requirements for your location.</p>
+    </div>
+    <div class="license-grid" id="licenseGrid"></div>
+  </div>
+</section>
+
+<!-- DBA Section -->
+<section id="dba">
+  <div class="container">
+    <div class="section-title">
+      <h2>📝 DBA / Fictitious Business Name</h2>
+      <p>Operating under a different name? File your DBA in minutes. We handle all 50 states.</p>
+    </div>
+    <div class="wizard">
+      <h3>File a DBA — $29</h3>
+      <input type="text" id="dbaName" placeholder="DBA Name (e.g., Joe's Pizza)">
+      <input type="text" id="dbaBizName" placeholder="Legal Business Name (your LLC name)">
+      <select id="dbaState">
+        <option value="">Select State...</option>
+      </select>
+      <input type="text" id="dbaCounty" placeholder="County (if applicable)">
+      <input type="text" id="dbaCity" placeholder="City">
+      <button class="btn" style="width: 100%;" onclick="checkDBA()">Check Requirements & Cost →</button>
+      <div id="dbaResult"></div>
+    </div>
+  </div>
+</section>
+
+<!-- Specific License Check -->
+<section id="check" style="background: rgba(204,255,0,0.015);">
+  <div class="container">
+    <div class="section-title">
+      <h2>Check a Specific License</h2>
+      <p>Know which license you need? Check requirements for your exact location.</p>
+    </div>
+    <div class="wizard">
+      <h3>License Lookup</h3>
+      <select id="checkType">
+        <option value="">Select License Type...</option>
+      </select>
+      <input type="text" id="checkCity" placeholder="City">
+      <input type="text" id="checkCounty" placeholder="County">
+      <select id="checkState">
+        <option value="">Select State...</option>
+      </select>
+      <input type="text" id="checkBiz" placeholder="Business type">
+      <button class="btn" style="width: 100%;" onclick="checkLicense()">Check Requirements →</button>
+      <div id="checkResult"></div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    <p style="margin-bottom: 8px;">SOSFiler — Honest business formation & licensing.</p>
+    <p>
+      <a href="/">Home</a> · 
+      <a href="/app.html">Start Your LLC</a> · 
+      <a href="/dashboard.html">Dashboard</a> · 
+      <a href="mailto:s.swan@providence.aero">Contact</a>
+    </p>
+    <p style="margin-top: 16px;">© 2026 SOSFiler. Not a law firm. We provide self-service business formation and licensing filing services.</p>
+  </div>
+</footer>
+
+<script>
+const stateNames = {"AL":"Alabama","AK":"Alaska","AZ":"Arizona","AR":"Arkansas","CA":"California","CO":"Colorado","CT":"Connecticut","DE":"Delaware","DC":"District of Columbia","FL":"Florida","GA":"Georgia","HI":"Hawaii","ID":"Idaho","IL":"Illinois","IN":"Indiana","IA":"Iowa","KS":"Kansas","KY":"Kentucky","LA":"Louisiana","ME":"Maine","MD":"Maryland","MA":"Massachusetts","MI":"Michigan","MN":"Minnesota","MS":"Mississippi","MO":"Missouri","MT":"Montana","NE":"Nebraska","NV":"Nevada","NH":"New Hampshire","NJ":"New Jersey","NM":"New Mexico","NY":"New York","NC":"North Carolina","ND":"North Dakota","OH":"Ohio","OK":"Oklahoma","OR":"Oregon","PA":"Pennsylvania","RI":"Rhode Island","SC":"South Carolina","SD":"South Dakota","TN":"Tennessee","TX":"Texas","UT":"Utah","VT":"Vermont","VA":"Virginia","WA":"Washington","WV":"West Virginia","WI":"Wisconsin","WY":"Wyoming"};
+
+const licenseIcons = {
+  dba: '📝', general_business_license: '🏛️', liquor_license: '🍸', food_beverage: '🍕',
+  str_license: '🏠', professional_license: '💼', home_occupation: '🏡', sales_tax_permit: '📋',
+  health_department: '🏥', building_zoning: '🏗️', signage_permit: '🪧', special_event: '🎪',
+  cannabis_license: '🌿', childcare_license: '👶', auto_dealer: '🚗'
+};
+
+// Populate state dropdowns
+function populateStates() {
+  const sorted = Object.entries(stateNames).sort((a,b) => a[1].localeCompare(b[1]));
+  document.querySelectorAll('select[id$="State"]').forEach(sel => {
+    sorted.forEach(([code, name]) => {
+      const opt = document.createElement('option');
+      opt.value = code;
+      opt.textContent = `${name} (${code})`;
+      sel.appendChild(opt);
+    });
+  });
+}
+
+// Load license types
+async function loadLicenseTypes() {
+  let types = [];
+  try {
+    const res = await fetch('/api/license-types');
+    if (res.ok) {
+      const data = await res.json();
+      types = data.license_types || [];
+    }
+  } catch(e) {}
+
+  // Fallback
+  if (!types.length) {
+    types = [
+      {id:'dba',name:'DBA / Fictitious Business Name',authority_level:'state_or_county',typical_fee_range:[10,100],our_service_fee:29},
+      {id:'general_business_license',name:'General Business License',authority_level:'city_or_county',typical_fee_range:[25,500],our_service_fee:49},
+      {id:'liquor_license',name:'Liquor License',authority_level:'state',typical_fee_range:[300,14000],our_service_fee:99},
+      {id:'food_beverage',name:'Food & Beverage Permit',authority_level:'county_or_city',typical_fee_range:[50,1000],our_service_fee:99},
+      {id:'str_license',name:'Short-Term Rental License',authority_level:'city_or_county',typical_fee_range:[50,2000],our_service_fee:99},
+      {id:'professional_license',name:'Professional License',authority_level:'state',typical_fee_range:[50,1000],our_service_fee:99},
+      {id:'home_occupation',name:'Home Occupation Permit',authority_level:'city',typical_fee_range:[0,250],our_service_fee:49},
+      {id:'sales_tax_permit',name:'Sales Tax Permit',authority_level:'state',typical_fee_range:[0,50],our_service_fee:49},
+      {id:'health_department',name:'Health Department Permit',authority_level:'county',typical_fee_range:[50,1500],our_service_fee:99},
+      {id:'building_zoning',name:'Building/Zoning Permit',authority_level:'city',typical_fee_range:[50,5000],our_service_fee:99},
+      {id:'signage_permit',name:'Signage Permit',authority_level:'city',typical_fee_range:[25,500],our_service_fee:49},
+      {id:'special_event',name:'Special Event Permit',authority_level:'city',typical_fee_range:[25,2000],our_service_fee:99},
+      {id:'cannabis_license',name:'Cannabis License',authority_level:'state_and_local',typical_fee_range:[1000,100000],our_service_fee:99},
+      {id:'childcare_license',name:'Childcare License',authority_level:'state',typical_fee_range:[25,500],our_service_fee:99},
+      {id:'auto_dealer',name:'Auto Dealer License',authority_level:'state',typical_fee_range:[100,2500],our_service_fee:99},
+    ];
+  }
+
+  // Render grid
+  const grid = document.getElementById('licenseGrid');
+  grid.innerHTML = types.map(t => {
+    const icon = licenseIcons[t.id] || '📄';
+    const fee = t.our_service_fee || t.our_fee || 0;
+    const range = t.typical_fee_range || [0,0];
+    return `<div class="license-card" onclick="scrollToCheck('${t.id}','${t.name.replace(/'/g,"\\'")}')">
+      <div class="icon">${icon}</div>
+      <h4>${t.name}</h4>
+      <div class="fee">${fee > 0 ? 'Our fee: $'+fee : 'Free guidance'}</div>
+      <p>Gov fees typically $${range[0]}–$${range[1]}</p>
+      <div class="authority">${(t.authority_level||'').replace(/_/g,' ').replace(/\b\w/g,l=>l.toUpperCase())}</div>
+    </div>`;
+  }).join('');
+
+  // Populate type dropdown
+  const sel = document.getElementById('checkType');
+  types.forEach(t => {
+    const opt = document.createElement('option');
+    opt.value = t.id;
+    opt.textContent = t.name;
+    sel.appendChild(opt);
+  });
+}
+
+function scrollToCheck(typeId, typeName) {
+  document.getElementById('checkType').value = typeId;
+  document.getElementById('check').scrollIntoView({behavior:'smooth'});
+}
+
+// Wizard
+async function runWizard() {
+  const city = document.getElementById('wizCity').value;
+  const state = document.getElementById('wizState').value;
+  const biz = document.getElementById('wizBizType').value;
+  const el = document.getElementById('wizardResult');
+  if (!city || !state || !biz) { el.innerHTML = '<p style="color:var(--red);margin-top:12px;">Please fill in all fields.</p>'; return; }
+  el.innerHTML = '<div style="text-align:center;padding:20px;"><div class="spinner"></div>Checking licenses for '+biz+' in '+city+', '+stateNames[state]+'...</div>';
+  try {
+    const res = await fetch('/api/license-needs', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({city, state, business_type: biz})
+    });
+    const data = await res.json();
+    const lics = data.licenses || [];
+    let html = '<div style="margin-top:16px;"><div style="font-weight:700;font-size:18px;margin-bottom:12px;">📋 '+lics.length+' License(s) Found</div>';
+    lics.forEach(l => {
+      const pc = l.priority==='high'?'var(--red)':l.priority==='medium'?'var(--yellow)':'var(--green)';
+      html += `<div class="result-card">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <strong>${l.license_name}</strong>
+          <span style="font-size:12px;color:${pc};font-weight:700;text-transform:uppercase;">${l.priority}</span>
+        </div>
+        <div style="font-size:13px;color:var(--muted);margin-top:4px;">${l.issuing_authority||''}</div>
+        <div style="font-size:14px;margin-top:6px;">Gov fee: ~$${l.estimated_fee||'?'} · Our fee: $${l.our_fee||0}</div>
+        ${l.notes?'<div style="font-size:12px;color:var(--muted);margin-top:4px;">'+l.notes+'</div>':''}
+        ${l.our_fee>0?'<button onclick="scrollToCheck(\''+l.license_type_id+'\',\''+l.license_name.replace(/'/g,"\\'")+'\')" style="margin-top:8px;padding:8px 16px;background:rgba(204,255,0,0.1);color:var(--accent);border:1px solid rgba(204,255,0,0.2);border-radius:6px;cursor:pointer;font-size:13px;font-weight:600;font-family:\'Inter\',sans-serif;">Get Started →</button>':''}
+      </div>`;
+    });
+    if (data.total_estimated_government_fees) {
+      html += '<div style="text-align:center;padding:16px;font-weight:700;font-size:18px;color:var(--accent);">Estimated total gov fees: ~$'+data.total_estimated_government_fees+'</div>';
+    }
+    html += '</div>';
+    el.innerHTML = html;
+  } catch(e) {
+    el.innerHTML = '<p style="color:var(--red);margin-top:12px;">Error running wizard. Please try again.</p>';
+  }
+}
+
+// DBA check
+async function checkDBA() {
+  const name = document.getElementById('dbaName').value;
+  const state = document.getElementById('dbaState').value;
+  const county = document.getElementById('dbaCounty').value;
+  const city = document.getElementById('dbaCity').value;
+  const el = document.getElementById('dbaResult');
+  if (!name || !state) { el.innerHTML = '<p style="color:var(--red);margin-top:12px;">Please enter DBA name and state.</p>'; return; }
+  el.innerHTML = '<div style="text-align:center;padding:16px;"><div class="spinner"></div>Checking '+stateNames[state]+' DBA requirements...</div>';
+  try {
+    const res = await fetch('/api/license-check', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({state, county, city, business_type:'', license_type:'dba'})
+    });
+    const data = await res.json();
+    const d = data.data || {};
+    const type = data.response_type;
+    let html = '<div class="result-card">';
+    html += '<span class="badge '+(type==='ONLINE_FILING'?'badge-online':type==='MAIL_FILING'?'badge-mail':'badge-guidance')+'">'+(type==='ONLINE_FILING'?'🟢 Online Filing':type==='MAIL_FILING'?'📬 Mail Filing':'📋 Guidance')+'</span>';
+    html += '<h4 style="margin-top:8px;">'+d.state_name+' DBA Filing</h4>';
+    html += '<div style="font-size:14px;margin-top:8px;">';
+    if (d.filed_at) html += '<div>Filed at: <strong>'+d.filed_at+' level</strong></div>';
+    if (d.filing_fee !== undefined) html += '<div>Government fee: <strong>$'+d.filing_fee+'</strong></div>';
+    html += '<div>Our service fee: <strong>$'+d.our_fee+'</strong></div>';
+    if (d.total_estimated) html += '<div style="font-size:18px;color:var(--accent);font-weight:700;margin-top:8px;">Total: $'+d.total_estimated+'</div>';
+    if (d.portal_url) html += '<div style="margin-top:8px;"><a href="'+d.portal_url+'" target="_blank">Filing Portal →</a></div>';
+    if (d.publication_required) html += '<div style="margin-top:8px;color:var(--yellow);">⚠ Publication required: '+(d.publication_details||'Check with county clerk')+'</div>';
+    if (d.renewal_period) html += '<div style="margin-top:4px;color:var(--muted);">Renewal: '+d.renewal_period+'</div>';
+    if (d.message) html += '<div style="margin-top:8px;">'+d.message+'</div>';
+    html += '</div></div>';
+    if (type !== 'GUIDANCE') {
+      html += '<button onclick="alert(\'DBA filing coming soon! Email support@sosfiler.com for immediate assistance.\')" class="btn" style="width:100%;margin-top:12px;">File My DBA — $'+(d.total_estimated||29)+' →</button>';
+    }
+    el.innerHTML = html;
+  } catch(e) {
+    el.innerHTML = '<p style="color:var(--red);margin-top:12px;">Error. Please try again.</p>';
+  }
+}
+
+// Specific license check
+async function checkLicense() {
+  const type = document.getElementById('checkType').value;
+  const city = document.getElementById('checkCity').value;
+  const county = document.getElementById('checkCounty').value;
+  const state = document.getElementById('checkState').value;
+  const biz = document.getElementById('checkBiz').value;
+  const el = document.getElementById('checkResult');
+  if (!type || !state) { el.innerHTML = '<p style="color:var(--red);margin-top:12px;">Please select license type and state.</p>'; return; }
+  el.innerHTML = '<div style="text-align:center;padding:16px;"><div class="spinner"></div>Checking requirements...</div>';
+  try {
+    const res = await fetch('/api/license-check', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({city, county, state, business_type: biz, license_type: type})
+    });
+    const data = await res.json();
+    const d = data.data || {};
+    const rt = data.response_type;
+    let html = '<div class="result-card">';
+    html += '<span class="badge '+(rt==='ONLINE_FILING'?'badge-online':rt==='MAIL_FILING'?'badge-mail':'badge-guidance')+'">'+(rt==='ONLINE_FILING'?'🟢 Online Filing Available':rt==='MAIL_FILING'?'📬 Mail/In-Person Filing':'📋 Guidance')+'</span>';
+    if (d.license_name) html += '<h4 style="margin-top:8px;">'+d.license_name+'</h4>';
+    if (d.issuing_authority) html += '<div style="font-size:13px;color:var(--muted);">'+d.issuing_authority+'</div>';
+    html += '<div style="font-size:14px;margin-top:12px;">';
+    if (d.filing_fee !== undefined) html += '<div>Government fee: <strong>$'+d.filing_fee+'</strong></div>';
+    if (d.processing_time) html += '<div>Processing time: '+d.processing_time+'</div>';
+    if (d.our_fee > 0) html += '<div>Our service fee: <strong>$'+d.our_fee+'</strong></div>';
+    if (d.total_estimated) html += '<div style="font-size:18px;color:var(--accent);font-weight:700;margin-top:8px;">Estimated total: $'+d.total_estimated+'</div>';
+    html += '</div>';
+    if (d.requirements && d.requirements.length) {
+      html += '<div style="margin-top:12px;"><strong>Requirements:</strong><ul style="font-size:13px;color:var(--muted);padding-left:20px;margin-top:4px;">';
+      d.requirements.forEach(r => html += '<li>'+r+'</li>');
+      html += '</ul></div>';
+    }
+    if (d.documents_needed && d.documents_needed.length) {
+      html += '<div style="margin-top:8px;"><strong>Documents needed:</strong><ul style="font-size:13px;color:var(--muted);padding-left:20px;margin-top:4px;">';
+      d.documents_needed.forEach(r => html += '<li>'+r+'</li>');
+      html += '</ul></div>';
+    }
+    if (d.portal_url) html += '<div style="margin-top:12px;"><a href="'+d.portal_url+'" target="_blank">Filing Portal →</a></div>';
+    if (d.office_address) html += '<div style="font-size:13px;color:var(--muted);margin-top:8px;">📍 '+d.office_address+'</div>';
+    if (d.phone) html += '<div style="font-size:13px;color:var(--muted);">📞 '+d.phone+'</div>';
+    if (d.hours) html += '<div style="font-size:13px;color:var(--muted);">🕐 '+d.hours+'</div>';
+    if (d.additional_notes) html += '<div style="margin-top:12px;padding:12px;background:rgba(255,107,0,0.08);border:1px solid rgba(255,107,0,0.2);border-radius:8px;font-size:13px;color:var(--yellow);">'+d.additional_notes+'</div>';
+    html += '</div>';
+    if (rt !== 'GUIDANCE' && d.our_fee > 0) {
+      html += '<button onclick="alert(\'Filing service coming soon! Email support@sosfiler.com.\')" class="btn" style="width:100%;margin-top:12px;">File Now — $'+(d.total_estimated||d.our_fee)+' →</button>';
+    }
+    el.innerHTML = html;
+  } catch(e) {
+    el.innerHTML = '<p style="color:var(--red);margin-top:12px;">Error checking license. Please try again.</p>';
+  }
+}
+
+// Attach wizard button handler
+document.querySelector('#wizard .btn').addEventListener('click', runWizard);
+
+// Init
+populateStates();
+loadLicenseTypes();
+
+// Handle hash navigation
+if (window.location.hash === '#dba') {
+  setTimeout(() => document.getElementById('dba').scrollIntoView({behavior:'smooth'}), 300);
+} else if (window.location.hash === '#specialty') {
+  setTimeout(() => document.getElementById('licenses').scrollIntoView({behavior:'smooth'}), 300);
+} else if (window.location.hash === '#wizard') {
+  setTimeout(() => document.getElementById('wizard').scrollIntoView({behavior:'smooth'}), 300);
+}
+</script>
+</body>
+</html>

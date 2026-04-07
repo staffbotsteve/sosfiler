@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" type="image/png" href="/favicon.png">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard — SOSFiler</title>
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#0A0A0A">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0A0A0A;
+  --surface: #141414;
+  --card: #141414;
+  --border: #1E1E1E;
+  --text: #FFFFFF;
+  --text-secondary: #999999;
+  --muted: #999999;
+  --accent: #CCFF00;
+  --accent2: #39FF14;
+  --cyan: #00FFE5;
+  --green: #39FF14;
+  --red: #FF3366;
+  --yellow: #FF6B00;
+  --purple: #a78bfa;
+  --glow: rgba(204,255,0,0.4);
+  --glow-sm: rgba(204,255,0,0.15);
+  --gradient: linear-gradient(135deg, #CCFF00, #39FF14);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+a { color: var(--cyan); text-decoration: none; transition: color 0.2s ease; }
+a:hover { color: var(--accent); text-decoration: none; }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+
+.topbar {
+  background: rgba(10,10,10,0.92);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-bottom: 1px solid var(--border);
+  padding: 16px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.topbar .logo { font-size: 20px; font-weight: 800; color: #fff; }
+.topbar .logo span { color: var(--accent); }
+
+.container { max-width: 900px; margin: 0 auto; padding: 20px; }
+
+/* Login gate */
+.login-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-top: 2px solid var(--accent);
+  border-radius: 16px;
+  padding: 40px;
+  max-width: 440px;
+  margin: 80px auto;
+  text-align: center;
+  transition: box-shadow 0.2s ease;
+}
+.login-card:hover { box-shadow: 0 0 30px rgba(204,255,0,0.05); }
+.login-card h2 { margin-bottom: 8px; font-weight: 800; }
+.login-card p { color: var(--muted); font-size: 14px; margin-bottom: 24px; }
+.login-card input {
+  width: 100%; padding: 14px 16px;
+  background: #1A1A1A;
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 16px;
+  font-family: 'Inter', sans-serif;
+  margin-bottom: 12px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.login-card input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 2px rgba(204,255,0,0.15); }
+.btn {
+  padding: 14px 32px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  border: none;
+  background: var(--accent);
+  color: #000;
+  width: 100%;
+  transition: all 0.2s ease;
+  font-family: 'Inter', sans-serif;
+}
+.btn:hover { box-shadow: 0 0 20px var(--glow), 0 8px 30px rgba(204,255,0,0.2); transform: translateY(-1px); }
+
+/* Dashboard */
+.dashboard { display: none; }
+.dashboard.active { display: block; }
+
+/* Header card */
+.header-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-top: 2px solid var(--accent);
+  border-radius: 16px;
+  padding: 28px;
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  transition: box-shadow 0.2s ease;
+}
+.header-card:hover { box-shadow: 0 0 30px rgba(204,255,0,0.05); }
+.header-card .biz-name { font-size: 24px; font-weight: 800; }
+.header-card .biz-meta { color: var(--muted); font-size: 14px; margin-top: 4px; }
+.status-badge { display: inline-block; padding: 6px 16px; border-radius: 20px; font-size: 13px; font-weight: 600; }
+.status-pending_payment { background: rgba(255,107,0,0.15); color: var(--yellow); }
+.status-paid, .status-generating_documents { background: rgba(204,255,0,0.1); color: var(--accent); }
+.status-filing, .status-processing { background: rgba(204,255,0,0.1); color: var(--accent); }
+.status-approved, .status-complete { background: rgba(57,255,20,0.15); color: var(--green); }
+.status-error, .status-failed { background: rgba(255,51,102,0.15); color: var(--red); }
+.status-ein_pending, .status-ein_received { background: rgba(167,139,250,0.15); color: var(--purple); }
+
+/* Grid */
+.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+@media (max-width: 700px) { .grid { grid-template-columns: 1fr; } }
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 24px;
+  transition: box-shadow 0.2s ease;
+}
+.card:hover { box-shadow: 0 0 20px rgba(204,255,0,0.04); }
+.card h3 { font-size: 16px; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; font-weight: 700; }
+.card.full { grid-column: 1 / -1; }
+
+/* Timeline */
+.timeline { position: relative; padding-left: 24px; }
+.timeline::before { content: ''; position: absolute; left: 8px; top: 8px; bottom: 8px; width: 2px; background: var(--border); }
+.timeline-item { position: relative; padding-bottom: 20px; }
+.timeline-item:last-child { padding-bottom: 0; }
+.timeline-item .dot { position: absolute; left: -20px; top: 4px; width: 12px; height: 12px; border-radius: 50%; background: var(--border); }
+.timeline-item.done .dot { background: var(--green); box-shadow: 0 0 6px rgba(57,255,20,0.4); }
+.timeline-item.current .dot { background: var(--accent); box-shadow: 0 0 10px var(--glow); }
+.timeline-item .status { font-weight: 600; font-size: 14px; }
+.timeline-item .message { font-size: 13px; color: var(--muted); }
+.timeline-item .time { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+/* Documents */
+.doc-list { list-style: none; }
+.doc-list li { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border); }
+.doc-list li:last-child { border-bottom: none; }
+.doc-list .doc-name { font-size: 14px; font-weight: 500; }
+.doc-list .doc-format { font-size: 12px; color: var(--muted); }
+.doc-list .download-btn {
+  padding: 6px 16px;
+  background: rgba(204,255,0,0.1);
+  color: var(--accent);
+  border: 1px solid rgba(204,255,0,0.2);
+  border-radius: 6px;
+  font-size: 13px;
+  cursor: pointer;
+  text-decoration: none;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+.doc-list .download-btn:hover { background: rgba(204,255,0,0.2); box-shadow: 0 0 10px rgba(204,255,0,0.15); }
+
+/* Compliance */
+.deadline-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border); gap: 12px; }
+.deadline-item:last-child { border-bottom: none; }
+.deadline-info .type { font-size: 14px; font-weight: 500; }
+.deadline-info .desc { font-size: 12px; color: var(--muted); max-width: 400px; }
+.deadline-date { font-size: 13px; font-weight: 600; white-space: nowrap; }
+.deadline-date.overdue { color: var(--red); }
+.deadline-date.soon { color: var(--yellow); }
+.deadline-date.ok { color: var(--green); }
+
+/* Compliance status */
+.compliance-status { display: flex; align-items: center; gap: 12px; padding: 16px; border-radius: 8px; margin-bottom: 16px; }
+.compliance-status.green { background: rgba(57,255,20,0.08); border: 1px solid rgba(57,255,20,0.2); }
+.compliance-status.yellow { background: rgba(255,107,0,0.08); border: 1px solid rgba(255,107,0,0.2); }
+.compliance-status.red { background: rgba(255,51,102,0.08); border: 1px solid rgba(255,51,102,0.2); }
+.compliance-dot { width: 12px; height: 12px; border-radius: 50%; }
+.compliance-status.green .compliance-dot { background: var(--green); box-shadow: 0 0 6px rgba(57,255,20,0.4); }
+.compliance-status.yellow .compliance-dot { background: var(--yellow); }
+.compliance-status.red .compliance-dot { background: var(--red); }
+
+/* Checklist */
+.checklist { list-style: none; }
+.checklist li { padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 14px; display: flex; align-items: flex-start; gap: 10px; }
+.checklist li:last-child { border-bottom: none; }
+.checklist .check { font-size: 16px; }
+
+/* Info grid */
+.info-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: 14px; }
+.info-row:last-child { border-bottom: none; }
+.info-row .label { color: var(--muted); }
+.info-row .value { font-weight: 500; }
+
+/* EIN display */
+.ein-display {
+  background: rgba(204,255,0,0.05);
+  border: 1px solid rgba(204,255,0,0.2);
+  border-radius: 12px;
+  padding: 20px;
+  text-align: center;
+  margin: 16px 0;
+}
+.ein-display .ein-number { font-size: 28px; font-weight: 800; color: var(--accent); letter-spacing: 2px; margin-top: 8px; text-shadow: 0 0 20px var(--glow-sm); }
+
+/* Loading */
+.loading { text-align: center; padding: 40px; }
+.spinner { width: 40px; height: 40px; border: 3px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 16px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Empty state */
+.empty { text-align: center; padding: 30px; color: var(--muted); }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <a href="/" class="logo"><img src="/logo.png" alt="SOSFiler" style="height:36px;vertical-align:middle;"></a>
+  <a href="/" style="color: var(--muted); font-size: 14px;">Home</a>
+</div>
+
+<!-- Login Gate -->
+<div id="loginGate">
+  <div class="login-card">
+    <h2>📊 Dashboard</h2>
+    <p>Enter your order ID and token to view your filing status and documents.</p>
+    <input type="text" id="loginOrderId" placeholder="Order ID (e.g., IL-ABC123DEF456)">
+    <input type="text" id="loginToken" placeholder="Order token (from your email)">
+    <button class="btn" onclick="login()">View Dashboard →</button>
+    <p style="color: var(--muted); font-size: 12px; margin-top: 16px;">Check your email for your order ID and token.</p>
+  </div>
+</div>
+
+<!-- Dashboard -->
+<div class="dashboard" id="dashboard">
+  <div class="container">
+    
+    <!-- Header -->
+    <div class="header-card">
+      <div>
+        <div class="biz-name" id="dashBizName">—</div>
+        <div class="biz-meta"><span id="dashEntityType">LLC</span> · <span id="dashState">—</span> · Order <span id="dashOrderId">—</span></div>
+      </div>
+      <div class="status-badge" id="dashStatus">—</div>
+    </div>
+
+    <div class="grid">
+      
+      <!-- Filing Status Timeline -->
+      <div class="card full">
+        <h3>📋 Filing Status</h3>
+        <div class="timeline" id="timeline">
+          <div class="loading"><div class="spinner"></div></div>
+        </div>
+      </div>
+      
+      <!-- EIN -->
+      <div class="card" id="einCard">
+        <h3>🔢 EIN (Tax ID)</h3>
+        <div id="einContent">
+          <p style="color: var(--muted); font-size: 14px;">Pending — we'll apply with the IRS once your LLC is filed.</p>
+        </div>
+      </div>
+      
+      <!-- Business Info -->
+      <div class="card">
+        <h3>🏢 Business Info</h3>
+        <div id="bizInfo"></div>
+      </div>
+
+      <!-- Fee Receipt -->
+      <div class="card" id="feeReceiptCard">
+        <h3>🧾 Fee Receipt</h3>
+        <div id="feeReceipt"></div>
+      </div>
+
+      <!-- Documents -->
+      <div class="card full">
+        <h3>📄 Document Vault</h3>
+        <div id="docsContent">
+          <div class="empty">Documents will appear here once generated.</div>
+        </div>
+      </div>
+
+      <!-- Compliance Calendar -->
+      <div class="card full">
+        <h3>📅 Compliance Calendar</h3>
+        <div id="complianceStatus"></div>
+        <div id="complianceContent">
+          <div class="empty">Compliance calendar will be set up after filing.</div>
+        </div>
+      </div>
+      
+      <!-- What To Do Next -->
+      <div class="card full">
+        <h3>✅ What To Do Next</h3>
+        <ul class="checklist" id="checklist"></ul>
+      </div>
+
+    </div>
+    
+    <!-- Additional Services -->
+    <div class="card full" style="margin-top: 20px;">
+      <h3>🚀 Additional Services</h3>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-top: 12px;">
+        <button onclick="openDBAWizard()" style="padding: 20px; background: rgba(204,255,0,0.06); border: 1px solid rgba(204,255,0,0.15); border-radius: 12px; color: var(--text); cursor: pointer; text-align: left; font-family: 'Inter', sans-serif; transition: all 0.2s ease;">
+          <div style="font-size: 24px; margin-bottom: 8px;">📝</div>
+          <div style="font-weight: 700; font-size: 15px;">File a DBA</div>
+          <div style="font-size: 13px; color: var(--muted); margin-top: 4px;">$29 + gov fees</div>
+        </button>
+        <button onclick="openLicenseAssistant()" style="padding: 20px; background: rgba(57,255,20,0.06); border: 1px solid rgba(57,255,20,0.15); border-radius: 12px; color: var(--text); cursor: pointer; text-align: left; font-family: 'Inter', sans-serif; transition: all 0.2s ease;">
+          <div style="font-size: 24px; margin-bottom: 8px;">🏛️</div>
+          <div style="font-weight: 700; font-size: 15px;">Get a Business License</div>
+          <div style="font-size: 13px; color: var(--muted); margin-top: 4px;">From $49 or Free guidance</div>
+        </button>
+        <button onclick="openSpecialtyLicenses()" style="padding: 20px; background: rgba(167,139,250,0.06); border: 1px solid rgba(167,139,250,0.15); border-radius: 12px; color: var(--text); cursor: pointer; text-align: left; font-family: 'Inter', sans-serif; transition: all 0.2s ease;">
+          <div style="font-size: 24px; margin-bottom: 8px;">🔑</div>
+          <div style="font-weight: 700; font-size: 15px;">Specialty Licenses</div>
+          <div style="font-size: 13px; color: var(--muted); margin-top: 4px;">Liquor, Food, STR, etc. — $99</div>
+        </button>
+      </div>
+    </div>
+
+    <!-- Service Modal -->
+    <div id="serviceModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:1000; overflow-y:auto;">
+      <div style="max-width: 560px; margin: 60px auto; background: var(--card); border: 1px solid var(--border); border-top: 2px solid var(--accent); border-radius: 16px; padding: 32px; position: relative;">
+        <button onclick="closeServiceModal()" style="position:absolute; top:16px; right:16px; background:none; border:none; color:var(--muted); font-size:24px; cursor:pointer;">✕</button>
+        <div id="serviceModalContent"></div>
+      </div>
+    </div>
+
+    <!-- Self-service links -->
+    <div style="text-align: center; padding: 40px 0; color: var(--muted); font-size: 14px;">
+      <p>Need changes? <a href="mailto:s.swan@providence.aero">Contact</a> · 
+      <a href="#">File an amendment</a> · <a href="#">Dissolve LLC</a> · 
+      <a href="/licenses.html">Browse All Licenses</a></p>
+    </div>
+  </div>
+</div>
+
+<script>
+let orderId = '';
+let token = '';
+const stateNames = {"AL":"Alabama","AK":"Alaska","AZ":"Arizona","AR":"Arkansas","CA":"California","CO":"Colorado","CT":"Connecticut","DE":"Delaware","DC":"District of Columbia","FL":"Florida","GA":"Georgia","HI":"Hawaii","ID":"Idaho","IL":"Illinois","IN":"Indiana","IA":"Iowa","KS":"Kansas","KY":"Kentucky","LA":"Louisiana","ME":"Maine","MD":"Maryland","MA":"Massachusetts","MI":"Michigan","MN":"Minnesota","MS":"Mississippi","MO":"Missouri","MT":"Montana","NE":"Nebraska","NV":"Nevada","NH":"New Hampshire","NJ":"New Jersey","NM":"New Mexico","NY":"New York","NC":"North Carolina","ND":"North Dakota","OH":"Ohio","OK":"Oklahoma","OR":"Oregon","PA":"Pennsylvania","RI":"Rhode Island","SC":"South Carolina","SD":"South Dakota","TN":"Tennessee","TX":"Texas","UT":"Utah","VT":"Vermont","VA":"Virginia","WA":"Washington","WV":"West Virginia","WI":"Wisconsin","WY":"Wyoming"};
+
+// Check URL params
+function checkUrlParams() {
+  const params = new URLSearchParams(window.location.search);
+  const oid = params.get('order_id');
+  const tok = params.get('token');
+  if (oid && tok) {
+    orderId = oid;
+    token = tok;
+    showDashboard();
+    return true;
+  }
+  
+  // Check localStorage
+  try {
+    const saved = JSON.parse(localStorage.getItem('sosfiler_order'));
+    if (saved && saved.order_id && saved.token) {
+      orderId = saved.order_id;
+      token = saved.token;
+      showDashboard();
+      return true;
+    }
+  } catch (e) {}
+  
+  return false;
+}
+
+function login() {
+  orderId = document.getElementById('loginOrderId').value.trim();
+  token = document.getElementById('loginToken').value.trim();
+  if (!orderId || !token) { alert('Please enter both Order ID and Token.'); return; }
+  localStorage.setItem('sosfiler_order', JSON.stringify({ order_id: orderId, token: token }));
+  showDashboard();
+}
+
+async function showDashboard() {
+  document.getElementById('loginGate').style.display = 'none';
+  document.getElementById('dashboard').classList.add('active');
+  await loadOrderData();
+  await loadDocuments();
+  // Auto-refresh every 30 seconds
+  setInterval(loadOrderData, 30000);
+}
+
+async function loadOrderData() {
+  try {
+    const res = await fetch(`/api/status/${orderId}?token=${token}`);
+    if (!res.ok) {
+      if (res.status === 403) { alert('Invalid order ID or token.'); return; }
+      throw new Error('Failed to load');
+    }
+    const data = await res.json();
+    renderDashboard(data);
+  } catch (e) {
+    console.error('Load error:', e);
+  }
+}
+
+async function loadDocuments() {
+  try {
+    const res = await fetch(`/api/documents/${orderId}?token=${token}`);
+    if (!res.ok) return;
+    const data = await res.json();
+    renderDocuments(data.documents || []);
+  } catch (e) {}
+}
+
+function renderDashboard(data) {
+  // Header
+  document.getElementById('dashBizName').textContent = data.business_name || '—';
+  document.getElementById('dashEntityType').textContent = data.entity_type || 'LLC';
+  document.getElementById('dashState').textContent = stateNames[data.state] || data.state;
+  document.getElementById('dashOrderId').textContent = data.order_id;
+  
+  const statusEl = document.getElementById('dashStatus');
+  const statusLabels = {
+    'pending_payment': '⏳ Awaiting Payment',
+    'paid': '✅ Paid',
+    'generating_documents': '📄 Generating Documents',
+    'filing': '📋 Filing with State',
+    'processing': '⏳ Processing',
+    'approved': '✅ Approved',
+    'ein_pending': '🔢 EIN Pending',
+    'ein_received': '🔢 EIN Received',
+    'complete': '🎉 Complete',
+    'error': '❌ Error',
+    'human_review': '👤 Under Review'
+  };
+  statusEl.textContent = statusLabels[data.status] || data.status;
+  statusEl.className = `status-badge status-${data.status}`;
+  
+  // Timeline
+  const timeline = data.timeline || [];
+  const timelineEl = document.getElementById('timeline');
+  if (timeline.length > 0) {
+    timelineEl.innerHTML = timeline.map((item, i) => {
+      const isCurrent = i === timeline.length - 1;
+      const isDone = i < timeline.length - 1;
+      return `
+        <div class="timeline-item ${isDone ? 'done' : ''} ${isCurrent ? 'current' : ''}">
+          <div class="dot"></div>
+          <div class="status">${statusLabels[item.status] || item.status}</div>
+          <div class="message">${item.message || ''}</div>
+          <div class="time">${formatDate(item.created_at)}</div>
+        </div>`;
+    }).join('');
+  }
+  
+  // EIN
+  const einContent = document.getElementById('einContent');
+  if (data.ein) {
+    einContent.innerHTML = `
+      <div class="ein-display">
+        <div style="color: var(--muted); font-size: 14px;">Your EIN</div>
+        <div class="ein-number">${data.ein}</div>
+      </div>
+      <p style="font-size: 13px; color: var(--muted);">Use this for bank accounts, tax returns, and hiring.</p>`;
+  } else if (['ein_pending'].includes(data.status)) {
+    einContent.innerHTML = `<p style="color: var(--yellow); font-size: 14px;">⏳ EIN application in progress. IRS processes Mon-Fri 7am-10pm ET. Usually ready within 1-2 business days.</p>`;
+  }
+  
+  // Business Info
+  document.getElementById('bizInfo').innerHTML = `
+    <div class="info-row"><span class="label">Name</span><span class="value">${data.business_name}</span></div>
+    <div class="info-row"><span class="label">Type</span><span class="value">${data.entity_type}</span></div>
+    <div class="info-row"><span class="label">State</span><span class="value">${stateNames[data.state] || data.state}</span></div>
+    <div class="info-row"><span class="label">Formed</span><span class="value">${formatDate(data.approved_at || data.created_at)}</span></div>
+    <div class="info-row"><span class="label">EIN</span><span class="value">${data.ein || 'Pending'}</span></div>
+    <div class="info-row"><span class="label">Registered Agent</span><span class="value" style="color: var(--green);">✓ Active (SOSFiler)</span></div>`;
+  
+  // Fee Receipt
+  renderFeeReceipt(data);
+  
+  // Compliance
+  renderCompliance(data.compliance_deadlines || []);
+  
+  // Checklist
+  renderChecklist(data);
+}
+
+function renderFeeReceipt(data) {
+  const el = document.getElementById('feeReceipt');
+  if (!data.paid_at) {
+    el.innerHTML = '<div class="empty" style="font-size:13px;">Receipt available after payment.</div>';
+    return;
+  }
+  const stateFeeMap = {"AL":200,"AK":250,"AZ":50,"AR":45,"CA":70,"CO":50,"CT":120,"DE":90,"DC":99,"FL":125,"GA":100,"HI":50,"ID":100,"IL":150,"IN":95,"IA":50,"KS":160,"KY":40,"LA":100,"ME":175,"MD":100,"MA":500,"MI":50,"MN":155,"MS":50,"MO":50,"MT":70,"NE":105,"NV":75,"NH":100,"NJ":125,"NM":50,"NY":200,"NC":125,"ND":135,"OH":99,"OK":100,"OR":100,"PA":125,"RI":150,"SC":110,"SD":150,"TN":300,"TX":300,"UT":54,"VT":125,"VA":100,"WA":200,"WV":100,"WI":130,"WY":100};
+  const sFee = stateFeeMap[data.state] || 0;
+  const serviceFee = 49;
+  const total = serviceFee + sFee;
+  const sName = stateNames[data.state] || data.state;
+  
+  el.innerHTML = `
+    <div class="info-row"><span class="label">SOSFiler service fee</span><span class="value">$${serviceFee}.00</span></div>
+    <div class="info-row"><span class="label">State of ${sName} filing fee</span><span class="value">$${sFee}.00</span></div>
+    <div style="font-size:11px;color:var(--muted);padding:2px 0 8px;">Government charge passed through at cost</div>
+    <div class="info-row" style="font-weight:700;"><span class="label" style="color:#fff;">Total</span><span class="value" style="color:var(--accent);">$${total}.00</span></div>
+    <div style="font-size:11px;color:var(--muted);margin-top:8px;">Paid ${formatDate(data.paid_at)}</div>`;
+}
+
+function renderDocuments(docs) {
+  const el = document.getElementById('docsContent');
+  if (!docs.length) {
+    el.innerHTML = '<div class="empty">Documents will appear here once generated.</div>';
+    return;
+  }
+  
+  const docNames = {
+    'articles_of_organization': '📄 Articles of Organization',
+    'operating_agreement': '📋 Operating Agreement',
+    'initial_resolutions': '📝 Initial Resolutions',
+    'meeting_minutes': '📝 Meeting Minutes',
+    'member_certificate': '🏆 Membership Certificate',
+    'ein_ss4_data': '🔢 EIN Application Data',
+    'ein_confirmation_letter': '🔢 EIN Confirmation Letter',
+    'statement_of_organizer': '🔏 Statement of Organizer'
+  };
+  
+  el.innerHTML = `<ul class="doc-list">${docs.map(doc => `
+    <li>
+      <div>
+        <div class="doc-name">${docNames[doc.doc_type] || doc.doc_type} <span class="doc-format">(${doc.format.toUpperCase()})</span></div>
+      </div>
+      <a href="/api/documents/${orderId}/download/${doc.filename}?token=${token}" class="download-btn">Download</a>
+    </li>`).join('')}</ul>`;
+}
+
+function renderCompliance(deadlines) {
+  const el = document.getElementById('complianceContent');
+  const statusEl = document.getElementById('complianceStatus');
+  
+  if (!deadlines.length) {
+    el.innerHTML = '<div class="empty">Compliance calendar will be set up after filing.</div>';
+    statusEl.innerHTML = '';
+    return;
+  }
+  
+  const today = new Date().toISOString().split('T')[0];
+  const in30 = new Date(Date.now() + 30 * 86400000).toISOString().split('T')[0];
+  
+  const overdue = deadlines.filter(d => d.due_date < today && d.status === 'upcoming');
+  const soon = deadlines.filter(d => d.due_date >= today && d.due_date <= in30);
+  
+  let statusClass = 'green', statusMsg = 'All compliance deadlines are current.';
+  if (overdue.length) { statusClass = 'red'; statusMsg = `${overdue.length} overdue deadline(s)!`; }
+  else if (soon.length) { statusClass = 'yellow'; statusMsg = `${soon.length} deadline(s) due within 30 days.`; }
+  
+  statusEl.innerHTML = `<div class="compliance-status ${statusClass}"><div class="compliance-dot"></div><span>${statusMsg}</span></div>`;
+  
+  el.innerHTML = deadlines.slice(0, 10).map(d => {
+    let dateClass = 'ok';
+    if (d.due_date < today) dateClass = 'overdue';
+    else if (d.due_date <= in30) dateClass = 'soon';
+    
+    return `<div class="deadline-item">
+      <div class="deadline-info">
+        <div class="type">${d.deadline_type.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</div>
+        <div class="desc">${d.description || ''}</div>
+      </div>
+      <div class="deadline-date ${dateClass}">${formatDate(d.due_date)}</div>
+    </div>`;
+  }).join('');
+}
+
+function renderChecklist(data) {
+  const el = document.getElementById('checklist');
+  const state = data.state;
+  
+  const items = [
+    { done: ['paid','complete','approved'].includes(data.status), text: '💳 Pay for formation' },
+    { done: ['complete','approved','filing','processing'].includes(data.status), text: '📄 Formation documents generated' },
+    { done: ['complete','approved'].includes(data.status), text: `📋 Filed with ${stateNames[state] || state} Secretary of State` },
+    { done: !!data.ein, text: '🔢 Receive EIN from IRS' },
+    { done: false, text: '🏦 Open a business bank account (bring Articles + EIN letter)' },
+    { done: false, text: '📊 Set up business accounting (Wave, QuickBooks, etc.)' },
+    { done: false, text: `💼 Get business insurance (if applicable)` },
+    { done: false, text: `📋 Register for state/local business licenses` },
+    { done: false, text: '📝 File BOI Report with FinCEN (within 90 days)' },
+  ];
+  
+  // Add state-specific items
+  if (state === 'NY') items.push({ done: false, text: '📰 Complete NY publication requirement (2 newspapers, 6 weeks, within 120 days)' });
+  if (state === 'CA') items.push({ done: false, text: '📋 File Statement of Information (LLC-12) within 90 days' });
+  if (state === 'GA') items.push({ done: false, text: '📰 Publish notice of formation in county legal organ' });
+  
+  el.innerHTML = items.map(item => `
+    <li>
+      <span class="check">${item.done ? '✅' : '⬜'}</span>
+      <span style="${item.done ? 'text-decoration: line-through; color: var(--muted);' : ''}">${item.text}</span>
+    </li>`).join('');
+}
+
+function formatDate(dateStr) {
+  if (!dateStr) return '—';
+  try {
+    const d = new Date(dateStr);
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  } catch (e) { return dateStr; }
+}
+
+// --- Additional Services ---
+function openServiceModal(html) {
+  document.getElementById('serviceModalContent').innerHTML = html;
+  document.getElementById('serviceModal').style.display = 'block';
+}
+function closeServiceModal() {
+  document.getElementById('serviceModal').style.display = 'none';
+}
+
+function openDBAWizard() {
+  openServiceModal(`
+    <h2 style="margin-bottom:16px;">📝 File a DBA</h2>
+    <p style="color:var(--muted); margin-bottom:20px;">Operating under a different name? We'll handle the filing for you. $29 + government fees.</p>
+    <input type="text" id="dbaName" placeholder="DBA Name (e.g., Joe's Pizza)" style="width:100%;padding:12px;background:#1A1A1A;color:var(--text);border:1px solid var(--border);border-radius:8px;margin-bottom:12px;font-size:15px;font-family:'Inter',sans-serif;">
+    <select id="dbaState" style="width:100%;padding:12px;background:#1A1A1A;color:var(--text);border:1px solid var(--border);border-radius:8px;margin-bottom:12px;font-size:15px;font-family:'Inter',sans-serif;">
+      <option value="">Select State...</option>
+      ${Object.entries(stateNames).sort((a,b)=>a[1].localeCompare(b[1])).map(([c,n])=>'<option value="'+c+'">'+n+'</option>').join('')}
+    </select>
+    <input type="text" id="dbaCounty" placeholder="County (if applicable)" style="width:100%;padding:12px;background:#1A1A1A;color:var(--text);border:1px solid var(--border);border-radius:8px;margin-bottom:12px;font-size:15px;font-family:'Inter',sans-serif;">
+    <input type="text" id="dbaCity" placeholder="City" style="width:100%;padding:12px;background:#1A1A1A;color:var(--text);border:1px solid var(--border);border-radius:8px;margin-bottom:16px;font-size:15px;font-family:'Inter',sans-serif;">
+    <button onclick="checkDBA()" class="btn" style="width:100%;">Check Requirements →</button>
+    <div id="dbaResult" style="margin-top:16px;"></div>
+  `);
+}
+
+async function checkDBA() {
+  const name = document.getElementById('dbaName').value;
+  const state = document.getElementById('dbaState').value;
+  const county = document.getElementById('dbaCounty').value;
+  const city = document.getElementById('dbaCity').value;
+  const el = document.getElementById('dbaResult');
+  if (!name || !state) { el.innerHTML = '<p style="color:var(--red)">Please enter DBA name and state.</p>'; return; }
+  el.innerHTML = '<div style="text-align:center;padding:16px;"><div class="spinner"></div>Checking '+stateNames[state]+' requirements...</div>';
+  try {
+    const res = await fetch('/api/license-check', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({state, county, city, business_type:'', license_type:'dba'})
+    });
+    const data = await res.json();
+    const d = data.data || {};
+    const type = data.response_type;
+    let html = '<div style="background:#1A1A1A;border:1px solid var(--border);border-radius:12px;padding:20px;margin-top:12px;">';
+    html += '<div style="font-weight:700;font-size:16px;margin-bottom:8px;">' + (type === 'ONLINE_FILING' ? '🟢 Online Filing Available' : type === 'MAIL_FILING' ? '📬 Mail Filing' : '📋 Guidance') + '</div>';
+    html += '<div style="font-size:14px;color:var(--muted);">';
+    if (d.filing_fee !== undefined) html += '<div>Government fee: <strong>$' + d.filing_fee + '</strong></div>';
+    if (d.our_fee !== undefined) html += '<div>Our service fee: <strong>$' + d.our_fee + '</strong></div>';
+    if (d.total_estimated !== undefined) html += '<div style="font-size:16px;color:var(--accent);font-weight:700;margin-top:8px;">Total: $' + d.total_estimated + '</div>';
+    if (d.portal_url) html += '<div style="margin-top:8px;"><a href="'+d.portal_url+'" target="_blank">Filing Portal →</a></div>';
+    if (d.publication_required) html += '<div style="margin-top:8px;color:var(--yellow);">⚠ Newspaper publication required: ' + (d.publication_details || '') + '</div>';
+    if (d.message) html += '<div style="margin-top:8px;">' + d.message + '</div>';
+    html += '</div></div>';
+    if (type === 'ONLINE_FILING' || type === 'MAIL_FILING') {
+      html += '<button onclick="alert(\'Filing flow coming soon! Contact support@sosfiler.com for immediate assistance.\')" class="btn" style="width:100%;margin-top:12px;">File Now — $' + (d.total_estimated||29) + ' →</button>';
+    }
+    el.innerHTML = html;
+  } catch(e) {
+    el.innerHTML = '<p style="color:var(--red)">Error checking requirements. Please try again.</p>';
+  }
+}
+
+function openLicenseAssistant() {
+  openServiceModal(`
+    <h2 style="margin-bottom:16px;">🏛️ Business License Assistant</h2>
+    <p style="color:var(--muted); margin-bottom:20px;">Tell us about your business and we'll find the licenses you need.</p>
+    <input type="text" id="licCity" placeholder="City" style="width:100%;padding:12px;background:#1A1A1A;color:var(--text);border:1px solid var(--border);border-radius:8px;margin-bottom:12px;font-size:15px;font-family:'Inter',sans-serif;">
+    <select id="licState" style="width:100%;padding:12px;background:#1A1A1A;color:var(--text);border:1px solid var(--border);border-radius:8px;margin-bottom:12px;font-size:15px;font-family:'Inter',sans-serif;">
+      <option value="">Select State...</option>
+      ${Object.entries(stateNames).sort((a,b)=>a[1].localeCompare(b[1])).map(([c,n])=>'<option value="'+c+'">'+n+'</option>').join('')}
+    </select>
+    <input type="text" id="licBizType" placeholder="Business type (e.g., restaurant, consulting, retail)" style="width:100%;padding:12px;background:#1A1A1A;color:var(--text);border:1px solid var(--border);border-radius:8px;margin-bottom:16px;font-size:15px;font-family:'Inter',sans-serif;">
+    <button onclick="checkLicenseNeeds()" class="btn" style="width:100%;">What Licenses Do I Need? →</button>
+    <div id="licResult" style="margin-top:16px;"></div>
+  `);
+}
+
+async function checkLicenseNeeds() {
+  const city = document.getElementById('licCity').value;
+  const state = document.getElementById('licState').value;
+  const biz = document.getElementById('licBizType').value;
+  const el = document.getElementById('licResult');
+  if (!city || !state || !biz) { el.innerHTML = '<p style="color:var(--red)">Please fill in all fields.</p>'; return; }
+  el.innerHTML = '<div style="text-align:center;padding:16px;"><div class="spinner"></div>Checking licenses for '+biz+' in '+city+', '+stateNames[state]+'...</div>';
+  try {
+    const res = await fetch('/api/license-needs', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({city, state, business_type: biz})
+    });
+    const data = await res.json();
+    const licenses = data.licenses || [];
+    let html = '<div style="margin-top:12px;">';
+    html += '<div style="font-weight:700;font-size:16px;margin-bottom:12px;">Found ' + licenses.length + ' license(s) for your business:</div>';
+    licenses.forEach(l => {
+      const priorityColor = l.priority === 'high' ? 'var(--red)' : l.priority === 'medium' ? 'var(--yellow)' : 'var(--green)';
+      html += '<div style="background:#1A1A1A;border:1px solid var(--border);border-radius:8px;padding:16px;margin-bottom:8px;">';
+      html += '<div style="display:flex;justify-content:space-between;align-items:center;">';
+      html += '<div style="font-weight:600;">'+l.license_name+'</div>';
+      html += '<span style="font-size:12px;color:'+priorityColor+';font-weight:600;">'+l.priority.toUpperCase()+'</span>';
+      html += '</div>';
+      html += '<div style="font-size:13px;color:var(--muted);margin-top:4px;">'+l.issuing_authority+'</div>';
+      if (l.estimated_fee) html += '<div style="font-size:13px;margin-top:4px;">Gov fee: ~$'+l.estimated_fee+' · Our fee: $'+(l.our_fee||0)+'</div>';
+      if (l.notes) html += '<div style="font-size:12px;color:var(--muted);margin-top:4px;">'+l.notes+'</div>';
+      html += '</div>';
+    });
+    if (data.total_estimated_government_fees) {
+      html += '<div style="text-align:center;padding:12px;font-weight:700;color:var(--accent);">Estimated total government fees: ~$'+data.total_estimated_government_fees+'</div>';
+    }
+    html += '</div>';
+    el.innerHTML = html;
+  } catch(e) {
+    el.innerHTML = '<p style="color:var(--red)">Error checking licenses. Please try again.</p>';
+  }
+}
+
+function openSpecialtyLicenses() {
+  const categories = [
+    {icon:'🍸', name:'Liquor License', id:'liquor_license', fee:'$99'},
+    {icon:'🍕', name:'Food & Beverage', id:'food_beverage', fee:'$99'},
+    {icon:'🏠', name:'Short-Term Rental', id:'str_license', fee:'$99'},
+    {icon:'💼', name:'Professional License', id:'professional_license', fee:'$99'},
+    {icon:'🌿', name:'Cannabis License', id:'cannabis_license', fee:'$99'},
+    {icon:'👶', name:'Childcare License', id:'childcare_license', fee:'$99'},
+    {icon:'🚗', name:'Auto Dealer License', id:'auto_dealer', fee:'$99'},
+    {icon:'🏗️', name:'Building/Zoning', id:'building_zoning', fee:'$99'},
+    {icon:'🏥', name:'Health Permit', id:'health_department', fee:'$99'},
+    {icon:'📋', name:'Sales Tax Permit', id:'sales_tax_permit', fee:'$49'},
+    {icon:'🏡', name:'Home Occupation', id:'home_occupation', fee:'$49'},
+    {icon:'🪧', name:'Signage Permit', id:'signage_permit', fee:'$49'},
+  ];
+  let html = '<h2 style="margin-bottom:16px;">🔑 Specialty Licenses</h2>';
+  html += '<p style="color:var(--muted);margin-bottom:20px;">Select a license type to check requirements for your location.</p>';
+  html += '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;">';
+  categories.forEach(c => {
+    html += '<button onclick="openSpecificLicense(\''+c.id+'\',\''+c.name+'\')" style="padding:16px 12px;background:#1A1A1A;border:1px solid var(--border);border-radius:10px;color:var(--text);cursor:pointer;text-align:center;font-family:\'Inter\',sans-serif;transition:border-color 0.2s;">';
+    html += '<div style="font-size:24px;">'+c.icon+'</div>';
+    html += '<div style="font-size:13px;font-weight:600;margin-top:4px;">'+c.name+'</div>';
+    html += '<div style="font-size:11px;color:var(--muted);">'+c.fee+'</div>';
+    html += '</button>';
+  });
+  html += '</div>';
+  openServiceModal(html);
+}
+
+function openSpecificLicense(typeId, typeName) {
+  openServiceModal(`
+    <h2 style="margin-bottom:16px;">${typeName}</h2>
+    <p style="color:var(--muted);margin-bottom:20px;">Enter your location to check specific requirements.</p>
+    <input type="text" id="specCity" placeholder="City" style="width:100%;padding:12px;background:#1A1A1A;color:var(--text);border:1px solid var(--border);border-radius:8px;margin-bottom:12px;font-size:15px;font-family:'Inter',sans-serif;">
+    <input type="text" id="specCounty" placeholder="County" style="width:100%;padding:12px;background:#1A1A1A;color:var(--text);border:1px solid var(--border);border-radius:8px;margin-bottom:12px;font-size:15px;font-family:'Inter',sans-serif;">
+    <select id="specState" style="width:100%;padding:12px;background:#1A1A1A;color:var(--text);border:1px solid var(--border);border-radius:8px;margin-bottom:12px;font-size:15px;font-family:'Inter',sans-serif;">
+      <option value="">Select State...</option>
+      ${Object.entries(stateNames).sort((a,b)=>a[1].localeCompare(b[1])).map(([c,n])=>'<option value="'+c+'">'+n+'</option>').join('')}
+    </select>
+    <input type="text" id="specBizType" placeholder="Business type" style="width:100%;padding:12px;background:#1A1A1A;color:var(--text);border:1px solid var(--border);border-radius:8px;margin-bottom:16px;font-size:15px;font-family:'Inter',sans-serif;">
+    <button onclick="checkSpecificLicense('${typeId}')" class="btn" style="width:100%;">Check Requirements →</button>
+    <div id="specResult" style="margin-top:16px;"></div>
+  `);
+}
+
+async function checkSpecificLicense(typeId) {
+  const city = document.getElementById('specCity').value;
+  const county = document.getElementById('specCounty').value;
+  const state = document.getElementById('specState').value;
+  const biz = document.getElementById('specBizType').value;
+  const el = document.getElementById('specResult');
+  if (!state) { el.innerHTML = '<p style="color:var(--red)">Please select a state.</p>'; return; }
+  el.innerHTML = '<div style="text-align:center;padding:16px;"><div class="spinner"></div>Checking ' + typeId.replace(/_/g,' ') + ' requirements...</div>';
+  try {
+    const res = await fetch('/api/license-check', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({city, county, state, business_type: biz, license_type: typeId})
+    });
+    const data = await res.json();
+    const d = data.data || {};
+    const type = data.response_type;
+    let html = '<div style="background:#1A1A1A;border:1px solid var(--border);border-radius:12px;padding:20px;">';
+    html += '<div style="font-weight:700;margin-bottom:8px;">' + (type === 'ONLINE_FILING' ? '🟢 Online Filing' : type === 'MAIL_FILING' ? '📬 Mail Filing' : '📋 Guidance') + '</div>';
+    if (d.license_name) html += '<div style="font-size:15px;font-weight:600;">'+d.license_name+'</div>';
+    if (d.issuing_authority) html += '<div style="font-size:13px;color:var(--muted);">Issued by: '+d.issuing_authority+'</div>';
+    if (d.filing_fee !== undefined) html += '<div style="margin-top:8px;">Government fee: <strong>$'+d.filing_fee+'</strong></div>';
+    if (d.processing_time) html += '<div>Processing: '+d.processing_time+'</div>';
+    if (d.requirements && d.requirements.length) {
+      html += '<div style="margin-top:8px;font-weight:600;">Requirements:</div><ul style="font-size:13px;color:var(--muted);padding-left:16px;">';
+      d.requirements.forEach(r => html += '<li>'+r+'</li>');
+      html += '</ul>';
+    }
+    if (d.portal_url) html += '<div style="margin-top:8px;"><a href="'+d.portal_url+'" target="_blank">Filing Portal →</a></div>';
+    if (d.office_address) html += '<div style="margin-top:4px;font-size:13px;color:var(--muted);">Office: '+d.office_address+'</div>';
+    if (d.phone) html += '<div style="font-size:13px;color:var(--muted);">Phone: '+d.phone+'</div>';
+    if (d.additional_notes) html += '<div style="margin-top:8px;font-size:13px;color:var(--yellow);">'+d.additional_notes+'</div>';
+    if (d.our_fee > 0) html += '<div style="margin-top:12px;font-size:16px;color:var(--accent);font-weight:700;">Our fee: $'+d.our_fee+'</div>';
+    html += '</div>';
+    if (type !== 'GUIDANCE' && d.our_fee > 0) {
+      html += '<button onclick="alert(\'Filing service coming soon! Contact support@sosfiler.com.\')" class="btn" style="width:100%;margin-top:12px;">File Now →</button>';
+    }
+    el.innerHTML = html;
+  } catch(e) {
+    el.innerHTML = '<p style="color:var(--red)">Error. Please try again.</p>';
+  }
+}
+
+// Init
+checkUrlParams();
+</script>
+</body>
+</html>

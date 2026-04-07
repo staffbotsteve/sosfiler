@@ -1,0 +1,1558 @@
+[
+  {
+    "state_name": "Alabama",
+    "sos_portal_url": "https://www.alabamainteractive.org/sos/welcome.action",
+    "online_filing_available": true,
+    "alternative_filing": "",
+    "form_name_number": "Certificate of Formation",
+    "required_fields": [
+      "Name Reservation Certificate",
+      "Registered Agent info",
+      "Organizer info"
+    ],
+    "filing_fee": "$208 ($200 + $8 online)",
+    "expedited_options": "instant online",
+    "standard_processing_time": "same day",
+    "name_requirements": "must reserve name first ($28)",
+    "registered_agent_requirements": "physical AL address",
+    "annual_report": {
+      "required": true,
+      "form": "Business Privilege Tax Return",
+      "frequency": "annual",
+      "due": "April 15",
+      "fee": 100,
+      "notes": "$100 minimum"
+    },
+    "publication_required": false,
+    "publication_details": "",
+    "payment_methods": [
+      "CC only"
+    ],
+    "what_state_returns": "approved Certificate of Formation",
+    "gotchas": "MUST reserve name first"
+  },
+  {
+    "state_name": "Alaska",
+    "sos_portal_url": "https://www.commerce.alaska.gov/cbp/main/search/entities",
+    "online_filing_available": true,
+    "alternative_filing": "",
+    "form_name_number": "Articles of Organization (Form 08-484)",
+    "required_fields": [
+      "NAICS code",
+      "Registered Agent info",
+      "Member/Manager info"
+    ],
+    "filing_fee": "$250",
+    "expedited_options": "no expedited",
+    "standard_processing_time": "5-15 biz days",
+    "name_requirements": "",
+    "registered_agent_requirements": "physical AK",
+    "annual_report": {
+      "required": true,
+      "form": "Biennial Report",
+      "frequency": "every 2 years",
+      "due": "Jan 2",
+      "fee": 100,
+      "notes": ""
+    },
+    "publication_required": false,
+    "publication_details": "",
+    "payment_methods": [
+      "CC"
+    ],
+    "what_state_returns": "Certificate of Org + approved Articles",
+    "gotchas": "needs NAICS + separate $50/yr business license"
+  },
+  {
+    "state_name": "Arizona",
+    "sos_portal_url": "https://arizonabusinesscenter.azcc.gov/",
+    "online_filing_available": true,
+    "alternative_filing": "",
+    "form_name_number": "Articles of Organization",
+    "required_fields": [
+      "Registered Agent info",
+      "Member/Manager info"
+    ],
+    "filing_fee": "$50",
+    "expedited_options": "3-5day +$35 / next day +$100 / same day +$200",
+    "standard_processing_time": "13-15 biz days",
+    "name_requirements": "",
+    "registered_agent_requirements": "Statutory Agent physical AZ",
+    "annual_report": {
+      "required": false,
+      "form": "",
+      "frequency": "",
+      "due": "",
+      "fee": 0,
+      "notes": ""
+    },
+    "publication_required": true,
+    "publication_details": "3 consecutive newspaper runs in 60 days (exempt Maricopa/Pima)",
+    "payment_methods": [
+      "CC"
+    ],
+    "what_state_returns": "approval letter + file-stamped Articles",
+    "gotchas": "publication"
+  },
+  {
+    "state_name": "Arkansas",
+    "sos_portal_url": "https://sos-corpfilings.ark.org/",
+    "online_filing_available": true,
+    "alternative_filing": "",
+    "form_name_number": "Certificate of Organization (Form LL-01)",
+    "required_fields": [
+      "Registered Agent info"
+    ],
+    "filing_fee": "$45 online / $50 mail",
+    "expedited_options": "",
+    "standard_processing_time": "1-3 days",
+    "name_requirements": "",
+    "registered_agent_requirements": "physical AR",
+    "annual_report": {
+      "required": true,
+      "form": "Annual Franchise Tax",
+      "frequency": "annual",
+      "due": "May 1",
+      "fee": 150,
+      "notes": ""
+    },
+    "publication_required": false,
+    "publication_details": "",
+    "payment_methods": [
+      "CC"
+    ],
+    "what_state_returns": "file-marked Certificate",
+    "gotchas": ""
+  },
+  {
+    "state_name": "California",
+    "sos_portal_url": "https://bizfileonline.sos.ca.gov/",
+    "online_filing_available": true,
+    "alternative_filing": "",
+    "form_name_number": "Articles of Organization (Form LLC-1)",
+    "required_fields": [
+      "Registered Agent info",
+      "Management structure"
+    ],
+    "filing_fee": "$70",
+    "expedited_options": "24hr $350 / same day $750",
+    "standard_processing_time": "5-7 days",
+    "name_requirements": "",
+    "registered_agent_requirements": "individual or corp agent",
+    "annual_report": {
+      "required": true,
+      "form": "Statement of Information (LLC-12)",
+      "frequency": "biennial",
+      "due": "Within 90 days, then every 2 years",
+      "fee": 20,
+      "notes": "$800/yr franchise tax"
+    },
+    "publication_required": false,
+    "publication_details": "",
+    "payment_methods": [
+      "CC"
+    ],
+    "what_state_returns": "certified Articles",
+    "gotchas": "$800 franchise tax + $250 SOI penalty"
+  },
+  {
+    "state_name": "Colorado",
+    "sos_portal_url": "https://www.sos.state.co.us/biz/FileDoc.do",
+    "online_filing_available": true,
+    "alternative_filing": "",
+    "form_name_number": "Articles of Organization",
+    "required_fields": [
+      "Registered Agent info with consent"
+    ],
+    "filing_fee": "$50",
+    "expedited_options": "",
+    "standard_processing_time": "instant",
+    "name_requirements": "",
+    "registered_agent_requirements": "CO resident/business with consent",
+    "annual_report": {
+      "required": true,
+      "form": "Periodic Report",
+      "frequency": "annual",
+      "due": "Anniversary period",
+      "fee": 10,
+      "notes": ""
+    },
+    "publication_required": false,
+    "publication_details": "",
+    "payment_methods": [
+      "CC",
+      "prepaid"
+    ],
+    "what_state_returns": "Certificate of Fact",
+    "gotchas": "100% online only"
+  },
+  {
+    "state_name": "Connecticut",
+    "sos_portal_url": "https://business.ct.gov/",
+    "online_filing_available": true,
+    "alternative_filing": "",
+    "form_name_number": "Certificate of Organization",
+    "required_fields": [
+      "Registered Agent info"
+    ],
+    "filing_fee": "$120",
+    "expedited_options": "24hr +$50",
+    "standard_processing_time": "3-5 days",
+    "name_requirements": "",
+    "registered_agent_requirements": "CT resident/entity physical address",
+    "annual_report": {
+      "required": true,
+      "form": "Annual Report",
+      "frequency": "annual",
+      "due": "Jan-Mar",
+      "fee": 80,
+      "notes": ""
+    },
+    "publication_required": false,
+    "publication_details": "",
+    "payment_methods": [
+      "CC"
+    ],
+    "what_state_returns": "approved Certificate",
+    "gotchas": "first annual due calendar year after formation"
+  },
+  {
+    "state_name": "Delaware",
+    "sos_portal_url": "https://onestop.delaware.gov/Start_Structure",
+    "online_filing_available": true,
+    "alternative_filing": "upload",
+    "form_name_number": "Certificate of Formation",
+    "required_fields": [
+      "Registered Agent info"
+    ],
+    "filing_fee": "$110",
+    "expedited_options": "24hr $50 / same day $100 / 2hr $500",
+    "standard_processing_time": "10-15 days standard",
+    "name_requirements": "",
+    "registered_agent_requirements": "DE resident or authorized agent",
+    "annual_report": {
+      "required": true,
+      "form": "Franchise Tax",
+      "frequency": "annual",
+      "due": "Jun 1",
+      "fee": 300,
+      "notes": "no annual report but $300 tax"
+    },
+    "publication_required": false,
+    "publication_details": "",
+    "payment_methods": [
+      "CC",
+      "ACH"
+    ],
+    "what_state_returns": "stamped Certificate",
+    "gotchas": "most private state no members listed"
+  },
+  {
+    "state_name": "District of Columbia",
+    "sos_portal_url": "https://corponline.dlcp.dc.gov/",
+    "online_filing_available": true,
+    "alternative_filing": "",
+    "form_name_number": "Articles of Organization (Form DLC-1)",
+    "required_fields": [
+      "Registered Agent info"
+    ],
+    "filing_fee": "$99",
+    "expedited_options": "3day $50 / 1day $100",
+    "standard_processing_time": "5 days",
+    "name_requirements": "",
+    "registered_agent_requirements": "physical DC",
+    "annual_report": {
+      "required": true,
+      "form": "Two-Year Report",
+      "frequency": "biennial",
+      "due": "Apr 1",
+      "fee": 300,
+      "notes": ""
+    },
+    "publication_required": false,
+    "publication_details": "",
+    "payment_methods": [
+      "CC"
+    ],
+    "what_state_returns": "approved Articles",
+    "gotchas": "$300 biennial + need BBL business license"
+  },
+  {
+    "state_name": "Florida",
+    "sos_portal_url": "https://efile.sunbiz.org/llc_filing.html",
+    "online_filing_available": true,
+    "alternative_filing": "",
+    "form_name_number": "Articles of Organization",
+    "required_fields": [
+      "Registered Agent designation",
+      "Member/Manager info"
+    ],
+    "filing_fee": "$125 ($100 + $25 RA designation)",
+    "expedited_options": "no expedited",
+    "standard_processing_time": "2-5 days",
+    "name_requirements": "",
+    "registered_agent_requirements": "physical FL",
+    "annual_report": {
+      "required": true,
+      "form": "Annual Report",
+      "frequency": "annual",
+      "due": "Jan-May",
+      "fee": 138.75,
+      "notes": ""
+    },
+    "publication_required": false,
+    "publication_details": "",
+    "payment_methods": [
+      "CC"
+    ],
+    "what_state_returns": "approved Articles + confirmation",
+    "gotchas": ""
+  },
+  {
+    "state_name": "Georgia",
+    "sos_portal_url": "https://ecorp.sos.ga.gov/",
+    "online_filing_available": true,
+    "alternative_filing": "",
+    "form_name_number": "Articles of Organization (Form CD 030) + Transmittal Form (CD 231)",
+    "required_fields": [
+      "Registered Agent info"
+    ],
+    "filing_fee": "$110 ($100 + $10 mandatory online service fee)",
+    "expedited_options": "2day +$100 / same day +$250 / 1hr +$1000",
+    "standard_processing_time": "7-10 days",
+    "name_requirements": "",
+    "registered_agent_requirements": "physical GA",
+    "annual_report": {
+      "required": true,
+      "form": "Annual Registration",
+      "frequency": "annual",
+      "due": "Jan-Apr 1",
+      "fee": 60,
+      "notes": ""
+    },
+    "publication_required": false,
+    "publication_details": "no pub for LLCs",
+    "payment_methods": [
+      "CC",
+      "check"
+    ],
+    "what_state_returns": "Certificate of Org + stamped Articles",
+    "gotchas": ""
+  },
+  {
+    "state_name": "Hawaii",
+    "sos_portal_url": "https://hbe.ehawaii.gov/",
+    "online_filing_available": true,
+    "alternative_filing": "",
+    "form_name_number": "Articles of Organization (Form LLC-1)",
+    "required_fields": [
+      "Registered Agent info"
+    ],
+    "filing_fee": "$51 ($50 + $1 archive)",
+    "expedited_options": "1-3day +$25",
+    "standard_processing_time": "3-5 days",
+    "name_requirements": "",
+    "registered_agent_requirements": "physical HI no PO box",
+    "annual_report": {
+      "required": true,
+      "form": "Annual Report",
+      "frequency": "annual",
+      "due": "end of quarter of formation",
+      "fee": 12.5,
+      "notes": "$12.50 online"
+    },
+    "publication_required": false,
+    "publication_details": "",
+    "payment_methods": [
+      "CC",
+      "ACH"
+    ],
+    "what_state_returns": "stamped approved Articles",
+    "gotchas": ""
+  },
+  {
+    "state_name": "Idaho",
+    "sos_portal_url": "https://sosbiz.idaho.gov/",
+    "online_filing_available": true,
+    "alternative_filing": "",
+    "form_name_number": "Certificate of Organization",
+    "required_fields": [
+      "Registered Agent info"
+    ],
+    "filing_fee": "$100 online / $120 mail",
+    "expedited_options": "next-day +$40 / same-day +$100",
+    "standard_processing_time": "3-7 days",
+    "name_requirements": "",
+    "registered_agent_requirements": "physical ID",
+    "annual_report": {
+      "required": true,
+      "form": "Annual Report",
+      "frequency": "annual",
+      "due": "anniversary month",
+      "fee": 0,
+      "notes": "FREE"
+    },
+    "publication_required": false,
+    "publication_details": "",
+    "payment_methods": [
+      "CC",
+      "prepaid"
+    ],
+    "what_state_returns": "Certificate of Org + receipt",
+    "gotchas": "free annual report"
+  },
+  {
+    "state_name": "Illinois",
+    "sos_portal_url": "https://apps.ilsos.gov/llcarticles/",
+    "online_filing_available": true,
+    "alternative_filing": "",
+    "form_name_number": "Articles of Organization (Form LLC-5.5)",
+    "required_fields": [
+      "Registered Agent info"
+    ],
+    "filing_fee": "$150 (~$153 with fees)",
+    "expedited_options": "24hr +$100",
+    "standard_processing_time": "5-10 days",
+    "name_requirements": "",
+    "registered_agent_requirements": "physical IL",
+    "annual_report": {
+      "required": true,
+      "form": "Annual Report",
+      "frequency": "annual",
+      "due": "before anniversary month",
+      "fee": 75,
+      "notes": ""
+    },
+    "publication_required": false,
+    "publication_details": "",
+    "payment_methods": [
+      "CC (Visa/MC/Discover)"
+    ],
+    "what_state_returns": "approved Articles",
+    "gotchas": "$100 late penalty"
+  },
+  {
+    "state_name": "Indiana",
+    "sos_portal_url": "https://inbiz.in.gov/",
+    "online_filing_available": true,
+    "alternative_filing": "",
+    "form_name_number": "Articles of Organization (State Form 56269)",
+    "required_fields": [
+      "Registered Agent info"
+    ],
+    "filing_fee": "$95 online / $100 mail",
+    "expedited_options": "no expedited",
+    "standard_processing_time": "~1 day",
+    "name_requirements": "",
+    "registered_agent_requirements": "physical IN",
+    "annual_report": {
+      "required": true,
+      "form": "Business Entity Report",
+      "frequency": "biennial",
+      "due": "anniversary month",
+      "fee": 32,
+      "notes": "$32 online / $50 mail"
+    },
+    "publication_required": false,
+    "publication_details": "",
+    "payment_methods": [
+      "CC",
+      "ACH"
+    ],
+    "what_state_returns": "Certificate + stamped Articles",
+    "gotchas": ""
+  },
+  {
+    "state_name": "Iowa",
+    "sos_portal_url": "https://filings.sos.iowa.gov/",
+    "online_filing_available": true,
+    "alternative_filing": "",
+    "form_name_number": "Certificate of Organization (no state form\u2014filer drafts)",
+    "required_fields": [
+      "Filer-drafted PDF"
+    ],
+    "filing_fee": "$50",
+    "expedited_options": "mail-only 5day +$15 / 2day +$50",
+    "standard_processing_time": "1-2 days online",
+    "name_requirements": "",
+    "registered_agent_requirements": "physical IA",
+    "annual_report": {
+      "required": true,
+      "form": "Biennial Report",
+      "frequency": "biennial (odd years)",
+      "due": "Apr 1",
+      "fee": 30,
+      "notes": "$30 online"
+    },
+    "publication_required": false,
+    "publication_details": "",
+    "payment_methods": [
+      "CC"
+    ],
+    "what_state_returns": "acknowledgment + stamped Certificate",
+    "gotchas": "NO template form\u2014must draft own PDF"
+  },
+  {
+    "state_name": "Kansas",
+    "sos_portal_url": "https://www.sos.ks.gov/businesses/register-a-business.html",
+    "online_filing_available": true,
+    "alternative_filing": "",
+    "form_name_number": "Articles of Organization",
+    "required_fields": [
+      "Resident Agent info"
+    ],
+    "filing_fee": "$85 online / $90 mail",
+    "expedited_options": "instant online",
+    "standard_processing_time": "instant",
+    "name_requirements": "",
+    "registered_agent_requirements": "physical KS (Resident Agent)",
+    "annual_report": {
+      "required": true,
+      "form": "Biennial Report",
+      "frequency": "biennial",
+      "due": "varies",
+      "fee": 100,
+      "notes": "switched to biennial 2024"
+    },
+    "publication_required": false,
+    "publication_details": "",
+    "payment_methods": [
+      "CC"
+    ],
+    "what_state_returns": "certified Articles + Business Entity ID",
+    "gotchas": "switched to biennial 2024"
+  },
+  {
+    "state_name": "Kentucky",
+    "sos_portal_url": "https://onestop.ky.gov/",
+    "online_filing_available": true,
+    "alternative_filing": "",
+    "form_name_number": "Articles of Organization (Form KLC)",
+    "required_fields": [
+      "Registered Agent consent"
+    ],
+    "filing_fee": "$40",
+    "expedited_options": "no expedited",
+    "standard_processing_time": "1-3 days",
+    "name_requirements": "",
+    "registered_agent_requirements": "physical KY + must consent",
+    "annual_report": {
+      "required": true,
+      "form": "Annual Report",
+      "frequency": "annual",
+      "due": "Jan-Jun",
+      "fee": 15,
+      "notes": ""
+    },
+    "publication_required": false,
+    "publication_details": "",
+    "payment_methods": [
+      "CC"
+    ],
+    "what_state_returns": "file-stamped docs",
+    "gotchas": "agent must formally consent"
+  },
+  {
+    "state_name": "Louisiana",
+    "sos_portal_url": "https://www.geauxbiz.la.gov/",
+    "online_filing_available": true,
+    "alternative_filing": "",
+    "form_name_number": "Articles of Organization + Initial Report",
+    "required_fields": [
+      "Initial Report info"
+    ],
+    "filing_fee": "$105 ($100 + $5)",
+    "expedited_options": "24hr +$30 / 3hr +$50",
+    "standard_processing_time": "1-2 days",
+    "name_requirements": "",
+    "registered_agent_requirements": "physical LA",
+    "annual_report": {
+      "required": true,
+      "form": "Annual Report",
+      "frequency": "annual",
+      "due": "anniversary",
+      "fee": 35,
+      "notes": "$35 ($30+$5)"
+    },
+    "publication_required": false,
+    "publication_details": "",
+    "payment_methods": [
+      "CC"
+    ],
+    "what_state_returns": "Certificate of Org + approved Articles + welcome letter",
+    "gotchas": "Initial Report filed simultaneously"
+  },
+  {
+    "state_name": "Maine",
+    "sos_portal_url": "https://www.maine.gov/sos/corporations-commissions/i-need-a-business-form/limited-liability-company-forms",
+    "online_filing_available": false,
+    "alternative_filing": "mail/in-person only",
+    "form_name_number": "Certificate of Formation (Form MLLC-6)",
+    "required_fields": [
+      "Registered Agent info"
+    ],
+    "filing_fee": "$175",
+    "expedited_options": "24hr +$50 / same day +$100",
+    "standard_processing_time": "1-2 weeks mail",
+    "name_requirements": "",
+    "registered_agent_requirements": "physical ME",
+    "annual_report": {
+      "required": true,
+      "form": "Annual Report",
+      "frequency": "annual",
+      "due": "Jun 1",
+      "fee": 85,
+      "notes": ""
+    },
+    "publication_required": false,
+    "publication_details": "",
+    "payment_methods": [
+      "CC/check for in-person"
+    ],
+    "what_state_returns": "stamped Certificate",
+    "gotchas": "NO ONLINE FILING"
+  },
+  {
+    "state_name": "Maryland",
+    "sos_portal_url": "https://egov.maryland.gov/BusinessExpress",
+    "online_filing_available": true,
+    "alternative_filing": "",
+    "form_name_number": "Articles of Organization",
+    "required_fields": [
+      "Resident Agent info"
+    ],
+    "filing_fee": "$150 ($100 + $50 forced expedited)",
+    "expedited_options": "3hr rush $425",
+    "standard_processing_time": "7-10 days standard / online auto-expedited",
+    "name_requirements": "",
+    "registered_agent_requirements": "MD resident 18+ or MD corp (Resident Agent)",
+    "annual_report": {
+      "required": true,
+      "form": "Annual Report",
+      "frequency": "annual",
+      "due": "Apr 15",
+      "fee": 0,
+      "notes": "$0 online / $300 mail; combined with property tax return"
+    },
+    "publication_required": false,
+    "publication_details": "",
+    "payment_methods": [
+      "CC",
+      "ACH"
+    ],
+    "what_state_returns": "approved Articles",
+    "gotchas": "online is forced expedited, annual combined with property tax return"
+  },
+  {
+    "state_name": "Massachusetts",
+    "sos_portal_url": "https://corp.sec.state.ma.us/corpweb/filing_forms/fillable.aspx?formid=1",
+    "online_filing_available": true,
+    "alternative_filing": "",
+    "form_name_number": "Certificate of Organization",
+    "required_fields": [
+      "Resident Agent consent signature"
+    ],
+    "filing_fee": "$520 ($500 + $20 surcharge)",
+    "expedited_options": "",
+    "standard_processing_time": "1-2 days online",
+    "name_requirements": "",
+    "registered_agent_requirements": "Resident Agent physical MA + must sign consent",
+    "annual_report": {
+      "required": true,
+      "form": "Annual Report",
+      "frequency": "annual",
+      "due": "anniversary",
+      "fee": 520,
+      "notes": "$520 online"
+    },
+    "publication_required": false,
+    "publication_details": "",
+    "payment_methods": [
+      "CC"
+    ],
+    "what_state_returns": "approved Certificate",
+    "gotchas": "MOST EXPENSIVE $520/yr"
+  },
+  {
+    "state_name": "Michigan",
+    "sos_portal_url": "https://cofs.lara.state.mi.us/corpweb/LoginSystem/ExternalLogin.aspx",
+    "online_filing_available": true,
+    "alternative_filing": "",
+    "form_name_number": "Articles of Organization (Form 700)",
+    "required_fields": [
+      "Resident Agent info"
+    ],
+    "filing_fee": "$50",
+    "expedited_options": "24hr $50 / same-day $100 / 2hr $500 / 1hr $1000",
+    "standard_processing_time": "7-10 days",
+    "name_requirements": "",
+    "registered_agent_requirements": "MI resident or authorized entity (Resident Agent)",
+    "annual_report": {
+      "required": true,
+      "form": "Annual Report",
+      "frequency": "annual",
+      "due": "Feb 15",
+      "fee": 25,
+      "notes": ""
+    },
+    "publication_required": false,
+    "publication_details": "",
+    "payment_methods": [
+      "CC"
+    ],
+    "what_state_returns": "endorsed Articles",
+    "gotchas": "annual due Feb 15 regardless of formation date"
+  },
+  {
+    "state_name": "Minnesota",
+    "sos_portal_url": "https://mblsportal.sos.state.mn.us/",
+    "online_filing_available": true,
+    "alternative_filing": "",
+    "form_name_number": "Articles of Organization",
+    "required_fields": [
+      "Registered Agent info"
+    ],
+    "filing_fee": "$155 online / $135 mail",
+    "expedited_options": "online includes expedited",
+    "standard_processing_time": "2-5 days",
+    "name_requirements": "",
+    "registered_agent_requirements": "physical MN",
+    "annual_report": {
+      "required": true,
+      "form": "Annual Renewal",
+      "frequency": "annual",
+      "due": "Dec 31",
+      "fee": 0,
+      "notes": "FREE"
+    },
+    "publication_required": false,
+    "publication_details": "",
+    "payment_methods": [
+      "CC"
+    ],
+    "what_state_returns": "approved Articles + Certificate of Org",
+    "gotchas": "free annual report"
+  },
+  {
+    "state_name": "Mississippi",
+    "sos_portal_url": "https://corp.sos.ms.gov/corp/portal/c/page/login/portal.aspx",
+    "online_filing_available": true,
+    "alternative_filing": "",
+    "form_name_number": "Certificate of Formation",
+    "required_fields": [
+      "NAICS code"
+    ],
+    "filing_fee": "$50 (+$3 convenience)",
+    "expedited_options": "",
+    "standard_processing_time": "1-2 days online only",
+    "name_requirements": "",
+    "registered_agent_requirements": "physical MS",
+    "annual_report": {
+      "required": true,
+      "form": "Annual Report",
+      "frequency": "annual",
+      "due": "Apr 15",
+      "fee": 0,
+      "notes": "FREE for domestic"
+    },
+    "publication_required": false,
+    "publication_details": "",
+    "payment_methods": [
+      "CC"
+    ],
+    "what_state_returns": "approved Certificate",
+    "gotchas": "online-only + needs NAICS code"
+  },
+  {
+    "state_name": "Missouri",
+    "sos_portal_url": "https://bsd.sos.mo.gov/loginLogin.aspx",
+    "online_filing_available": true,
+    "alternative_filing": "",
+    "form_name_number": "Articles of Organization (Form LLC 1)",
+    "required_fields": [
+      "Registered Agent info"
+    ],
+    "filing_fee": "$50 online / $105 mail",
+    "expedited_options": "",
+    "standard_processing_time": "instant to 24hr",
+    "name_requirements": "",
+    "registered_agent_requirements": "MO resident or corp physical address",
+    "annual_report": {
+      "required": false,
+      "form": "",
+      "frequency": "",
+      "due": "",
+      "fee": 0,
+      "notes": ""
+    },
+    "publication_required": false,
+    "publication_details": "",
+    "payment_methods": [
+      "CC"
+    ],
+    "what_state_returns": "approved Articles",
+    "gotchas": "no annual report\u2014great maintenance state"
+  },
+  {
+    "state_name": "Montana",
+    "sos_portal_url": "https://biz.sosmt.gov/",
+    "online_filing_available": true,
+    "alternative_filing": "",
+    "form_name_number": "Articles of Organization",
+    "required_fields": [
+      "Registered Agent info"
+    ],
+    "filing_fee": "$35",
+    "expedited_options": "24hr $20 / 1hr $100",
+    "standard_processing_time": "7-10 days",
+    "name_requirements": "",
+    "registered_agent_requirements": "physical MT",
+    "annual_report": {
+      "required": true,
+      "form": "Annual Report",
+      "frequency": "annual",
+      "due": "Apr 15",
+      "fee": 20,
+      "notes": "waived 2024-2025"
+    },
+    "publication_required": false,
+    "publication_details": "",
+    "payment_methods": [
+      "CC",
+      "ACH"
+    ],
+    "what_state_returns": "approved Articles digital download",
+    "gotchas": "cheapest filing fee, annual fees currently waived"
+  },
+  {
+    "state_name": "Nebraska",
+    "sos_portal_url": "https://www.nebraska.gov/corp_filing/filing/index.cgi",
+    "online_filing_available": true,
+    "alternative_filing": "",
+    "form_name_number": "Certificate of Organization",
+    "required_fields": [
+      "Registered Agent info"
+    ],
+    "filing_fee": "$100 (+$3-5 portal fee)",
+    "expedited_options": "",
+    "standard_processing_time": "1-3 days",
+    "name_requirements": "",
+    "registered_agent_requirements": "physical NE",
+    "annual_report": {
+      "required": true,
+      "form": "Biennial Report",
+      "frequency": "biennial (odd years)",
+      "due": "Apr 1",
+      "fee": 25,
+      "notes": ""
+    },
+    "publication_required": true,
+    "publication_details": "3 consecutive weeks in legal newspaper + proof filed with SOS",
+    "payment_methods": [
+      "CC"
+    ],
+    "what_state_returns": "stamped Certificate",
+    "gotchas": "publication requirement"
+  },
+  {
+    "state_name": "Nevada",
+    "sos_portal_url": "https://www.nvsilverflume.gov/",
+    "online_filing_available": true,
+    "alternative_filing": "",
+    "form_name_number": "Articles of Organization",
+    "required_fields": [
+      "Initial List",
+      "Business License"
+    ],
+    "filing_fee": "$425 total ($75 Articles + $150 Initial List + $200 Business License)",
+    "expedited_options": "24hr $125 / 2hr $500 / 1hr $1000",
+    "standard_processing_time": "1 day",
+    "name_requirements": "",
+    "registered_agent_requirements": "physical NV no PO box",
+    "annual_report": {
+      "required": true,
+      "form": "Annual List + Business License",
+      "frequency": "annual",
+      "due": "last day of formation month",
+      "fee": 350,
+      "notes": "list + license renewal"
+    },
+    "publication_required": false,
+    "publication_details": "no pub for domestic LLCs",
+    "payment_methods": [
+      "CC (2.5%)",
+      "ACH"
+    ],
+    "what_state_returns": "approved Articles+Certificate+Initial List+Business License",
+    "gotchas": "forces Initial List + Business License immediately driving up cost"
+  },
+  {
+    "state_name": "New Hampshire",
+    "sos_portal_url": "https://quickstart.sos.nh.gov/",
+    "online_filing_available": true,
+    "alternative_filing": "",
+    "form_name_number": "Certificate of Formation",
+    "required_fields": [
+      "Registered Agent info"
+    ],
+    "filing_fee": "$100",
+    "expedited_options": "",
+    "standard_processing_time": "3-5 days",
+    "name_requirements": "",
+    "registered_agent_requirements": "physical NH",
+    "annual_report": {
+      "required": true,
+      "form": "Annual Report",
+      "frequency": "annual",
+      "due": "Apr 1",
+      "fee": 100,
+      "notes": ""
+    },
+    "publication_required": false,
+    "publication_details": "",
+    "payment_methods": [
+      "CC"
+    ],
+    "what_state_returns": "stamped Certificate",
+    "gotchas": ""
+  },
+  {
+    "state_name": "New Jersey",
+    "sos_portal_url": "https://www.njportal.com/DOR/BusinessFormation/Home/Welcome",
+    "online_filing_available": true,
+    "alternative_filing": "",
+    "form_name_number": "Certificate of Formation",
+    "required_fields": [
+      "Registered Agent info"
+    ],
+    "filing_fee": "$125",
+    "expedited_options": "24hr $25 / 8hr $500 / 2hr $1000 (paper/fax)",
+    "standard_processing_time": "1-2 days online",
+    "name_requirements": "",
+    "registered_agent_requirements": "physical NJ",
+    "annual_report": {
+      "required": true,
+      "form": "Annual Report",
+      "frequency": "annual",
+      "due": "anniversary month",
+      "fee": 75,
+      "notes": ""
+    },
+    "publication_required": false,
+    "publication_details": "",
+    "payment_methods": [
+      "CC",
+      "eCheck"
+    ],
+    "what_state_returns": "stamped Certificate",
+    "gotchas": "must file NJ-REG within 60 days for tax registration"
+  },
+  {
+    "state_name": "New Mexico",
+    "sos_portal_url": "https://portal.sos.state.nm.us/corps/",
+    "online_filing_available": true,
+    "alternative_filing": "",
+    "form_name_number": "Articles of Organization",
+    "required_fields": [
+      "Registered Agent acceptance"
+    ],
+    "filing_fee": "$50 (+$2-3 convenience)",
+    "expedited_options": "",
+    "standard_processing_time": "1-3 days",
+    "name_requirements": "",
+    "registered_agent_requirements": "physical NM + must accept appointment",
+    "annual_report": {
+      "required": false,
+      "form": "",
+      "frequency": "",
+      "due": "",
+      "fee": 0,
+      "notes": ""
+    },
+    "publication_required": false,
+    "publication_details": "",
+    "payment_methods": [
+      "CC",
+      "ACH"
+    ],
+    "what_state_returns": "Certificate of Org + approved Articles",
+    "gotchas": "paper filings no longer accepted, very private"
+  },
+  {
+    "state_name": "New York",
+    "sos_portal_url": "https://businessexpress.ny.gov/",
+    "online_filing_available": true,
+    "alternative_filing": "",
+    "form_name_number": "Articles of Organization (Form DOS-1336)",
+    "required_fields": [
+      "County info"
+    ],
+    "filing_fee": "$200",
+    "expedited_options": "24hr $25 / same-day $75 / 2hr $150",
+    "standard_processing_time": "instant online",
+    "name_requirements": "",
+    "registered_agent_requirements": "NY SOS is default agent + optional additional agent",
+    "annual_report": {
+      "required": true,
+      "form": "Biennial Statement",
+      "frequency": "biennial",
+      "due": "anniversary month",
+      "fee": 9,
+      "notes": ""
+    },
+    "publication_required": true,
+    "publication_details": "2 newspapers 6 weeks within 120 days + $50 filing fee",
+    "payment_methods": [
+      "CC",
+      "money order"
+    ],
+    "what_state_returns": "Blue Receipt + approved Articles",
+    "gotchas": "publication $300-$2000+ by county + LLC Transparency Act beneficial owner disclosure NY LLC Transparency Act (Jan 2026): beneficial ownership reporting now required."
+  },
+  {
+    "state_name": "North Carolina",
+    "sos_portal_url": "https://www.sosnc.gov/divisions/business_registration/online_filing",
+    "online_filing_available": true,
+    "alternative_filing": "",
+    "form_name_number": "Articles of Organization (Form L-01)",
+    "required_fields": [
+      "Registered Agent info",
+      "Email"
+    ],
+    "filing_fee": "$125",
+    "expedited_options": "24hr $100 / same-day $200",
+    "standard_processing_time": "2-3 days",
+    "name_requirements": "",
+    "registered_agent_requirements": "physical NC + email",
+    "annual_report": {
+      "required": true,
+      "form": "Annual Report",
+      "frequency": "annual",
+      "due": "Apr 15",
+      "fee": 203,
+      "notes": "$203 online"
+    },
+    "publication_required": false,
+    "publication_details": "",
+    "payment_methods": [
+      "CC"
+    ],
+    "what_state_returns": "certified Articles",
+    "gotchas": "high annual fee"
+  },
+  {
+    "state_name": "North Dakota",
+    "sos_portal_url": "https://firststop.sos.nd.gov/",
+    "online_filing_available": true,
+    "alternative_filing": "",
+    "form_name_number": "Articles of Organization (Form SFN-58701)",
+    "required_fields": [
+      "User account on FirstStop"
+    ],
+    "filing_fee": "$135",
+    "expedited_options": "",
+    "standard_processing_time": "1-2 days",
+    "name_requirements": "",
+    "registered_agent_requirements": "physical ND resident or entity",
+    "annual_report": {
+      "required": true,
+      "form": "Annual Report",
+      "frequency": "annual",
+      "due": "Nov 15",
+      "fee": 50,
+      "notes": ""
+    },
+    "publication_required": false,
+    "publication_details": "",
+    "payment_methods": [
+      "CC"
+    ],
+    "what_state_returns": "filed Articles + acknowledgment",
+    "gotchas": "requires user account on FirstStop"
+  },
+  {
+    "state_name": "Ohio",
+    "sos_portal_url": "https://business.ohiosos.gov/",
+    "online_filing_available": true,
+    "alternative_filing": "",
+    "form_name_number": "Articles of Organization (Form 533A)",
+    "required_fields": [
+      "Statutory Agent consent"
+    ],
+    "filing_fee": "$99",
+    "expedited_options": "2day $100 / 1day $200 / 4hr $300",
+    "standard_processing_time": "3-7 days",
+    "name_requirements": "",
+    "registered_agent_requirements": "physical OH + must consent",
+    "annual_report": {
+      "required": false,
+      "form": "",
+      "frequency": "",
+      "due": "",
+      "fee": 0,
+      "notes": ""
+    },
+    "publication_required": false,
+    "publication_details": "",
+    "payment_methods": [
+      "CC"
+    ],
+    "what_state_returns": "certified Articles + Certificate",
+    "gotchas": "low maintenance no annual report"
+  },
+  {
+    "state_name": "Oklahoma",
+    "sos_portal_url": "https://www.sos.ok.gov/corp/filing.aspx",
+    "online_filing_available": true,
+    "alternative_filing": "",
+    "form_name_number": "Articles of Organization",
+    "required_fields": [
+      "Registered Agent info"
+    ],
+    "filing_fee": "$100 (+$4 CC fee)",
+    "expedited_options": "",
+    "standard_processing_time": "1-2 days",
+    "name_requirements": "",
+    "registered_agent_requirements": "physical OK",
+    "annual_report": {
+      "required": true,
+      "form": "Annual Certificate",
+      "frequency": "annual",
+      "due": "anniversary",
+      "fee": 25,
+      "notes": ""
+    },
+    "publication_required": false,
+    "publication_details": "",
+    "payment_methods": [
+      "CC (~4% surcharge)"
+    ],
+    "what_state_returns": "certified copy + receipt",
+    "gotchas": ""
+  },
+  {
+    "state_name": "Oregon",
+    "sos_portal_url": "https://sos.oregon.gov/business/pages/register.aspx",
+    "online_filing_available": true,
+    "alternative_filing": "",
+    "form_name_number": "Articles of Organization",
+    "required_fields": [
+      "Registered Agent info"
+    ],
+    "filing_fee": "$100",
+    "expedited_options": "",
+    "standard_processing_time": "2-4 days",
+    "name_requirements": "",
+    "registered_agent_requirements": "physical OR",
+    "annual_report": {
+      "required": true,
+      "form": "Annual Report",
+      "frequency": "annual",
+      "due": "anniversary",
+      "fee": 100,
+      "notes": ""
+    },
+    "publication_required": false,
+    "publication_details": "",
+    "payment_methods": [
+      "CC",
+      "ACH"
+    ],
+    "what_state_returns": "filed Articles",
+    "gotchas": ""
+  },
+  {
+    "state_name": "Pennsylvania",
+    "sos_portal_url": "https://www.dos.pa.gov/BusinessCharities/Business/Resources/Pages/Filing-Online.aspx",
+    "online_filing_available": true,
+    "alternative_filing": "",
+    "form_name_number": "Certificate of Organization (Form DSCB:15-8821)",
+    "required_fields": [
+      "Commercial Registered Office Provider info"
+    ],
+    "filing_fee": "$125",
+    "expedited_options": "",
+    "standard_processing_time": "5-10 days",
+    "name_requirements": "",
+    "registered_agent_requirements": "physical PA (called Commercial Registered Office Provider)",
+    "annual_report": {
+      "required": true,
+      "form": "Decennial Report",
+      "frequency": "every 10 years",
+      "due": "varies",
+      "fee": 70,
+      "notes": "no annual report; decennial required"
+    },
+    "publication_required": true,
+    "publication_details": "advertise in 2 newspapers (one legal journal)",
+    "payment_methods": [
+      "CC"
+    ],
+    "what_state_returns": "stamped Certificate",
+    "gotchas": "publication + decennial report every 10 years"
+  },
+  {
+    "state_name": "Rhode Island",
+    "sos_portal_url": "https://business.sos.ri.gov/CorpWeb/CorpSearch/CorpSearch.aspx",
+    "online_filing_available": true,
+    "alternative_filing": "",
+    "form_name_number": "Articles of Organization",
+    "required_fields": [
+      "Registered Agent info"
+    ],
+    "filing_fee": "$150",
+    "expedited_options": "",
+    "standard_processing_time": "3-5 days",
+    "name_requirements": "",
+    "registered_agent_requirements": "physical RI",
+    "annual_report": {
+      "required": true,
+      "form": "Annual Report",
+      "frequency": "annual",
+      "due": "Nov 1",
+      "fee": 50,
+      "notes": ""
+    },
+    "publication_required": false,
+    "publication_details": "",
+    "payment_methods": [
+      "CC"
+    ],
+    "what_state_returns": "stamped Articles + Certificate",
+    "gotchas": ""
+  },
+  {
+    "state_name": "South Carolina",
+    "sos_portal_url": "https://businessfilings.sc.gov/BusinessFiling/Home/Index",
+    "online_filing_available": true,
+    "alternative_filing": "",
+    "form_name_number": "Articles of Organization",
+    "required_fields": [
+      "Registered Agent info"
+    ],
+    "filing_fee": "$125 ($110 + $15 online)",
+    "expedited_options": "",
+    "standard_processing_time": "1-2 days",
+    "name_requirements": "",
+    "registered_agent_requirements": "physical SC",
+    "annual_report": {
+      "required": false,
+      "form": "",
+      "frequency": "",
+      "due": "",
+      "fee": 0,
+      "notes": "no annual report to SOS"
+    },
+    "publication_required": false,
+    "publication_details": "",
+    "payment_methods": [
+      "CC"
+    ],
+    "what_state_returns": "file-stamped Articles",
+    "gotchas": ""
+  },
+  {
+    "state_name": "South Dakota",
+    "sos_portal_url": "https://sosenterprise.sd.gov/BusinessServices/Default.aspx",
+    "online_filing_available": true,
+    "alternative_filing": "",
+    "form_name_number": "Articles of Organization",
+    "required_fields": [
+      "Registered Agent info"
+    ],
+    "filing_fee": "$150",
+    "expedited_options": "+$50 next day",
+    "standard_processing_time": "instant to 1-3 days",
+    "name_requirements": "",
+    "registered_agent_requirements": "SD resident or authorized entity",
+    "annual_report": {
+      "required": true,
+      "form": "Annual Report",
+      "frequency": "annual",
+      "due": "1st day 2nd month after anniversary",
+      "fee": 50,
+      "notes": ""
+    },
+    "publication_required": false,
+    "publication_details": "",
+    "payment_methods": [
+      "CC"
+    ],
+    "what_state_returns": "acknowledge copy + Certificate",
+    "gotchas": ""
+  },
+  {
+    "state_name": "Tennessee",
+    "sos_portal_url": "https://tncab.tnsos.gov/",
+    "online_filing_available": true,
+    "alternative_filing": "",
+    "form_name_number": "Articles of Organization (Form SS-4270)",
+    "required_fields": [
+      "Number of members",
+      "Registered Agent consent"
+    ],
+    "filing_fee": "$50/member MIN $300 MAX $3000",
+    "expedited_options": "",
+    "standard_processing_time": "instant online",
+    "name_requirements": "",
+    "registered_agent_requirements": "physical TN + must consent",
+    "annual_report": {
+      "required": true,
+      "form": "Annual Report",
+      "frequency": "annual",
+      "due": "1st day 4th month after fiscal year end",
+      "fee": 300,
+      "notes": "$50/member (min $300 max $3000)"
+    },
+    "publication_required": false,
+    "publication_details": "",
+    "payment_methods": [
+      "CC (2.29%)",
+      "echeck ($0.95)"
+    ],
+    "what_state_returns": "approved Articles + acknowledgment",
+    "gotchas": "per-member fee structure is expensive"
+  },
+  {
+    "state_name": "Texas",
+    "sos_portal_url": "https://direct.sos.state.tx.us/",
+    "online_filing_available": true,
+    "alternative_filing": "",
+    "form_name_number": "Certificate of Formation (Form 205)",
+    "required_fields": [
+      "Registered Agent info"
+    ],
+    "filing_fee": "$300",
+    "expedited_options": "+$25 for 24hr",
+    "standard_processing_time": "2-4 days",
+    "name_requirements": "",
+    "registered_agent_requirements": "physical TX",
+    "annual_report": {
+      "required": true,
+      "form": "Public Information Report (PIR)",
+      "frequency": "annual",
+      "due": "May 15",
+      "fee": 0,
+      "notes": "no annual report to SOS (PIR + tax to Comptroller)"
+    },
+    "publication_required": false,
+    "publication_details": "",
+    "payment_methods": [
+      "CC (2.7%)",
+      "prepaid account"
+    ],
+    "what_state_returns": "Certificate of Filing + stamped Certificate of Formation",
+    "gotchas": "SOSDirect charges $1/search session"
+  },
+  {
+    "state_name": "Utah",
+    "sos_portal_url": "https://corporations.utah.gov/online-registration-instructions/",
+    "online_filing_available": true,
+    "alternative_filing": "",
+    "form_name_number": "Certificate of Organization",
+    "required_fields": [
+      "Registered Agent info"
+    ],
+    "filing_fee": "$59 ($54 + $5)",
+    "expedited_options": "$75 for 1-2 days",
+    "standard_processing_time": "5-7 days",
+    "name_requirements": "",
+    "registered_agent_requirements": "UT resident or authorized entity",
+    "annual_report": {
+      "required": true,
+      "form": "Annual Renewal",
+      "frequency": "annual",
+      "due": "anniversary month",
+      "fee": 18,
+      "notes": ""
+    },
+    "publication_required": false,
+    "publication_details": "",
+    "payment_methods": [
+      "CC"
+    ],
+    "what_state_returns": "stamped Certificate",
+    "gotchas": "OneStop handles tax registration too"
+  },
+  {
+    "state_name": "Vermont",
+    "sos_portal_url": "https://bizfilings.vermont.gov/",
+    "online_filing_available": true,
+    "alternative_filing": "",
+    "form_name_number": "Articles of Organization",
+    "required_fields": [
+      "Registered Agent info"
+    ],
+    "filing_fee": "$125",
+    "expedited_options": "",
+    "standard_processing_time": "<1 day",
+    "name_requirements": "",
+    "registered_agent_requirements": "VT resident or entity with VT address",
+    "annual_report": {
+      "required": true,
+      "form": "Annual Report",
+      "frequency": "annual",
+      "due": "Jan-Mar",
+      "fee": 35,
+      "notes": ""
+    },
+    "publication_required": false,
+    "publication_details": "",
+    "payment_methods": [
+      "CC"
+    ],
+    "what_state_returns": "approved Articles + Certificate",
+    "gotchas": ""
+  },
+  {
+    "state_name": "Virginia",
+    "sos_portal_url": "https://cis.scc.virginia.gov/",
+    "online_filing_available": true,
+    "alternative_filing": "",
+    "form_name_number": "Articles of Organization (Form LLC1011)",
+    "required_fields": [
+      "Registered Agent info"
+    ],
+    "filing_fee": "$100",
+    "expedited_options": "24hr $25 / next day $100",
+    "standard_processing_time": "1-2 days",
+    "name_requirements": "",
+    "registered_agent_requirements": "VA resident or authorized entity no PO box",
+    "annual_report": {
+      "required": true,
+      "form": "Annual Registration Fee",
+      "frequency": "annual",
+      "due": "anniversary month",
+      "fee": 50,
+      "notes": "fee-only no report"
+    },
+    "publication_required": false,
+    "publication_details": "",
+    "payment_methods": [
+      "CC",
+      "echeck"
+    ],
+    "what_state_returns": "Certificate of Org + approved Articles",
+    "gotchas": "fee-only no report"
+  },
+  {
+    "state_name": "Washington",
+    "sos_portal_url": "https://ccfs.sos.wa.gov/",
+    "online_filing_available": true,
+    "alternative_filing": "",
+    "form_name_number": "Certificate of Formation",
+    "required_fields": [
+      "Registered Agent consent checkbox"
+    ],
+    "filing_fee": "$200 ($180 + $20 online)",
+    "expedited_options": "",
+    "standard_processing_time": "2-3 days",
+    "name_requirements": "",
+    "registered_agent_requirements": "physical WA + consent checkbox",
+    "annual_report": {
+      "required": true,
+      "form": "Annual Report",
+      "frequency": "annual",
+      "due": "anniversary month",
+      "fee": 70,
+      "notes": ""
+    },
+    "publication_required": false,
+    "publication_details": "",
+    "payment_methods": [
+      "CC"
+    ],
+    "what_state_returns": "Certificate of Formation + congratulations letter",
+    "gotchas": "Initial Report required within 120 days"
+  },
+  {
+    "state_name": "West Virginia",
+    "sos_portal_url": "https://onestop.wv.gov/onestop/default.aspx",
+    "online_filing_available": true,
+    "alternative_filing": "",
+    "form_name_number": "Articles of Organization (Form LLD-1)",
+    "required_fields": [
+      "Registered Agent info"
+    ],
+    "filing_fee": "$100 (+optional $30 biz reg)",
+    "expedited_options": "",
+    "standard_processing_time": "3-5 days",
+    "name_requirements": "",
+    "registered_agent_requirements": "physical WV",
+    "annual_report": {
+      "required": true,
+      "form": "Annual Report",
+      "frequency": "annual",
+      "due": "Apr 1",
+      "fee": 25,
+      "notes": ""
+    },
+    "publication_required": false,
+    "publication_details": "",
+    "payment_methods": [
+      "CC"
+    ],
+    "what_state_returns": "stamped Articles",
+    "gotchas": ""
+  },
+  {
+    "state_name": "Wisconsin",
+    "sos_portal_url": "https://www.wdfi.org/apps/account/",
+    "online_filing_available": true,
+    "alternative_filing": "",
+    "form_name_number": "Articles of Organization (Form 502)",
+    "required_fields": [
+      "Registered Agent info"
+    ],
+    "filing_fee": "$130 online / $170 mail",
+    "expedited_options": "24hr $25",
+    "standard_processing_time": "2-3 days",
+    "name_requirements": "",
+    "registered_agent_requirements": "physical WI (Registered Agent)",
+    "annual_report": {
+      "required": true,
+      "form": "Annual Report",
+      "frequency": "annual",
+      "due": "end of quarter of formation",
+      "fee": 25,
+      "notes": ""
+    },
+    "publication_required": false,
+    "publication_details": "",
+    "payment_methods": [
+      "CC"
+    ],
+    "what_state_returns": "acknowledged Articles + filing receipt",
+    "gotchas": ""
+  },
+  {
+    "state_name": "Wyoming",
+    "sos_portal_url": "https://wyobiz.wyo.gov/",
+    "online_filing_available": true,
+    "alternative_filing": "",
+    "form_name_number": "Articles of Organization",
+    "required_fields": [
+      "Registered Agent info"
+    ],
+    "filing_fee": "$100",
+    "expedited_options": "",
+    "standard_processing_time": "~15 min online",
+    "name_requirements": "",
+    "registered_agent_requirements": "physical WY",
+    "annual_report": {
+      "required": true,
+      "form": "Annual Report",
+      "frequency": "annual",
+      "due": "1st day of anniversary month",
+      "fee": 60,
+      "notes": "minimum based on assets"
+    },
+    "publication_required": false,
+    "publication_details": "",
+    "payment_methods": [
+      "CC"
+    ],
+    "what_state_returns": "approved Articles + Certificate of Org",
+    "gotchas": "no income tax no franchise tax privacy-friendly, fastest processing"
+  }
+]

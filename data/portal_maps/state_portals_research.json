@@ -1,0 +1,605 @@
+{
+  "metadata": {
+    "generated": "2026-03-28",
+    "version": "1.0",
+    "notes": "Research conducted via web search and curl WAF testing. WAF types confirmed by HTTP response headers."
+  },
+  "states": {
+    "AL": {
+      "portal_url": "https://www.alabamainteractive.org/sos/",
+      "portal_name": "Alabama Interactive (AccessGov)",
+      "waf_type": "none",
+      "captcha_type": "none",
+      "filing_method": "online_form",
+      "account_required": true,
+      "entity_types": ["LLC", "Corp", "Nonprofit", "LP", "LLP", "LLLP"],
+      "payment_methods": ["credit_card"],
+      "notes": "Powered by Tyler Technologies AccessGov. Nginx server, no WAF detected. Corporations no longer required to file annual reports."
+    },
+    "AK": {
+      "portal_url": "https://www.commerce.alaska.gov/cbp/main/",
+      "portal_name": "Alaska Corporations, Business & Professional Licensing",
+      "waf_type": "f5_bigip",
+      "captcha_type": "none",
+      "filing_method": "online_form",
+      "account_required": true,
+      "entity_types": ["LLC", "Corp", "Nonprofit", "LP", "LLP"],
+      "payment_methods": ["credit_card"],
+      "notes": "F5 BIG-IP load balancer (TS0 cookies). Portal at www.commerce.alaska.gov/cbp/main/. Business licenses at BusinessLicense.Alaska.Gov."
+    },
+    "AZ": {
+      "portal_url": "https://abc.azcc.gov/",
+      "portal_name": "Arizona Business Center (Arizona Corporation Commission)",
+      "waf_type": "unknown",
+      "captcha_type": "unknown",
+      "filing_method": "online_form",
+      "account_required": true,
+      "entity_types": ["LLC", "Corp", "Nonprofit", "LP", "LLP"],
+      "payment_methods": ["credit_card"],
+      "notes": "NEW portal launched Jan 12, 2026 replacing eCorp. Called 'Arizona Business Center' / 'Arizona Business Connect'. Portal did not respond to curl - may require browser JS. Features File Tracker, QR code verification."
+    },
+    "AR": {
+      "portal_url": "https://sos-corpfilings.ark.org/",
+      "portal_name": "Arkansas Secretary of State Corporations Online Filing",
+      "waf_type": "none",
+      "captcha_type": "none",
+      "filing_method": "online_form",
+      "account_required": true,
+      "entity_types": ["LLC", "Corp", "Nonprofit", "LP"],
+      "payment_methods": ["credit_card"],
+      "notes": "Apache server, no WAF detected. Same-day recording for filings before 3 PM CST. Also has sos-ofs.ark.org for other filings."
+    },
+    "CA": {
+      "portal_url": "https://bizfileonline.sos.ca.gov/",
+      "portal_name": "bizfile California",
+      "waf_type": "incapsula",
+      "captcha_type": "none",
+      "filing_method": "online_form",
+      "account_required": true,
+      "entity_types": ["LLC", "Corp", "Nonprofit", "LP", "LLP", "GP"],
+      "payment_methods": ["credit_card"],
+      "notes": "Imperva Incapsula WAF (visid_incap cookies, x-iinfo header). Requires Okta account. Primary portal since April 2022. Handles Articles of Org, Statements of Information, name reservations."
+    },
+    "CO": {
+      "portal_url": "https://www.sos.state.co.us/biz/BusinessEntityCriteriaExt.do",
+      "portal_name": "Colorado Secretary of State Business Center",
+      "waf_type": "cloudflare",
+      "captcha_type": "none",
+      "filing_method": "online_form",
+      "account_required": true,
+      "entity_types": ["LLC", "Corp", "Nonprofit", "LP", "LLP", "Cooperative"],
+      "payment_methods": ["credit_card"],
+      "notes": "Cloudflare WAF (cf-ray header, __cf_bm cookie) + F5 BIG-IP (TS01 cookie). MyBizColorado is the branded portal. Java-based app (JSESSIONID)."
+    },
+    "CT": {
+      "portal_url": "https://business.ct.gov/",
+      "portal_name": "Business.CT.gov",
+      "waf_type": "none",
+      "captcha_type": "none",
+      "filing_method": "online_form",
+      "account_required": true,
+      "entity_types": ["LLC", "Corp", "Nonprofit", "LP", "LLP"],
+      "payment_methods": ["credit_card"],
+      "notes": "Replaced old CONCORD system. No WAF detected in headers. Modern portal for all business and commercial filings."
+    },
+    "DE": {
+      "portal_url": "https://icis.corp.delaware.gov/ecorp/logintax.aspx",
+      "portal_name": "Delaware DCIS eCorp",
+      "waf_type": "f5_bigip",
+      "captcha_type": "none",
+      "filing_method": "online_form",
+      "account_required": false,
+      "entity_types": ["LLC", "Corp", "LP", "GP", "Statutory Trust"],
+      "payment_methods": ["credit_card", "ach"],
+      "notes": "F5 BIG-IP (TS017cb0e9 cookie). For formation docs: most filers use registered agents who submit via mail/courier. Online portal mainly for annual reports/taxes. Document upload service also available. Portal hours 8am-11:45pm ET."
+    },
+    "DC": {
+      "portal_url": "https://corponline.dcra.dc.gov/",
+      "portal_name": "CorpOnline (DLCP)",
+      "waf_type": "cloudflare",
+      "captcha_type": "unknown",
+      "filing_method": "online_form",
+      "account_required": true,
+      "entity_types": ["LLC", "Corp", "Nonprofit", "LP", "LLP", "Statutory Trust"],
+      "payment_methods": ["credit_card"],
+      "notes": "Cloudflare WAF (cf-ray). Now under Dept of Licensing & Consumer Protection (formerly DCRA). New CorpOnline launched Dec 2025. Requires Access DC single sign-on account."
+    },
+    "FL": {
+      "portal_url": "https://efile.sunbiz.org/",
+      "portal_name": "Sunbiz (Florida Division of Corporations)",
+      "waf_type": "cloudflare",
+      "captcha_type": "turnstile",
+      "filing_method": "online_form",
+      "account_required": false,
+      "entity_types": ["LLC", "Corp", "Nonprofit", "LP", "LLLP"],
+      "payment_methods": ["credit_card", "prepaid_account"],
+      "notes": "Cloudflare WAF with challenge (cf-mitigated: challenge, 403 response). Aggressive bot protection. Accepts Visa/MC/Amex/Discover or prepaid Sunbiz E-File Account. Annual reports due Jan 1 - May 1."
+    },
+    "GA": {
+      "portal_url": "https://ecorp.sos.ga.gov/",
+      "portal_name": "Georgia eCorp",
+      "waf_type": "cloudflare",
+      "captcha_type": "turnstile",
+      "filing_method": "online_form",
+      "account_required": true,
+      "entity_types": ["LLC", "Corp", "Nonprofit", "LP", "Professional Corp"],
+      "payment_methods": ["credit_card"],
+      "notes": "Cloudflare WAF with aggressive challenge (cf-mitigated: challenge, 403). Accepts Visa/MC/Amex/Discover. One-click annual registration available. Saves $10 vs paper filing."
+    },
+    "HI": {
+      "portal_url": "https://hbe.ehawaii.gov/",
+      "portal_name": "Hawaii Business Express (HBE)",
+      "waf_type": "none",
+      "captcha_type": "none",
+      "filing_method": "online_form",
+      "account_required": true,
+      "entity_types": ["LLC", "Corp", "Nonprofit", "LP", "LLP"],
+      "payment_methods": ["credit_card"],
+      "notes": "AWS ELB (awselb/2.0 server header). No WAF detected. Under DCCA. Some forms still require paper submission. MyBusiness Alerts available."
+    },
+    "ID": {
+      "portal_url": "https://sosbiz.idaho.gov/",
+      "portal_name": "SOSBiz Idaho",
+      "waf_type": "cloudflare",
+      "captcha_type": "none",
+      "filing_method": "online_form",
+      "account_required": true,
+      "entity_types": ["LLC", "Corp", "Nonprofit", "LP", "LLP"],
+      "payment_methods": ["credit_card"],
+      "notes": "Cloudflare WAF (cf-ray) but no challenge/block on basic request. Free online annual reports (paper = $20 fee). Uses Access Idaho payment processor."
+    },
+    "IL": {
+      "portal_url": "https://apps.ilsos.gov/corporatellc/",
+      "portal_name": "Illinois Secretary of State Corporation & LLC Filing",
+      "waf_type": "unknown",
+      "captcha_type": "unknown",
+      "filing_method": "online_form",
+      "account_required": true,
+      "entity_types": ["LLC", "Corp", "Nonprofit", "LP", "LLP"],
+      "payment_methods": ["credit_card"],
+      "notes": "Portal actively blocks curl/bots (HTTP/2 stream errors, connection resets). Likely aggressive WAF or bot detection. Requires browser with JavaScript. Entity search at apps.ilsos.gov/corporatellc/."
+    },
+    "IN": {
+      "portal_url": "https://inbiz.in.gov/",
+      "portal_name": "INBiz (Indiana Secretary of State)",
+      "waf_type": "none",
+      "captcha_type": "none",
+      "filing_method": "online_form",
+      "account_required": true,
+      "entity_types": ["LLC", "Corp", "Nonprofit", "LP", "LLP"],
+      "payment_methods": ["credit_card"],
+      "notes": "Microsoft IIS, no WAF detected. One-stop shop integrating SOS, Dept of Revenue, and Dept of Workforce Development. Biennial entity reports required."
+    },
+    "IA": {
+      "portal_url": "https://sos.iowa.gov/file",
+      "portal_name": "Fast Track Filing (Iowa Secretary of State)",
+      "waf_type": "akamai",
+      "captcha_type": "unknown",
+      "filing_method": "online_form",
+      "account_required": false,
+      "entity_types": ["LLC", "Corp", "Nonprofit", "LP"],
+      "payment_methods": ["credit_card"],
+      "notes": "Akamai WAF (AkamaiGHost server, 403 on curl). Biennial reports can be filed without account. Over 500K docs processed. Filing reduces time from weeks to minutes."
+    },
+    "KS": {
+      "portal_url": "https://www.sos.ks.gov/businesses/register-a-business.html",
+      "portal_name": "Kansas Business One Stop",
+      "waf_type": "cloudfront",
+      "captcha_type": "none",
+      "filing_method": "online_form",
+      "account_required": true,
+      "entity_types": ["LLC", "Corp", "Nonprofit", "LP"],
+      "payment_methods": ["credit_card"],
+      "notes": "AWS CloudFront CDN (not a WAF per se). Instant certified copy available upon online registration. ksbiz.kansas.gov is the main business portal."
+    },
+    "KY": {
+      "portal_url": "https://www.sos.ky.gov/bus/business-filings/OnlineServices/Pages/default.aspx",
+      "portal_name": "Kentucky Business Filings Online",
+      "waf_type": "unknown",
+      "captcha_type": "unknown",
+      "filing_method": "online_form",
+      "account_required": true,
+      "entity_types": ["LLC", "Corp", "Nonprofit", "LP", "LLP"],
+      "payment_methods": ["credit_card", "prepaid_account"],
+      "notes": "Returns 403 on curl suggesting WAF/bot protection. Supports prepaid accounts. Certificate validation available online."
+    },
+    "LA": {
+      "portal_url": "https://coraweb.sos.la.gov/commercialsearch/commercialsearch.aspx",
+      "portal_name": "geauxBIZ (Louisiana Secretary of State)",
+      "waf_type": "none",
+      "captcha_type": "none",
+      "filing_method": "online_form",
+      "account_required": true,
+      "entity_types": ["LLC", "Corp", "Nonprofit", "LP", "LLP", "LLLP"],
+      "payment_methods": ["credit_card"],
+      "notes": "Microsoft IIS, no WAF detected. Joint portal with Dept of Revenue and Workforce Commission. Expedited options available. Same-day processing for most online filings. Training sessions offered."
+    },
+    "ME": {
+      "portal_url": "https://apps3.web.maine.gov/nei-sos-icrs/ICRS",
+      "portal_name": "Maine Interactive Corporate Services",
+      "waf_type": "none",
+      "captcha_type": "none",
+      "filing_method": "online_form",
+      "account_required": true,
+      "entity_types": ["LLC", "Corp", "Nonprofit", "LP"],
+      "payment_methods": ["credit_card"],
+      "notes": "Nginx server, no WAF detected. Some services require InforME subscription. Annual reports via charter number. UCC Online separate system."
+    },
+    "MD": {
+      "portal_url": "https://egov.maryland.gov/BusinessExpress/",
+      "portal_name": "Maryland Business Express",
+      "waf_type": "none",
+      "captcha_type": "none",
+      "filing_method": "online_form",
+      "account_required": true,
+      "entity_types": ["LLC", "Corp", "Nonprofit", "LP", "LLP"],
+      "payment_methods": ["credit_card"],
+      "notes": "No WAF detected. Award-winning portal. All online filings considered expedited. Under Dept of Assessments & Taxation (SDAT). Can form most Maryland businesses online."
+    },
+    "MA": {
+      "portal_url": "https://corp.sec.state.ma.us/corpweb/CorpSearch/CorpSearch.aspx",
+      "portal_name": "Massachusetts Corporations Division",
+      "waf_type": "incapsula",
+      "captcha_type": "none",
+      "filing_method": "online_form",
+      "account_required": true,
+      "entity_types": ["LLC", "Corp", "Nonprofit", "LP", "LLP"],
+      "payment_methods": ["credit_card"],
+      "notes": "Imperva Incapsula WAF (visid_incap, incap_ses cookies, x-iinfo header). Requires pre-assigned CID and PIN to file. Not all filings available online. 128-bit encryption required."
+    },
+    "MI": {
+      "portal_url": "https://www.michigan.gov/lara/bureau-list/cscl/corps/mibrp",
+      "portal_name": "MiBusiness Registry Portal (LARA)",
+      "waf_type": "akamai",
+      "captcha_type": "unknown",
+      "filing_method": "online_form",
+      "account_required": true,
+      "entity_types": ["LLC", "Corp", "Nonprofit", "LP", "LLP"],
+      "payment_methods": ["credit_card"],
+      "notes": "Akamai WAF (AkamaiGHost, 403). NEW portal launched June 2025, replacing COFS. Requires MiLogin for Business. Paper forms no longer accepted for annual reports. Shopping cart for multiple filings."
+    },
+    "MN": {
+      "portal_url": "https://mblsportal.sos.state.mn.us/Business/Search",
+      "portal_name": "Minnesota Business Filings Online",
+      "waf_type": "other",
+      "captcha_type": "other",
+      "filing_method": "online_form",
+      "account_required": true,
+      "entity_types": ["LLC", "Corp", "Nonprofit", "LP", "LLP", "Cooperative"],
+      "payment_methods": ["credit_card"],
+      "notes": "Uses Radware Bot Manager (perfdrive.com validation detected in search results). Requires account creation. PDF uploads supported (<2MB, filename <10 chars). Edge/Chrome/Firefox supported."
+    },
+    "MS": {
+      "portal_url": "https://corp.sos.ms.gov/corp/portal/c/page/login",
+      "portal_name": "Mississippi Secretary of State Business Filing",
+      "waf_type": "akamai",
+      "captcha_type": "unknown",
+      "filing_method": "online_form",
+      "account_required": true,
+      "entity_types": ["LLC", "Corp", "Nonprofit"],
+      "payment_methods": ["credit_card"],
+      "notes": "Akamai WAF (akamai-grn header, 403 on curl). Account required for filings. Separate UCC filing system."
+    },
+    "MO": {
+      "portal_url": "https://bsd.sos.mo.gov/BusinessEntity/BESearch.aspx",
+      "portal_name": "Missouri Business Services",
+      "waf_type": "cloudflare",
+      "captcha_type": "turnstile",
+      "filing_method": "online_form",
+      "account_required": true,
+      "entity_types": ["LLC", "Corp", "Nonprofit", "LP"],
+      "payment_methods": ["credit_card"],
+      "notes": "Cloudflare WAF (cf-ray, 403 challenge). Online LLC registration via Articles of Org. Expanding online services. For-profit corps save $25 filing online. Pre-fills previous year's data."
+    },
+    "MT": {
+      "portal_url": "https://biz.sosmt.gov/",
+      "portal_name": "Montana Secretary of State Business Filing",
+      "waf_type": "cloudflare",
+      "captcha_type": "none",
+      "filing_method": "online_form",
+      "account_required": true,
+      "entity_types": ["LLC", "Corp", "Nonprofit", "LP", "LLP"],
+      "payment_methods": ["credit_card"],
+      "notes": "Cloudflare WAF (cf-ray) but no challenge on basic request (200 OK). 24/7 portal access. Annual reports April 15 deadline. Optimized for Chrome/Edge/Firefox."
+    },
+    "NE": {
+      "portal_url": "https://www.nebraska.gov/corp_filing/filing/index.cgi",
+      "portal_name": "Nebraska Corporate & Business eDelivery",
+      "waf_type": "none",
+      "captcha_type": "none",
+      "filing_method": "online_form",
+      "account_required": true,
+      "entity_types": ["LLC", "Corp", "Nonprofit", "LP", "LLP"],
+      "payment_methods": ["credit_card"],
+      "notes": "Apache server, no WAF detected. Portal fee charged in addition to statutory fees. Frequent Payor Account available for bulk filers. Free business search."
+    },
+    "NV": {
+      "portal_url": "https://www.nvsilverflume.gov/",
+      "portal_name": "SilverFlume (Nevada Secretary of State)",
+      "waf_type": "incapsula",
+      "captcha_type": "none",
+      "filing_method": "online_form",
+      "account_required": false,
+      "entity_types": ["LLC", "Corp", "Nonprofit", "LP", "LLP", "LLLP", "Business Trust"],
+      "payment_methods": ["credit_card"],
+      "notes": "Imperva Incapsula WAF (visid_incap, incap_ses cookies, x-iinfo header). Same-day processing, no additional fees for online. Business license integrated. M-F 8am-5pm customer service."
+    },
+    "NH": {
+      "portal_url": "https://quickstart.sos.nh.gov/online/",
+      "portal_name": "NH QuickStart",
+      "waf_type": "unknown",
+      "captcha_type": "unknown",
+      "filing_method": "online_form",
+      "account_required": true,
+      "entity_types": ["LLC", "Corp", "Nonprofit", "LP", "LLP"],
+      "payment_methods": ["credit_card"],
+      "notes": "Returns 403 on curl - bot protection active. Enhanced in 2022. One Click Annual Report feature. Free account required."
+    },
+    "NJ": {
+      "portal_url": "https://www.njportal.com/DOR/BusinessFormation/",
+      "portal_name": "NJ Business Formation Service",
+      "waf_type": "incapsula",
+      "captcha_type": "none",
+      "filing_method": "online_form",
+      "account_required": true,
+      "entity_types": ["LLC", "Corp", "Nonprofit", "LP", "LLP"],
+      "payment_methods": ["credit_card"],
+      "notes": "Imperva Incapsula WAF on state.nj.us domain (visid_incap, incap_ses cookies). Under Division of Revenue & Enterprise Services. Premier Business Services (PBS) for multi-service access."
+    },
+    "NM": {
+      "portal_url": "https://enterprise.sos.nm.gov/",
+      "portal_name": "New Mexico SOS Enterprise Portal",
+      "waf_type": "none",
+      "captcha_type": "none",
+      "filing_method": "online_form",
+      "account_required": true,
+      "entity_types": ["LLC", "Corp", "Nonprofit", "LP", "LLP"],
+      "payment_methods": ["credit_card", "ach"],
+      "notes": "No WAF detected. EXCLUSIVE method for all business filings - no paper option. PDF uploads required for supporting docs. Filing fees non-refundable. Convenience fee on card payments."
+    },
+    "NY": {
+      "portal_url": "https://appext20.dos.ny.gov/nydav/default.aspx",
+      "portal_name": "New York Department of State Online Filing",
+      "waf_type": "none",
+      "captcha_type": "none",
+      "filing_method": "online_form",
+      "account_required": false,
+      "entity_types": ["LLC", "Corp", "Nonprofit", "LP", "LLP"],
+      "payment_methods": ["credit_card"],
+      "notes": "No WAF detected. Microsoft IIS/7.0. Older ASP.NET 2.0 technology. Handles Certificates of Incorporation and Articles of Organization. Contact: Corporations@dos.ny.gov."
+    },
+    "NC": {
+      "portal_url": "https://www.sosnc.gov/online_services/search/",
+      "portal_name": "North Carolina Secretary of State Business Registration",
+      "waf_type": "cloudflare",
+      "captcha_type": "turnstile",
+      "filing_method": "online_form",
+      "account_required": true,
+      "entity_types": ["LLC", "Corp", "Nonprofit", "LP"],
+      "payment_methods": ["credit_card"],
+      "notes": "Cloudflare WAF with challenge (cf-ray, 403). Supports Articles of Incorporation, Organization, Amendment, Dissolution for domestic and foreign entities."
+    },
+    "ND": {
+      "portal_url": "https://firststop.sos.nd.gov/",
+      "portal_name": "FirstStop (North Dakota Secretary of State)",
+      "waf_type": "none",
+      "captcha_type": "none",
+      "filing_method": "online_form",
+      "account_required": true,
+      "entity_types": ["LLC", "Corp", "Nonprofit", "LP", "LLP"],
+      "payment_methods": ["credit_card"],
+      "notes": "No WAF detected. Custom 'State of North Dakota' server. Requires NDLogin (state SSO) + one-time PIN. Integrated search/filings/annual reports. Standing indicator feature."
+    },
+    "OH": {
+      "portal_url": "https://bsportal.ohiosos.gov/",
+      "portal_name": "Ohio Business Services Portal",
+      "waf_type": "cloudflare",
+      "captcha_type": "turnstile",
+      "filing_method": "online_form",
+      "account_required": true,
+      "entity_types": ["LLC", "Corp", "Nonprofit", "LP", "LLP"],
+      "payment_methods": ["credit_card"],
+      "notes": "Cloudflare WAF with challenge (cf-ray, 403). Handles new registrations, updates, mergers, conversions, consolidations."
+    },
+    "OK": {
+      "portal_url": "https://www.sos.ok.gov/business/default.aspx",
+      "portal_name": "Oklahoma Secretary of State Business Filing",
+      "waf_type": "cloudflare",
+      "captcha_type": "none",
+      "filing_method": "online_form",
+      "account_required": true,
+      "entity_types": ["LLC", "Corp", "Nonprofit", "LP", "LLP"],
+      "payment_methods": ["credit_card"],
+      "notes": "Cloudflare WAF (cf-ray) but no challenge on basic request (200 OK). $100 + service fee for online registration (~15 min process). Name reservation for 60 days."
+    },
+    "OR": {
+      "portal_url": "https://sos.oregon.gov/business/Pages/register.aspx",
+      "portal_name": "Oregon Business Registry",
+      "waf_type": "none",
+      "captcha_type": "none",
+      "filing_method": "online_form",
+      "account_required": true,
+      "entity_types": ["LLC", "Corp", "Nonprofit", "Professional Corp", "LP"],
+      "payment_methods": ["credit_card"],
+      "notes": "No WAF detected. Microsoft IIS/10.0. Supports Edge/Firefox/Chrome. Safari may have issues. Account creation required for filings."
+    },
+    "PA": {
+      "portal_url": "https://file.dos.pa.gov/",
+      "portal_name": "Pennsylvania Business Filing Services (BFS)",
+      "waf_type": "cloudflare",
+      "captcha_type": "turnstile",
+      "filing_method": "online_form",
+      "account_required": true,
+      "entity_types": ["LLC", "Corp", "Nonprofit", "LP", "LLP"],
+      "payment_methods": ["credit_card"],
+      "notes": "Cloudflare WAF with challenge (cf-ray, 403). New annual report requirement as of 2025 ($7 for most entities, free for nonprofits). Human review still required after online submission."
+    },
+    "RI": {
+      "portal_url": "https://www.sos.ri.gov/divisions/business-services",
+      "portal_name": "Rhode Island Business Services",
+      "waf_type": "cloudflare",
+      "captcha_type": "none",
+      "filing_method": "online_form",
+      "account_required": true,
+      "entity_types": ["LLC", "Corp", "Nonprofit", "LP"],
+      "payment_methods": ["credit_card"],
+      "notes": "Cloudflare WAF (cf-ray) but no challenge on basic request (200 OK). RI Business Assistant tool for personalized checklists. Certificate of Good Standing available online."
+    },
+    "SC": {
+      "portal_url": "https://businessfilings.sc.gov/",
+      "portal_name": "South Carolina Business Entities Online",
+      "waf_type": "none",
+      "captcha_type": "none",
+      "filing_method": "online_form",
+      "account_required": true,
+      "entity_types": ["LLC", "Corp", "Nonprofit", "LP", "LLP"],
+      "payment_methods": ["credit_card"],
+      "notes": "No WAF detected. Handles new filings, entity changes, certified copies, and certificates of existence."
+    },
+    "SD": {
+      "portal_url": "https://sosenterprise.sd.gov/BusinessServices/Default.aspx",
+      "portal_name": "South Dakota SOS Enterprise",
+      "waf_type": "none",
+      "captcha_type": "none",
+      "filing_method": "online_form",
+      "account_required": false,
+      "entity_types": ["LLC", "Corp", "Nonprofit", "LP"],
+      "payment_methods": ["credit_card"],
+      "notes": "No WAF detected. Accepts Visa/MC/Discover/Amex. $15 paper filing fee avoided by e-filing. Instant certified copy downloads upon payment. DBA registration available."
+    },
+    "TN": {
+      "portal_url": "https://tnbear.tn.gov/NewBiz/",
+      "portal_name": "Tennessee Charity and Business Filing System (TNCaB)",
+      "waf_type": "cloudfront",
+      "captcha_type": "unknown",
+      "filing_method": "online_form",
+      "account_required": true,
+      "entity_types": ["LLC", "Corp", "Nonprofit", "LP", "LLP"],
+      "payment_methods": ["credit_card"],
+      "notes": "AWS CloudFront (403 on main site). MANDATORY online filing since Oct 2022 - no paper docs accepted. Same-day delivery of processed documents. Must create TNCaB account first."
+    },
+    "TX": {
+      "portal_url": "https://direct.sos.state.tx.us/",
+      "portal_name": "SOSDirect (Texas Secretary of State)",
+      "waf_type": "cloudflare",
+      "captcha_type": "hcaptcha",
+      "filing_method": "online_form",
+      "account_required": true,
+      "entity_types": ["LLC", "Corp", "Nonprofit", "LP", "LLP", "Professional Corp"],
+      "payment_methods": ["credit_card", "legalease", "prefunded_account"],
+      "notes": "Cloudflare WAF (cf-ray) + hCaptcha (in CSP header). 24/7 availability. Web filings processed within 24 hours. Assumed Name Certs in 2-3 hours. $1 per search. Fax filing discontinued Sep 2025."
+    },
+    "UT": {
+      "portal_url": "https://secure.utah.gov/bes/",
+      "portal_name": "Utah Division of Corporations Online Filing",
+      "waf_type": "f5_bigip",
+      "captcha_type": "none",
+      "filing_method": "online_form",
+      "account_required": true,
+      "entity_types": ["LLC", "Corp", "Nonprofit", "LP", "LLP"],
+      "payment_methods": ["credit_card"],
+      "notes": "F5 BIG-IP load balancer. Requires UtahID (state SSO). Online filings processed within 48 hours. Under Dept of Commerce, Division of Corporations & Commercial Code."
+    },
+    "VT": {
+      "portal_url": "https://bizfilings.vermont.gov/online/BusinessInquire",
+      "portal_name": "Vermont Business Filings",
+      "waf_type": "incapsula",
+      "captcha_type": "none",
+      "filing_method": "online_form",
+      "account_required": true,
+      "entity_types": ["LLC", "Corp", "Nonprofit", "LP", "LLP"],
+      "payment_methods": ["credit_card"],
+      "notes": "Imperva Incapsula WAF (visid_incap, incap_ses cookies, x-iinfo header, 403 challenge). Online filing preferred - <1 business day processing, no extra fees."
+    },
+    "VA": {
+      "portal_url": "https://cis.scc.virginia.gov/",
+      "portal_name": "SCC eFile (Virginia State Corporation Commission)",
+      "waf_type": "none",
+      "captcha_type": "none",
+      "filing_method": "online_form",
+      "account_required": true,
+      "entity_types": ["LLC", "Corp", "Nonprofit", "LP", "LLP"],
+      "payment_methods": ["credit_card"],
+      "notes": "No WAF detected. Note: VA uses State Corporation Commission, not SOS. CIS = Clerk's Information System. Electronic submissions processed in 1-2 business days."
+    },
+    "WA": {
+      "portal_url": "https://ccfs.sos.wa.gov/",
+      "portal_name": "Corporations and Charities Filing System (CCFS)",
+      "waf_type": "none",
+      "captcha_type": "none",
+      "filing_method": "online_form",
+      "account_required": true,
+      "entity_types": ["LLC", "Corp", "Nonprofit", "LP", "LLP"],
+      "payment_methods": ["credit_card"],
+      "notes": "No WAF detected. $200 online filing (profit), $50 online (nonprofit). Paper = $180. Processing within 5 business days. Expedited available (3 days)."
+    },
+    "WV": {
+      "portal_url": "https://onestop.wv.gov/",
+      "portal_name": "WV One Stop Business Portal",
+      "waf_type": "unknown",
+      "captcha_type": "unknown",
+      "filing_method": "online_form",
+      "account_required": true,
+      "entity_types": ["LLC", "Corp", "Nonprofit", "LP", "LLP"],
+      "payment_methods": ["credit_card", "ach"],
+      "notes": "Redirects detected but WAF type unclear. $1 portal fee on all online filings. Mandatory for annual reports since 2019. Multi-agency integration (SOS, Tax, WorkForce, Labor). Expedited available."
+    },
+    "WI": {
+      "portal_url": "https://onestop.wi.gov/",
+      "portal_name": "Wisconsin One Stop Business Portal (DFI)",
+      "waf_type": "none",
+      "captcha_type": "none",
+      "filing_method": "online_form",
+      "account_required": true,
+      "entity_types": ["LLC", "Corp", "Nonprofit", "LP"],
+      "payment_methods": ["credit_card"],
+      "notes": "No WAF detected. Joint with Dept of Revenue and Workforce Development. WAMS ID recommended. Under Dept of Financial Institutions (not SOS). Direct DFI online options also available."
+    },
+    "WY": {
+      "portal_url": "https://wyobiz.wyo.gov/Business/Default.aspx",
+      "portal_name": "WyoBiz (Wyoming Secretary of State)",
+      "waf_type": "f5_bigip",
+      "captcha_type": "none",
+      "filing_method": "online_form",
+      "account_required": false,
+      "entity_types": ["LLC", "Corp", "Nonprofit", "LP"],
+      "payment_methods": ["credit_card"],
+      "notes": "F5 BIG-IP (TS01ab71c3 cookie). Free certificate of good standing online. Card processing fee for online filings. Annual reports >$500 may not allow e-filing."
+    }
+  },
+  "summary": {
+    "total_states_plus_dc": 51,
+    "waf_breakdown": {
+      "cloudflare": ["CO", "FL", "GA", "ID", "MO", "MT", "NC", "OH", "OK", "PA", "RI", "TX", "DC"],
+      "incapsula": ["CA", "MA", "NJ", "NV", "VT"],
+      "akamai": ["IA", "MI", "MS"],
+      "f5_bigip": ["AK", "DE", "UT", "WY"],
+      "cloudfront": ["KS", "TN"],
+      "other": ["MN"],
+      "none": ["AL", "AR", "CT", "HI", "IN", "LA", "ME", "MD", "NE", "NM", "NY", "ND", "OR", "SC", "SD", "VA", "WA", "WI"],
+      "unknown_blocked": ["AZ", "IL", "KY", "NH", "WV"]
+    },
+    "captcha_breakdown": {
+      "hcaptcha": ["TX"],
+      "turnstile": ["FL", "GA", "MO", "NC", "OH", "PA"],
+      "none_detected": ["AL", "AK", "AR", "CA", "CO", "CT", "DE", "HI", "ID", "IN", "KS", "LA", "MA", "ME", "MD", "MT", "NE", "NV", "NJ", "NM", "NY", "ND", "OK", "OR", "RI", "SC", "SD", "UT", "VA", "VT", "WA", "WI", "WY"],
+      "unknown": ["AZ", "DC", "IA", "IL", "KY", "MI", "MN", "MS", "NH", "TN", "WV"]
+    },
+    "mandatory_online_only": ["NM", "TN"],
+    "no_account_required": ["DE", "FL", "NY", "SD", "WY", "IA"],
+    "automation_difficulty": {
+      "easy": {
+        "description": "No WAF, no captcha, standard form submission",
+        "states": ["AL", "AR", "CT", "HI", "IN", "LA", "ME", "MD", "NE", "NM", "NY", "ND", "OR", "SC", "SD", "VA", "WA", "WI"]
+      },
+      "medium": {
+        "description": "WAF present but no challenge/captcha on initial request",
+        "states": ["AK", "CA", "CO", "DE", "ID", "KS", "MT", "NV", "NJ", "OK", "RI", "UT", "VT", "WY"]
+      },
+      "hard": {
+        "description": "Cloudflare challenge, Akamai blocking, or captcha required",
+        "states": ["AZ", "DC", "FL", "GA", "IA", "IL", "KY", "MA", "MI", "MN", "MO", "MS", "NC", "NH", "OH", "PA", "TN", "TX", "WV"]
+      }
+    }
+  }
+}

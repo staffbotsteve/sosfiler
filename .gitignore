@@ -1,0 +1,41 @@
+# Secrets & environment
+.env
+.env.*
+!.env.example
+apple_auth_key.p8
+*.p8
+*.pem
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Generated customer documents (contain PII)
+generated_docs/
+
+# Filing receipts (contain PII)
+filing_receipts/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+dist/
+build/
+venv/
+.venv/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Node (if any)
+node_modules/

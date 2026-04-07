@@ -1,0 +1,294 @@
+"""
+SOSFiler — Email Notification System
+Sends transactional emails via SendGrid.
+"""
+
+import os
+import logging
+from datetime import datetime
+from typing import Optional
+
+from dotenv import load_dotenv
+
+load_dotenv()
+
+logger = logging.getLogger(__name__)
+
+SENDGRID_API_KEY = os.getenv("SENDGRID_API_KEY")
+FROM_EMAIL = "info@sosfiler.com"
+FROM_NAME = "SOSFiler"
+DASHBOARD_URL = os.getenv("DASHBOARD_URL", "https://sosfiler.com/dashboard.html")
+
+
+class Notifier:
+    """Send transactional emails via SendGrid."""
+
+    def __init__(self):
+        self.from_email = FROM_EMAIL
+        self.from_name = FROM_NAME
+
+    async def _send_email(self, to_email: str, subject: str, html_content: str, text_content: str = ""):
+        """Send an email via SendGrid."""
+        if not SENDGRID_API_KEY:
+            logger.warning(f"SendGrid not configured. Would send to {to_email}: {subject}")
+            return False
+        
+        try:
+            from sendgrid import SendGridAPIClient
+            from sendgrid.helpers.mail import Mail, Email, To, Content
+            
+            message = Mail(
+                from_email=Email(self.from_email, self.from_name),
+                to_emails=To(to_email),
+                subject=subject,
+                html_content=Content("text/html", html_content)
+            )
+            
+            if text_content:
+                message.add_content(Content("text/plain", text_content))
+            
+            sg = SendGridAPIClient(SENDGRID_API_KEY)
+            response = sg.send(message)
+            
+            logger.info(f"Email sent to {to_email}: {subject} (status: {response.status_code})")
+            return response.status_code in (200, 201, 202)
+            
+        except Exception as e:
+            logger.error(f"Failed to send email to {to_email}: {e}")
+            return False
+
+    def _base_template(self, content: str) -> str:
+        """Wrap content in branded email template."""
+        return f"""
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+  body {{ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 0; padding: 0; background: #0a0a1a; color: #e0e0e0; }}
+  .container {{ max-width: 600px; margin: 0 auto; padding: 20px; }}
+  .header {{ text-align: center; padding: 30px 0 20px; }}
+  .header h1 {{ color: #00d4ff; font-size: 28px; margin: 0; font-weight: 700; }}
+  .header .tagline {{ color: #888; font-size: 14px; margin-top: 4px; }}
+  .card {{ background: #12122a; border-radius: 12px; padding: 30px; margin: 20px 0; border: 1px solid #1e1e3a; }}
+  .card h2 {{ color: #ffffff; font-size: 20px; margin-top: 0; }}
+  .card p {{ color: #c0c0d0; line-height: 1.7; }}
+  .status-badge {{ display: inline-block; padding: 6px 16px; border-radius: 20px; font-size: 13px; font-weight: 600; }}
+  .status-paid {{ background: #0d3320; color: #34d399; }}
+  .status-filing {{ background: #1e293b; color: #60a5fa; }}
+  .status-approved {{ background: #0d3320; color: #34d399; }}
+  .status-complete {{ background: #0d3320; color: #34d399; }}
+  .btn {{ display: inline-block; padding: 14px 32px; background: linear-gradient(135deg, #00d4ff, #0099cc); color: #000 !important; text-decoration: none; border-radius: 8px; font-weight: 700; font-size: 16px; margin: 16px 0; }}
+  .detail-row {{ display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #1e1e3a; }}
+  .detail-label {{ color: #888; }}
+  .detail-value {{ color: #fff; font-weight: 600; }}
+  .footer {{ text-align: center; padding: 30px 0; color: #555; font-size: 12px; }}
+  .footer a {{ color: #00d4ff; text-decoration: none; }}
+  ul {{ color: #c0c0d0; line-height: 2; }}
+  li {{ margin: 4px 0; }}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1>⚡ SOSFiler</h1>
+    <div class="tagline">Your LLC. Filed in minutes. Not weeks.</div>
+  </div>
+  {content}
+  <div class="footer">
+    <p>SOSFiler — Honest pricing, no hidden fees.<br>
+    <a href="{DASHBOARD_URL}">View Dashboard</a> · 
+    <a href="mailto:support@sosfiler.com">Contact Support</a></p>
+    <p>© {datetime.now().year} SOSFiler. All rights reserved.</p>
+  </div>
+</div>
+</body>
+</html>"""
+
+    async def send_order_confirmation(self, order: dict, formation_data: dict):
+        """Send order confirmation after payment."""
+        state_name = formation_data.get("state", "")
+        content = f"""
+<div class="card">
+  <h2>✅ Payment Confirmed — We're On It!</h2>
+  <p>Hi {formation_data.get('members', [{}])[0].get('name', '').split()[0] if formation_data.get('members') else 'there'},</p>
+  <p>Your payment has been received and we're starting the formation process for <strong>{order.get('business_name', '')}</strong> right now.</p>
+  
+  <div style="margin: 20px 0;">
+    <div class="detail-row"><span class="detail-label">Order ID</span><span class="detail-value">{order.get('id', '')}</span></div>
+    <div class="detail-row"><span class="detail-label">Entity Type</span><span class="detail-value">{order.get('entity_type', 'LLC')}</span></div>
+    <div class="detail-row"><span class="detail-label">State</span><span class="detail-value">{state_name}</span></div>
+    <div class="detail-row"><span class="detail-label">Business Name</span><span class="detail-value">{order.get('business_name', '')}</span></div>
+    <div class="detail-row"><span class="detail-label">Total Paid</span><span class="detail-value">${order.get('total_cents', 0) / 100:.2f}</span></div>
+  </div>
+  
+  <p><strong>What happens next:</strong></p>
+  <ul>
+    <li>📄 We generate your formation documents (Articles, Operating Agreement, Resolutions)</li>
+    <li>📋 We file with the {state_name} Secretary of State</li>
+    <li>🔢 We apply for your EIN with the IRS</li>
+    <li>📅 We set up your compliance calendar</li>
+  </ul>
+  
+  <p>Track everything in real-time:</p>
+  <a href="{DASHBOARD_URL}?order_id={order.get('id', '')}&token={order.get('token', '')}" class="btn">View Dashboard →</a>
+</div>"""
+        
+        html = self._base_template(content)
+        await self._send_email(
+            order.get("email", ""),
+            f"✅ Order Confirmed — {order.get('business_name', '')}",
+            html
+        )
+
+    async def send_filing_submitted(self, order: dict, formation_data: dict):
+        """Send notification when filing is submitted to the state."""
+        content = f"""
+<div class="card">
+  <h2>📋 Filing Submitted</h2>
+  <p><span class="status-badge status-filing">Filing in Progress</span></p>
+  <p>We've submitted the formation documents for <strong>{order.get('business_name', '')}</strong> to the {order.get('state', '')} Secretary of State.</p>
+  <p>Typical processing time: 1-5 business days depending on state.</p>
+  <a href="{DASHBOARD_URL}?order_id={order.get('id', '')}&token={order.get('token', '')}" class="btn">Track Status →</a>
+</div>"""
+        
+        html = self._base_template(content)
+        await self._send_email(
+            order.get("email", ""),
+            f"📋 Filing Submitted — {order.get('business_name', '')}",
+            html
+        )
+
+    async def send_formation_approved(self, order: dict, formation_data: dict):
+        """Send notification when formation is approved and Statement of Organizer is ready."""
+        content = f"""
+<div class="card">
+  <h2>✅ Your LLC is Approved!</h2>
+  <p><span class="status-badge status-approved">Approved</span></p>
+  <p><strong>{order.get('business_name', '')}</strong> has been officially approved by the {order.get('state', '')} Secretary of State.</p>
+  
+  <p>A <strong>Statement of Organizer</strong> has been generated and placed in your Document Vault. This document formally transfers all organizational rights and authority from SOSFiler (as Organizer) to you as the Member(s) of the LLC.</p>
+  
+  <a href="{DASHBOARD_URL}?order_id={order.get('id', '')}&token={order.get('token', '')}" class="btn">View Document Vault →</a>
+</div>"""
+        
+        html = self._base_template(content)
+        await self._send_email(
+            order.get("email", ""),
+            f"✅ LLC Approved — Statement of Organizer Ready — {order.get('business_name', '')}",
+            html
+        )
+
+    async def send_documents_ready(self, order: dict, formation_data: dict):
+        """Send notification when all documents are ready."""
+        content = f"""
+<div class="card">
+  <h2>🎉 Your LLC is Formed!</h2>
+  <p><span class="status-badge status-complete">Complete</span></p>
+  <p>Congratulations! <strong>{order.get('business_name', '')}</strong> is officially formed. All your documents are ready for download.</p>
+  
+  <p><strong>Your documents:</strong></p>
+  <ul>
+    <li>📄 Articles of Organization (filed & approved)</li>
+    <li>📋 Operating Agreement</li>
+    <li>📝 Initial Resolutions</li>
+    <li>📝 Organizational Meeting Minutes</li>
+    <li>🏆 Membership Certificate(s)</li>
+    <li>{'🔢 EIN Confirmation Letter' if order.get('ein') else '🔢 EIN (pending — coming within 1-2 business days)'}</li>
+  </ul>
+  
+  <a href="{DASHBOARD_URL}?order_id={order.get('id', '')}&token={order.get('token', '')}" class="btn">Download Documents →</a>
+  
+  <p style="margin-top: 20px;"><strong>What to do next:</strong></p>
+  <ul>
+    <li>🏦 Open a business bank account (bring your Articles + EIN letter)</li>
+    <li>📊 Set up business accounting (we recommend Wave or QuickBooks)</li>
+    <li>📅 Check your compliance calendar for upcoming deadlines</li>
+    <li>💼 Get business insurance if applicable</li>
+    <li>📱 Save your dashboard link — bookmark it!</li>
+  </ul>
+</div>"""
+        
+        html = self._base_template(content)
+        await self._send_email(
+            order.get("email", ""),
+            f"🎉 Your LLC is Formed — {order.get('business_name', '')}",
+            html
+        )
+
+    async def send_ein_received(self, order: dict, ein: str):
+        """Send notification when EIN is received."""
+        content = f"""
+<div class="card">
+  <h2>🔢 EIN Received!</h2>
+  <p>Your Employer Identification Number has been assigned by the IRS.</p>
+  
+  <div style="background: #0d1b2a; padding: 20px; border-radius: 8px; text-align: center; margin: 20px 0;">
+    <div style="color: #888; font-size: 14px;">Your EIN</div>
+    <div style="color: #00d4ff; font-size: 32px; font-weight: 700; letter-spacing: 2px; margin-top: 8px;">{ein}</div>
+  </div>
+  
+  <p><strong>Use your EIN to:</strong></p>
+  <ul>
+    <li>Open a business bank account</li>
+    <li>File federal and state tax returns</li>
+    <li>Hire employees</li>
+    <li>Apply for business licenses</li>
+  </ul>
+  
+  <p>Download your EIN confirmation letter from your dashboard:</p>
+  <a href="{DASHBOARD_URL}?order_id={order.get('id', '')}&token={order.get('token', '')}" class="btn">Download EIN Letter →</a>
+</div>"""
+        
+        html = self._base_template(content)
+        await self._send_email(
+            order.get("email", ""),
+            f"🔢 EIN Received — {order.get('business_name', '')}",
+            html
+        )
+
+    async def send_compliance_reminder(self, order: dict, deadline: dict, days_until: int):
+        """Send compliance deadline reminder."""
+        urgency = "🔴" if days_until <= 7 else "🟡" if days_until <= 30 else "🟢"
+        
+        content = f"""
+<div class="card">
+  <h2>{urgency} Compliance Deadline in {days_until} Days</h2>
+  <p>This is a friendly reminder about an upcoming deadline for <strong>{order.get('business_name', '')}</strong>.</p>
+  
+  <div style="background: #0d1b2a; padding: 20px; border-radius: 8px; margin: 20px 0;">
+    <div class="detail-row"><span class="detail-label">Deadline</span><span class="detail-value">{deadline.get('deadline_type', '')}</span></div>
+    <div class="detail-row"><span class="detail-label">Due Date</span><span class="detail-value">{deadline.get('due_date', '')}</span></div>
+    <div class="detail-row"><span class="detail-label">Days Remaining</span><span class="detail-value">{days_until} days</span></div>
+  </div>
+  
+  <p>{"Need us to handle this? We offer annual report filing for $25/year." if 'annual_report' in deadline.get('deadline_type', '') else ""}</p>
+  
+  <a href="{DASHBOARD_URL}?order_id={order.get('id', '')}&token={order.get('token', '')}" class="btn">View Compliance Calendar →</a>
+</div>"""
+        
+        html = self._base_template(content)
+        await self._send_email(
+            order.get("email", ""),
+            f"{urgency} Compliance Reminder — {deadline.get('deadline_type', '')} due in {days_until} days",
+            html
+        )
+
+    async def send_error_alert(self, order_id: str, error: str):
+        """Send internal error alert for human review."""
+        content = f"""
+<div class="card">
+  <h2>⚠️ Formation Pipeline Error</h2>
+  <p><strong>Order:</strong> {order_id}</p>
+  <p><strong>Error:</strong> {error}</p>
+  <p><strong>Time:</strong> {datetime.now().isoformat()}</p>
+  <p>This order requires manual review and intervention.</p>
+</div>"""
+        
+        html = self._base_template(content)
+        await self._send_email(
+            FROM_EMAIL,  # Alert goes to admin
+            f"⚠️ SOSFiler Error — Order {order_id}",
+            html
+        )

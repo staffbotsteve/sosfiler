@@ -1,0 +1,1503 @@
+[
+  {
+    "state_name": "Alabama",
+    "sos_portal_url": "",
+    "online_filing_available": true,
+    "form_name_number": "Certificate of Formation",
+    "required_fields": [
+      "Name Reservation Number",
+      "Shares Information"
+    ],
+    "filing_fee": "$200 + $28 name reservation",
+    "expedited_options": "",
+    "standard_processing_time": "Instant",
+    "name_requirements": "Name reservation MANDATORY",
+    "registered_agent_requirements": "",
+    "annual_report": {
+      "required": true,
+      "form": "BPT with Dept of Revenue",
+      "frequency": "Annual",
+      "due": "",
+      "fee": 0,
+      "notes": "Annual reports eliminated Oct 2024; now filed as BPT"
+    },
+    "stock_shares_requirements": "Shares required",
+    "publication_required": false,
+    "publication_details": "",
+    "payment_methods": [],
+    "what_state_returns": "",
+    "s_corp_election": "Federal only",
+    "gotchas": ""
+  },
+  {
+    "state_name": "Alaska",
+    "sos_portal_url": "",
+    "online_filing_available": true,
+    "form_name_number": "Articles of Incorporation (Form 08-400)",
+    "required_fields": [
+      "NAICS code",
+      "Shares",
+      "Par value"
+    ],
+    "filing_fee": "$250",
+    "expedited_options": "",
+    "standard_processing_time": "Immediate",
+    "name_requirements": "",
+    "registered_agent_requirements": "",
+    "annual_report": {
+      "required": true,
+      "form": "",
+      "frequency": "Biennial",
+      "due": "Jan 2",
+      "fee": 100,
+      "notes": ""
+    },
+    "stock_shares_requirements": "Shares + par value",
+    "publication_required": false,
+    "publication_details": "",
+    "payment_methods": [],
+    "what_state_returns": "",
+    "s_corp_election": "Federal only",
+    "gotchas": "Separate $50/yr business license"
+  },
+  {
+    "state_name": "Arizona",
+    "sos_portal_url": "",
+    "online_filing_available": true,
+    "form_name_number": "Articles of Incorporation",
+    "required_fields": [
+      "Shares"
+    ],
+    "filing_fee": "$60",
+    "expedited_options": "+$35",
+    "standard_processing_time": "15-20 days",
+    "name_requirements": "",
+    "registered_agent_requirements": "",
+    "annual_report": {
+      "required": true,
+      "form": "",
+      "frequency": "Annual",
+      "due": "",
+      "fee": 45,
+      "notes": ""
+    },
+    "stock_shares_requirements": "Shares required",
+    "publication_required": true,
+    "publication_details": "3 weeks (exempt Maricopa/Pima)",
+    "payment_methods": [],
+    "what_state_returns": "",
+    "s_corp_election": "Federal only",
+    "gotchas": "Filed with Corporation Commission NOT SOS"
+  },
+  {
+    "state_name": "Arkansas",
+    "sos_portal_url": "",
+    "online_filing_available": true,
+    "form_name_number": "Articles of Incorporation (DN-01)",
+    "required_fields": [
+      "Shares"
+    ],
+    "filing_fee": "$50",
+    "expedited_options": "",
+    "standard_processing_time": "1-3 days",
+    "name_requirements": "",
+    "registered_agent_requirements": "",
+    "annual_report": {
+      "required": true,
+      "form": "Franchise Tax Report",
+      "frequency": "Annual",
+      "due": "May 1",
+      "fee": 300,
+      "notes": "Franchise tax $300"
+    },
+    "stock_shares_requirements": "Shares affect franchise tax",
+    "publication_required": false,
+    "publication_details": "",
+    "payment_methods": [],
+    "what_state_returns": "",
+    "s_corp_election": "State election AR1103 recommended",
+    "gotchas": ""
+  },
+  {
+    "state_name": "California",
+    "sos_portal_url": "",
+    "online_filing_available": true,
+    "form_name_number": "Articles of Incorporation (ARTS-GS)",
+    "required_fields": [
+      "Shares"
+    ],
+    "filing_fee": "$100",
+    "expedited_options": "24hr $350, same-day $750",
+    "standard_processing_time": "5-10 days",
+    "name_requirements": "",
+    "registered_agent_requirements": "",
+    "annual_report": {
+      "required": true,
+      "form": "SOI SI-100",
+      "frequency": "Annual",
+      "due": "",
+      "fee": 25,
+      "notes": "$800 franchise tax also applies"
+    },
+    "stock_shares_requirements": "Shares required",
+    "publication_required": false,
+    "publication_details": "",
+    "payment_methods": [],
+    "what_state_returns": "",
+    "s_corp_election": "1.5% tax min $800 vs 8.84% C-Corp",
+    "gotchas": ""
+  },
+  {
+    "state_name": "Colorado",
+    "sos_portal_url": "",
+    "online_filing_available": true,
+    "form_name_number": "Articles of Incorporation",
+    "required_fields": [
+      "Shares"
+    ],
+    "filing_fee": "$50",
+    "expedited_options": "",
+    "standard_processing_time": "Instant",
+    "name_requirements": "",
+    "registered_agent_requirements": "",
+    "annual_report": {
+      "required": true,
+      "form": "",
+      "frequency": "Annual",
+      "due": "",
+      "fee": 10,
+      "notes": ""
+    },
+    "stock_shares_requirements": "Shares required",
+    "publication_required": false,
+    "publication_details": "",
+    "payment_methods": [],
+    "what_state_returns": "",
+    "s_corp_election": "Federal only",
+    "gotchas": "Online mandatory"
+  },
+  {
+    "state_name": "Connecticut",
+    "sos_portal_url": "",
+    "online_filing_available": true,
+    "form_name_number": "Certificate of Incorporation",
+    "required_fields": [
+      "Shares"
+    ],
+    "filing_fee": "$250 min",
+    "expedited_options": "+$50",
+    "standard_processing_time": "7-10 days",
+    "name_requirements": "",
+    "registered_agent_requirements": "",
+    "annual_report": {
+      "required": true,
+      "form": "",
+      "frequency": "Annual",
+      "due": "",
+      "fee": 150,
+      "notes": ""
+    },
+    "stock_shares_requirements": "Filing fee based on shares",
+    "publication_required": false,
+    "publication_details": "",
+    "payment_methods": [],
+    "what_state_returns": "",
+    "s_corp_election": "Federal only",
+    "gotchas": "Must file Org & First Report within 30 days ($150)"
+  },
+  {
+    "state_name": "Delaware",
+    "sos_portal_url": "",
+    "online_filing_available": true,
+    "form_name_number": "Certificate of Incorporation of a Stock Corporation",
+    "required_fields": [
+      "Shares",
+      "Par Value"
+    ],
+    "filing_fee": "$109 min",
+    "expedited_options": "24hr $50, same-day $100, 2hr $500, 1hr $1000",
+    "standard_processing_time": "10-15 days",
+    "name_requirements": "",
+    "registered_agent_requirements": "",
+    "annual_report": {
+      "required": true,
+      "form": "",
+      "frequency": "Annual",
+      "due": "Mar 1",
+      "fee": 225,
+      "notes": "$50 report + $175 min franchise tax"
+    },
+    "stock_shares_requirements": "Shares affect franchise tax significantly",
+    "publication_required": false,
+    "publication_details": "",
+    "payment_methods": [],
+    "what_state_returns": "",
+    "s_corp_election": "Federal only",
+    "gotchas": "Authorized Shares vs Assumed Par Value tax methods; online via upload"
+  },
+  {
+    "state_name": "District of Columbia",
+    "state_name_short": "DC",
+    "sos_portal_url": "",
+    "online_filing_available": true,
+    "form_name_number": "Articles of Incorporation (Form DBU-1)",
+    "required_fields": [
+      "Shares"
+    ],
+    "filing_fee": "$220 min",
+    "expedited_options": "3day $50, 1day $100",
+    "standard_processing_time": "10-15 days",
+    "name_requirements": "",
+    "registered_agent_requirements": "",
+    "annual_report": {
+      "required": true,
+      "form": "",
+      "frequency": "Biennial",
+      "due": "Apr 1",
+      "fee": 300,
+      "notes": ""
+    },
+    "stock_shares_requirements": "Shares required",
+    "publication_required": false,
+    "publication_details": "",
+    "payment_methods": [],
+    "what_state_returns": "",
+    "s_corp_election": "Federal only",
+    "gotchas": "Need BBL business license"
+  },
+  {
+    "state_name": "Florida",
+    "sos_portal_url": "",
+    "online_filing_available": true,
+    "form_name_number": "Articles of Incorporation",
+    "required_fields": [
+      "Shares"
+    ],
+    "filing_fee": "$70",
+    "expedited_options": "",
+    "standard_processing_time": "2-3 days",
+    "name_requirements": "",
+    "registered_agent_requirements": "",
+    "annual_report": {
+      "required": true,
+      "form": "",
+      "frequency": "Annual",
+      "due": "Jan-May",
+      "fee": 150,
+      "notes": ""
+    },
+    "stock_shares_requirements": "Shares required",
+    "publication_required": false,
+    "publication_details": "",
+    "payment_methods": [],
+    "what_state_returns": "",
+    "s_corp_election": "Requires state Form F-1120S",
+    "gotchas": ""
+  },
+  {
+    "state_name": "Georgia",
+    "sos_portal_url": "",
+    "online_filing_available": true,
+    "form_name_number": "Articles of Incorporation",
+    "required_fields": [
+      "Shares"
+    ],
+    "filing_fee": "$110 ($100 + $10 mandatory online service fee)",
+    "expedited_options": "24hr $100, same-day $250",
+    "standard_processing_time": "5-7 days",
+    "name_requirements": "",
+    "registered_agent_requirements": "",
+    "annual_report": {
+      "required": true,
+      "form": "",
+      "frequency": "Annual",
+      "due": "Jan-Apr",
+      "fee": 60,
+      "notes": " Includes $10 online service fee."
+    },
+    "stock_shares_requirements": "Shares required no fee impact",
+    "publication_required": true,
+    "publication_details": "2 weeks in county legal organ ($40)",
+    "payment_methods": [],
+    "what_state_returns": "",
+    "s_corp_election": "Federal only",
+    "gotchas": "Initial $50 registration within 90 days"
+  },
+  {
+    "state_name": "Hawaii",
+    "sos_portal_url": "",
+    "online_filing_available": true,
+    "form_name_number": "Articles of Incorporation (Form DC-1)",
+    "required_fields": [
+      "Shares",
+      "Par Value"
+    ],
+    "filing_fee": "$50",
+    "expedited_options": "+$25",
+    "standard_processing_time": "3-5 days",
+    "name_requirements": "",
+    "registered_agent_requirements": "",
+    "annual_report": {
+      "required": true,
+      "form": "",
+      "frequency": "Annual",
+      "due": "",
+      "fee": 15,
+      "notes": "Annual $15 quarterly?"
+    },
+    "stock_shares_requirements": "Shares + par value",
+    "publication_required": false,
+    "publication_details": "",
+    "payment_methods": [],
+    "what_state_returns": "",
+    "s_corp_election": "Federal only",
+    "gotchas": "GET tax registration required"
+  },
+  {
+    "state_name": "Idaho",
+    "sos_portal_url": "",
+    "online_filing_available": true,
+    "form_name_number": "Articles of Incorporation",
+    "required_fields": [
+      "Shares"
+    ],
+    "filing_fee": "$100",
+    "expedited_options": "$40 / same-day $100",
+    "standard_processing_time": "1-2 days",
+    "name_requirements": "",
+    "registered_agent_requirements": "",
+    "annual_report": {
+      "required": true,
+      "form": "",
+      "frequency": "Annual",
+      "due": "",
+      "fee": 0,
+      "notes": "FREE online"
+    },
+    "stock_shares_requirements": "Shares required",
+    "publication_required": false,
+    "publication_details": "",
+    "payment_methods": [],
+    "what_state_returns": "",
+    "s_corp_election": "Federal only",
+    "gotchas": ""
+  },
+  {
+    "state_name": "Illinois",
+    "sos_portal_url": "",
+    "online_filing_available": true,
+    "form_name_number": "Articles of Incorporation (Form BCA 2.10)",
+    "required_fields": [
+      "Shares",
+      "Paid-in capital"
+    ],
+    "filing_fee": "$275 ($150 base + $100 forced expedite + $25 minimum franchise tax)",
+    "expedited_options": "Forced $100 expedite included in online fee",
+    "standard_processing_time": "24hr",
+    "name_requirements": "",
+    "registered_agent_requirements": "",
+    "annual_report": {
+      "required": true,
+      "form": "",
+      "frequency": "Annual",
+      "due": "",
+      "fee": 75,
+      "notes": "Franchise tax eliminated 2026"
+    },
+    "stock_shares_requirements": "Shares + paid-in capital required",
+    "publication_required": false,
+    "publication_details": "",
+    "payment_methods": [],
+    "what_state_returns": "",
+    "s_corp_election": "Federal only",
+    "gotchas": ""
+  },
+  {
+    "state_name": "Indiana",
+    "sos_portal_url": "",
+    "online_filing_available": true,
+    "form_name_number": "Articles of Incorporation (State Form 4159)",
+    "required_fields": [
+      "Shares"
+    ],
+    "filing_fee": "$90",
+    "expedited_options": "",
+    "standard_processing_time": "Instant-24hr",
+    "name_requirements": "",
+    "registered_agent_requirements": "",
+    "annual_report": {
+      "required": true,
+      "form": "",
+      "frequency": "Biennial",
+      "due": "",
+      "fee": 32,
+      "notes": "Online fee"
+    },
+    "stock_shares_requirements": "Shares required",
+    "publication_required": false,
+    "publication_details": "",
+    "payment_methods": [],
+    "what_state_returns": "",
+    "s_corp_election": "Federal only",
+    "gotchas": ""
+  },
+  {
+    "state_name": "Iowa",
+    "sos_portal_url": "",
+    "online_filing_available": true,
+    "form_name_number": "Articles of Incorporation",
+    "required_fields": [
+      "Shares"
+    ],
+    "filing_fee": "$50",
+    "expedited_options": "2day $50, 5day $15",
+    "standard_processing_time": "1-2 days",
+    "name_requirements": "",
+    "registered_agent_requirements": "",
+    "annual_report": {
+      "required": true,
+      "form": "",
+      "frequency": "Biennial",
+      "due": "Apr 1 (even years)",
+      "fee": 60,
+      "notes": ""
+    },
+    "stock_shares_requirements": "Shares required",
+    "publication_required": false,
+    "publication_details": "",
+    "payment_methods": [],
+    "what_state_returns": "",
+    "s_corp_election": "Federal only",
+    "gotchas": ""
+  },
+  {
+    "state_name": "Kansas",
+    "sos_portal_url": "",
+    "online_filing_available": true,
+    "form_name_number": "Articles of Incorporation (Form AI)",
+    "required_fields": [
+      "Shares",
+      "Par Value"
+    ],
+    "filing_fee": "$89 online",
+    "expedited_options": "",
+    "standard_processing_time": "Instant",
+    "name_requirements": "",
+    "registered_agent_requirements": "",
+    "annual_report": {
+      "required": true,
+      "form": "",
+      "frequency": "Annual",
+      "due": "15th of 4th month after fiscal year",
+      "fee": 55,
+      "notes": ""
+    },
+    "stock_shares_requirements": "Shares + par value required",
+    "publication_required": false,
+    "publication_details": "",
+    "payment_methods": [],
+    "what_state_returns": "",
+    "s_corp_election": "Federal only",
+    "gotchas": ""
+  },
+  {
+    "state_name": "Kentucky",
+    "sos_portal_url": "",
+    "online_filing_available": true,
+    "form_name_number": "Articles of Incorporation - Profit (PAI)",
+    "required_fields": [
+      "Shares"
+    ],
+    "filing_fee": "$40 + org tax (min $10)",
+    "expedited_options": "",
+    "standard_processing_time": "1-3 days",
+    "name_requirements": "",
+    "registered_agent_requirements": "",
+    "annual_report": {
+      "required": true,
+      "form": "",
+      "frequency": "Annual",
+      "due": "Jan-Jun",
+      "fee": 15,
+      "notes": ""
+    },
+    "stock_shares_requirements": "Shares affect org tax ($0.01/share first 20k)",
+    "publication_required": false,
+    "publication_details": "",
+    "payment_methods": [],
+    "what_state_returns": "",
+    "s_corp_election": "Federal only",
+    "gotchas": ""
+  },
+  {
+    "state_name": "Louisiana",
+    "sos_portal_url": "",
+    "online_filing_available": true,
+    "form_name_number": "Articles of Incorporation",
+    "required_fields": [
+      "Shares"
+    ],
+    "filing_fee": "$75 (+$5 online)",
+    "expedited_options": "24hr $30, 3hr $50",
+    "standard_processing_time": "1-2 days",
+    "name_requirements": "",
+    "registered_agent_requirements": "",
+    "annual_report": {
+      "required": true,
+      "form": "",
+      "frequency": "Annual",
+      "due": "",
+      "fee": 35,
+      "notes": ""
+    },
+    "stock_shares_requirements": "Shares required",
+    "publication_required": false,
+    "publication_details": "",
+    "payment_methods": [],
+    "what_state_returns": "",
+    "s_corp_election": "State election Form CIFT-620 required",
+    "gotchas": ""
+  },
+  {
+    "state_name": "Maine",
+    "sos_portal_url": "",
+    "online_filing_available": false,
+    "form_name_number": "Articles of Incorporation",
+    "required_fields": [
+      "Shares"
+    ],
+    "filing_fee": "$175",
+    "expedited_options": "$50 / $100",
+    "standard_processing_time": "5-10 days",
+    "name_requirements": "",
+    "registered_agent_requirements": "",
+    "annual_report": {
+      "required": true,
+      "form": "",
+      "frequency": "Annual",
+      "due": "Jun 1",
+      "fee": 85,
+      "notes": ""
+    },
+    "stock_shares_requirements": "Shares required",
+    "publication_required": false,
+    "publication_details": "",
+    "payment_methods": [],
+    "what_state_returns": "",
+    "s_corp_election": "Federal only",
+    "gotchas": "Online limited"
+  },
+  {
+    "state_name": "Maryland",
+    "sos_portal_url": "",
+    "online_filing_available": true,
+    "form_name_number": "Articles of Incorporation",
+    "required_fields": [
+      "Shares",
+      "Par Value"
+    ],
+    "filing_fee": "$120 min ($100+$20 org fee)",
+    "expedited_options": "$50 (7day), $325 (3hr), $425 (same-day)",
+    "standard_processing_time": "8-10+ WEEKS standard!",
+    "name_requirements": "",
+    "registered_agent_requirements": "",
+    "annual_report": {
+      "required": true,
+      "form": "",
+      "frequency": "Annual",
+      "due": "Apr 15",
+      "fee": 300,
+      "notes": ""
+    },
+    "stock_shares_requirements": "Shares + par value affect fee",
+    "publication_required": false,
+    "publication_details": "",
+    "payment_methods": [],
+    "what_state_returns": "",
+    "s_corp_election": "Federal only",
+    "gotchas": "Brutal standard processing"
+  },
+  {
+    "state_name": "Massachusetts",
+    "sos_portal_url": "",
+    "online_filing_available": true,
+    "form_name_number": "Articles of Organization",
+    "required_fields": [
+      "President",
+      "Treasurer",
+      "Secretary",
+      "Shares"
+    ],
+    "filing_fee": "$275 min",
+    "expedited_options": "",
+    "standard_processing_time": "1-2 days",
+    "name_requirements": "",
+    "registered_agent_requirements": "",
+    "annual_report": {
+      "required": true,
+      "form": "",
+      "frequency": "Annual",
+      "due": "2.5mo after fiscal year",
+      "fee": 100,
+      "notes": "Online fee"
+    },
+    "stock_shares_requirements": "Covers 275k shares, +$100/100k extra",
+    "publication_required": false,
+    "publication_details": "",
+    "payment_methods": [],
+    "what_state_returns": "",
+    "s_corp_election": "Federal only",
+    "gotchas": "Must list President/Treasurer/Secretary"
+  },
+  {
+    "state_name": "Michigan",
+    "sos_portal_url": "",
+    "online_filing_available": true,
+    "form_name_number": "Articles of Incorporation (CSCL/CD-500)",
+    "required_fields": [
+      "Shares"
+    ],
+    "filing_fee": "$60 min",
+    "expedited_options": "24hr $50, same-day $100, 2hr $500, 1hr $1000",
+    "standard_processing_time": "7-10 days",
+    "name_requirements": "",
+    "registered_agent_requirements": "",
+    "annual_report": {
+      "required": true,
+      "form": "",
+      "frequency": "Annual",
+      "due": "May 15",
+      "fee": 25,
+      "notes": ""
+    },
+    "stock_shares_requirements": "Shares scale fee (60k=$60, 1M=$110, 5M=$310)",
+    "publication_required": false,
+    "publication_details": "Possible local pub",
+    "payment_methods": [],
+    "what_state_returns": "",
+    "s_corp_election": "Federal + Flow-Through Entity tax",
+    "gotchas": ""
+  },
+  {
+    "state_name": "Minnesota",
+    "sos_portal_url": "",
+    "online_filing_available": true,
+    "form_name_number": "Articles of Incorporation",
+    "required_fields": [
+      "Shares"
+    ],
+    "filing_fee": "$155 online / $135 mail",
+    "expedited_options": "",
+    "standard_processing_time": "3-5 days",
+    "name_requirements": "",
+    "registered_agent_requirements": "",
+    "annual_report": {
+      "required": true,
+      "form": "",
+      "frequency": "Annual",
+      "due": "Dec 31",
+      "fee": 0,
+      "notes": "FREE"
+    },
+    "stock_shares_requirements": "Shares min 1",
+    "publication_required": false,
+    "publication_details": "",
+    "payment_methods": [],
+    "what_state_returns": "",
+    "s_corp_election": "Federal only",
+    "gotchas": ""
+  },
+  {
+    "state_name": "Mississippi",
+    "sos_portal_url": "",
+    "online_filing_available": true,
+    "form_name_number": "Articles of Incorporation",
+    "required_fields": [
+      "Shares",
+      "Par value",
+      "Classes",
+      "NAICS"
+    ],
+    "filing_fee": "$50",
+    "expedited_options": "24hr $50, same-day $100-200, 2hr $500",
+    "standard_processing_time": "24hr-2 days",
+    "name_requirements": "",
+    "registered_agent_requirements": "",
+    "annual_report": {
+      "required": true,
+      "form": "",
+      "frequency": "Annual",
+      "due": "Apr 15",
+      "fee": 25,
+      "notes": ""
+    },
+    "stock_shares_requirements": "Shares+par+classes required",
+    "publication_required": false,
+    "publication_details": "",
+    "payment_methods": [],
+    "what_state_returns": "",
+    "s_corp_election": "STATE election required with Dept of Revenue within 60 days",
+    "gotchas": "Online mandatory"
+  },
+  {
+    "state_name": "Missouri",
+    "sos_portal_url": "",
+    "online_filing_available": true,
+    "form_name_number": "Articles of Incorporation",
+    "required_fields": [
+      "Shares",
+      "Par Value",
+      "Min 3 directors"
+    ],
+    "filing_fee": "$58 min ($50+$3cert+$5tech)",
+    "expedited_options": "",
+    "standard_processing_time": "Instant",
+    "name_requirements": "",
+    "registered_agent_requirements": "",
+    "annual_report": {
+      "required": true,
+      "form": "",
+      "frequency": "Annual/Biennial",
+      "due": "",
+      "fee": 20,
+      "notes": "Online fee"
+    },
+    "stock_shares_requirements": "Shares+par value affect fee ($50 first $30k capital)",
+    "publication_required": false,
+    "publication_details": "",
+    "payment_methods": [],
+    "what_state_returns": "",
+    "s_corp_election": "Federal only",
+    "gotchas": "Min 3 directors"
+  },
+  {
+    "state_name": "Montana",
+    "sos_portal_url": "",
+    "online_filing_available": true,
+    "form_name_number": "Articles of Incorporation",
+    "required_fields": [
+      "Shares"
+    ],
+    "filing_fee": "$35",
+    "expedited_options": "24hr $20, 1hr $100",
+    "standard_processing_time": "5-10 days",
+    "name_requirements": "",
+    "registered_agent_requirements": "",
+    "annual_report": {
+      "required": true,
+      "form": "",
+      "frequency": "Annual",
+      "due": "Apr 15",
+      "fee": 20,
+      "notes": "Waived 2024-2025"
+    },
+    "stock_shares_requirements": "Shares required",
+    "publication_required": false,
+    "publication_details": "",
+    "payment_methods": [],
+    "what_state_returns": "",
+    "s_corp_election": "Federal only",
+    "gotchas": "Online mandatory"
+  },
+  {
+    "state_name": "Nebraska",
+    "sos_portal_url": "",
+    "online_filing_available": true,
+    "form_name_number": "Articles of Incorporation",
+    "required_fields": [
+      "Shares"
+    ],
+    "filing_fee": "$60 min",
+    "expedited_options": "",
+    "standard_processing_time": "2-5 days",
+    "name_requirements": "",
+    "registered_agent_requirements": "",
+    "annual_report": {
+      "required": true,
+      "form": "",
+      "frequency": "Biennial",
+      "due": "Odd years",
+      "fee": 26,
+      "notes": ""
+    },
+    "stock_shares_requirements": "Shares affect fee based on authorized capital",
+    "publication_required": true,
+    "publication_details": "3 weeks in newspaper",
+    "payment_methods": [],
+    "what_state_returns": "",
+    "s_corp_election": "Federal only",
+    "gotchas": ""
+  },
+  {
+    "state_name": "Nevada",
+    "sos_portal_url": "",
+    "online_filing_available": true,
+    "form_name_number": "Articles of Incorporation",
+    "required_fields": [
+      "Shares"
+    ],
+    "filing_fee": "$725 ($75 Articles + $150 Initial List + $500 Business License)",
+    "expedited_options": "24hr $125, 2hr $500, 1hr $1000",
+    "standard_processing_time": "1 day",
+    "name_requirements": "",
+    "registered_agent_requirements": "",
+    "annual_report": {
+      "required": true,
+      "form": "",
+      "frequency": "Annual",
+      "due": "",
+      "fee": 650,
+      "notes": "List $150 + Business License $500. Corp license is $500 (not $200 like LLC)."
+    },
+    "stock_shares_requirements": "Shares required but don't affect fee",
+    "publication_required": false,
+    "publication_details": "",
+    "payment_methods": [],
+    "what_state_returns": "",
+    "s_corp_election": "No state income tax so N/A",
+    "gotchas": " Corp business license is $500 vs $200 for LLCs."
+  },
+  {
+    "state_name": "New Hampshire",
+    "sos_portal_url": "",
+    "online_filing_available": true,
+    "form_name_number": "Articles of Incorporation",
+    "required_fields": [
+      "Shares"
+    ],
+    "filing_fee": "$100",
+    "expedited_options": "",
+    "standard_processing_time": "3-7 days",
+    "name_requirements": "",
+    "registered_agent_requirements": "",
+    "annual_report": {
+      "required": true,
+      "form": "",
+      "frequency": "Annual",
+      "due": "Apr 1",
+      "fee": 100,
+      "notes": ""
+    },
+    "stock_shares_requirements": "Shares required",
+    "publication_required": false,
+    "publication_details": "",
+    "payment_methods": [],
+    "what_state_returns": "",
+    "s_corp_election": "Federal only",
+    "gotchas": ""
+  },
+  {
+    "state_name": "New Jersey",
+    "sos_portal_url": "",
+    "online_filing_available": true,
+    "form_name_number": "Certificate of Incorporation",
+    "required_fields": [
+      "Shares",
+      "Par Value"
+    ],
+    "filing_fee": "$125 (+$3.50 CC)",
+    "expedited_options": "$50 (8.5hr), $500 (2hr), $1000 (1hr)",
+    "standard_processing_time": "3-5 days",
+    "name_requirements": "",
+    "registered_agent_requirements": "",
+    "annual_report": {
+      "required": true,
+      "form": "",
+      "frequency": "Annual",
+      "due": "Anniversary",
+      "fee": 75,
+      "notes": ""
+    },
+    "stock_shares_requirements": "Shares + par value",
+    "publication_required": false,
+    "publication_details": "",
+    "payment_methods": [],
+    "what_state_returns": "",
+    "s_corp_election": "STATE election required online",
+    "gotchas": "Hard requirement for state S-Corp election"
+  },
+  {
+    "state_name": "New Mexico",
+    "sos_portal_url": "",
+    "online_filing_available": true,
+    "form_name_number": "Articles of Incorporation (Profit)",
+    "required_fields": [
+      "Shares"
+    ],
+    "filing_fee": "$100 min ($1/1000 shares, max $1000)",
+    "expedited_options": "",
+    "standard_processing_time": "1-3 days",
+    "name_requirements": "",
+    "registered_agent_requirements": "",
+    "annual_report": {
+      "required": true,
+      "form": "",
+      "frequency": "Biennial",
+      "due": "",
+      "fee": 25,
+      "notes": "Initial report $27 within 30 days"
+    },
+    "stock_shares_requirements": "Shares affect fee",
+    "publication_required": false,
+    "publication_details": "",
+    "payment_methods": [],
+    "what_state_returns": "",
+    "s_corp_election": "Federal only",
+    "gotchas": "Initial report due in 30 days; online mandatory"
+  },
+  {
+    "state_name": "New York",
+    "sos_portal_url": "",
+    "online_filing_available": true,
+    "form_name_number": "Certificate of Incorporation (Form DOS-1239)",
+    "required_fields": [
+      "Shares"
+    ],
+    "filing_fee": "$125 + org tax ($10-$75 based on shares)",
+    "expedited_options": "24hr $25, same-day $75, 2hr $150",
+    "standard_processing_time": "7-10 days",
+    "name_requirements": "",
+    "registered_agent_requirements": "",
+    "annual_report": {
+      "required": true,
+      "form": "",
+      "frequency": "Biennial",
+      "due": "",
+      "fee": 9,
+      "notes": ""
+    },
+    "stock_shares_requirements": "Shares affect org tax",
+    "publication_required": false,
+    "publication_details": "No pub for corps (only LLCs)",
+    "payment_methods": [],
+    "what_state_returns": "",
+    "s_corp_election": "STATE election Form CT-6 required",
+    "gotchas": ""
+  },
+  {
+    "state_name": "North Carolina",
+    "sos_portal_url": "",
+    "online_filing_available": true,
+    "form_name_number": "Articles of Incorporation (Form B-01)",
+    "required_fields": [
+      "Shares"
+    ],
+    "filing_fee": "$125",
+    "expedited_options": "24hr $100, same-day $200",
+    "standard_processing_time": "3-5 days",
+    "name_requirements": "",
+    "registered_agent_requirements": "",
+    "annual_report": {
+      "required": true,
+      "form": "",
+      "frequency": "Annual",
+      "due": "15th of 4th month after fiscal year",
+      "fee": 20,
+      "notes": "Online fee"
+    },
+    "stock_shares_requirements": "Shares required",
+    "publication_required": false,
+    "publication_details": "",
+    "payment_methods": [],
+    "what_state_returns": "",
+    "s_corp_election": "Federal only",
+    "gotchas": ""
+  },
+  {
+    "state_name": "North Dakota",
+    "sos_portal_url": "",
+    "online_filing_available": true,
+    "form_name_number": "Articles of Incorporation",
+    "required_fields": [],
+    "filing_fee": "$100",
+    "expedited_options": "",
+    "standard_processing_time": "2-4 days",
+    "name_requirements": "",
+    "registered_agent_requirements": "",
+    "annual_report": {
+      "required": true,
+      "form": "",
+      "frequency": "Annual",
+      "due": "Aug 1",
+      "fee": 25,
+      "notes": ""
+    },
+    "stock_shares_requirements": "Fixed fee regardless of shares",
+    "publication_required": false,
+    "publication_details": "",
+    "payment_methods": [],
+    "what_state_returns": "",
+    "s_corp_election": "Federal only",
+    "gotchas": "$20 late penalty leads to quick dissolution"
+  },
+  {
+    "state_name": "Ohio",
+    "sos_portal_url": "",
+    "online_filing_available": true,
+    "form_name_number": "Articles of Incorporation (Form 532A)",
+    "required_fields": [
+      "Shares"
+    ],
+    "filing_fee": "$99 min",
+    "expedited_options": "2day $100, 1day $200, 4hr $300",
+    "standard_processing_time": "3-7 days",
+    "name_requirements": "",
+    "registered_agent_requirements": "",
+    "annual_report": {
+      "required": false,
+      "form": "",
+      "frequency": "",
+      "due": "",
+      "fee": 0,
+      "notes": "No annual report (CAT replaces franchise tax)"
+    },
+    "stock_shares_requirements": "Scales with shares over 1500",
+    "publication_required": false,
+    "publication_details": "",
+    "payment_methods": [],
+    "what_state_returns": "",
+    "s_corp_election": "Federal only",
+    "gotchas": ""
+  },
+  {
+    "state_name": "Oklahoma",
+    "sos_portal_url": "",
+    "online_filing_available": true,
+    "form_name_number": "Certificate of Incorporation",
+    "required_fields": [
+      "Shares"
+    ],
+    "filing_fee": "$50 min ($1/$1000 authorized capital)",
+    "expedited_options": "",
+    "standard_processing_time": "1-2 days",
+    "name_requirements": "",
+    "registered_agent_requirements": "",
+    "annual_report": {
+      "required": false,
+      "form": "",
+      "frequency": "",
+      "due": "",
+      "fee": 0,
+      "notes": "Franchise tax being eliminated"
+    },
+    "stock_shares_requirements": "No-par shares valued at $50 each for fee",
+    "publication_required": false,
+    "publication_details": "",
+    "payment_methods": [],
+    "what_state_returns": "",
+    "s_corp_election": "Federal only",
+    "gotchas": ""
+  },
+  {
+    "state_name": "Oregon",
+    "sos_portal_url": "",
+    "online_filing_available": true,
+    "form_name_number": "Articles of Incorporation",
+    "required_fields": [
+      "Shares"
+    ],
+    "filing_fee": "$100",
+    "expedited_options": "",
+    "standard_processing_time": "1-3 days",
+    "name_requirements": "",
+    "registered_agent_requirements": "",
+    "annual_report": {
+      "required": true,
+      "form": "",
+      "frequency": "Annual",
+      "due": "Anniversary",
+      "fee": 100,
+      "notes": ""
+    },
+    "stock_shares_requirements": "Shares required, par optional",
+    "publication_required": false,
+    "publication_details": "",
+    "payment_methods": [],
+    "what_state_returns": "",
+    "s_corp_election": "Federal only",
+    "gotchas": "$150 min corporate excise tax"
+  },
+  {
+    "state_name": "Pennsylvania",
+    "sos_portal_url": "",
+    "online_filing_available": true,
+    "form_name_number": "Articles of Incorporation (DSCB:15-1306)",
+    "required_fields": [
+      "Shares"
+    ],
+    "filing_fee": "$125",
+    "expedited_options": "24hr $100, same-day $300, 3hr $1000",
+    "standard_processing_time": "7-14 days",
+    "name_requirements": "",
+    "registered_agent_requirements": "",
+    "annual_report": {
+      "required": true,
+      "form": "Decennial report",
+      "frequency": "Decennial",
+      "due": "",
+      "fee": 0,
+      "notes": ""
+    },
+    "stock_shares_requirements": "Shares required",
+    "publication_required": true,
+    "publication_details": "2 newspapers",
+    "payment_methods": [],
+    "what_state_returns": "",
+    "s_corp_election": "State election Form REV-1640 required",
+    "gotchas": ""
+  },
+  {
+    "state_name": "Rhode Island",
+    "sos_portal_url": "",
+    "online_filing_available": true,
+    "form_name_number": "Articles of Incorporation",
+    "required_fields": [
+      "Shares"
+    ],
+    "filing_fee": "$230 (filing+franchise tax)",
+    "expedited_options": "",
+    "standard_processing_time": "3-5 days",
+    "name_requirements": "",
+    "registered_agent_requirements": "",
+    "annual_report": {
+      "required": true,
+      "form": "",
+      "frequency": "Annual",
+      "due": "Nov 1",
+      "fee": 50,
+      "notes": ""
+    },
+    "stock_shares_requirements": "Shares affect franchise tax",
+    "publication_required": false,
+    "publication_details": "",
+    "payment_methods": [],
+    "what_state_returns": "",
+    "s_corp_election": "Federal only",
+    "gotchas": ""
+  },
+  {
+    "state_name": "South Carolina",
+    "sos_portal_url": "",
+    "online_filing_available": true,
+    "form_name_number": "Articles of Incorporation (Form F0001)",
+    "required_fields": [
+      "Attorney Signature",
+      "Shares"
+    ],
+    "filing_fee": "$135 (+$25 CL-1)",
+    "expedited_options": "",
+    "standard_processing_time": "1-2 days",
+    "name_requirements": "",
+    "registered_agent_requirements": "",
+    "annual_report": {
+      "required": true,
+      "form": "via Dept of Revenue",
+      "frequency": "Annual",
+      "due": "",
+      "fee": 0,
+      "notes": ""
+    },
+    "stock_shares_requirements": "Shares required",
+    "publication_required": false,
+    "publication_details": "",
+    "payment_methods": [],
+    "what_state_returns": "",
+    "s_corp_election": "Federal only",
+    "gotchas": "ATTORNEY SIGNATURE REQUIRED"
+  },
+  {
+    "state_name": "South Dakota",
+    "sos_portal_url": "",
+    "online_filing_available": true,
+    "form_name_number": "Articles of Incorporation (Form 1)",
+    "required_fields": [
+      "Shares"
+    ],
+    "filing_fee": "$165",
+    "expedited_options": "+$50",
+    "standard_processing_time": "Immediate-3 days",
+    "name_requirements": "",
+    "registered_agent_requirements": "",
+    "annual_report": {
+      "required": true,
+      "form": "",
+      "frequency": "Annual",
+      "due": "Anniversary",
+      "fee": 50,
+      "notes": ""
+    },
+    "stock_shares_requirements": "Shares required",
+    "publication_required": false,
+    "publication_details": "",
+    "payment_methods": [],
+    "what_state_returns": "",
+    "s_corp_election": "Federal (no state income tax)",
+    "gotchas": ""
+  },
+  {
+    "state_name": "Tennessee",
+    "sos_portal_url": "",
+    "online_filing_available": true,
+    "form_name_number": "For-Profit Corporation Charter (Form ss-4417)",
+    "required_fields": [
+      "Shares"
+    ],
+    "filing_fee": "$102.35",
+    "expedited_options": "",
+    "standard_processing_time": "1-2 days",
+    "name_requirements": "",
+    "registered_agent_requirements": "",
+    "annual_report": {
+      "required": true,
+      "form": "",
+      "frequency": "Annual",
+      "due": "",
+      "fee": 20,
+      "notes": ""
+    },
+    "stock_shares_requirements": "Shares required",
+    "publication_required": false,
+    "publication_details": "",
+    "payment_methods": [],
+    "what_state_returns": "",
+    "s_corp_election": "NOT recognized for Franchise & Excise taxes",
+    "gotchas": "County filing required for TN principal office"
+  },
+  {
+    "state_name": "Texas",
+    "sos_portal_url": "",
+    "online_filing_available": true,
+    "form_name_number": "Certificate of Formation (Form 201)",
+    "required_fields": [
+      "Shares",
+      "Par value"
+    ],
+    "filing_fee": "$300",
+    "expedited_options": "",
+    "standard_processing_time": "3-5 days",
+    "name_requirements": "",
+    "registered_agent_requirements": "",
+    "annual_report": {
+      "required": true,
+      "form": "Franchise Tax Report",
+      "frequency": "Annual",
+      "due": "May 15",
+      "fee": 0,
+      "notes": "Franchise tax applies"
+    },
+    "stock_shares_requirements": "Shares + par value",
+    "publication_required": false,
+    "publication_details": "",
+    "payment_methods": [],
+    "what_state_returns": "",
+    "s_corp_election": "Federal only but franchise tax still applies",
+    "gotchas": ""
+  },
+  {
+    "state_name": "Utah",
+    "sos_portal_url": "",
+    "online_filing_available": true,
+    "form_name_number": "Articles of Incorporation",
+    "required_fields": [
+      "Shares"
+    ],
+    "filing_fee": "$54",
+    "expedited_options": "",
+    "standard_processing_time": "1-2 days",
+    "name_requirements": "",
+    "registered_agent_requirements": "",
+    "annual_report": {
+      "required": true,
+      "form": "",
+      "frequency": "Annual",
+      "due": "Anniversary",
+      "fee": 18,
+      "notes": ""
+    },
+    "stock_shares_requirements": "Shares required (one class unlimited voting)",
+    "publication_required": false,
+    "publication_details": "",
+    "payment_methods": [],
+    "what_state_returns": "",
+    "s_corp_election": "Federal only",
+    "gotchas": "$100 min privilege tax for C-Corps"
+  },
+  {
+    "state_name": "Vermont",
+    "sos_portal_url": "",
+    "online_filing_available": true,
+    "form_name_number": "Articles of Incorporation",
+    "required_fields": [
+      "Shares",
+      "Par value",
+      "Min 3 directors"
+    ],
+    "filing_fee": "$125",
+    "expedited_options": "",
+    "standard_processing_time": "<1 day",
+    "name_requirements": "",
+    "registered_agent_requirements": "",
+    "annual_report": {
+      "required": true,
+      "form": "",
+      "frequency": "Annual",
+      "due": "Within 2.5mo of fiscal year end",
+      "fee": 45,
+      "notes": ""
+    },
+    "stock_shares_requirements": "Shares + par value",
+    "publication_required": false,
+    "publication_details": "",
+    "payment_methods": [],
+    "what_state_returns": "",
+    "s_corp_election": "Federal only",
+    "gotchas": "Min 3 directors"
+  },
+  {
+    "state_name": "Virginia",
+    "sos_portal_url": "",
+    "online_filing_available": true,
+    "form_name_number": "Articles of Incorporation (Form SCC619)",
+    "required_fields": [
+      "Shares",
+      "Registered Agent must be director or bar member"
+    ],
+    "filing_fee": "$75 min ($50/25k shares+$25 filing, max $2500)",
+    "expedited_options": "Same-day $200, next-day $100",
+    "standard_processing_time": "Real-time to 1-2 days",
+    "name_requirements": "",
+    "registered_agent_requirements": "RA must be director or bar member",
+    "annual_report": {
+      "required": true,
+      "form": "Registration Fee",
+      "frequency": "Annual",
+      "due": "Anniversary",
+      "fee": 100,
+      "notes": "Min $100 registration fee"
+    },
+    "stock_shares_requirements": "Shares affect fee",
+    "publication_required": false,
+    "publication_details": "",
+    "payment_methods": [],
+    "what_state_returns": "",
+    "s_corp_election": "Federal only",
+    "gotchas": "RA must be director or bar member"
+  },
+  {
+    "state_name": "Washington",
+    "sos_portal_url": "",
+    "online_filing_available": true,
+    "form_name_number": "Articles of Incorporation",
+    "required_fields": [
+      "Shares"
+    ],
+    "filing_fee": "$200",
+    "expedited_options": "$20 (online)",
+    "standard_processing_time": "2-5 days",
+    "name_requirements": "",
+    "registered_agent_requirements": "",
+    "annual_report": {
+      "required": true,
+      "form": "Initial Report + Annual",
+      "frequency": "Annual",
+      "due": "Anniversary",
+      "fee": 71,
+      "notes": "Initial report within 120 days"
+    },
+    "stock_shares_requirements": "Shares required",
+    "publication_required": false,
+    "publication_details": "",
+    "payment_methods": [],
+    "what_state_returns": "",
+    "s_corp_election": "Federal (no income tax but B&O tax)",
+    "gotchas": ""
+  },
+  {
+    "state_name": "West Virginia",
+    "sos_portal_url": "",
+    "online_filing_available": true,
+    "form_name_number": "Articles of Incorporation (Form CD-1)",
+    "required_fields": [
+      "Shares",
+      "Par value"
+    ],
+    "filing_fee": "$100",
+    "expedited_options": "",
+    "standard_processing_time": "3-5 days",
+    "name_requirements": "",
+    "registered_agent_requirements": "",
+    "annual_report": {
+      "required": true,
+      "form": "",
+      "frequency": "Annual",
+      "due": "Apr 1",
+      "fee": 25,
+      "notes": ""
+    },
+    "stock_shares_requirements": "Shares + par value",
+    "publication_required": false,
+    "publication_details": "",
+    "payment_methods": [],
+    "what_state_returns": "",
+    "s_corp_election": "Federal only",
+    "gotchas": ""
+  },
+  {
+    "state_name": "Wisconsin",
+    "sos_portal_url": "",
+    "online_filing_available": true,
+    "form_name_number": "Articles of Incorporation (Form 2)",
+    "required_fields": [
+      "Shares"
+    ],
+    "filing_fee": "$100",
+    "expedited_options": "",
+    "standard_processing_time": "3-5 days",
+    "name_requirements": "",
+    "registered_agent_requirements": "",
+    "annual_report": {
+      "required": true,
+      "form": "",
+      "frequency": "Annual",
+      "due": "Quarterly anniversary",
+      "fee": 25,
+      "notes": ""
+    },
+    "stock_shares_requirements": "Shares required",
+    "publication_required": false,
+    "publication_details": "",
+    "payment_methods": [],
+    "what_state_returns": "",
+    "s_corp_election": "Federal only",
+    "gotchas": ""
+  },
+  {
+    "state_name": "Wyoming",
+    "sos_portal_url": "",
+    "online_filing_available": true,
+    "form_name_number": "Articles of Incorporation",
+    "required_fields": [
+      "Shares"
+    ],
+    "filing_fee": "$100",
+    "expedited_options": "",
+    "standard_processing_time": "Immediate-15min",
+    "name_requirements": "",
+    "registered_agent_requirements": "",
+    "annual_report": {
+      "required": true,
+      "form": "",
+      "frequency": "Annual",
+      "due": "1st of anniversary month",
+      "fee": 60,
+      "notes": ""
+    },
+    "stock_shares_requirements": "Shares required",
+    "publication_required": false,
+    "publication_details": "",
+    "payment_methods": [],
+    "what_state_returns": "",
+    "s_corp_election": "Federal (no state income tax)",
+    "gotchas": ""
+  }
+]

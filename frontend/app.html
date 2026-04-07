@@ -1,0 +1,2208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" type="image/png" href="/favicon.png">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Start Your Business — SOSFiler</title>
+<meta name="description" content="Start your LLC in minutes. Complete the wizard and we handle the rest.">
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#0A0A0A">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0A0A0A;
+  --surface: #141414;
+  --card: #141414;
+  --border: #1E1E1E;
+  --text: #FFFFFF;
+  --text-secondary: #999999;
+  --muted: #999999;
+  --accent: #CCFF00;
+  --accent2: #39FF14;
+  --cyan: #00FFE5;
+  --green: #39FF14;
+  --red: #FF3366;
+  --yellow: #FF6B00;
+  --glow: rgba(204,255,0,0.4);
+  --glow-sm: rgba(204,255,0,0.15);
+  --gradient: linear-gradient(135deg, #CCFF00, #39FF14);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+a { color: var(--cyan); text-decoration: none; transition: color 0.2s ease; }
+a:hover { color: var(--accent); text-decoration: none; }
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+
+/* Nav */
+.topbar {
+  background: rgba(10,10,10,0.92);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-bottom: 1px solid var(--border);
+  padding: 16px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.topbar .logo { font-size: 20px; font-weight: 800; color: #fff; }
+.topbar .logo span { color: var(--accent); }
+
+/* Progress */
+.progress-wrap { padding: 20px; max-width: 700px; margin: 0 auto; }
+.progress-bar { height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
+.progress-fill { height: 100%; background: var(--gradient); border-radius: 3px; transition: width 0.4s ease; box-shadow: 0 0 10px var(--glow-sm); }
+.progress-steps { display: flex; justify-content: space-between; margin-top: 12px; }
+.progress-step { font-size: 11px; color: var(--muted); text-align: center; flex: 1; cursor: pointer; padding: 4px; transition: color 0.2s; }
+.progress-step.active { color: var(--accent); font-weight: 600; }
+.progress-step.done { color: var(--green); }
+
+/* Container */
+.wizard { max-width: 700px; margin: 0 auto; padding: 20px; }
+.step-panel { display: none; animation: fadeIn 0.3s ease; }
+.step-panel.active { display: block; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+/* Cards */
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-top: 2px solid var(--accent);
+  border-radius: 16px;
+  padding: 32px;
+  margin-bottom: 20px;
+  transition: box-shadow 0.2s ease;
+}
+.card:hover { box-shadow: 0 0 30px rgba(204,255,0,0.05); }
+.card h2 { font-size: 24px; margin-bottom: 8px; font-weight: 800; }
+.card .subtitle { color: var(--muted); font-size: 14px; margin-bottom: 24px; }
+
+/* Forms */
+label { display: block; font-size: 14px; font-weight: 600; margin-bottom: 6px; color: #ccc; }
+input, select, textarea {
+  width: 100%; padding: 14px 16px;
+  background: #1A1A1A;
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 16px;
+  font-family: 'Inter', sans-serif;
+  margin-bottom: 16px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(204,255,0,0.15);
+}
+input[type="number"] { -moz-appearance: textfield; }
+textarea { resize: vertical; min-height: 80px; }
+.field-hint { font-size: 12px; color: var(--muted); margin-top: -12px; margin-bottom: 16px; }
+.required::after { content: ' *'; color: var(--red); }
+.error-msg { color: var(--red); font-size: 13px; margin-top: -12px; margin-bottom: 12px; display: none; }
+
+/* Option cards (entity type, etc) */
+.option-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-bottom: 20px; }
+.option-card {
+  background: #1A1A1A;
+  border: 2px solid var(--border);
+  border-radius: 12px;
+  padding: 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.option-card:hover { border-color: var(--accent); box-shadow: 0 0 15px rgba(204,255,0,0.08); }
+.option-card.selected { border-color: var(--accent); background: rgba(204,255,0,0.05); }
+.option-card .icon { font-size: 28px; margin-bottom: 8px; }
+.option-card .name { font-weight: 700; font-size: 15px; }
+.option-card .desc { font-size: 12px; color: var(--muted); margin-top: 4px; }
+
+/* State recommendation */
+.recommendation { background: rgba(204,255,0,0.05); border: 1px solid rgba(204,255,0,0.2); border-radius: 8px; padding: 16px; margin: 16px 0; font-size: 14px; }
+.recommendation .title { color: var(--accent); font-weight: 600; margin-bottom: 4px; }
+.warning-box { background: rgba(255,107,0,0.08); border: 1px solid rgba(255,107,0,0.2); border-radius: 8px; padding: 16px; margin: 16px 0; font-size: 14px; }
+.warning-box .title { color: var(--yellow); font-weight: 600; margin-bottom: 4px; }
+
+/* Name check */
+.name-check-result { padding: 12px 16px; border-radius: 8px; margin: 8px 0 16px; font-size: 14px; }
+.name-check-result.pass { background: rgba(57,255,20,0.1); border: 1px solid rgba(57,255,20,0.3); color: var(--green); }
+.name-check-result.warning { background: rgba(255,107,0,0.1); border: 1px solid rgba(255,107,0,0.3); color: var(--yellow); }
+
+/* Members */
+.member-block {
+  background: #1A1A1A;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 16px;
+  position: relative;
+}
+.member-block h4 { font-size: 16px; margin-bottom: 16px; }
+.member-block .remove-btn { position: absolute; top: 12px; right: 12px; background: none; border: none; color: var(--red); cursor: pointer; font-size: 20px; }
+.add-member-btn {
+  background: none;
+  border: 2px dashed var(--border);
+  border-radius: 12px;
+  padding: 16px;
+  width: 100%;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 14px;
+  font-family: 'Inter', sans-serif;
+  transition: border-color 0.2s, color 0.2s;
+  margin-bottom: 16px;
+}
+.add-member-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+/* Review */
+.review-section { margin-bottom: 24px; }
+.review-section h3 { font-size: 16px; color: var(--accent); margin-bottom: 12px; border-bottom: 1px solid var(--border); padding-bottom: 8px; }
+.review-row { display: flex; justify-content: space-between; padding: 8px 0; font-size: 14px; }
+.review-row .label { color: var(--muted); }
+.review-row .value { color: #fff; font-weight: 500; text-align: right; max-width: 60%; }
+
+/* Buttons */
+.btn-row { display: flex; gap: 12px; justify-content: space-between; margin-top: 24px; }
+.btn {
+  padding: 14px 32px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s ease;
+  font-family: 'Inter', sans-serif;
+}
+.btn-primary {
+  background: var(--accent);
+  color: #000;
+}
+.btn-primary:hover {
+  box-shadow: 0 0 20px var(--glow), 0 8px 30px rgba(204,255,0,0.2);
+  transform: translateY(-1px);
+}
+.btn-secondary {
+  background: var(--card);
+  border: 1px solid var(--border);
+  color: var(--text);
+}
+.btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* Two col grid */
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+@media (max-width: 600px) { .two-col { grid-template-columns: 1fr; } }
+
+/* Sidebar Layout */
+.wizard-container {
+  display: flex;
+  max-width: 1200px;
+  margin: 0 auto;
+  gap: 30px;
+  padding: 0 20px 40px;
+  align-items: flex-start;
+}
+.wizard-main {
+  flex: 3;
+  min-width: 0;
+}
+.wizard-sidebar {
+  flex: 2;
+  position: sticky;
+  top: 100px;
+  display: block;
+}
+
+@media (max-width: 900px) {
+  .wizard-container { flex-direction: column; }
+  .wizard-main, .wizard-sidebar { flex: 1; width: 100%; }
+  .wizard-sidebar { position: static; order: -1; margin-bottom: 16px; }
+  .info-sidebar { border-top: 2px solid var(--accent); }
+  .sidebar-toggle { display: flex; justify-content: space-between; align-items: center; cursor: pointer; padding: 12px 0; }
+  .sidebar-toggle::after { content: ''; border: solid var(--muted); border-width: 0 2px 2px 0; display: inline-block; padding: 4px; transform: rotate(45deg); transition: transform 0.2s; }
+  .sidebar-toggle.collapsed::after { transform: rotate(-135deg); }
+  .sidebar-body.collapsed { display: none; }
+}
+
+/* Sidebar Styling */
+.info-sidebar {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-top: 2px solid var(--cyan);
+  border-radius: 16px;
+  padding: 24px;
+}
+.sidebar-placeholder {
+  text-align: center;
+  color: var(--muted);
+  padding: 40px 20px;
+}
+.sidebar-header { margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 12px; }
+.sidebar-header h3 { font-size: 18px; color: #fff; }
+.sidebar-section { margin-bottom: 20px; }
+.sidebar-section h4 { font-size: 13px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); margin-bottom: 10px; }
+.fee-row { display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 4px; }
+.fee-total { border-top: 1px solid var(--border); margin-top: 8px; padding-top: 8px; font-weight: 700; color: var(--accent); }
+.checklist-item { display: flex; align-items: center; gap: 10px; font-size: 14px; margin-bottom: 8px; color: var(--text-secondary); }
+.checklist-item.done { color: var(--text); }
+.chk-box { width: 16px; height: 16px; border: 2px solid var(--border); border-radius: 3px; flex-shrink: 0; display: inline-block; }
+.chk-done { width: 16px; height: 16px; background: var(--accent); border: 2px solid var(--accent); border-radius: 3px; flex-shrink: 0; display: inline-block; position: relative; }
+.chk-done::after { content: ''; position: absolute; left: 4px; top: 1px; width: 5px; height: 9px; border: solid #000; border-width: 0 2px 2px 0; transform: rotate(45deg); }
+.list-check { display: inline-block; width: 6px; height: 6px; background: var(--accent); border-radius: 50%; margin-right: 4px; vertical-align: middle; }
+.sidebar-warning { background: var(--surface); border: 1px solid var(--border); border-left: 3px solid var(--accent); border-radius: 8px; padding: 12px; color: var(--text-secondary); font-size: 13px; margin-top: 10px; line-height: 1.5; }
+.skeleton { background: #1A1A1A; height: 16px; margin-bottom: 8px; border-radius: 4px; animation: pulse 1.5s infinite; }
+@keyframes pulse { 0% { opacity: 0.5; } 50% { opacity: 0.8; } 100% { opacity: 0.5; } }
+
+/* Chat Widget */
+.chat-widget {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 1000;
+  font-family: 'Inter', sans-serif;
+}
+.chat-btn {
+  width: 56px;
+  height: 56px;
+  border-radius: 28px;
+  background: var(--accent);
+  color: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(204,255,0,0.3);
+  transition: transform 0.2s;
+  border: none;
+  position: relative;
+}
+.chat-btn:hover { transform: scale(1.05); }
+.chat-notification {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 12px;
+  height: 12px;
+  background: var(--red);
+  border-radius: 50%;
+  border: 2px solid var(--bg);
+  display: none;
+}
+.chat-panel {
+  position: fixed;
+  bottom: 90px;
+  right: 24px;
+  width: 380px;
+  height: 500px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  display: none;
+  flex-direction: column;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+  overflow: hidden;
+  animation: slideUp 0.3s ease-out;
+}
+@keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+.chat-header {
+  padding: 16px;
+  background: var(--card);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.chat-header-info { display: flex; align-items: center; gap: 10px; }
+.chat-header-info img { width: 24px; height: 24px; }
+.chat-messages {
+  flex: 1;
+  padding: 16px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.msg { max-width: 80%; padding: 10px 14px; border-radius: 12px; font-size: 14px; line-height: 1.4; }
+.msg-bot { background: var(--card); align-self: flex-start; border-bottom-left-radius: 2px; }
+.msg-user { background: var(--accent); color: #000; align-self: flex-end; border-bottom-right-radius: 2px; }
+.typing { color: var(--muted); font-size: 12px; margin-left: 4px; display: none; }
+.chat-input-area {
+  padding: 16px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  gap: 8px;
+}
+.chat-input-area input { margin-bottom: 0; }
+.chat-footer { padding: 8px; text-align: center; font-size: 10px; color: var(--muted); border-top: 1px solid var(--border); }
+
+@media (max-width: 450px) {
+  .chat-panel { width: 100%; height: 100%; bottom: 0; right: 0; border-radius: 0; }
+}
+
+/* Loading */
+.loading { text-align: center; padding: 40px; }
+.spinner { width: 40px; height: 40px; border: 3px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 16px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <a href="/" class="logo"><img src="/logo.png" alt="SOSFiler" style="height:36px;vertical-align:middle;"></a>
+  <a href="/" style="color: var(--muted); font-size: 14px;">← Back to Home</a>
+</div>
+
+<!-- Progress Bar -->
+<div class="progress-wrap">
+  <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width: 14.28%"></div></div>
+  <div class="progress-steps">
+    <div class="progress-step active" data-step="1">Entity Type</div>
+    <div class="progress-step" data-step="2">State</div>
+    <div class="progress-step" data-step="3">Name</div>
+    <div class="progress-step" data-step="4">Details</div>
+    <div class="progress-step" data-step="5">Registered Agent</div>
+    <div class="progress-step" data-step="6">Members</div>
+    <div class="progress-step" data-step="7">Agreement</div>
+    <div class="progress-step" data-step="8">Review</div>
+  </div>
+</div>
+
+<div class="wizard-container">
+  <div class="wizard-main">
+    <div class="wizard">
+
+  <!-- Step 1: Entity Type -->
+  <div class="step-panel active" id="step1">
+    <div class="card">
+      <h2>What type of business are you forming?</h2>
+      <p class="subtitle">Most small businesses choose LLC. Not sure? LLC is the safest bet for liability protection and tax flexibility.</p>
+      <div class="option-grid">
+        <div class="option-card selected" data-type="LLC" onclick="selectEntityType(this)">
+          
+          <div class="name">LLC</div>
+          <div class="desc">Most popular. Flexible taxes, liability protection, simple to manage.</div>
+        </div>
+        <div class="option-card" data-type="S-Corp" onclick="selectEntityType(this)">
+          
+          <div class="name">S-Corp</div>
+          <div class="desc">Save on self-employment tax if you pay yourself a salary. Max 100 shareholders.</div>
+        </div>
+        <div class="option-card" data-type="C-Corp" onclick="selectEntityType(this)">
+          
+          <div class="name">C-Corp</div>
+          <div class="desc">For raising investment, issuing stock, or going public. Double taxation.</div>
+        </div>
+        <div class="option-card" data-type="Nonprofit" onclick="selectEntityType(this)">
+          
+          <div class="name">Nonprofit</div>
+          <div class="desc">Tax-exempt organization for charitable, educational, or religious purposes.</div>
+        </div>
+      </div>
+      <div class="btn-row">
+        <div></div>
+        <button class="btn btn-primary" onclick="nextStep()">Continue →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 2: State Selection -->
+  <div class="step-panel" id="step2">
+    <div class="card">
+      <h2>Where will you form your business?</h2>
+      <p class="subtitle">We recommend forming in the state where you live and do business.</p>
+      
+      <label class="required">Your home state (where you live)</label>
+      <select id="homeState" onchange="updateStateRecommendation()">
+        <option value="">Select your state...</option>
+      </select>
+      
+      <label class="required">State of formation</label>
+      <select id="formationState" onchange="updateStateRecommendation()">
+        <option value="">Select state...</option>
+      </select>
+      
+      <div id="stateRecommendation"></div>
+      
+      <div id="stateFeeInfo" style="margin-top: 16px;"></div>
+      
+      <div class="btn-row">
+        <button class="btn btn-secondary" onclick="prevStep()">← Back</button>
+        <button class="btn btn-primary" onclick="nextStep()">Continue →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 3: Business Name -->
+  <div class="step-panel" id="step3">
+    <div class="card">
+      <h2>What's your business name?</h2>
+      <p class="subtitle">Choose a unique name for your business. We'll check availability with the Secretary of State.</p>
+      
+      <label class="required">Business Name</label>
+      <input type="text" id="businessName" placeholder='e.g., Acme Solutions LLC' oninput="clearNameCheck()">
+      <p class="field-hint">Must include "LLC", "L.L.C.", or "Limited Liability Company" for LLCs.</p>
+      
+      <button class="btn btn-secondary" onclick="checkName()" style="margin-bottom: 16px;">Check Name Availability →</button>
+      <div id="nameCheckResult"></div>
+      
+      <div class="btn-row">
+        <button class="btn btn-secondary" onclick="prevStep()">← Back</button>
+        <button class="btn btn-primary" onclick="nextStep()">Continue →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 4: Business Details -->
+  <div class="step-panel" id="step4">
+    <div class="card">
+      <h2>Business Details</h2>
+      <p class="subtitle">Tell us about your business. This information is used in your formation documents.</p>
+      
+      <label>Business Purpose</label>
+      <textarea id="purpose" placeholder="Describe what your business does (or leave default)">Any lawful purpose</textarea>
+      <p class="field-hint">Most LLCs use "any lawful purpose" — it's broadest and doesn't limit you.</p>
+      
+      <label class="required">Principal Business Address</label>
+      <input type="text" id="principalAddress" placeholder="Street address">
+      <div class="two-col">
+        <div><input type="text" id="principalCity" placeholder="City"></div>
+        <div>
+          <div class="two-col">
+            <select id="principalState"></select>
+            <input type="text" id="principalZip" placeholder="ZIP" maxlength="10">
+          </div>
+        </div>
+      </div>
+      
+      <label>Management Structure</label>
+      <div class="option-grid" style="grid-template-columns: 1fr 1fr;">
+        <div class="option-card selected" data-mgmt="member-managed" onclick="selectMgmt(this)">
+          <div class="name">Member-Managed</div>
+          <div class="desc">All owners run the business. Best for small LLCs.</div>
+        </div>
+        <div class="option-card" data-mgmt="manager-managed" onclick="selectMgmt(this)">
+          <div class="name">Manager-Managed</div>
+          <div class="desc">One or more designated managers run operations. Good for investor LLCs.</div>
+        </div>
+      </div>
+      
+      <div class="btn-row">
+        <button class="btn btn-secondary" onclick="prevStep()">← Back</button>
+        <button class="btn btn-primary" onclick="nextStep()">Continue →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 5: Registered Agent -->
+  <div class="step-panel" id="step5">
+    <div class="card">
+      <h2>Registered Agent</h2>
+      <p class="subtitle">Every LLC needs a registered agent — a person or company with a physical address in the formation state who can receive legal documents on behalf of your business.</p>
+      
+      <div class="option-grid" style="grid-template-columns: 1fr 1fr;">
+        <div class="option-card selected" data-ra="self" onclick="selectRA(this)">
+          <div class="name">I'll Be My Own Agent</div>
+          <div class="desc">Use your own name and address. Must be a physical street address in <strong id="raStateName">the formation state</strong> (no PO boxes). You must be available during business hours.</div>
+          <div style="margin-top: 12px; font-size: 20px; font-weight: 700; color: var(--green);">$0</div>
+        </div>
+        <div class="option-card" data-ra="sosfiler" onclick="selectRA(this)">
+          <div class="name">SOSFiler Registered Agent</div>
+          <div class="desc">We provide a professional registered agent in your state. Your home address stays off public records. Instant document forwarding.</div>
+          <div style="margin-top: 12px; font-size: 20px; font-weight: 700; color: var(--accent);">$49<span style="font-size: 13px; font-weight: 400; color: var(--muted);">/year</span></div>
+        </div>
+      </div>
+      
+      <div id="raSelfFields" style="margin-top: 20px;">
+        <p class="field-hint" style="margin-bottom: 12px;">Enter the registered agent's information. This will be on the public record.</p>
+        <label class="required">Registered Agent Name</label>
+        <input type="text" id="raName" placeholder="Full legal name of registered agent">
+        <label class="required">Registered Agent Address</label>
+        <input type="text" id="raAddress" placeholder="Street address (no PO boxes)">
+        <div class="two-col">
+          <div><input type="text" id="raCity" placeholder="City"></div>
+          <div>
+            <div class="two-col">
+              <input type="text" id="raState" placeholder="State" maxlength="2">
+              <input type="text" id="raZip" placeholder="ZIP" maxlength="10">
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div id="raSosFields" style="display: none; margin-top: 20px;">
+        <div class="recommendation">
+          <strong>SOSFiler Registered Agent Service</strong><br>
+          We'll provide a professional registered agent at a commercial address in your formation state. All legal documents are scanned and forwarded to you instantly. Your personal address stays private.<br><br>
+          <span style="font-size: 13px; color: var(--muted);">Billed annually. First year included with your formation order. Cancel anytime.</span>
+        </div>
+      </div>
+      
+      <div class="btn-row">
+        <button class="btn btn-secondary" onclick="prevStep()">← Back</button>
+        <button class="btn btn-primary" onclick="nextStep()">Continue →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 6: Members -->
+  <div class="step-panel" id="step6">
+    <div class="card">
+      <h2>Members / Owners</h2>
+      <p class="subtitle">Enter information for each member (owner) of the LLC. The responsible party's SSN is needed for the EIN application.</p>
+      
+      <div id="membersContainer">
+        <div class="member-block" data-index="0">
+          <h4>Member 1 (You)</h4>
+          <div class="two-col">
+            <div><label class="required">Full Legal Name</label><input type="text" class="m-name" placeholder="First and Last Name"></div>
+            <div><label class="required">Ownership %</label><input type="number" class="m-pct" value="100" min="0" max="100"></div>
+          </div>
+          <label class="required">Address</label>
+          <input type="text" class="m-address" placeholder="Street address">
+          <div class="two-col">
+            <div><input type="text" class="m-city" placeholder="City"></div>
+            <div>
+              <div class="two-col">
+                <input type="text" class="m-state" placeholder="State" maxlength="2">
+                <input type="text" class="m-zip" placeholder="ZIP" maxlength="10">
+              </div>
+            </div>
+          </div>
+          <div class="two-col">
+            <div>
+              <label>SSN (for EIN — Responsible Party)</label>
+              <input type="password" class="m-ssn" placeholder="XXX-XX-XXXX" maxlength="11">
+              <p class="field-hint">Required for EIN application. Encrypted & never stored in plain text.</p>
+            </div>
+            <div>
+              <label style="margin-top:26px;">&nbsp;</label>
+              <label style="font-weight:400;"><input type="checkbox" class="m-responsible" checked> Responsible Party for EIN</label>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <button class="add-member-btn" onclick="addMember()">+ Add Another Member</button>
+      
+      <div id="pctWarning" class="warning-box" style="display:none;">
+        <div class="title">Ownership percentages must total 100%</div>
+        <div>Current total: <span id="pctTotal">0</span>%</div>
+      </div>
+      
+      <div class="btn-row">
+        <button class="btn btn-secondary" onclick="prevStep()">← Back</button>
+        <button class="btn btn-primary" onclick="nextStep()">Continue →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 7: Operating Agreement -->
+  <div class="step-panel" id="step7">
+    <div class="card">
+      <h2>Operating Agreement Preferences</h2>
+      <p class="subtitle">We'll generate a custom operating agreement based on your preferences. These are common defaults — adjust if needed.</p>
+      
+      <label>Profit Distribution</label>
+      <select id="profitDist">
+        <option value="pro-rata">Pro-rata (based on ownership %)</option>
+        <option value="equal">Equal distribution regardless of ownership</option>
+        <option value="custom">Custom (specify in additional notes)</option>
+      </select>
+      
+      <label>Voting Rights</label>
+      <select id="votingRights">
+        <option value="pro-rata">Pro-rata (based on ownership %)</option>
+        <option value="equal">Equal vote per member</option>
+        <option value="custom">Custom</option>
+      </select>
+      
+      <label>Dissolution Terms</label>
+      <select id="dissolutionTerms">
+        <option value="unanimous">Unanimous consent required</option>
+        <option value="majority">Majority vote (>50%)</option>
+        <option value="supermajority">Supermajority (2/3 or 66.7%)</option>
+      </select>
+      
+      <label>Major Decision Threshold ($)</label>
+      <input type="number" id="majorThreshold" value="10000" min="0">
+      <p class="field-hint">Contracts or debts above this amount require member approval.</p>
+      
+      <div style="margin: 16px 0;">
+        <label style="font-weight:400; cursor: pointer;"><input type="checkbox" id="transferRestrictions" style="min-width:20px;min-height:20px;width:20px;height:20px;accent-color:var(--accent);cursor:pointer;vertical-align:middle;margin-right:8px;" checked> Require member approval for ownership transfers</label>
+      </div>
+      <div style="margin: 16px 0;">
+        <label style="font-weight:400; cursor: pointer;"><input type="checkbox" id="taxDistributions" style="min-width:20px;min-height:20px;width:20px;height:20px;accent-color:var(--accent);cursor:pointer;vertical-align:middle;margin-right:8px;" checked> Require quarterly tax distributions to members</label>
+      </div>
+      <div style="margin: 16px 0;">
+        <label style="font-weight:400; cursor: pointer;"><input type="checkbox" id="nonCompete" style="min-width:20px;min-height:20px;width:20px;height:20px;accent-color:var(--accent);cursor:pointer;vertical-align:middle;margin-right:8px;"> Include non-compete clause for members</label>
+      </div>
+      
+      <div class="btn-row">
+        <button class="btn btn-secondary" onclick="prevStep()">← Back</button>
+        <button class="btn btn-primary" onclick="buildReview(); nextStep();">Review & Pay →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 8: Review & Pay -->
+  <div class="step-panel" id="step8">
+    <div class="card">
+      <h2>Review Your Information</h2>
+      <p class="subtitle">Please review everything carefully. This information will be used in all your formation documents.</p>
+      
+      <div id="reviewContent"></div>
+      
+      <div style="background: rgba(204,255,0,0.05); border: 1px solid rgba(204,255,0,0.2); border-radius: 12px; padding: 24px; margin: 24px 0;">
+        <h3 style="font-size: 18px; margin-bottom: 16px;">Payment Summary</h3>
+        <div class="review-row"><span class="label">SOSFiler service fee</span><span class="value">$49.00</span></div>
+        <div class="review-row"><span class="label">State of <span id="reviewState"></span> filing fee <span style="font-size:12px;color:var(--muted);">(government charge)</span></span><span class="value" id="reviewStateFee">$0</span></div>
+        <div style="font-size: 12px; color: var(--muted); padding: 4px 0 8px;">State filing fee is a government charge passed through at cost.</div>
+        <div class="review-row" id="raFeeRow" style="display:none;"><span class="label">Registered Agent service <span style="font-size:12px;color:var(--muted);">(1st year)</span></span><span class="value" id="reviewRAFee">$49.00</span></div>
+        <div class="review-row" style="border-top: 1px solid var(--border); padding-top: 12px; margin-top: 8px; font-size: 18px; font-weight: 700;">
+          <span class="label" style="color: #fff;">Total</span><span class="value" style="color: var(--accent);" id="reviewTotal">$49</span>
+        </div>
+      </div>
+      
+      <div style="margin: 20px 0; background: #1A1A1A; border: 1px solid var(--border); border-radius: 8px; padding: 16px;">
+        <div style="margin-bottom: 12px;">
+          <label style="font-weight:400; cursor: pointer; display: flex; align-items: flex-start; gap: 12px; line-height: 1.5;">
+            <input type="checkbox" id="authorizeOrganizer" style="margin-top: 2px; min-width: 20px; min-height: 20px; width: 20px; height: 20px; flex-shrink: 0; accent-color: var(--accent); cursor: pointer;">
+            <span style="font-size: 14px;">I authorize SOSFiler to act as Organizer and file formation documents on my behalf with the <strong id="authStateName">State</strong> Secretary of State. I understand this is a document preparation service and not legal advice. I have read and agree to the <a href="/terms.html" target="_blank">Terms of Service</a> and <a href="/privacy.html" target="_blank">Privacy Policy</a>.</span>
+          </label>
+        </div>
+        <div>
+          <label style="font-weight:400; cursor: pointer; display: flex; align-items: flex-start; gap: 12px; line-height: 1.5;">
+            <input type="checkbox" id="agreeTerms" style="margin-top: 2px; min-width: 20px; min-height: 20px; width: 20px; height: 20px; flex-shrink: 0; accent-color: var(--accent); cursor: pointer;">
+            <span style="font-size: 14px;">I confirm all information above is accurate and complete. I understand that SOSFiler is not a law firm and is not providing legal advice.</span>
+          </label>
+        </div>
+      </div>
+      
+      <div class="btn-row">
+        <button class="btn btn-secondary" onclick="prevStep()">← Back</button>
+        <button class="btn btn-primary" id="payBtn" onclick="submitAndPay()" disabled>Start My Business →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading / Redirect -->
+  <div class="step-panel" id="stepLoading">
+    <div class="card">
+      <div class="loading">
+        <div class="spinner"></div>
+        <h2>Processing...</h2>
+        <p style="color: var(--muted);">Creating your order and redirecting to secure payment...</p>
+      </div>
+    </div>
+  </div>
+
+  </div> <!-- end wizard -->
+  </div> <!-- end wizard-main -->
+
+  <div class="wizard-sidebar">
+    <div id="stateInfoSidebar" class="info-sidebar" style="display: none;">
+      <div class="sidebar-header">
+        <h3 id="sidebarTitle">Select a state</h3>
+      </div>
+      
+      <div class="sidebar-section">
+        <h4>Fee Breakdown</h4>
+        <div id="sidebarFees">
+          <div class="fee-row"><span>SOSFiler Fee</span><span>$49</span></div>
+          <div class="fee-row"><span>State Filing Fee</span><span id="sidebarStateFee">--</span></div>
+          <div class="fee-row" id="sidebarLicenseRow" style="display:none;"><span>State Business License</span><span id="sidebarLicenseFee">--</span></div>
+          <div class="fee-row fee-total"><span>Total</span><span id="sidebarTotal">--</span></div>
+        </div>
+      </div>
+
+      <div class="sidebar-section">
+        <h4>Processing Time</h4>
+        <div id="sidebarTime" class="text-sm" style="font-size: 14px; color: var(--text-secondary);">--</div>
+      </div>
+
+      <div class="sidebar-section">
+        <h4>Requirements</h4>
+        <div id="sidebarChecklist">
+          <div class="checklist-item" id="chk-state"><span class="status chk-box"></span> State selected</div>
+          <div class="checklist-item" id="chk-name"><span class="status chk-box"></span> Business name</div>
+          <div class="checklist-item" id="chk-address"><span class="status chk-box"></span> Business address</div>
+          <div class="checklist-item" id="chk-ra"><span class="status chk-box"></span> Registered agent</div>
+          <div class="checklist-item" id="chk-members"><span class="status chk-box"></span> Member details</div>
+        </div>
+      </div>
+
+      <div id="sidebarWarning" class="sidebar-warning" style="display: none;"></div>
+
+      <div class="sidebar-section">
+        <h4>Compliance</h4>
+        <div id="sidebarCompliance" style="font-size: 14px; color: var(--text-secondary);">--</div>
+      </div>
+
+      <div class="sidebar-section">
+        <h4>What's Included</h4>
+        <ul id="sidebarIncludes" style="font-size: 14px; color: var(--text-secondary); list-style: none;">
+          <li><span class="list-check"></span> Articles of Organization</li>
+          <li><span class="list-check"></span> Operating Agreement</li>
+          <li><span class="list-check"></span> EIN Confirmation (CP575)</li>
+          <li><span class="list-check"></span> Initial Resolutions</li>
+        </ul>
+      </div>
+    </div>
+    
+    <div id="sidebarPlaceholder" class="info-sidebar sidebar-placeholder">
+      <div style="font-size: 16px; font-weight: 800; color: var(--accent); margin-bottom: 16px; border: 2px solid var(--border); border-radius: 8px; width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px;">SOS</div>
+      <h3>Filing Details</h3>
+      <p style="margin-top: 12px; font-size: 14px;">Select a state and entity type to see specific fees, processing times, and requirements.</p>
+    </div>
+  </div>
+</div>
+
+<!-- Chat Widget -->
+<div class="chat-widget">
+  <button class="chat-btn" id="chatToggle" onclick="toggleChat()">
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+    <div class="chat-notification" id="chatNotify"></div>
+  </button>
+  
+  <div class="chat-panel" id="chatPanel">
+    <div class="chat-header">
+      <div class="chat-header-info">
+        <img src="/logo.png" alt="SOSFiler">
+        <div style="font-weight: 700; font-size: 15px;">Filing Expert</div>
+      </div>
+      <button onclick="toggleChat()" style="background:none; border:none; color:var(--muted); cursor:pointer; font-size:20px;">✕</button>
+    </div>
+    <div class="chat-messages" id="chatMessages">
+      <!-- Welcome Message -->
+      <div class="msg msg-bot">Hi! I'm SOSFiler's Filing Expert. Ask me anything about forming your business — entity types, state comparisons, filing requirements, or compliance. How can I help?</div>
+    </div>
+    <div class="typing" id="chatTyping">SOSFiler is typing...</div>
+    <form class="chat-input-area" onsubmit="sendChatMessage(event)">
+      <input type="text" id="chatInput" placeholder="Ask a question..." autocomplete="off">
+      <button type="submit" class="btn btn-primary" style="padding: 10px 16px;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+      </button>
+    </form>
+    <div class="chat-footer">Powered by SOSFiler AI</div>
+  </div>
+</div>
+
+<script>
+// State
+let currentStep = 1;
+const totalSteps = 8;
+let formData = {
+  entity_type: 'LLC',
+  state: '',
+  business_name: '',
+  management_type: 'member-managed'
+};
+
+// State names
+const stateNames = {"AL":"Alabama","AK":"Alaska","AZ":"Arizona","AR":"Arkansas","CA":"California","CO":"Colorado","CT":"Connecticut","DE":"Delaware","DC":"District of Columbia","FL":"Florida","GA":"Georgia","HI":"Hawaii","ID":"Idaho","IL":"Illinois","IN":"Indiana","IA":"Iowa","KS":"Kansas","KY":"Kentucky","LA":"Louisiana","ME":"Maine","MD":"Maryland","MA":"Massachusetts","MI":"Michigan","MN":"Minnesota","MS":"Mississippi","MO":"Missouri","MT":"Montana","NE":"Nebraska","NV":"Nevada","NH":"New Hampshire","NJ":"New Jersey","NM":"New Mexico","NY":"New York","NC":"North Carolina","ND":"North Dakota","OH":"Ohio","OK":"Oklahoma","OR":"Oregon","PA":"Pennsylvania","RI":"Rhode Island","SC":"South Carolina","SD":"South Dakota","TN":"Tennessee","TX":"Texas","UT":"Utah","VT":"Vermont","VA":"Virginia","WA":"Washington","WV":"West Virginia","WI":"Wisconsin","WY":"Wyoming"};
+const stateFees = {"AL":200,"AK":250,"AZ":50,"AR":45,"CA":70,"CO":50,"CT":120,"DE":90,"DC":99,"FL":125,"GA":100,"HI":50,"ID":100,"IL":150,"IN":95,"IA":50,"KS":160,"KY":40,"LA":100,"ME":175,"MD":100,"MA":500,"MI":50,"MN":155,"MS":50,"MO":50,"MT":70,"NE":105,"NV":425,"NH":100,"NJ":125,"NM":50,"NY":200,"NC":125,"ND":135,"OH":99,"OK":100,"OR":100,"PA":125,"RI":150,"SC":110,"SD":150,"TN":300,"TX":300,"UT":54,"VT":125,"VA":100,"WA":200,"WV":100,"WI":130,"WY":100};
+
+// Init dropdowns
+function initDropdowns() {
+  const selects = ['homeState', 'formationState', 'principalState'];
+  const sorted = Object.entries(stateNames).sort((a,b) => a[1].localeCompare(b[1]));
+  selects.forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    if (el.tagName === 'SELECT') {
+      sorted.forEach(([code, name]) => {
+        const opt = document.createElement('option');
+        opt.value = code;
+        opt.textContent = id === 'principalState' ? code : `${name} (${code})`;
+        el.appendChild(opt);
+      });
+    }
+  });
+}
+
+// Navigation
+function goToStep(step) {
+  if (step < 1 || step > totalSteps) return;
+  document.querySelectorAll('.step-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById(`step${step}`).classList.add('active');
+  
+  document.querySelectorAll('.progress-step').forEach((el, i) => {
+    el.classList.remove('active', 'done');
+    if (i + 1 < step) el.classList.add('done');
+    if (i + 1 === step) el.classList.add('active');
+  });
+  
+  document.getElementById('progressFill').style.width = `${(step / totalSteps) * 100}%`;
+  currentStep = step;
+  saveProgress();
+  window.scrollTo(0, 0);
+  
+  // Update RA step state name when entering step 5
+  if (step === 5 && formData.state) {
+    const raStateName = document.getElementById('raStateName');
+    if (raStateName) raStateName.textContent = stateNames[formData.state] || formData.state;
+    // Pre-fill RA state with formation state
+    const raStateInput = document.getElementById('raState');
+    if (raStateInput && !raStateInput.value) raStateInput.value = formData.state;
+  }
+  updateSidebarRequirements();
+}
+
+function nextStep() {
+  if (!validateStep(currentStep)) return;
+  collectStepData(currentStep);
+  updateSidebarRequirements();
+  
+  // Auth gate: after Step 2 (State), require sign-in before Step 3
+  if (currentStep === 2 && !isLoggedIn()) {
+    // Save ALL progress before auth redirect might wipe state
+    collectStepData(1);
+    collectStepData(2);
+    saveProgress();
+    showAuthModal();
+    return;
+  }
+  
+  goToStep(currentStep + 1);
+}
+
+function isLoggedIn() {
+  return !!localStorage.getItem('sosfiler_token');
+}
+
+function showAuthModal() {
+  document.getElementById('authModal').style.display = 'flex';
+}
+
+function closeAuthModal() {
+  document.getElementById('authModal').style.display = 'none';
+}
+
+function onAuthSuccess(token, user) {
+  localStorage.setItem('sosfiler_token', token);
+  localStorage.setItem('sosfiler_user', JSON.stringify(user));
+  closeAuthModal();
+  
+  // Restore saved formData from localStorage FIRST — this is the critical fix.
+  // On redirect flows (especially mobile), the page reloads and DOM fields are empty.
+  // We must pull from localStorage, not from the DOM.
+  try {
+    const saved = JSON.parse(localStorage.getItem('sosfiler_progress'));
+    if (saved && saved.data) {
+      // Merge saved data into formData, preserving anything already set
+      Object.keys(saved.data).forEach(key => {
+        if (saved.data[key] !== undefined && saved.data[key] !== null && saved.data[key] !== '') {
+          formData[key] = saved.data[key];
+        }
+      });
+    }
+  } catch (e) {}
+  
+  // Pre-fill wizard with OAuth data
+  if (user.name) {
+    const nameField = document.querySelector('.m-name');
+    if (nameField && !nameField.value) nameField.value = user.name;
+    if (!formData.members || formData.members.length === 0) {
+      formData.members = [{ name: user.name, ownership_pct: 100 }];
+    }
+  }
+  if (user.email) {
+    formData.email = user.email;
+  }
+  
+  // Clear auth pending flag and save
+  delete formData._authPending;
+  saveProgress();
+  
+  // Populate DOM fields from formData, then navigate
+  restoreProgress();
+  goToStep(3);
+}
+
+async function handleAuth(e) {
+  e.preventDefault();
+  const email = document.getElementById('authEmail').value;
+  const password = document.getElementById('authPassword').value;
+  const name = document.getElementById('authName') ? document.getElementById('authName').value : '';
+  const isSignup = document.getElementById('authToggle')?.dataset.mode === 'signup';
+  
+  const endpoint = isSignup ? '/api/auth/signup' : '/api/auth/login';
+  const body = isSignup ? {email, password, name} : {email, password};
+  
+  try {
+    const res = await fetch(endpoint, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(body)
+    });
+    const data = await res.json();
+    if (res.ok && data.token) {
+      onAuthSuccess(data.token, data.user || {email, name});
+    } else {
+      alert(data.detail || 'Authentication failed. Please try again.');
+    }
+  } catch(err) {
+    alert('Connection error. Please try again.');
+  }
+}
+
+// Google Sign-In — simple popup OAuth (no SDK dependency)
+const GOOGLE_CLIENT_ID = '137294630475-e1o2o3ddpud3jkt12d7hrvul1uuaj1jb.apps.googleusercontent.com';
+
+function triggerGoogleAuth() {
+  // Save form state before redirect/popup
+  collectStepData(1);
+  collectStepData(2);
+  formData._authPending = true;
+  saveProgress();
+  
+  const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+  const scope = encodeURIComponent('email profile');
+  
+  if (isMobile) {
+    // Mobile: use full redirect (popups are unreliable on mobile browsers)
+    const redirectUri = window.location.origin + '/app.html';
+    const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${GOOGLE_CLIENT_ID}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=token&scope=${scope}&prompt=select_account`;
+    window.location.href = authUrl;
+  } else {
+    // Desktop: popup flow
+    const redirectUri = window.location.origin;
+    const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${GOOGLE_CLIENT_ID}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=token&scope=${scope}&prompt=select_account`;
+    
+    const w = 500, h = 600;
+    const left = (screen.width - w) / 2;
+    const top = (screen.height - h) / 2;
+    const popup = window.open(authUrl, 'google_auth', `width=${w},height=${h},left=${left},top=${top}`);
+    
+    // If popup was blocked, fall back to redirect
+    if (!popup || popup.closed || typeof popup.closed === 'undefined') {
+      const redirectUri2 = window.location.origin + '/app.html';
+      const authUrl2 = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${GOOGLE_CLIENT_ID}&redirect_uri=${encodeURIComponent(redirectUri2)}&response_type=token&scope=${scope}&prompt=select_account`;
+      window.location.href = authUrl2;
+      return;
+    }
+    
+    // Watch for popup to close and check localStorage for the token
+    const checkPopup = setInterval(() => {
+      const savedToken = localStorage.getItem('sosfiler_google_token');
+      if (savedToken) {
+        localStorage.removeItem('sosfiler_google_token');
+        clearInterval(checkPopup);
+        if (popup && !popup.closed) popup.close();
+        handleGoogleToken(savedToken);
+        return;
+      }
+      if (!popup || popup.closed) {
+        clearInterval(checkPopup);
+      }
+    }, 500);
+  }
+}
+
+async function handleGoogleToken(accessToken) {
+  try {
+    // Get user info from Google
+    const res = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+      headers: { Authorization: `Bearer ${accessToken}` }
+    });
+    const profile = await res.json();
+    
+    // Send to our backend
+    const authRes = await fetch('/api/auth/google', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ 
+        token: accessToken, 
+        email: profile.email, 
+        name: profile.name, 
+        provider_id: profile.sub 
+      })
+    });
+    const data = await authRes.json();
+    if (authRes.ok && data.token) {
+      onAuthSuccess(data.token, data.user);
+    } else {
+      alert('Sign-in failed: ' + (data.detail || 'Unknown error'));
+    }
+  } catch(err) {
+    alert('Connection error during sign-in. Please try again.');
+  }
+}
+
+// Handle Google OAuth return — runs after page init
+function checkGoogleRedirect() {
+  // Direct redirect to this page (mobile flow or popup-blocked fallback)
+  if (window.location.hash.includes('access_token=')) {
+    const params = new URLSearchParams(window.location.hash.substring(1));
+    const accessToken = params.get('access_token');
+    // Clean URL immediately to prevent token leaking in history/bookmarks
+    history.replaceState(null, '', window.location.pathname);
+    if (accessToken) {
+      // If we're in a popup (desktop flow), save token and close
+      if (window.opener) {
+        localStorage.setItem('sosfiler_google_token', accessToken);
+        window.close();
+        return true;
+      }
+      // Otherwise, direct redirect flow — handle inline
+      handleGoogleToken(accessToken);
+    }
+    return true;
+  }
+  // Bounced from index.html (legacy desktop popup flow)
+  if (window.location.hash === '#google_auth_complete') {
+    const accessToken = localStorage.getItem('sosfiler_google_token');
+    localStorage.removeItem('sosfiler_google_token');
+    history.replaceState(null, '', window.location.pathname);
+    if (accessToken) handleGoogleToken(accessToken);
+    return true;
+  }
+  return false;
+}
+
+async function triggerAppleAuth() {
+  // Save form state before Apple redirect
+  collectStepData(1);
+  collectStepData(2);
+  formData._authPending = true;
+  saveProgress();
+  
+  const APPLE_SERVICE_ID = 'com.sosfiler.auth';
+  const redirectUri = window.location.origin + '/app.html';
+  const state = Math.random().toString(36).substring(2, 15);
+  
+  // Store state for CSRF verification
+  localStorage.setItem('sosfiler_apple_state', state);
+  
+  const params = new URLSearchParams({
+    client_id: APPLE_SERVICE_ID,
+    redirect_uri: redirectUri,
+    response_type: 'code id_token',
+    response_mode: 'fragment',
+    scope: 'name email',
+    state: state,
+  });
+  
+  window.location.href = `https://appleid.apple.com/auth/authorize?${params.toString()}`;
+}
+
+function checkAppleRedirect() {
+  // Apple returns: #id_token=...&code=...&state=...&user=...
+  const hash = window.location.hash;
+  if (!hash.includes('id_token=')) return false;
+  
+  const params = new URLSearchParams(hash.substring(1));
+  const idToken = params.get('id_token');
+  const state = params.get('state');
+  const userJson = params.get('user');
+  
+  // Clean URL immediately
+  history.replaceState(null, '', window.location.pathname);
+  
+  if (!idToken) return false;
+  
+  // Verify CSRF state
+  const savedState = localStorage.getItem('sosfiler_apple_state');
+  localStorage.removeItem('sosfiler_apple_state');
+  if (savedState && state !== savedState) {
+    alert('Sign-in state mismatch. Please try again.');
+    return false;
+  }
+  
+  // Apple sends user info (name) only on first authorization
+  let userName = '';
+  if (userJson) {
+    try {
+      const user = JSON.parse(decodeURIComponent(userJson));
+      userName = [user.name?.firstName, user.name?.lastName].filter(Boolean).join(' ');
+    } catch (e) {}
+  }
+  
+  handleAppleToken(idToken, userName);
+  return true;
+}
+
+async function handleAppleToken(idToken, userName) {
+  try {
+    const res = await fetch('/api/auth/apple', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token: idToken, name: userName })
+    });
+    const data = await res.json();
+    if (res.ok && data.token) {
+      onAuthSuccess(data.token, data.user);
+    } else {
+      alert('Apple sign-in failed: ' + (data.detail || 'Unknown error'));
+    }
+  } catch (err) {
+    alert('Connection error during Apple sign-in. Please try again.');
+  }
+}
+
+async function triggerFacebookAuth() {
+  // Save form state before redirect
+  collectStepData(1);
+  collectStepData(2);
+  formData._authPending = true;
+  saveProgress();
+  
+  const FACEBOOK_APP_ID = '1502505134824359';
+  const redirectUri = window.location.origin + '/app.html';
+  const state = Math.random().toString(36).substring(2, 15);
+  
+  localStorage.setItem('sosfiler_fb_state', state);
+  
+  const params = new URLSearchParams({
+    client_id: FACEBOOK_APP_ID,
+    redirect_uri: redirectUri,
+    response_type: 'token',
+    scope: 'email,public_profile',
+    state: state,
+  });
+  
+  window.location.href = `https://www.facebook.com/v19.0/dialog/oauth?${params.toString()}`;
+}
+
+function checkFacebookRedirect() {
+  const hash = window.location.hash;
+  if (!hash.includes('access_token=')) return false;
+  
+  // Only handle if we have a saved Facebook state (distinguishes from Google redirect)
+  const savedState = localStorage.getItem('sosfiler_fb_state');
+  if (!savedState) return false;
+  
+  const params = new URLSearchParams(hash.substring(1));
+  const accessToken = params.get('access_token');
+  const state = params.get('state');
+  
+  // Clean URL
+  history.replaceState(null, '', window.location.pathname);
+  
+  if (!accessToken) return false;
+  
+  // Verify CSRF state
+  localStorage.removeItem('sosfiler_fb_state');
+  if (state !== savedState) {
+    alert('Sign-in state mismatch. Please try again.');
+    return false;
+  }
+  
+  handleFacebookToken(accessToken);
+  return true;
+}
+
+async function handleFacebookToken(accessToken) {
+  try {
+    const res = await fetch('/api/auth/facebook', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token: accessToken })
+    });
+    const data = await res.json();
+    if (res.ok && data.token) {
+      onAuthSuccess(data.token, data.user);
+    } else {
+      alert('Facebook sign-in failed: ' + (data.detail || 'Unknown error'));
+    }
+  } catch (err) {
+    alert('Connection error during Facebook sign-in. Please try again.');
+  }
+}
+
+function prevStep() {
+  goToStep(currentStep - 1);
+}
+
+// Validation
+function validateStep(step) {
+  switch(step) {
+    case 2:
+      if (!document.getElementById('formationState').value) {
+        alert('Please select a state of formation.');
+        return false;
+      }
+      return true;
+    case 3:
+      const name = document.getElementById('businessName').value.trim();
+      if (!name) { alert('Please enter a business name.'); return false; }
+      return true;
+    case 4:
+      if (!document.getElementById('principalAddress').value.trim()) {
+        alert('Please enter a principal business address.');
+        return false;
+      }
+      return true;
+    case 5:
+      // Registered Agent validation
+      if (!formData.ra_choice || formData.ra_choice === 'self') {
+        const raName = document.getElementById('raName')?.value?.trim();
+        const raAddr = document.getElementById('raAddress')?.value?.trim();
+        if (!raName) { alert('Please enter the registered agent\'s name.'); return false; }
+        if (!raAddr) { alert('Please enter the registered agent\'s address.'); return false; }
+      }
+      return true;
+    case 6:
+      const members = collectMembers();
+      if (members.length === 0 || !members[0].name) {
+        alert('Please enter at least one member.');
+        return false;
+      }
+      const totalPct = members.reduce((sum, m) => sum + (parseFloat(m.ownership_pct) || 0), 0);
+      if (Math.abs(totalPct - 100) > 0.01) {
+        alert(`Ownership percentages must total 100%. Current total: ${totalPct}%`);
+        return false;
+      }
+      return true;
+    default:
+      return true;
+  }
+}
+
+// Data collection
+function collectStepData(step) {
+  // Helper: only overwrite formData if DOM has a real value (prevents empty DOM clobbering saved data on reload)
+  function setIfPresent(key, val) {
+    if (val !== undefined && val !== null && val !== '') {
+      formData[key] = val;
+    }
+  }
+  
+  switch(step) {
+    case 2:
+      setIfPresent('state', document.getElementById('formationState').value);
+      setIfPresent('home_state', document.getElementById('homeState').value);
+      break;
+    case 3:
+      setIfPresent('business_name', document.getElementById('businessName').value.trim());
+      break;
+    case 4:
+      setIfPresent('purpose', document.getElementById('purpose').value.trim() || (formData.purpose || 'Any lawful purpose'));
+      setIfPresent('principal_address', document.getElementById('principalAddress').value.trim());
+      setIfPresent('principal_city', document.getElementById('principalCity').value.trim());
+      setIfPresent('principal_state', document.getElementById('principalState').value);
+      setIfPresent('principal_zip', document.getElementById('principalZip').value.trim());
+      break;
+    case 5:
+      // Registered Agent
+      if (!formData.ra_choice) formData.ra_choice = 'self';
+      if (formData.ra_choice === 'self') {
+        setIfPresent('ra_name', document.getElementById('raName')?.value?.trim());
+        setIfPresent('ra_address', document.getElementById('raAddress')?.value?.trim());
+        setIfPresent('ra_city', document.getElementById('raCity')?.value?.trim());
+        setIfPresent('ra_state', document.getElementById('raState')?.value?.trim());
+        setIfPresent('ra_zip', document.getElementById('raZip')?.value?.trim());
+      }
+      break;
+    case 6: {
+      const collected = collectMembers();
+      // Only overwrite if we actually got members from the DOM
+      if (collected.length > 0) {
+        formData.members = collected;
+      }
+      break;
+    }
+    case 7:
+      setIfPresent('profit_distribution', document.getElementById('profitDist').value);
+      setIfPresent('voting_rights', document.getElementById('votingRights').value);
+      setIfPresent('dissolution_terms', document.getElementById('dissolutionTerms').value);
+      formData.major_decision_threshold = parseInt(document.getElementById('majorThreshold').value) || formData.major_decision_threshold || 10000;
+      formData.transfer_restrictions = document.getElementById('transferRestrictions').checked;
+      formData.tax_distributions = document.getElementById('taxDistributions').checked;
+      formData.non_compete = document.getElementById('nonCompete').checked;
+      formData.oa_type = formData.members && formData.members.length > 1 ? 'multi' : 'single';
+      break;
+  }
+}
+
+function collectMembers() {
+  const blocks = document.querySelectorAll('.member-block');
+  const members = [];
+  blocks.forEach(block => {
+    const name = block.querySelector('.m-name').value.trim();
+    if (name) {
+      members.push({
+        name: name,
+        ownership_pct: parseFloat(block.querySelector('.m-pct').value) || 0,
+        address: block.querySelector('.m-address').value.trim(),
+        city: block.querySelector('.m-city').value.trim(),
+        state: block.querySelector('.m-state').value.trim(),
+        zip_code: block.querySelector('.m-zip').value.trim(),
+        ssn_last4: (block.querySelector('.m-ssn').value || '').slice(-4),
+        is_responsible_party: block.querySelector('.m-responsible')?.checked || false
+      });
+    }
+  });
+  return members;
+}
+
+// Entity type selection
+function selectEntityType(el) {
+  document.querySelectorAll('#step1 .option-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  formData.entity_type = el.dataset.type;
+  fetchStateInfo();
+}
+
+// Management selection
+function selectMgmt(el) {
+  document.querySelectorAll('#step4 .option-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  formData.management_type = el.dataset.mgmt;
+  updateSidebarRequirements();
+}
+
+// Registered Agent selection
+function selectRA(el) {
+  document.querySelectorAll('#step5 .option-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  formData.ra_choice = el.dataset.ra;
+  
+  if (el.dataset.ra === 'self') {
+    document.getElementById('raSelfFields').style.display = 'block';
+    document.getElementById('raSosFields').style.display = 'none';
+  } else {
+    document.getElementById('raSelfFields').style.display = 'none';
+    document.getElementById('raSosFields').style.display = 'block';
+  }
+  updateSidebarRequirements();
+}
+
+// State info Sidebar fetch
+async function fetchStateInfo() {
+  const state = document.getElementById('formationState').value;
+  const entity = formData.entity_type;
+  
+  if (!state || !entity) {
+    document.getElementById('stateInfoSidebar').style.display = 'none';
+    document.getElementById('sidebarPlaceholder').style.display = 'block';
+    return;
+  }
+  
+  document.getElementById('sidebarPlaceholder').style.display = 'none';
+  const sidebar = document.getElementById('stateInfoSidebar');
+  sidebar.style.display = 'block';
+  
+  // Skeleton
+  const title = document.getElementById('sidebarTitle');
+  const sStateFee = document.getElementById('sidebarStateFee');
+  const sTotal = document.getElementById('sidebarTotal');
+  const sTime = document.getElementById('sidebarTime');
+  const sCompliance = document.getElementById('sidebarCompliance');
+  
+  title.innerText = `${stateNames[state]} ${entity} Filing`;
+  sStateFee.innerHTML = '<div class="skeleton" style="width: 50px;"></div>';
+  sTotal.innerHTML = '<div class="skeleton" style="width: 50px;"></div>';
+  sTime.innerHTML = '<div class="skeleton" style="width: 150px;"></div>';
+  sCompliance.innerHTML = '<div class="skeleton" style="width: 200px;"></div>';
+
+  // States that require a state-level business license
+  const stateBizLicenses = {
+    AK: { fee: 50, label: '$50/yr' },
+    DE: { fee: 75, label: '$75/yr' },
+    HI: { fee: 20, label: '$20 (one-time)' },
+    NV: { fee: 200, label: '$200 (LLC) / $500 (Corp)' },
+    WA: { fee: 50, label: '$50+' },
+    WV: { fee: 30, label: '$30 (one-time)' }
+  };
+
+  const licenseRow = document.getElementById('sidebarLicenseRow');
+  const licenseFeeEl = document.getElementById('sidebarLicenseFee');
+
+  try {
+    const res = await fetch(`/api/state-info/${state}/${entity.toLowerCase()}`);
+    if (res.ok) {
+      const data = await res.json();
+      
+      // Parse filing fee from string like "$425 total ($75 + ...)" or "$100"
+      const feeStr = data.filing_fee || '';
+      const feeMatch = feeStr.match(/\$(\d+)/);
+      let stateFee = feeMatch ? parseInt(feeMatch[1]) : (stateFees[state] || 0);
+      
+      // For Nevada, the $425 total includes the business license already bundled
+      // So we show the filing-only portion and the license separately
+      const license = stateBizLicenses[state];
+      let licenseFee = 0;
+      if (license && state !== 'NV') {
+        // Show license as separate line item
+        licenseFeeEl.innerText = license.label;
+        licenseRow.style.display = 'flex';
+        licenseFee = license.fee;
+      } else if (state === 'NV') {
+        // NV bundles it — show the breakdown
+        sStateFee.innerHTML = '<span style="font-size:12px;color:var(--muted)">$75 filing + $150 initial list</span>';
+        licenseFeeEl.innerText = entity.toLowerCase() === 'corp' ? '$500' : '$200';
+        licenseRow.style.display = 'flex';
+        stateFee = entity.toLowerCase() === 'corp' ? 725 : 425;
+        sTotal.innerText = `$${49 + stateFee}`;
+      } else {
+        licenseRow.style.display = 'none';
+      }
+
+      if (state !== 'NV') {
+        sStateFee.innerText = `$${stateFee}`;
+        sTotal.innerText = `$${49 + stateFee + licenseFee}`;
+      }
+
+      sTime.innerText = `Standard: ${data.standard_processing_time || '5-7 business days'}`;
+      
+      // Annual report / compliance
+      const ar = data.annual_report || {};
+      let complianceText = '';
+      if (ar.required === false) {
+        complianceText = 'No annual report required.';
+      } else {
+        const arFee = ar.fee != null ? `$${ar.fee}` : 'varies';
+        const arDue = ar.due || ar.frequency || 'annually';
+        complianceText = `Annual report due ${arDue}. Fee: ${arFee}.`;
+      }
+      if (license) {
+        complianceText += ` State business license renewal also required.`;
+      }
+      sCompliance.innerText = complianceText;
+      
+      // Gotchas / warnings
+      const warningEl = document.getElementById('sidebarWarning');
+      const gotchas = data.gotchas || data.gotchas_special_requirements || '';
+      const pubRequired = data.publication_required;
+      let warnings = '';
+      if (pubRequired) warnings += 'Publication required in this state. ';
+      if (gotchas) warnings += gotchas;
+      
+      if (warnings) {
+        warningEl.innerText = warnings;
+        warningEl.style.display = 'block';
+      } else {
+        warningEl.style.display = 'none';
+      }
+    } else {
+      throw new Error('Fallback');
+    }
+  } catch (e) {
+    // Fallback to local data
+    const fee = stateFees[state] || 0;
+    const license = stateBizLicenses[state];
+    const licenseFee = license ? license.fee : 0;
+    sStateFee.innerText = `$${fee}`;
+    if (license) {
+      licenseFeeEl.innerText = license.label;
+      licenseRow.style.display = 'flex';
+    } else {
+      licenseRow.style.display = 'none';
+    }
+    sTotal.innerText = `$${49 + fee + licenseFee}`;
+    sTime.innerText = 'Standard: 7-10 business days';
+    sCompliance.innerText = `Annual report due each year. State fee applies.`;
+    document.getElementById('sidebarWarning').style.display = 'none';
+  }
+}
+
+function updateSidebarRequirements() {
+  const check = (id, done) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.classList.toggle('done', done);
+    const statusEl = el.querySelector('.status');
+    if (done) { statusEl.classList.add('chk-done'); statusEl.classList.remove('chk-box'); }
+    else { statusEl.classList.remove('chk-done'); statusEl.classList.add('chk-box'); }
+  };
+  
+  check('chk-state', !!document.getElementById('formationState').value);
+  const nameConfirmed = document.getElementById('nameConfirmed');
+  check('chk-name', !!document.getElementById('businessName').value.trim() && nameConfirmed && nameConfirmed.checked);
+  check('chk-address', !!document.getElementById('principalAddress').value.trim());
+  
+  // RA check: either SOSFiler RA selected, or self with name+address filled
+  const raOk = formData.ra_choice === 'sosfiler' || 
+    (document.getElementById('raName')?.value?.trim() && document.getElementById('raAddress')?.value?.trim());
+  check('chk-ra', !!raOk);
+  
+  const members = collectMembers();
+  const totalPct = members.reduce((sum, m) => sum + (parseFloat(m.ownership_pct) || 0), 0);
+  check('chk-members', members.length > 0 && Math.abs(totalPct - 100) < 0.01);
+}
+
+// State recommendation
+function updateStateRecommendation() {
+  const home = document.getElementById('homeState').value;
+  const formation = document.getElementById('formationState').value;
+  const container = document.getElementById('stateRecommendation');
+  const feeInfo = document.getElementById('stateFeeInfo');
+  
+  if (!home && !formation) {
+    container.innerHTML = '';
+    feeInfo.innerHTML = '';
+    return;
+  }
+  
+  // Auto-set formation state to home state if not set
+  if (home && !formation) {
+    document.getElementById('formationState').value = home;
+  }
+  
+  const fState = document.getElementById('formationState').value;
+  fetchStateInfo();
+  updateSidebarRequirements();
+  
+  // Show fee info
+  if (fState && stateFees[fState] !== undefined) {
+    const fee = stateFees[fState];
+    feeInfo.innerHTML = `
+      <div class="recommendation">
+        <div class="title">${stateNames[fState]} Filing Cost</div>
+        <div>$49 (SOSFiler) + $${fee} (state fee) = <strong>$${49 + fee} total</strong></div>
+      </div>`;
+  }
+  
+  // Show warning if different from home state
+  if (home && fState && home !== fState && ['DE', 'WY', 'NV'].includes(fState)) {
+    container.innerHTML = `
+      <div class="warning-box">
+        <div class="title">Forming outside your home state?</div>
+        <div>You live in ${stateNames[home]} but selected ${stateNames[fState]}. This means:
+        <ul style="margin: 8px 0 0 20px; font-size: 13px;">
+          <li>You'll need to register as a "foreign LLC" in ${stateNames[home]} (additional $${stateFees[home] || 100}+)</li>
+          <li>You'll pay fees and file reports in BOTH states</li>
+          <li>You'll need a registered agent in BOTH states</li>
+        </ul>
+        <p style="margin-top: 8px;">For most small businesses, forming in your home state (${stateNames[home]}) is simpler and cheaper.</p>
+        </div>
+      </div>`;
+  } else if (home && fState && home === fState) {
+    container.innerHTML = `
+      <div class="recommendation">
+        <div class="title">Great choice!</div>
+        <div>Forming in your home state is the simplest and most cost-effective option for most businesses.</div>
+      </div>`;
+  } else {
+    container.innerHTML = '';
+  }
+}
+
+// Name check
+// State name search URLs
+const stateSearchUrls = {
+  AL: { url: "https://arc-sos.state.al.us/CGI/CORPNAME.MBR/INPUT", params: false },
+  AK: { url: "https://www.commerce.alaska.gov/cbp/main/search/entities", params: false },
+  AZ: { url: "https://ecorp.azcc.gov/EntitySearch/Index", params: false },
+  AR: { url: "https://www.ark.org/corp-search/index.php", params: true, fmt: "?corp_name={name}" },
+  CA: { url: "https://bizfileonline.sos.ca.gov/search/business", params: true, fmt: "?searchTerm={name}" },
+  CO: { url: "https://www.sos.state.co.us/biz/BusinessEntityCriteriaExt.do", params: false },
+  CT: { url: "https://service.ct.gov/business/s/onlinebusinesssearch", params: false },
+  DE: { url: "https://icis.corp.delaware.gov/Ecorp/EntitySearch/NameSearch.aspx", params: false },
+  DC: { url: "https://corponline.dcra.dc.gov/Home.aspx", params: false },
+  FL: { url: "https://search.sunbiz.org/Inquiry/CorporationSearch/ByName", params: true, fmt: "?SearchTerm={name}" },
+  GA: { url: "https://ecorp.sos.ga.gov/BusinessSearch", params: false },
+  HI: { url: "https://hbe.ehawaii.gov/documents/search.html", params: true, fmt: "?query={name}" },
+  ID: { url: "https://sosbiz.idaho.gov/search/business", params: true, fmt: "?searchTerm={name}" },
+  IL: { url: "https://apps.ilsos.gov/corporatellc/", params: false },
+  IN: { url: "https://bsd.sos.in.gov/publicbusinesssearch", params: false },
+  IA: { url: "https://sos.iowa.gov/search/business/search.aspx", params: false },
+  KS: { url: "https://www.sos.ks.gov/eforms/BusinessEntity/Search.aspx", params: false },
+  KY: { url: "https://sosbes.sos.ky.gov/BusSearchNProfile/search.aspx", params: false },
+  LA: { url: "https://coraweb.sos.la.gov/CommercialSearch/CommercialSearch.aspx", params: false },
+  ME: { url: "https://apps3.web.maine.gov/nei-sos-icrs/ICRS?MainPage=x", params: false },
+  MD: { url: "https://egov.maryland.gov/BusinessExpress/EntitySearch", params: false },
+  MA: { url: "https://corp.sec.state.ma.us/corpweb/CorpSearch/CorpSearch.aspx", params: false },
+  MI: { url: "https://mibusinessregistry.lara.state.mi.us/search/business", params: true, fmt: "?searchTerm={name}" },
+  MN: { url: "https://mblsportal.sos.state.mn.us/Business/Search", params: false },
+  MS: { url: "https://corp.sos.ms.gov/corp/portal/c/page/corpBusinessIdSearch/portal.aspx", params: false },
+  MO: { url: "https://bsd.sos.mo.gov/BusinessEntity/BESearch.aspx?SearchType=0", params: false },
+  MT: { url: "https://biz.sosmt.gov/search/business", params: true, fmt: "?searchTerm={name}" },
+  NE: { url: "https://www.nebraska.gov/sos/corp/corpsearch.cgi?nav=search", params: false },
+  NV: { url: "https://esos.nv.gov/EntitySearch/OnlineEntitySearch", params: false },
+  NH: { url: "https://quickstart.sos.nh.gov/online/BusinessInquire", params: false },
+  NJ: { url: "https://www.njportal.com/DOR/BusinessNameSearch/Search/BusinessName", params: false },
+  NM: { url: "https://enterprise.sos.nm.gov/search/business", params: true, fmt: "?searchTerm={name}" },
+  NY: { url: "https://apps.dos.ny.gov/publicInquiry/", params: false },
+  NC: { url: "https://www.sosnc.gov/online_services/search/by_title/_Business_Registration", params: false },
+  ND: { url: "https://firststop.sos.nd.gov/search/business", params: true, fmt: "?searchTerm={name}" },
+  OH: { url: "https://businesssearch.ohiosos.gov/", params: false },
+  OK: { url: "https://www.sos.ok.gov/corp/corpinquiryfind.aspx", params: false },
+  OR: { url: "http://egov.sos.state.or.us/br/pkg_web_name_srch_inq.login", params: false },
+  PA: { url: "https://file.dos.pa.gov/search/business", params: true, fmt: "?searchTerm={name}" },
+  RI: { url: "http://business.sos.ri.gov/CorpWeb/CorpSearch/CorpSearch.aspx", params: false },
+  SC: { url: "https://businessfilings.sc.gov/BusinessFiling/Entity/Search", params: false },
+  SD: { url: "https://sosenterprise.sd.gov/BusinessServices/Business/FilingSearch.aspx", params: false },
+  TN: { url: "https://tncab.tnsos.gov/business-entity-search", params: false },
+  TX: { url: "https://mycpa.cpa.state.tx.us/coa/", params: false },
+  UT: { url: "https://businessregistration.utah.gov/EntitySearch/OnlineEntitySearch", params: false },
+  VT: { url: "https://bizfilings.vermont.gov/business/businesssearch", params: true, fmt: "?searchTerm={name}" },
+  VA: { url: "https://cis.scc.virginia.gov/EntitySearch/Index", params: false },
+  WA: { url: "https://ccfs.sos.wa.gov/#/AdvancedSearch", params: false },
+  WV: { url: "https://apps.wv.gov/SOS/BusinessEntitySearch/", params: false },
+  WI: { url: "https://apps.dfi.wi.gov/apps/corpsearch/search.aspx", params: true, fmt: "?search_name={name}" },
+  WY: { url: "https://wyobiz.wyo.gov/Business/FilingSearch.aspx", params: false }
+};
+
+async function checkName() {
+  const state = formData.state || document.getElementById('formationState').value;
+  const name = document.getElementById('businessName').value.trim();
+  if (!name || !state) { alert('Enter a name and select a state first.'); return; }
+  
+  const el = document.getElementById('nameCheckResult');
+  el.innerHTML = '<div style="color:var(--muted)">Checking name format...</div>';
+  
+  // Build the state search link
+  const searchData = stateSearchUrls[state];
+  let searchLink = '';
+  if (searchData) {
+    let searchUrl = searchData.url;
+    if (searchData.params && searchData.fmt) {
+      searchUrl = searchData.url + searchData.fmt.replace('{name}', encodeURIComponent(name));
+    }
+    searchLink = `<a href="${searchUrl}" target="_blank" rel="noopener" style="color:var(--cyan);text-decoration:underline;">Search ${stateNames[state]} business names</a>`;
+  }
+
+  // Check naming rules
+  const entityType = formData.entity_type || 'LLC';
+  const suffixMap = {
+    LLC: ['LLC', 'L.L.C.', 'Limited Liability Company'],
+    Corp: ['Inc.', 'Inc', 'Incorporated', 'Corporation', 'Corp.', 'Corp'],
+    'S-Corp': ['Inc.', 'Inc', 'Incorporated', 'Corporation', 'Corp.', 'Corp'],
+    Nonprofit: ['Inc.', 'Inc', 'Incorporated', 'Corporation', 'Corp.', 'Corp']
+  };
+  const suffixes = suffixMap[entityType] || suffixMap.LLC;
+  const hasSuffix = suffixes.some(s => name.toUpperCase().includes(s.toUpperCase()));
+  
+  let issues = [];
+  if (!hasSuffix) {
+    issues.push(`Name should include one of: ${suffixes.join(', ')}`);
+  }
+  
+  const restricted = ['bank', 'trust', 'insurance', 'university', 'federal', 'national'];
+  for (const word of restricted) {
+    if (name.toLowerCase().includes(word)) {
+      issues.push(`"${word}" is a restricted word that may require special approval`);
+    }
+  }
+  
+  if (issues.length > 0) {
+    el.innerHTML = `<div class="name-check-result warning">${issues.join('. ')}.</div>`;
+  } else {
+    el.innerHTML = `
+      <div class="name-check-result pass">
+        <div style="margin-bottom:10px;">Name format meets ${stateNames[state]} requirements.</div>
+        <div style="margin-bottom:12px;">Before we file, please verify your name is not already taken:</div>
+        <div style="margin-bottom:12px;">${searchLink}</div>
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;color:var(--text);font-size:13px;">
+          <input type="checkbox" id="nameConfirmed" onchange="updateSidebarRequirements()" style="width:16px;height:16px;accent-color:var(--accent);">
+          I've confirmed this name is available
+        </label>
+      </div>`;
+  }
+}
+
+function clearNameCheck() {
+  document.getElementById('nameCheckResult').innerHTML = '';
+  updateSidebarRequirements();
+}
+
+// Chat functions
+function toggleChat() {
+  const panel = document.getElementById('chatPanel');
+  const isOpen = panel.style.display === 'flex';
+  panel.style.display = isOpen ? 'none' : 'flex';
+  document.getElementById('chatNotify').style.display = 'none';
+  if (!isOpen) {
+    document.getElementById('chatInput').focus();
+    // Scroll to bottom
+    const msgs = document.getElementById('chatMessages');
+    msgs.scrollTop = msgs.scrollHeight;
+  }
+}
+
+async function sendChatMessage(e) {
+  e.preventDefault();
+  const input = document.getElementById('chatInput');
+  const text = input.value.trim();
+  if (!text) return;
+
+  const msgs = document.getElementById('chatMessages');
+  
+  // Add user message
+  const userMsg = document.createElement('div');
+  userMsg.className = 'msg msg-user';
+  userMsg.innerText = text;
+  msgs.appendChild(userMsg);
+  input.value = '';
+  
+  // Session ID
+  let sid = sessionStorage.getItem('sosfiler_chat_sid');
+  if (!sid) {
+    sid = Math.random().toString(36).substring(7);
+    sessionStorage.setItem('sosfiler_chat_sid', sid);
+  }
+
+  // Auto-scroll
+  msgs.scrollTop = msgs.scrollHeight;
+
+  // Typing indicator
+  const typing = document.getElementById('chatTyping');
+  typing.style.display = 'block';
+
+  try {
+    const res = await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        message: text,
+        session_id: sid,
+        context: {
+          state: formData.state,
+          entity_type: formData.entity_type
+        }
+      })
+    });
+    
+    typing.style.display = 'none';
+
+    if (res.ok) {
+      const data = await res.json();
+      const botMsg = document.createElement('div');
+      botMsg.className = 'msg msg-bot';
+      botMsg.innerText = data.response;
+      msgs.appendChild(botMsg);
+      
+      // Limit to 20 messages
+      while (msgs.children.length > 20) {
+        msgs.removeChild(msgs.firstChild);
+      }
+
+      // If chat is closed, show notification dot
+      if (document.getElementById('chatPanel').style.display !== 'flex') {
+        document.getElementById('chatNotify').style.display = 'block';
+      }
+    } else {
+      throw new Error();
+    }
+  } catch (err) {
+    typing.style.display = 'none';
+    const errorMsg = document.createElement('div');
+    errorMsg.className = 'msg msg-bot';
+    errorMsg.style.color = 'var(--red)';
+    errorMsg.innerText = "Sorry, I'm having trouble connecting. Please try again or email support@sosfiler.com.";
+    msgs.appendChild(errorMsg);
+  }
+
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+// Add member
+let memberCount = 1;
+function addMember() {
+  memberCount++;
+  const container = document.getElementById('membersContainer');
+  const block = document.createElement('div');
+  block.className = 'member-block';
+  block.dataset.index = memberCount - 1;
+  block.innerHTML = `
+    <h4>Member ${memberCount}</h4>
+    <button class="remove-btn" onclick="this.parentElement.remove(); memberCount--;">✕</button>
+    <div class="two-col">
+      <div><label class="required">Full Legal Name</label><input type="text" class="m-name" placeholder="First and Last Name"></div>
+      <div><label class="required">Ownership %</label><input type="number" class="m-pct" value="0" min="0" max="100"></div>
+    </div>
+    <label class="required">Address</label>
+    <input type="text" class="m-address" placeholder="Street address">
+    <div class="two-col">
+      <div><input type="text" class="m-city" placeholder="City"></div>
+      <div><div class="two-col">
+        <input type="text" class="m-state" placeholder="State" maxlength="2">
+        <input type="text" class="m-zip" placeholder="ZIP" maxlength="10">
+      </div></div>
+    </div>`;
+  container.appendChild(block);
+  
+  // Adjust first member's pct
+  const firstPct = container.querySelector('.member-block:first-child .m-pct');
+  if (firstPct && parseFloat(firstPct.value) === 100) {
+    firstPct.value = 50;
+    block.querySelector('.m-pct').value = 50;
+  }
+}
+
+// Review
+function buildReview() {
+  collectStepData(7);
+  const members = formData.members || [];
+  const state = formData.state;
+  const fee = stateFees[state] || 0;
+  const raFee = formData.ra_choice === 'sosfiler' ? 49 : 0;
+  
+  let membersHtml = members.map((m, i) => `
+    <div class="review-row"><span class="label">Member ${i+1}</span><span class="value">${m.name} (${m.ownership_pct}%)</span></div>
+    <div class="review-row"><span class="label"></span><span class="value" style="font-weight:400; font-size:13px;">${m.address}, ${m.city}, ${m.state} ${m.zip_code}</span></div>
+  `).join('');
+  
+  // Build RA review section
+  let raHtml = '';
+  if (formData.ra_choice === 'sosfiler') {
+    raHtml = `
+      <div class="review-row"><span class="label">Service</span><span class="value">SOSFiler Registered Agent ($49/yr)</span></div>
+      <div class="review-row"><span class="label">Address</span><span class="value">Professional address provided in ${stateNames[state] || state}</span></div>`;
+  } else {
+    raHtml = `
+      <div class="review-row"><span class="label">Agent Name</span><span class="value">${formData.ra_name || 'Not provided'}</span></div>
+      <div class="review-row"><span class="label">Agent Address</span><span class="value">${formData.ra_address || ''}, ${formData.ra_city || ''}, ${formData.ra_state || ''} ${formData.ra_zip || ''}</span></div>`;
+  }
+
+  document.getElementById('reviewContent').innerHTML = `
+    <div class="review-section">
+      <h3>Entity Details</h3>
+      <div class="review-row"><span class="label">Entity Type</span><span class="value">${formData.entity_type}</span></div>
+      <div class="review-row"><span class="label">State</span><span class="value">${stateNames[state]} (${state})</span></div>
+      <div class="review-row"><span class="label">Business Name</span><span class="value">${formData.business_name}</span></div>
+      <div class="review-row"><span class="label">Purpose</span><span class="value">${formData.purpose || 'Any lawful purpose'}</span></div>
+      <div class="review-row"><span class="label">Management</span><span class="value">${formData.management_type}</span></div>
+      <div class="review-row"><span class="label">Address</span><span class="value">${formData.principal_address}, ${formData.principal_city}, ${formData.principal_state} ${formData.principal_zip}</span></div>
+    </div>
+    <div class="review-section">
+      <h3>Registered Agent</h3>
+      ${raHtml}
+    </div>
+    <div class="review-section">
+      <h3>Members</h3>
+      ${membersHtml}
+    </div>
+    <div class="review-section">
+      <h3>Operating Agreement</h3>
+      <div class="review-row"><span class="label">Type</span><span class="value">${members.length > 1 ? 'Multi-Member' : 'Single-Member'}</span></div>
+      <div class="review-row"><span class="label">Profit Distribution</span><span class="value">${formData.profit_distribution}</span></div>
+      <div class="review-row"><span class="label">Voting Rights</span><span class="value">${formData.voting_rights}</span></div>
+      <div class="review-row"><span class="label">Dissolution</span><span class="value">${formData.dissolution_terms}</span></div>
+      <div class="review-row"><span class="label">Transfer Restrictions</span><span class="value">${formData.transfer_restrictions ? 'Yes' : 'No'}</span></div>
+    </div>`;
+  
+  document.getElementById('reviewState').textContent = stateNames[state] || state;
+  document.getElementById('reviewStateFee').textContent = `$${fee}`;
+  document.getElementById('reviewTotal').textContent = `$${49 + fee + raFee}`;
+  
+  // Show/hide RA fee line
+  const raFeeRow = document.getElementById('raFeeRow');
+  if (raFee > 0) {
+    raFeeRow.style.display = 'flex';
+  } else {
+    raFeeRow.style.display = 'none';
+  }
+  
+  // Enable pay button when both checkboxes checked
+  function updatePayBtn() {
+    const auth = document.getElementById('authorizeOrganizer').checked;
+    const terms = document.getElementById('agreeTerms').checked;
+    document.getElementById('payBtn').disabled = !(auth && terms);
+  }
+  document.getElementById('authorizeOrganizer').addEventListener('change', updatePayBtn);
+  document.getElementById('agreeTerms').addEventListener('change', updatePayBtn);
+  
+  // Set state name in authorization
+  document.getElementById('authStateName').textContent = stateNames[state] || state;
+}
+
+// Submit & pay
+async function submitAndPay() {
+  if (!document.getElementById('agreeTerms').checked || !document.getElementById('authorizeOrganizer').checked) return;
+  
+  // Show loading
+  document.querySelectorAll('.step-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('stepLoading').classList.add('active');
+  
+  // Build payload
+  const payload = {
+    email: formData.email || (JSON.parse(localStorage.getItem('sosfiler_user') || '{}').email) || prompt('Enter your email address for order updates:') || '',
+    entity_type: formData.entity_type,
+    state: formData.state,
+    business_name: formData.business_name,
+    purpose: formData.purpose || 'Any lawful purpose',
+    principal_address: formData.principal_address,
+    principal_city: formData.principal_city,
+    principal_state: formData.principal_state,
+    principal_zip: formData.principal_zip,
+    management_type: formData.management_type,
+    ra_choice: formData.ra_choice || 'self',
+    ra_name: formData.ra_choice === 'sosfiler' ? 'SOSFiler Registered Agent' : (formData.ra_name || ''),
+    ra_address: formData.ra_choice === 'sosfiler' ? '' : (formData.ra_address || ''),
+    ra_city: formData.ra_choice === 'sosfiler' ? '' : (formData.ra_city || ''),
+    ra_state: formData.ra_choice === 'sosfiler' ? '' : (formData.ra_state || ''),
+    ra_zip: formData.ra_choice === 'sosfiler' ? '' : (formData.ra_zip || ''),
+    members: formData.members || [],
+    oa_type: formData.oa_type || 'single',
+    profit_distribution: formData.profit_distribution || 'pro-rata',
+    voting_rights: formData.voting_rights || 'pro-rata',
+    dissolution_terms: formData.dissolution_terms || 'unanimous',
+    major_decision_threshold: formData.major_decision_threshold || 10000,
+    transfer_restrictions: formData.transfer_restrictions ?? true,
+    non_compete: formData.non_compete ?? false,
+    tax_distributions: formData.tax_distributions ?? true,
+    responsible_party_ssn: formData.members?.[0]?.ssn_last4 || '',
+    fiscal_year_end: 'December'
+  };
+  
+  if (!payload.email) {
+    goToStep(7);
+    return;
+  }
+  
+  try {
+    // Create order
+    const orderRes = await fetch('/api/formation', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    
+    if (!orderRes.ok) throw new Error('Failed to create order');
+    const order = await orderRes.json();
+    
+    // Save for later
+    localStorage.setItem('sosfiler_order', JSON.stringify(order));
+    
+    // Create checkout session
+    const checkoutRes = await fetch('/api/checkout', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        order_id: order.order_id,
+        success_url: window.location.origin + '/dashboard.html',
+        cancel_url: window.location.origin + '/app.html'
+      })
+    });
+    
+    if (!checkoutRes.ok) throw new Error('Failed to create checkout');
+    const checkout = await checkoutRes.json();
+    
+    // Redirect to Stripe
+    window.location.href = checkout.checkout_url;
+    
+  } catch (e) {
+    console.error('Checkout error:', e);
+    alert('There was an error processing your order. Please try again or contact support at support@sosfiler.com');
+    goToStep(7);
+  }
+}
+
+// Save / restore progress
+function saveProgress() {
+  try {
+    localStorage.setItem('sosfiler_progress', JSON.stringify({ step: currentStep, data: formData }));
+  } catch (e) {}
+}
+
+function restoreProgress() {
+  try {
+    const saved = JSON.parse(localStorage.getItem('sosfiler_progress'));
+    if (saved && saved.data) {
+      formData = { ...formData, ...saved.data };
+      
+      // Restore entity type selection
+      if (formData.entity_type) {
+        document.querySelectorAll('#step1 .option-card').forEach(c => {
+          c.classList.toggle('selected', c.dataset.type === formData.entity_type);
+        });
+      }
+      
+      // Restore state selection
+      if (formData.state) {
+        const formationSelect = document.getElementById('formationState');
+        if (formationSelect) formationSelect.value = formData.state;
+        const homeSelect = document.getElementById('homeState');
+        if (homeSelect && formData.home_state) homeSelect.value = formData.home_state;
+      }
+      
+      // Restore business name
+      if (formData.business_name) {
+        const nameField = document.getElementById('businessName');
+        if (nameField) nameField.value = formData.business_name;
+      }
+      
+      // Restore address fields
+      if (formData.principal_address) {
+        const f = (id, val) => { const el = document.getElementById(id); if (el && val) el.value = val; };
+        f('principalAddress', formData.principal_address);
+        f('principalCity', formData.principal_city);
+        f('principalState', formData.principal_state);
+        f('principalZip', formData.principal_zip);
+        f('purpose', formData.purpose);
+      }
+      
+      // Restore management type
+      if (formData.management_type) {
+        document.querySelectorAll('#step4 .option-card').forEach(c => {
+          c.classList.toggle('selected', c.dataset.mgmt === formData.management_type);
+        });
+      }
+      
+      // Restore registered agent choice
+      if (formData.ra_choice) {
+        document.querySelectorAll('#step5 .option-card').forEach(c => {
+          c.classList.toggle('selected', c.dataset.ra === formData.ra_choice);
+        });
+        if (formData.ra_choice === 'self') {
+          const sf = document.getElementById('raSelfFields');
+          const ss = document.getElementById('raSosFields');
+          if (sf) sf.style.display = 'block';
+          if (ss) ss.style.display = 'none';
+          const f = (id, val) => { const el = document.getElementById(id); if (el && val) el.value = val; };
+          f('raName', formData.ra_name);
+          f('raAddress', formData.ra_address);
+          f('raCity', formData.ra_city);
+          f('raState', formData.ra_state);
+          f('raZip', formData.ra_zip);
+        } else {
+          const sf = document.getElementById('raSelfFields');
+          const ss = document.getElementById('raSosFields');
+          if (sf) sf.style.display = 'none';
+          if (ss) ss.style.display = 'block';
+        }
+      }
+      
+      // Restore members
+      if (formData.members && formData.members.length > 0) {
+        const firstMember = formData.members[0];
+        const block = document.querySelector('.member-block');
+        if (block) {
+          const f = (cls, val) => { const el = block.querySelector(cls); if (el && val) el.value = val; };
+          f('.m-name', firstMember.name);
+          f('.m-pct', firstMember.ownership_pct);
+          f('.m-address', firstMember.address);
+          f('.m-city', firstMember.city);
+          f('.m-state', firstMember.state);
+          f('.m-zip', firstMember.zip_code);
+        }
+      }
+      
+      // If logged in and auth was pending, jump to Step 3 (past the auth gate)
+      if (formData._authPending && isLoggedIn()) {
+        delete formData._authPending;
+        saveProgress();
+        goToStep(3);
+      } else if (saved.step && saved.step > 1 && isLoggedIn()) {
+        goToStep(saved.step);
+      }
+    }
+  } catch (e) { console.error('Restore error:', e); }
+}
+
+// Progress step click
+document.querySelectorAll('.progress-step').forEach(el => {
+  el.addEventListener('click', () => {
+    const step = parseInt(el.dataset.step);
+    if (step < currentStep) goToStep(step);
+  });
+});
+
+// Init
+initDropdowns();
+restoreProgress();
+// Order matters: Apple returns id_token (checked first), Facebook and Google both return access_token.
+// Facebook check uses state to distinguish from Google.
+checkAppleRedirect() || checkFacebookRedirect() || checkGoogleRedirect();
+setupSidebarListeners();
+</script>
+
+<!-- Auth Modal -->
+<div id="authModal" class="modal">
+  <div class="modal-content auth-content" style="max-width: 400px;">
+    <h2>Sign in to continue</h2>
+    <p>Please create an account or log in to save your progress.</p>
+    
+    <div class="auth-providers">
+      <button class="auth-btn google-btn" onclick="triggerGoogleAuth()">
+        <svg width="20" height="20" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+        Continue with Google
+      </button>
+      
+      <button class="auth-btn apple-btn" onclick="triggerAppleAuth()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="#fff"><path d="M17.05 20.28c-.98.95-2.05.88-3.08.4-1.09-.5-2.08-.48-3.24 0-1.44.62-2.2.44-3.06-.4C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/></svg>
+        Continue with Apple
+      </button>
+      
+      <button class="auth-btn facebook-btn" onclick="triggerFacebookAuth()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="#1877F2"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+        Continue with Facebook
+      </button>
+    </div>
+    
+    <div class="divider"><span>OR</span></div>
+    
+    <form id="authForm" onsubmit="handleAuth(event)">
+      <label>Email</label>
+      <input type="email" id="authEmail" required>
+      <label>Password</label>
+      <input type="password" id="authPassword" required>
+      <div id="authNameField" style="display:none;">
+        <label>Full Name</label>
+        <input type="text" id="authName">
+      </div>
+      <button type="submit" class="btn btn-primary" style="width:100%; margin-top:16px;">Log In</button>
+      <p style="text-align:center; margin-top:16px;">
+        <a href="#" onclick="toggleAuthMode(event)" id="authModeToggle">Don't have an account? Sign up</a>
+      </p>
+    </form>
+  </div>
+</div>
+
+<style>
+.modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 1000; justify-content: center; align-items: center; padding: 20px; }
+.modal-content { background: var(--card); border: 1px solid var(--border); border-top: 2px solid var(--accent); border-radius: 16px; padding: 32px; position: relative; }
+.modal-content h2 { font-size: 22px; margin-bottom: 8px; }
+.modal-content > p { color: var(--muted); font-size: 14px; margin-bottom: 24px; }
+.auth-providers { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+.auth-btn { display: flex; align-items: center; justify-content: center; gap: 10px; padding: 14px 20px; border: none; color: #fff; font-weight: 600; font-size: 15px; border-radius: 8px; cursor: pointer; transition: all 0.2s; font-family: 'Inter', sans-serif; min-height: 48px; }
+.google-btn { background: #fff; color: #333; border: 1px solid #ddd; }
+.google-btn:hover { background: #f7f7f7; box-shadow: 0 2px 8px rgba(0,0,0,0.15); }
+.apple-btn { background: #000; color: #fff; border: 1px solid #333; }
+.apple-btn:hover { background: #1a1a1a; box-shadow: 0 2px 8px rgba(255,255,255,0.1); }
+.facebook-btn { background: #1877F2; color: #fff; }
+.facebook-btn:hover { background: #166FE5; box-shadow: 0 2px 8px rgba(24,119,242,0.4); }
+.divider { display: flex; align-items: center; text-align: center; margin: 20px 0; color: var(--muted); }
+.divider::before, .divider::after { content: ''; flex: 1; border-bottom: 1px solid var(--border); }
+.divider span { padding: 0 10px; font-size: 13px; }
+#authForm label { color: #ccc; }
+#authForm input { background: #1A1A1A; color: var(--text); border: 1px solid var(--border); }
+#authForm input:focus { border-color: var(--accent); box-shadow: 0 0 0 2px rgba(204,255,0,0.15); }
+#authModeToggle { color: var(--accent); font-size: 13px; }
+</style>
+
+<script>
+function toggleAuthMode(e) {
+  e.preventDefault();
+  const nameField = document.getElementById('authNameField');
+  const submitBtn = document.querySelector('#authForm button[type="submit"]');
+  const toggle = document.getElementById('authModeToggle');
+  const authToggle = document.getElementById('authToggle') || submitBtn;
+  
+  if (nameField.style.display === 'none') {
+    nameField.style.display = 'block';
+    submitBtn.textContent = 'Create Account';
+    toggle.textContent = 'Already have an account? Log in';
+    authToggle.dataset.mode = 'signup';
+  } else {
+    nameField.style.display = 'none';
+    submitBtn.textContent = 'Log In';
+    toggle.textContent = "Don't have an account? Sign up";
+    authToggle.dataset.mode = 'login';
+  }
+}
+</script>
+
+</body>
+</html>
