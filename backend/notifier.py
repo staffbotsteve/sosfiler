@@ -15,8 +15,11 @@ load_dotenv()
 logger = logging.getLogger(__name__)
 
 SENDGRID_API_KEY = os.getenv("SENDGRID_API_KEY")
+# Using verified sender for authentication
+AUTH_SENDER = "s.swan@providence.aero"
 FROM_EMAIL = "info@sosfiler.com"
 FROM_NAME = "SOSFiler"
+ADMIN_EMAIL = "admin@swanbill.biz"
 DASHBOARD_URL = os.getenv("DASHBOARD_URL", "https://sosfiler.com/dashboard.html")
 
 
@@ -27,18 +30,20 @@ class Notifier:
         self.from_email = FROM_EMAIL
         self.from_name = FROM_NAME
 
-    async def _send_email(self, to_email: str, subject: str, html_content: str, text_content: str = ""):
+    async def _send_email(self, to_email: str, subject: str, html_content: str, text_content: str = "", attachments: list = None):
         """Send an email via SendGrid."""
         if not SENDGRID_API_KEY:
             logger.warning(f"SendGrid not configured. Would send to {to_email}: {subject}")
             return False
         
         try:
+            import base64
             from sendgrid import SendGridAPIClient
-            from sendgrid.helpers.mail import Mail, Email, To, Content
+            from sendgrid.helpers.mail import Mail, Email, To, Content, Attachment, FileContent, FileName, FileType, Disposition
             
+            # Note: We use AUTH_SENDER for the 'from' field to satisfy SendGrid verification
             message = Mail(
-                from_email=Email(self.from_email, self.from_name),
+                from_email=Email(AUTH_SENDER, self.from_name),
                 to_emails=To(to_email),
                 subject=subject,
                 html_content=Content("text/html", html_content)
@@ -46,6 +51,19 @@ class Notifier:
             
             if text_content:
                 message.add_content(Content("text/plain", text_content))
+                
+            if attachments:
+                for att in attachments:
+                    with open(att['path'], 'rb') as f:
+                        data = f.read()
+                    encoded = base64.b64encode(data).decode()
+                    attachment = Attachment(
+                        FileContent(encoded),
+                        FileName(att['name']),
+                        FileType(att.get('type', 'application/pdf')),
+                        Disposition('attachment')
+                    )
+                    message.add_attachment(attachment)
             
             sg = SendGridAPIClient(SENDGRID_API_KEY)
             response = sg.send(message)
@@ -136,13 +154,12 @@ class Notifier:
 </div>"""
         
         html = self._base_template(content)
-        await self._send_email(
-            order.get("email", ""),
-            f"✅ Order Confirmed — {order.get('business_name', '')}",
-            html
-        )
+        # Notify Customer
+        await self._send_email(order.get("email", ""), f"✅ Order Confirmed — {order.get('business_name', '')}", html)
+        # Notify Admin
+        await self._send_email(ADMIN_EMAIL, f"ADMN: New Order Paid — {order.get('business_name', '')}", html)
 
-    async def send_filing_submitted(self, order: dict, formation_data: dict):
+    async def send_filing_submitted(self, order: dict, formation_data: dict, receipt_path: str = None):
         """Send notification when filing is submitted to the state."""
         content = f"""
 <div class="card">
@@ -154,13 +171,16 @@ class Notifier:
 </div>"""
         
         html = self._base_template(content)
-        await self._send_email(
-            order.get("email", ""),
-            f"📋 Filing Submitted — {order.get('business_name', '')}",
-            html
-        )
+        attachments = []
+        if receipt_path:
+            attachments.append({'path': receipt_path, 'name': f"Filing_Receipt_{order.get('business_name', 'LLC')}.pdf"})
 
-    async def send_formation_approved(self, order: dict, formation_data: dict):
+        # Notify Customer
+        await self._send_email(order.get("email", ""), f"📋 Filing Submitted — {order.get('business_name', '')}", html, attachments=attachments)
+        # Notify Admin
+        await self._send_email(ADMIN_EMAIL, f"ADMN: Filing Submitted — {order.get('business_name', '')}", html, attachments=attachments)
+
+    async def send_formation_approved(self, order: dict, formation_data: dict, approved_docs: list = None):
         """Send notification when formation is approved and Statement of Organizer is ready."""
         content = f"""
 <div class="card">
@@ -174,11 +194,15 @@ class Notifier:
 </div>"""
         
         html = self._base_template(content)
-        await self._send_email(
-            order.get("email", ""),
-            f"✅ LLC Approved — Statement of Organizer Ready — {order.get('business_name', '')}",
-            html
-        )
+        attachments = []
+        if approved_docs:
+            for doc in approved_docs:
+                attachments.append({'path': doc['path'], 'name': doc['name']})
+
+        # Notify Customer
+        await self._send_email(order.get("email", ""), f"✅ LLC Approved — {order.get('business_name', '')}", html, attachments=attachments)
+        # Notify Admin
+        await self._send_email(ADMIN_EMAIL, f"ADMN: LLC Approved — {order.get('business_name', '')}", html, attachments=attachments)
 
     async def send_documents_ready(self, order: dict, formation_data: dict):
         """Send notification when all documents are ready."""
@@ -199,25 +223,15 @@ class Notifier:
   </ul>
   
   <a href="{DASHBOARD_URL}?order_id={order.get('id', '')}&token={order.get('token', '')}" class="btn">Download Documents →</a>
-  
-  <p style="margin-top: 20px;"><strong>What to do next:</strong></p>
-  <ul>
-    <li>🏦 Open a business bank account (bring your Articles + EIN letter)</li>
-    <li>📊 Set up business accounting (we recommend Wave or QuickBooks)</li>
-    <li>📅 Check your compliance calendar for upcoming deadlines</li>
-    <li>💼 Get business insurance if applicable</li>
-    <li>📱 Save your dashboard link — bookmark it!</li>
-  </ul>
 </div>"""
         
         html = self._base_template(content)
-        await self._send_email(
-            order.get("email", ""),
-            f"🎉 Your LLC is Formed — {order.get('business_name', '')}",
-            html
-        )
+        # Notify Customer
+        await self._send_email(order.get("email", ""), f"🎉 Your LLC is Formed — {order.get('business_name', '')}", html)
+        # Notify Admin
+        await self._send_email(ADMIN_EMAIL, f"ADMN: Order Complete — {order.get('business_name', '')}", html)
 
-    async def send_ein_received(self, order: dict, ein: str):
+    async def send_ein_received(self, order: dict, ein: str, ein_letter_path: str = None):
         """Send notification when EIN is received."""
         content = f"""
 <div class="card">
@@ -229,51 +243,32 @@ class Notifier:
     <div style="color: #00d4ff; font-size: 32px; font-weight: 700; letter-spacing: 2px; margin-top: 8px;">{ein}</div>
   </div>
   
-  <p><strong>Use your EIN to:</strong></p>
-  <ul>
-    <li>Open a business bank account</li>
-    <li>File federal and state tax returns</li>
-    <li>Hire employees</li>
-    <li>Apply for business licenses</li>
-  </ul>
-  
   <p>Download your EIN confirmation letter from your dashboard:</p>
   <a href="{DASHBOARD_URL}?order_id={order.get('id', '')}&token={order.get('token', '')}" class="btn">Download EIN Letter →</a>
 </div>"""
         
         html = self._base_template(content)
-        await self._send_email(
-            order.get("email", ""),
-            f"🔢 EIN Received — {order.get('business_name', '')}",
-            html
-        )
+        attachments = []
+        if ein_letter_path:
+            attachments.append({'path': ein_letter_path, 'name': f"EIN_Confirmation_{order.get('business_name', 'LLC')}.pdf"})
 
-    async def send_compliance_reminder(self, order: dict, deadline: dict, days_until: int):
-        """Send compliance deadline reminder."""
-        urgency = "🔴" if days_until <= 7 else "🟡" if days_until <= 30 else "🟢"
-        
+        # Notify Customer
+        await self._send_email(order.get("email", ""), f"🔢 EIN Received — {order.get('business_name', '')}", html, attachments=attachments)
+        # Notify Admin
+        await self._send_email(ADMIN_EMAIL, f"ADMN: EIN Received — {order.get('business_name', '')}", html, attachments=attachments)
+
+    async def send_stale_order_alert(self, order: dict, hours: int):
+        """Send alert for orders stuck in a state for too long."""
         content = f"""
 <div class="card">
-  <h2>{urgency} Compliance Deadline in {days_until} Days</h2>
-  <p>This is a friendly reminder about an upcoming deadline for <strong>{order.get('business_name', '')}</strong>.</p>
-  
-  <div style="background: #0d1b2a; padding: 20px; border-radius: 8px; margin: 20px 0;">
-    <div class="detail-row"><span class="detail-label">Deadline</span><span class="detail-value">{deadline.get('deadline_type', '')}</span></div>
-    <div class="detail-row"><span class="detail-label">Due Date</span><span class="detail-value">{deadline.get('due_date', '')}</span></div>
-    <div class="detail-row"><span class="detail-label">Days Remaining</span><span class="detail-value">{days_until} days</span></div>
-  </div>
-  
-  <p>{"Need us to handle this? We offer annual report filing for $25/year." if 'annual_report' in deadline.get('deadline_type', '') else ""}</p>
-  
-  <a href="{DASHBOARD_URL}?order_id={order.get('id', '')}&token={order.get('token', '')}" class="btn">View Compliance Calendar →</a>
+  <h2>⚠️ Stale Order Alert ({hours}h+)</h2>
+  <p><strong>Order:</strong> {order.get('id', '')}</p>
+  <p><strong>Business:</strong> {order.get('business_name', '')}</p>
+  <p><strong>Current Status:</strong> {order.get('status', '')}</p>
+  <p>This order has been in its current state for over {hours} hours without progress.</p>
 </div>"""
-        
         html = self._base_template(content)
-        await self._send_email(
-            order.get("email", ""),
-            f"{urgency} Compliance Reminder — {deadline.get('deadline_type', '')} due in {days_until} days",
-            html
-        )
+        await self._send_email(ADMIN_EMAIL, f"⚠️ STALE ORDER: {order.get('business_name', '')}", html)
 
     async def send_error_alert(self, order_id: str, error: str):
         """Send internal error alert for human review."""
@@ -282,13 +277,8 @@ class Notifier:
   <h2>⚠️ Formation Pipeline Error</h2>
   <p><strong>Order:</strong> {order_id}</p>
   <p><strong>Error:</strong> {error}</p>
-  <p><strong>Time:</strong> {datetime.now().isoformat()}</p>
   <p>This order requires manual review and intervention.</p>
 </div>"""
         
         html = self._base_template(content)
-        await self._send_email(
-            FROM_EMAIL,  # Alert goes to admin
-            f"⚠️ SOSFiler Error — Order {order_id}",
-            html
-        )
+        await self._send_email(ADMIN_EMAIL, f"⚠️ SOSFiler Error — Order {order_id}", html)
