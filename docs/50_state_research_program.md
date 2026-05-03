@@ -22,6 +22,43 @@ Every state/action record must be sourced from official or primary materials whe
 
 Use competitor pages only as secondary product-comparison context. Do not use competitor pages as the source of truth for fees, required fields, or legal filing rules.
 
+## Primary-Source Path
+
+The research agent must start from official government pages and work outward.
+
+For each state:
+
+1. Start at the Secretary of State, Corporation Commission, Department of State, or equivalent business-entity filing office.
+2. Find the official pages for:
+   - business entity forms,
+   - fee schedule,
+   - online filing portal,
+   - business search/name availability,
+   - copies and certificates,
+   - annual/periodic reports,
+   - domestic formations,
+   - foreign registrations/qualifications,
+   - amendments,
+   - registered agent changes,
+   - dissolutions/withdrawals,
+   - reinstatements.
+3. Follow official links to related statewide agencies where needed:
+   - revenue/tax department,
+   - business licensing office,
+   - professional licensing agencies,
+   - one-stop business portal,
+   - payment processor fee disclosures.
+4. For local operating authority, use official county and city pages:
+   - county clerk/recorder for fictitious business names,
+   - county tax collector or licensing office for county business licenses,
+   - city clerk/finance/business tax/licensing office for city licenses,
+   - zoning or planning department for home occupation or zoning clearance.
+5. Record the official URL for every fee, form, portal, required field, and evidence gate.
+
+Commercial pages may be used only to discover likely filings or compare product packaging. Any fact discovered from a commercial page must be verified against official state/county/city material before it can be marked `verified_primary`, `verified_form`, or `verified_portal_observed`.
+
+If an official state page links to an external vendor portal, payment processor, or one-stop system, treat that linked portal as official for procedural observation, but still record the government page that routes to it.
+
 ## Scope
 
 Research all U.S. states plus District of Columbia.
@@ -126,22 +163,23 @@ Only `verified_primary`, `verified_form`, or `verified_portal_observed` records 
 ## Research Workflow
 
 1. Start with one state and one entity family.
-2. Collect official domestic formation, foreign qualification/authority, amendment, annual report, dissolution/withdrawal, registered agent, DBA/FBN, city/county general business license, tax registration, and copy/certificate materials.
-3. Identify the portal and whether the action can be filed online.
-4. Record all fees and processing fees separately.
-5. Record every required customer input and generated document.
-6. For foreign entities, record whether a certificate of existence/good standing from the home jurisdiction is required, how recent it must be, and whether a fictitious/assumed name is required when the legal name is unavailable.
-7. For city/county filings, record whether the jurisdiction requires publication, zoning clearance, home occupation review, tax registration, estimated gross receipts, inspections, or renewal tracking.
-8. Record the evidence required for:
+2. Begin at the official state business filing office pages for forms, fees, online services, and instructions.
+3. Collect official domestic formation, foreign qualification/authority, amendment, annual report, dissolution/withdrawal, registered agent, DBA/FBN, city/county general business license, tax registration, and copy/certificate materials.
+4. Identify the portal and whether the action can be filed online.
+5. Record all fees and processing fees separately.
+6. Record every required customer input and generated document.
+7. For foreign entities, record whether a certificate of existence/good standing from the home jurisdiction is required, how recent it must be, and whether a fictitious/assumed name is required when the legal name is unavailable.
+8. For city/county filings, record whether the jurisdiction requires publication, zoning clearance, home occupation review, tax registration, estimated gross receipts, inspections, or renewal tracking.
+9. Record the evidence required for:
    - ready to file,
    - submitted,
    - approved,
    - rejected,
    - completed.
-9. Note whether customer notification should be automatic or operator-reviewed.
-10. Add the action record to the research queue or `filing_actions.json`.
-11. Build or update the product workflow and portal/operator adapter.
-12. Test with notional data before customer use.
+10. Note whether customer notification should be automatic or operator-reviewed.
+11. Add the action record to the research queue or `filing_actions.json`.
+12. Build or update the product workflow and portal/operator adapter.
+13. Test with notional data before customer use.
 
 ## Implementation Targets
 
