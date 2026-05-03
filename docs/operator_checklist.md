@@ -46,3 +46,5 @@ Use this as the running list of owner/operator tasks that are outside normal app
 - [ ] Track state fee, card processing fee, expedited fee, and portal account requirements separately.
 - [ ] Flag portals that support API/bulk upload versus browser automation versus manual filing.
 - [ ] Define evidence required before any customer-facing status changes.
+- [ ] Maintain the 50-state research queue in `data/state_action_research_queue.json`.
+- [ ] Promote only verified action records into `data/filing_actions.json`.

@@ -10,6 +10,7 @@ This is the living process document for how SOSFiler should intake, file, track,
 - Customer documents and state evidence must be visible in the customer portal.
 - External filings should default to operator/admin notifications until a customer-facing message is intentionally approved.
 - Sensitive identifiers, portal credentials, payment details, and customer tax data must stay out of repo docs and chat transcripts.
+- State/action research must follow `docs/50_state_research_program.md`; only verified official-source records should drive product promises, pricing, or automation.
 
 ## Formation Lifecycle
 

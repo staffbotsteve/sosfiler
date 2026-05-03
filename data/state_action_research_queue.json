@@ -1,0 +1,134 @@
+{
+  "notebooklm": {
+    "title": "SOSFiler 50-State Formation and Change Filing Research",
+    "id": "200a224f-8a1a-4f82-8104-9bcbddaf0e0d"
+  },
+  "research_statuses": {
+    "not_started": "No source review has started.",
+    "researching": "Sources are being collected or reviewed.",
+    "drafted": "A draft action map exists but is not verified enough for product use.",
+    "verified": "Official sources support all customer-facing rules and fees.",
+    "implemented": "The action map is wired into product logic or operator flow."
+  },
+  "states": {
+    "TX": {
+      "priority": 1,
+      "status": "researching",
+      "reason": "Live Clarence High LLC order and Texas SOSDirect workflow already partially mapped.",
+      "next_actions": [
+        "Complete Texas LLC formation approval watcher.",
+        "Map LLC amendments, registered agent change, address change, dissolution, annual/franchise public information report, certificates, and copies.",
+        "Map corporations and nonprofits after LLC post-formation actions."
+      ]
+    },
+    "NV": {
+      "priority": 2,
+      "status": "drafted",
+      "reason": "Existing SilverFlume automation scaffolding exists.",
+      "next_actions": [
+        "Verify current SilverFlume entity formation and change filing flows from official sources.",
+        "Map fees and annual list/business license renewal."
+      ]
+    },
+    "CA": {
+      "priority": 3,
+      "status": "not_started",
+      "reason": "High-volume state with existing customer demand likely.",
+      "next_actions": [
+        "Map BizFile Online formation, Statement of Information, amendments, agent/address changes, dissolution, certificates, and copies."
+      ]
+    },
+    "DE": {
+      "priority": 4,
+      "status": "not_started",
+      "reason": "High-volume formation state; registered agent strategy is central.",
+      "next_actions": [
+        "Map formation, franchise tax/annual report, amendments, dissolution, certificates, copies, and registered-agent dependency."
+      ]
+    },
+    "FL": {
+      "priority": 5,
+      "status": "not_started",
+      "reason": "High-volume online filing state.",
+      "next_actions": [
+        "Map Sunbiz formations, annual reports, amendments, registered agent changes, dissolution, certificates, and copies."
+      ]
+    },
+    "WY": {
+      "priority": 6,
+      "status": "not_started",
+      "reason": "Popular low-cost LLC state.",
+      "next_actions": [
+        "Map formation, annual report/license tax, amendments, RA changes, dissolution, certificates, and copies."
+      ]
+    },
+    "NY": {
+      "priority": 7,
+      "status": "not_started",
+      "reason": "High-volume state with publication and extra compliance complexity.",
+      "next_actions": [
+        "Map formation, publication workflow, biennial statements, amendments, dissolution, certificates, and copies."
+      ]
+    },
+    "GA": {
+      "priority": 8,
+      "status": "not_started",
+      "reason": "High-volume state with online annual registration.",
+      "next_actions": [
+        "Map formation, annual registration, amendments, RA changes, dissolution, certificates, and copies."
+      ]
+    },
+    "IL": {
+      "priority": 9,
+      "status": "not_started",
+      "reason": "Common formation state and relevant to existing order ID format/history.",
+      "next_actions": [
+        "Map formation, annual report, amendments, RA changes, dissolution, certificates, and copies."
+      ]
+    }
+  },
+  "remaining_states": [
+    "AL",
+    "AK",
+    "AZ",
+    "AR",
+    "CO",
+    "CT",
+    "DC",
+    "HI",
+    "ID",
+    "IN",
+    "IA",
+    "KS",
+    "KY",
+    "LA",
+    "ME",
+    "MD",
+    "MA",
+    "MI",
+    "MN",
+    "MS",
+    "MO",
+    "MT",
+    "NE",
+    "NH",
+    "NJ",
+    "NM",
+    "NC",
+    "ND",
+    "OH",
+    "OK",
+    "OR",
+    "PA",
+    "RI",
+    "SC",
+    "SD",
+    "TN",
+    "UT",
+    "VT",
+    "VA",
+    "WA",
+    "WV",
+    "WI"
+  ]
+}

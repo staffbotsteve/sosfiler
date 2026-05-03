@@ -1,0 +1,129 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://sosfiler.com/schemas/filing_actions.schema.json",
+  "title": "SOSFiler Filing Actions",
+  "type": "object",
+  "description": "State/entity/action filing instructions used for pricing, customer intake, operator work, automation, evidence gates, and portal status.",
+  "additionalProperties": {
+    "type": "object",
+    "description": "State abbreviation, e.g. TX.",
+    "additionalProperties": {
+      "type": "object",
+      "description": "Entity type, e.g. LLC, C-Corp, S-Corp, Nonprofit, LP, LLP, PLLC.",
+      "additionalProperties": {
+        "$ref": "#/$defs/filingAction"
+      }
+    }
+  },
+  "$defs": {
+    "filingAction": {
+      "type": "object",
+      "required": [
+        "state",
+        "entity_type",
+        "action_type",
+        "customer_product_name",
+        "office",
+        "filing_method",
+        "state_fee_cents",
+        "source_urls",
+        "research_status",
+        "last_verified"
+      ],
+      "properties": {
+        "state": { "type": "string", "minLength": 2, "maxLength": 2 },
+        "entity_type": { "type": "string" },
+        "action_type": {
+          "type": "string",
+          "description": "Examples: formation, amendment, annual_report, dissolution, reinstatement, registered_agent_change, address_change, governing_person_change, name_reservation, dba, certificate_status, certified_copy, internal_member_change."
+        },
+        "customer_product_name": { "type": "string" },
+        "state_filed": { "type": "boolean", "default": true },
+        "internal_documents_required": { "type": "boolean", "default": false },
+        "office": { "type": "string" },
+        "form_name": { "type": "string" },
+        "form_number": { "type": "string" },
+        "portal_name": { "type": "string" },
+        "portal_url": { "type": "string" },
+        "portal_account_required": { "type": "boolean" },
+        "filing_method": {
+          "type": "string",
+          "enum": ["api", "web_portal", "upload_portal", "email", "mail", "in_person", "internal_only", "manual_review"]
+        },
+        "automation_level": {
+          "type": "string",
+          "enum": ["api_ready", "browser_automation_ready", "operator_assisted", "manual_review", "unsupported"]
+        },
+        "state_fee_cents": { "type": "integer", "minimum": 0 },
+        "processing_fee": {
+          "type": "object",
+          "properties": {
+            "type": { "type": "string", "enum": ["none", "fixed", "percent", "formula", "unknown"] },
+            "amount_cents": { "type": "integer", "minimum": 0 },
+            "rate": { "type": "number", "minimum": 0 },
+            "applies_to": { "type": "string" },
+            "label": { "type": "string" },
+            "source_note": { "type": "string" }
+          },
+          "additionalProperties": true
+        },
+        "recommended_service_fee_cents": { "type": "integer", "minimum": 0 },
+        "expedite_options": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "label": { "type": "string" },
+              "fee_cents": { "type": "integer", "minimum": 0 },
+              "processing_time": { "type": "string" }
+            },
+            "additionalProperties": true
+          }
+        },
+        "expected_processing_time": { "type": "string" },
+        "required_customer_inputs": { "type": "array", "items": { "type": "string" } },
+        "required_consents": { "type": "array", "items": { "type": "string" } },
+        "required_signatures": { "type": "array", "items": { "type": "string" } },
+        "required_generated_documents": { "type": "array", "items": { "type": "string" } },
+        "pre_submission_blockers": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "code": { "type": "string" },
+              "message": { "type": "string" }
+            },
+            "required": ["code", "message"]
+          }
+        },
+        "portal_field_sequence": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "page": { "type": "string" },
+              "fields": { "type": "array", "items": { "type": "string" } },
+              "notes": { "type": "string" }
+            },
+            "required": ["page", "fields"]
+          }
+        },
+        "required_evidence_for_ready_to_file": { "type": "array", "items": { "type": "string" } },
+        "required_evidence_for_submitted": { "type": "array", "items": { "type": "string" } },
+        "required_evidence_for_approved": { "type": "array", "items": { "type": "string" } },
+        "required_evidence_for_rejected": { "type": "array", "items": { "type": "string" } },
+        "approval_detection": { "type": "array", "items": { "type": "string" } },
+        "customer_portal_outputs": { "type": "array", "items": { "type": "string" } },
+        "operator_notes": { "type": "string" },
+        "automation_blockers": { "type": "array", "items": { "type": "string" } },
+        "source_urls": { "type": "array", "items": { "type": "string" } },
+        "research_status": {
+          "type": "string",
+          "enum": ["verified_primary", "verified_form", "verified_portal_observed", "needs_confirmation", "unsupported"]
+        },
+        "last_verified": { "type": "string" }
+      },
+      "additionalProperties": true
+    }
+  }
+}
