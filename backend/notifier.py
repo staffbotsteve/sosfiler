@@ -160,6 +160,49 @@ class Notifier:
         # Notify Admin
         await self._send_email(ADMIN_EMAIL, f"ADMN: New Order Paid — {order.get('business_name', '')}", html)
 
+    async def send_password_reset(self, email: str, reset_url: str):
+        """Send a password reset link."""
+        content = f"""
+<div class="card">
+  <h2>Reset your SOSFiler password</h2>
+  <p>Use the button below to choose a new password for your SOSFiler account. This link expires in 1 hour.</p>
+  <a href="{reset_url}" class="btn">Reset Password →</a>
+  <p>If you did not request this, you can ignore this email.</p>
+</div>"""
+        return await self._send_email(email, "Reset your SOSFiler password", self._base_template(content))
+
+    async def send_oauth_recovery_guidance(self, email: str, provider: str):
+        """Tell OAuth users to recover through their identity provider."""
+        content = f"""
+<div class="card">
+  <h2>Use {provider.title()} to sign in</h2>
+  <p>Your SOSFiler account uses {provider.title()} sign-in, so SOSFiler does not store a password for this account.</p>
+  <p>Please recover access through {provider.title()}, then return to your SOSFiler dashboard.</p>
+  <a href="{DASHBOARD_URL}" class="btn">Open Dashboard →</a>
+</div>"""
+        return await self._send_email(email, "SOSFiler sign-in recovery", self._base_template(content))
+
+    async def send_order_token_recovery(self, email: str, orders: list[dict]):
+        """Send dashboard links for every order associated with an email."""
+        links = "".join(
+            f"""
+            <li>
+              <strong>{order.get('business_name', 'Company')}</strong><br>
+              {order.get('entity_type', '')} · {order.get('state', '')} · Status: {order.get('status', '')}<br>
+              <a href="{DASHBOARD_URL}?order_id={order.get('id', '')}&token={order.get('token', '')}">Open dashboard</a>
+            </li>
+            """
+            for order in orders
+        )
+        content = f"""
+<div class="card">
+  <h2>Your SOSFiler dashboard links</h2>
+  <p>We found {len(orders)} order{'s' if len(orders) != 1 else ''} associated with this email.</p>
+  <ul>{links}</ul>
+  <p>Keep these links private. Anyone with an order link can view that order's dashboard and documents.</p>
+</div>"""
+        return await self._send_email(email, "Your SOSFiler dashboard links", self._base_template(content))
+
     async def send_filing_submitted(self, order: dict, formation_data: dict, receipt_path: str = None):
         """Send notification when filing is submitted to the state."""
         if not receipt_path:

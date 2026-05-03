@@ -291,11 +291,41 @@ a:hover { color: var(--accent); text-decoration: none; }
 <div id="loginGate">
   <div class="login-card">
     <h2>📊 Dashboard</h2>
-    <p>Enter your order ID and token to view your filing status and documents.</p>
+    <p>Sign in to see all companies linked to your account.</p>
+    <input type="email" id="accountEmail" placeholder="Email address">
+    <input type="password" id="accountPassword" placeholder="Password">
+    <button class="btn" onclick="accountLogin()">Sign In →</button>
+    <p style="color: var(--muted); font-size: 12px; margin: 12px 0 20px;">
+      <a href="#" onclick="showRecovery('password');return false;">Forgot password?</a> ·
+      <a href="#" onclick="showRecovery('token');return false;">Recover order token</a>
+    </p>
+    <div style="height:1px;background:var(--border);margin:20px 0;"></div>
+    <p>Or enter an order ID and token to view one company.</p>
     <input type="text" id="loginOrderId" placeholder="Order ID (e.g., IL-ABC123DEF456)">
     <input type="text" id="loginToken" placeholder="Order token (from your email)">
     <button class="btn" onclick="login()">View Dashboard →</button>
     <p style="color: var(--muted); font-size: 12px; margin-top: 16px;">Check your email for your order ID and token.</p>
+  </div>
+</div>
+
+<div id="resetGate" style="display:none;">
+  <div class="login-card">
+    <h2>Reset Password</h2>
+    <p>Enter a new password for your SOSFiler account.</p>
+    <input type="password" id="newPassword" placeholder="New password">
+    <button class="btn" onclick="confirmPasswordReset()">Save Password →</button>
+    <p style="color: var(--muted); font-size: 12px; margin-top: 16px;"><a href="/dashboard.html">Back to sign in</a></p>
+  </div>
+</div>
+
+<div id="recoveryGate" style="display:none;">
+  <div class="login-card">
+    <h2 id="recoveryTitle">Recover Access</h2>
+    <p id="recoveryCopy">Enter your email and we'll send recovery instructions.</p>
+    <input type="email" id="recoveryEmail" placeholder="Email address">
+    <button class="btn" id="recoveryButton" onclick="submitRecovery()">Send Recovery Email →</button>
+    <p id="recoveryResult" style="color: var(--muted); font-size: 13px; margin-top: 14px;"></p>
+    <p style="color: var(--muted); font-size: 12px; margin-top: 16px;"><a href="#" onclick="hideRecovery();return false;">Back to sign in</a></p>
   </div>
 </div>
 
@@ -443,6 +473,8 @@ let token = '';
 let currentOrderData = null;
 let accountMode = false;
 let refreshTimer = null;
+let recoveryMode = 'password';
+let resetToken = '';
 const stateNames = {"AL":"Alabama","AK":"Alaska","AZ":"Arizona","AR":"Arkansas","CA":"California","CO":"Colorado","CT":"Connecticut","DE":"Delaware","DC":"District of Columbia","FL":"Florida","GA":"Georgia","HI":"Hawaii","ID":"Idaho","IL":"Illinois","IN":"Indiana","IA":"Iowa","KS":"Kansas","KY":"Kentucky","LA":"Louisiana","ME":"Maine","MD":"Maryland","MA":"Massachusetts","MI":"Michigan","MN":"Minnesota","MS":"Mississippi","MO":"Missouri","MT":"Montana","NE":"Nebraska","NV":"Nevada","NH":"New Hampshire","NJ":"New Jersey","NM":"New Mexico","NY":"New York","NC":"North Carolina","ND":"North Dakota","OH":"Ohio","OK":"Oklahoma","OR":"Oregon","PA":"Pennsylvania","RI":"Rhode Island","SC":"South Carolina","SD":"South Dakota","TN":"Tennessee","TX":"Texas","UT":"Utah","VT":"Vermont","VA":"Virginia","WA":"Washington","WV":"West Virginia","WI":"Wisconsin","WY":"Wyoming"};
 
 function authHeaders() {
@@ -453,6 +485,13 @@ function authHeaders() {
 // Check URL params
 function checkUrlParams() {
   const params = new URLSearchParams(window.location.search);
+  const reset = params.get('reset_token');
+  if (reset) {
+    resetToken = reset;
+    document.getElementById('loginGate').style.display = 'none';
+    document.getElementById('resetGate').style.display = '';
+    return true;
+  }
   const oid = params.get('order_id');
   const tok = params.get('token');
   if (oid && tok) {
@@ -492,8 +531,81 @@ function login() {
   showDashboard();
 }
 
+async function accountLogin() {
+  const email = document.getElementById('accountEmail').value.trim();
+  const password = document.getElementById('accountPassword').value;
+  if (!email || !password) { alert('Please enter your email and password.'); return; }
+  const res = await fetch('/api/auth/login', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, password })
+  });
+  const data = await res.json();
+  if (!res.ok) {
+    alert(data.detail || 'Could not sign in.');
+    return;
+  }
+  localStorage.setItem('sosfiler_token', data.token);
+  localStorage.setItem('sosfiler_user', JSON.stringify(data.user));
+  showCompanyList();
+}
+
+function showRecovery(mode) {
+  recoveryMode = mode;
+  document.getElementById('loginGate').style.display = 'none';
+  document.getElementById('recoveryGate').style.display = '';
+  document.getElementById('recoveryResult').textContent = '';
+  document.getElementById('recoveryEmail').value = document.getElementById('accountEmail').value.trim();
+  if (mode === 'token') {
+    document.getElementById('recoveryTitle').textContent = 'Recover Order Tokens';
+    document.getElementById('recoveryCopy').textContent = 'We will email dashboard links for every company tied to this email.';
+    document.getElementById('recoveryButton').textContent = 'Send Dashboard Links →';
+  } else {
+    document.getElementById('recoveryTitle').textContent = 'Reset Password';
+    document.getElementById('recoveryCopy').textContent = 'We will email password reset instructions if this account uses password sign-in.';
+    document.getElementById('recoveryButton').textContent = 'Send Reset Email →';
+  }
+}
+
+function hideRecovery() {
+  document.getElementById('recoveryGate').style.display = 'none';
+  document.getElementById('loginGate').style.display = '';
+}
+
+async function submitRecovery() {
+  const email = document.getElementById('recoveryEmail').value.trim();
+  if (!email) { alert('Please enter your email address.'); return; }
+  const endpoint = recoveryMode === 'token' ? '/api/auth/order-token-recovery' : '/api/auth/password-reset/request';
+  const res = await fetch(endpoint, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email })
+  });
+  const data = await res.json().catch(() => ({}));
+  document.getElementById('recoveryResult').textContent = data.message || 'If matching records exist, recovery instructions have been sent.';
+}
+
+async function confirmPasswordReset() {
+  const password = document.getElementById('newPassword').value;
+  if (!password || password.length < 8) { alert('Password must be at least 8 characters.'); return; }
+  const res = await fetch('/api/auth/password-reset/confirm', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ token: resetToken, password })
+  });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    alert(data.detail || 'Could not reset password.');
+    return;
+  }
+  alert('Password updated. Please sign in.');
+  window.location.href = '/dashboard.html';
+}
+
 async function showDashboard() {
   document.getElementById('loginGate').style.display = 'none';
+  document.getElementById('recoveryGate').style.display = 'none';
+  document.getElementById('resetGate').style.display = 'none';
   document.getElementById('companyListView').classList.remove('active');
   document.getElementById('dashboard').classList.add('active');
   document.getElementById('backToCompanies').style.display = accountMode ? 'inline-block' : 'none';
@@ -556,6 +668,8 @@ async function showCompanyList() {
   token = '';
   if (refreshTimer) clearInterval(refreshTimer);
   document.getElementById('loginGate').style.display = 'none';
+  document.getElementById('recoveryGate').style.display = 'none';
+  document.getElementById('resetGate').style.display = 'none';
   document.getElementById('dashboard').classList.remove('active');
   document.getElementById('companyListView').classList.add('active');
   const el = document.getElementById('companyList');

@@ -123,6 +123,16 @@ def init_db():
             last_login TEXT
         );
 
+        CREATE TABLE IF NOT EXISTS auth_recovery_tokens (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            email TEXT NOT NULL,
+            token_hash TEXT NOT NULL UNIQUE,
+            purpose TEXT NOT NULL,
+            expires_at TEXT NOT NULL,
+            used_at TEXT,
+            created_at TEXT NOT NULL DEFAULT (datetime('now'))
+        );
+
         CREATE TABLE IF NOT EXISTS orders (
             id TEXT PRIMARY KEY,
             user_id TEXT,
@@ -623,12 +633,33 @@ class AuthOAuthRequest(BaseModel):
     name: Optional[str] = None
     provider_id: Optional[str] = None
 
+class AuthRecoveryRequest(BaseModel):
+    email: EmailStr
+
+class PasswordResetConfirmRequest(BaseModel):
+    token: str
+    password: str
+
 def create_jwt_token(user_id: str):
     payload = {
         "sub": user_id,
         "exp": datetime.utcnow() + timedelta(days=7)
     }
     return jwt.encode(payload, JWT_SECRET, algorithm="HS256")
+
+def hash_recovery_token(token: str) -> str:
+    return hashlib.sha256(token.encode()).hexdigest()
+
+def create_recovery_token(conn, email: str, purpose: str) -> str:
+    token = secrets.token_urlsafe(32)
+    conn.execute(
+        """
+        INSERT INTO auth_recovery_tokens (email, token_hash, purpose, expires_at)
+        VALUES (?, ?, ?, datetime('now', '+1 hour'))
+        """,
+        (email, hash_recovery_token(token), purpose),
+    )
+    return token
 
 def link_orders_to_user_by_email(conn, user_id: str, email: str):
     """Attach pre-login orders to a customer account when the emails match."""
@@ -719,6 +750,90 @@ async def auth_login(data: AuthLoginRequest):
     
     token = create_jwt_token(user["id"])
     return {"token": token, "user": {"id": user["id"], "email": user["email"], "name": user["name"]}}
+
+@app.post("/api/auth/password-reset/request")
+async def request_password_reset(data: AuthRecoveryRequest):
+    """Email a password reset link for email/password users."""
+    conn = get_db()
+    user = conn.execute("SELECT * FROM users WHERE lower(email) = lower(?)", (data.email,)).fetchone()
+    reset_token = None
+    provider = None
+    if user:
+        provider = user["auth_provider"]
+        if provider == "email":
+            reset_token = create_recovery_token(conn, data.email, "password_reset")
+    conn.commit()
+    conn.close()
+
+    if user:
+        from notifier import Notifier, DASHBOARD_URL
+        notifier = Notifier()
+        if reset_token:
+            reset_url = f"{DASHBOARD_URL}?reset_token={reset_token}"
+            await notifier.send_password_reset(data.email, reset_url)
+        else:
+            await notifier.send_oauth_recovery_guidance(data.email, provider or "your provider")
+
+    return {"status": "ok", "message": "If an account exists for that email, recovery instructions have been sent."}
+
+@app.post("/api/auth/password-reset/confirm")
+async def confirm_password_reset(data: PasswordResetConfirmRequest):
+    if len(data.password) < 8:
+        raise HTTPException(status_code=400, detail="Password must be at least 8 characters")
+
+    conn = get_db()
+    token_hash = hash_recovery_token(data.token)
+    row = conn.execute(
+        """
+        SELECT * FROM auth_recovery_tokens
+        WHERE token_hash = ?
+          AND purpose = 'password_reset'
+          AND used_at IS NULL
+          AND expires_at > datetime('now')
+        """,
+        (token_hash,),
+    ).fetchone()
+    if not row:
+        conn.close()
+        raise HTTPException(status_code=400, detail="Invalid or expired reset link")
+
+    user = conn.execute(
+        "SELECT * FROM users WHERE lower(email) = lower(?)",
+        (row["email"],),
+    ).fetchone()
+    if not user or user["auth_provider"] != "email":
+        conn.close()
+        raise HTTPException(status_code=400, detail="This account does not use password sign-in")
+
+    password_hash = hashlib.sha256(data.password.encode()).hexdigest()
+    conn.execute("UPDATE users SET password_hash = ? WHERE id = ?", (password_hash, user["id"]))
+    conn.execute("UPDATE auth_recovery_tokens SET used_at = datetime('now') WHERE id = ?", (row["id"],))
+    conn.commit()
+    conn.close()
+
+    return {"status": "ok"}
+
+@app.post("/api/auth/order-token-recovery")
+async def recover_order_tokens(data: AuthRecoveryRequest):
+    """Email order dashboard links for every order tied to this address."""
+    conn = get_db()
+    rows = conn.execute(
+        """
+        SELECT id, token, business_name, entity_type, state, status
+        FROM orders
+        WHERE lower(email) = lower(?)
+        ORDER BY COALESCE(paid_at, created_at) DESC
+        """,
+        (data.email,),
+    ).fetchall()
+    orders = [dict(r) for r in rows]
+    conn.close()
+
+    if orders:
+        from notifier import Notifier
+        await Notifier().send_order_token_recovery(data.email, orders)
+
+    return {"status": "ok", "message": "If matching orders exist, dashboard links have been sent."}
 
 @app.post("/api/auth/google")
 async def auth_google(data: AuthOAuthRequest):
