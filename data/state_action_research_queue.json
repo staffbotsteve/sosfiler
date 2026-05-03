@@ -17,7 +17,7 @@
       "reason": "Live Clarence High LLC order and Texas SOSDirect workflow already partially mapped.",
       "next_actions": [
         "Complete Texas LLC formation approval watcher.",
-        "Map LLC amendments, registered agent change, address change, dissolution, annual/franchise public information report, certificates, and copies.",
+        "Map LLC amendments, registered agent change, address change, dissolution, annual/franchise public information report, certificates, copies, foreign entity registrations, and withdrawals.",
         "Map corporations and nonprofits after LLC post-formation actions."
       ]
     },
@@ -27,7 +27,7 @@
       "reason": "Existing SilverFlume automation scaffolding exists.",
       "next_actions": [
         "Verify current SilverFlume entity formation and change filing flows from official sources.",
-        "Map fees and annual list/business license renewal."
+        "Map fees, annual list/business license renewal, foreign registrations, and withdrawals."
       ]
     },
     "CA": {
@@ -35,7 +35,7 @@
       "status": "not_started",
       "reason": "High-volume state with existing customer demand likely.",
       "next_actions": [
-        "Map BizFile Online formation, Statement of Information, amendments, agent/address changes, dissolution, certificates, and copies."
+        "Map BizFile Online formation, foreign registrations, Statement of Information, amendments, agent/address changes, dissolution/withdrawal, certificates, and copies."
       ]
     },
     "DE": {
@@ -43,7 +43,7 @@
       "status": "not_started",
       "reason": "High-volume formation state; registered agent strategy is central.",
       "next_actions": [
-        "Map formation, franchise tax/annual report, amendments, dissolution, certificates, copies, and registered-agent dependency."
+        "Map formation, foreign qualification, franchise tax/annual report, amendments, dissolution/withdrawal, certificates, copies, and registered-agent dependency."
       ]
     },
     "FL": {
@@ -51,7 +51,7 @@
       "status": "not_started",
       "reason": "High-volume online filing state.",
       "next_actions": [
-        "Map Sunbiz formations, annual reports, amendments, registered agent changes, dissolution, certificates, and copies."
+        "Map Sunbiz formations, foreign qualifications, annual reports, amendments, registered agent changes, dissolution/withdrawal, certificates, and copies."
       ]
     },
     "WY": {
@@ -59,7 +59,7 @@
       "status": "not_started",
       "reason": "Popular low-cost LLC state.",
       "next_actions": [
-        "Map formation, annual report/license tax, amendments, RA changes, dissolution, certificates, and copies."
+        "Map formation, foreign registrations, annual report/license tax, amendments, RA changes, dissolution/withdrawal, certificates, and copies."
       ]
     },
     "NY": {
@@ -67,7 +67,7 @@
       "status": "not_started",
       "reason": "High-volume state with publication and extra compliance complexity.",
       "next_actions": [
-        "Map formation, publication workflow, biennial statements, amendments, dissolution, certificates, and copies."
+        "Map formation, foreign registrations, publication workflow, biennial statements, amendments, dissolution/withdrawal, certificates, and copies."
       ]
     },
     "GA": {
@@ -75,7 +75,7 @@
       "status": "not_started",
       "reason": "High-volume state with online annual registration.",
       "next_actions": [
-        "Map formation, annual registration, amendments, RA changes, dissolution, certificates, and copies."
+        "Map formation, foreign registrations, annual registration, amendments, RA changes, dissolution/withdrawal, certificates, and copies."
       ]
     },
     "IL": {
@@ -83,7 +83,7 @@
       "status": "not_started",
       "reason": "Common formation state and relevant to existing order ID format/history.",
       "next_actions": [
-        "Map formation, annual report, amendments, RA changes, dissolution, certificates, and copies."
+        "Map formation, foreign registrations, annual report, amendments, RA changes, dissolution/withdrawal, certificates, and copies."
       ]
     }
   },

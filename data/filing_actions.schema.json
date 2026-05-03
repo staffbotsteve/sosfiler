@@ -35,9 +35,14 @@
         "entity_type": { "type": "string" },
         "action_type": {
           "type": "string",
-          "description": "Examples: formation, amendment, annual_report, dissolution, reinstatement, registered_agent_change, address_change, governing_person_change, name_reservation, dba, certificate_status, certified_copy, internal_member_change."
+          "description": "Examples: formation, foreign_registration, foreign_amendment, foreign_withdrawal, amendment, annual_report, dissolution, reinstatement, registered_agent_change, address_change, governing_person_change, name_reservation, dba, certificate_status, certified_copy, tax_registration, general_business_license, internal_member_change."
         },
         "customer_product_name": { "type": "string" },
+        "jurisdiction_role": {
+          "type": "string",
+          "enum": ["domestic", "foreign", "statewide_business_authority", "internal_only", "unknown"],
+          "description": "Whether this action creates or changes the domestic entity, qualifies a foreign entity, creates a general license/authority to do business, or is an internal-only SOSFiler service."
+        },
         "state_filed": { "type": "boolean", "default": true },
         "internal_documents_required": { "type": "boolean", "default": false },
         "office": { "type": "string" },
@@ -82,6 +87,18 @@
         },
         "expected_processing_time": { "type": "string" },
         "required_customer_inputs": { "type": "array", "items": { "type": "string" } },
+        "home_jurisdiction_requirements": {
+          "type": "object",
+          "description": "For foreign registrations/qualifications, records home-state evidence needed before filing.",
+          "properties": {
+            "certificate_required": { "type": "boolean" },
+            "certificate_type": { "type": "string" },
+            "certificate_max_age_days": { "type": "integer", "minimum": 0 },
+            "assumed_name_if_unavailable": { "type": "boolean" },
+            "notes": { "type": "string" }
+          },
+          "additionalProperties": true
+        },
         "required_consents": { "type": "array", "items": { "type": "string" } },
         "required_signatures": { "type": "array", "items": { "type": "string" } },
         "required_generated_documents": { "type": "array", "items": { "type": "string" } },

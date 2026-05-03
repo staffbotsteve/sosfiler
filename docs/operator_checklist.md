@@ -43,6 +43,8 @@ Use this as the running list of owner/operator tasks that are outside normal app
 ## State Expansion
 
 - [ ] Complete the state-by-state filing method map for LLC, corporation, nonprofit, amendments, dissolutions, annual reports, and certificates.
+- [ ] Include foreign qualification/registration, amendments to foreign registrations, and withdrawal/cancellation for every entity type that can do business across state lines.
+- [ ] Include statewide business-license and tax-registration gateways that are required to legally operate in a state.
 - [ ] Track state fee, card processing fee, expedited fee, and portal account requirements separately.
 - [ ] Flag portals that support API/bulk upload versus browser automation versus manual filing.
 - [ ] Define evidence required before any customer-facing status changes.

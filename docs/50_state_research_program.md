@@ -24,13 +24,24 @@ Use competitor pages only as secondary product-comparison context. Do not use co
 
 Research all U.S. states plus District of Columbia.
 
-For each jurisdiction, identify every customer-facing filing SOSFiler may reasonably sell, including:
+For each jurisdiction, identify every customer-facing filing SOSFiler may reasonably sell. The phrase "formation" is broad for this program: it includes domestic entity formation, foreign qualification/registration to transact business, professional or regulated entity registration, nonprofit authority, and any state gateway that lets a person or entity legally conduct profitable or nonprofit activity in that state.
+
+Include:
 
 - LLC formation.
 - Corporation formation.
 - Nonprofit corporation formation.
 - Professional entity formation, where available.
 - Limited partnership / limited liability partnership filings, where supported.
+- Foreign LLC registration / application for authority.
+- Foreign corporation registration / qualification.
+- Foreign nonprofit corporation registration / qualification.
+- Foreign LP, LLP, LLLP, professional entity, statutory trust, or other entity authority filings where supported.
+- Amendments to foreign registrations, including name, jurisdiction, address, registered agent, officers/directors/managers, and duration changes where accepted.
+- Foreign entity withdrawal / cancellation / surrender of authority.
+- Assumed-name filings required when a foreign entity's legal name is unavailable in the state.
+- State tax registrations or gateway registrations that are bundled with or required immediately after authority to transact business.
+- State business license registrations that are required as a general condition of doing business, separate from industry licenses.
 - Name reservation.
 - DBA / assumed name / fictitious name filings.
 - Registered agent change.
@@ -51,6 +62,13 @@ For each jurisdiction, identify every customer-facing filing SOSFiler may reason
 
 Some internal company changes do not require a state filing. Those still need a SOSFiler process record if customers ask for them, because SOSFiler may generate documents such as member consents, amended operating agreements, resolutions, stock ledgers, membership ledgers, and customer portal evidence.
 
+Foreign entity research must distinguish:
+
+- Domestic formation in the customer's home state.
+- Foreign qualification/registration in another state.
+- General state business license or tax registration needed to legally operate.
+- Local business license/permit needs, which may be handled by the license agent rather than the formation filing system.
+
 ## Deliverable Shape
 
 Each researched filing must produce a record compatible with `data/filing_actions.schema.json` and eventually be added to `data/filing_actions.json`.
@@ -60,6 +78,7 @@ At minimum, each action needs:
 - Jurisdiction and filing office.
 - Entity type.
 - Action type.
+- Domestic vs foreign/entity authority classification.
 - Customer-facing product name.
 - Whether it is state-filed, internal-document-only, or both.
 - Filing method: API, web portal, upload, email, mail, in-person, or manual review.
@@ -70,6 +89,7 @@ At minimum, each action needs:
 - Required customer inputs.
 - Required consents/signatures.
 - Required generated documents.
+- Required certificates from the home jurisdiction, such as certificate of existence/good standing.
 - Required evidence before status changes.
 - Approval/rejection detection method.
 - Customer portal document/status outputs.
@@ -90,20 +110,21 @@ Only `verified_primary`, `verified_form`, or `verified_portal_observed` records 
 ## Research Workflow
 
 1. Start with one state and one entity family.
-2. Collect official formation, amendment, annual report, dissolution, registered agent, and copy/certificate materials.
+2. Collect official domestic formation, foreign qualification/authority, amendment, annual report, dissolution/withdrawal, registered agent, general business license, tax registration, and copy/certificate materials.
 3. Identify the portal and whether the action can be filed online.
 4. Record all fees and processing fees separately.
 5. Record every required customer input and generated document.
-6. Record the evidence required for:
+6. For foreign entities, record whether a certificate of existence/good standing from the home jurisdiction is required, how recent it must be, and whether a fictitious/assumed name is required when the legal name is unavailable.
+7. Record the evidence required for:
    - ready to file,
    - submitted,
    - approved,
    - rejected,
    - completed.
-7. Note whether customer notification should be automatic or operator-reviewed.
-8. Add the action record to the research queue or `filing_actions.json`.
-9. Build or update the product workflow and portal/operator adapter.
-10. Test with notional data before customer use.
+8. Note whether customer notification should be automatic or operator-reviewed.
+9. Add the action record to the research queue or `filing_actions.json`.
+10. Build or update the product workflow and portal/operator adapter.
+11. Test with notional data before customer use.
 
 ## Implementation Targets
 
@@ -140,3 +161,5 @@ Recommended order:
 - What registered agent partner strategy will be used in states where customers need an in-state agent?
 - How should SOSFiler price amendments, annual reports, dissolutions, and certificates?
 - What evidence should be shown to customers versus retained internally only?
+- Which foreign qualification filings can be completed without ordering a separate certificate of good standing from the home state?
+- Which general state business registrations belong in SOSFiler's formation/change workflow versus the license agent workflow?
