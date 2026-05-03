@@ -42,6 +42,9 @@ Use this as the running list of owner/operator tasks that are outside normal app
 
 ## State Expansion
 
+- [ ] Research Phase 1 top-ten states state-by-state: AZ, TX, NV, CA, DE, FL, WY, NY, GA, IL.
+- [ ] For each Phase 1 state, complete state filings, foreign authority, county DBA/FBN, city/county business licenses, exact fees, process paths, and customer options before moving to the next state.
+- [ ] After Phase 1, move through the remaining 40 states plus DC with the same completion standard.
 - [ ] Complete the state-by-state filing method map for LLC, corporation, nonprofit, amendments, dissolutions, annual reports, and certificates.
 - [ ] Require exact official state fees, processing fees, expedite fees, and price confidence for every formation and post-formation action before making the action self-service.
 - [ ] Capture ordered process paths, prerequisite filings, validity periods, customer-selectable options, and evidence gates for every action.

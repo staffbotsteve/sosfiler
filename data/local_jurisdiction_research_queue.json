@@ -20,7 +20,34 @@
     "Recommend a SOSFiler markup strategy only after the government fee and effort/risk are known.",
     "Default unmapped jurisdictions to operator-assisted research."
   ],
+  "phase_1_top_ten": [
+    "AZ",
+    "TX",
+    "NV",
+    "CA",
+    "DE",
+    "FL",
+    "WY",
+    "NY",
+    "GA",
+    "IL"
+  ],
+  "phase_1_local_sequence": [
+    "For each top-ten state, first enumerate official counties and municipalities.",
+    "Map county DBA/FBN/assumed-name filings and county business license/tax certificate paths.",
+    "Map city business license/business tax/zoning/home occupation paths.",
+    "Record exact fees, formulas, source URLs, renewal/amendment/closure rules, and price confidence.",
+    "Leave unmapped local jurisdictions operator-assisted until official evidence is found."
+  ],
   "priority_shards": [
+    {
+      "id": "AZ-county-city-local",
+      "state": "AZ",
+      "scope": "city_and_county",
+      "topic": "Arizona official county and city DBA/trade name, county business license, city business license, transaction privilege tax/local licensing, zoning, home occupation, exact fees, renewals, amendments, closures, processing fees, source URLs, and price confidence",
+      "status": "not_started",
+      "notebooklm_task_id": null
+    },
     {
       "id": "TX-county-dba",
       "state": "TX",
@@ -41,6 +68,14 @@
       "notebooklm_task_id": null
     },
     {
+      "id": "NV-local-license",
+      "state": "NV",
+      "scope": "state_city_county",
+      "topic": "Nevada state business license plus official county/city local business license, DBA/fictitious firm name, Clark County, Washoe County, Las Vegas, Reno, Henderson, fees, renewals, amendments, closures, processing fees, source URLs, and price confidence",
+      "status": "not_started",
+      "notebooklm_task_id": null
+    },
+    {
       "id": "CA-county-fbn",
       "state": "CA",
       "scope": "county",
@@ -49,10 +84,58 @@
       "notebooklm_task_id": null
     },
     {
+      "id": "CA-city-business-tax",
+      "state": "CA",
+      "scope": "city",
+      "topic": "California official city business license/business tax certificate requirements for major municipalities and city directories, exact fees or formulas, renewals, amendments, closures, processing fees, source URLs, and price confidence",
+      "status": "not_started",
+      "notebooklm_task_id": null
+    },
+    {
+      "id": "DE-local-license",
+      "state": "DE",
+      "scope": "state_city_county",
+      "topic": "Delaware official state business license, local city/county business licenses, DBA/trade name paths, exact fees, renewals, amendments, closures, processing fees, source URLs, and price confidence",
+      "status": "not_started",
+      "notebooklm_task_id": null
+    },
+    {
       "id": "FL-local-btr",
       "state": "FL",
       "scope": "city_and_county",
       "topic": "Official local business tax receipt requirements for Florida counties and municipalities, including exact tax receipt fee, renewal, transfer/amendment, closure, penalty, revenue/activity formulas, processing fees, source URL, and price confidence",
+      "status": "not_started",
+      "notebooklm_task_id": null
+    },
+    {
+      "id": "WY-local-license",
+      "state": "WY",
+      "scope": "city_and_county",
+      "topic": "Wyoming official county/city trade name DBA, local business license, business tax, zoning, home occupation requirements, exact fees, renewals, amendments, closures, processing fees, source URLs, and price confidence",
+      "status": "not_started",
+      "notebooklm_task_id": null
+    },
+    {
+      "id": "NY-county-city-local",
+      "state": "NY",
+      "scope": "city_and_county",
+      "topic": "New York official county business certificate DBA assumed name paths, publication/local licensing where applicable, NYC and major city business licensing, exact fees, renewals, amendments, closures, processing fees, source URLs, and price confidence",
+      "status": "not_started",
+      "notebooklm_task_id": null
+    },
+    {
+      "id": "GA-local-license",
+      "state": "GA",
+      "scope": "city_and_county",
+      "topic": "Georgia official county/city trade name DBA and occupation tax/business license paths, exact fees or formulas, renewals, amendments, closures, processing fees, source URLs, and price confidence",
+      "status": "not_started",
+      "notebooklm_task_id": null
+    },
+    {
+      "id": "IL-local-license",
+      "state": "IL",
+      "scope": "city_and_county",
+      "topic": "Illinois official county/city assumed name DBA and business license paths, Chicago and major municipalities, exact fees or formulas, renewals, amendments, closures, processing fees, source URLs, and price confidence",
       "status": "not_started",
       "notebooklm_task_id": null
     },

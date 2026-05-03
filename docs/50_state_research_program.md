@@ -335,14 +335,34 @@ The research should drive these product areas:
 - Upsell/cross-sell surfaces for later changes and annual filings.
 - License-agent integration for city/county business licenses and industry-specific licenses.
 
-## First States
+## Phased Research Rollout
 
-Recommended order:
+Research should proceed state by state. For each state, complete the state filing map and the local county/city map together before moving that state to `verified` or `implemented`.
 
-1. Texas, because Jay's order is live and the workflow is already partially mapped.
-2. Nevada, because SOSFiler already has SilverFlume automation scaffolding.
-3. California, Delaware, Florida, Wyoming, New York, Georgia, and Illinois, because they are likely high-volume states.
-4. Remaining states by filing-volume opportunity and automation feasibility.
+Phase 1: top-ten priority states.
+
+1. Arizona: process-path proof case for foreign corporation authority, name reservation, and expedite options.
+2. Texas: live customer order and SOSDirect workflow already partially mapped.
+3. Nevada: SilverFlume automation scaffolding already exists.
+4. California: high-volume state with BizFile Online and county FBN complexity.
+5. Delaware: high-volume formation state with registered-agent dependency.
+6. Florida: high-volume online filing state with Sunbiz and local business tax receipts.
+7. Wyoming: popular LLC state with annual license tax.
+8. New York: high-volume state with publication and biennial statement complexity.
+9. Georgia: high-volume state with annual registration and local occupation tax.
+10. Illinois: common formation state with annual report and local licensing complexity.
+
+For each Phase 1 state, research in this order:
+
+1. State filing office: formations, foreign registrations, amendments, changes, annual reports, reinstatements, dissolutions/withdrawals, copies, certificates, and expedite options.
+2. State tax/business gateway: general state tax registration, public information reports, franchise/license tax, or statewide business license where applicable.
+3. Counties: DBA/FBN/assumed-name filings, county business licenses/tax certificates, publication, renewal, amendment, abandonment, and fees.
+4. Cities/municipalities: general business licenses, business tax certificates/receipts, zoning/home occupation requirements, renewals, amendments, closures, and fees.
+5. Productization: customer intake fields, checkout options, government fee pass-through, SOSFiler fee/markup, evidence gates, and operator/automation steps.
+
+Phase 2: final 40 states plus District of Columbia.
+
+Use the same state-by-state sequence after Phase 1. The Phase 2 order should be adjusted by customer demand, online-filing feasibility, registered-agent partner coverage, and filing volume. No Phase 2 state should be marked product-ready until both the state-level and local-level maps meet the same evidence and fee standards as Phase 1.
 
 ## Open Product Questions
 
