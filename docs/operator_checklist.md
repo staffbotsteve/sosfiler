@@ -43,6 +43,8 @@ Use this as the running list of owner/operator tasks that are outside normal app
 ## State Expansion
 
 - [ ] Complete the state-by-state filing method map for LLC, corporation, nonprofit, amendments, dissolutions, annual reports, and certificates.
+- [ ] Require exact official state fees, processing fees, expedite fees, and price confidence for every formation and post-formation action before making the action self-service.
+- [ ] Distinguish state-filed member/manager/officer/director/address changes from internal-only ownership/governance updates.
 - [ ] Include foreign qualification/registration, amendments to foreign registrations, and withdrawal/cancellation for every entity type that can do business across state lines.
 - [ ] Include statewide business-license and tax-registration gateways that are required to legally operate in a state.
 - [ ] Include state, county, and city DBA / assumed name / fictitious business name filings, including publication and renewal rules.

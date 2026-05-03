@@ -96,13 +96,26 @@
           "description": "Detailed fee components for local licensing/DBA/FBN and other filings.",
           "properties": {
             "initial_filing_fee_cents": { "type": "integer", "minimum": 0 },
+            "formation_fee_cents": { "type": "integer", "minimum": 0 },
+            "foreign_registration_fee_cents": { "type": "integer", "minimum": 0 },
+            "foreign_amendment_fee_cents": { "type": "integer", "minimum": 0 },
+            "foreign_withdrawal_fee_cents": { "type": "integer", "minimum": 0 },
+            "name_reservation_fee_cents": { "type": "integer", "minimum": 0 },
+            "amendment_fee_cents": { "type": "integer", "minimum": 0 },
+            "registered_agent_change_fee_cents": { "type": "integer", "minimum": 0 },
+            "address_change_fee_cents": { "type": "integer", "minimum": 0 },
+            "governing_person_change_fee_cents": { "type": "integer", "minimum": 0 },
+            "ownership_change_fee_cents": { "type": "integer", "minimum": 0 },
+            "annual_report_fee_cents": { "type": "integer", "minimum": 0 },
+            "reinstatement_fee_cents": { "type": "integer", "minimum": 0 },
+            "dissolution_fee_cents": { "type": "integer", "minimum": 0 },
             "per_owner_fee_cents": { "type": "integer", "minimum": 0 },
             "per_name_fee_cents": { "type": "integer", "minimum": 0 },
             "copy_fee_cents": { "type": "integer", "minimum": 0 },
             "certified_copy_fee_cents": { "type": "integer", "minimum": 0 },
+            "certificate_status_fee_cents": { "type": "integer", "minimum": 0 },
             "publication_estimate_cents": { "type": "integer", "minimum": 0 },
             "renewal_fee_cents": { "type": "integer", "minimum": 0 },
-            "amendment_fee_cents": { "type": "integer", "minimum": 0 },
             "closure_fee_cents": { "type": "integer", "minimum": 0 },
             "late_fee_cents": { "type": "integer", "minimum": 0 },
             "price_notes": { "type": "string" }
@@ -148,6 +161,21 @@
             "certificate_type": { "type": "string" },
             "certificate_max_age_days": { "type": "integer", "minimum": 0 },
             "assumed_name_if_unavailable": { "type": "boolean" },
+            "notes": { "type": "string" }
+          },
+          "additionalProperties": true
+        },
+        "state_change_rules": {
+          "type": "object",
+          "description": "Clarifies whether a post-formation change is filed with the state or handled internally.",
+          "properties": {
+            "member_change_state_filed": { "type": "boolean" },
+            "manager_change_state_filed": { "type": "boolean" },
+            "officer_director_change_state_filed": { "type": "boolean" },
+            "address_change_state_filed": { "type": "boolean" },
+            "registered_agent_change_state_filed": { "type": "boolean" },
+            "ownership_change_internal_only": { "type": "boolean" },
+            "available_state_form": { "type": "string" },
             "notes": { "type": "string" }
           },
           "additionalProperties": true

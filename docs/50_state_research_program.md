@@ -59,6 +59,38 @@ Commercial pages may be used only to discover likely filings or compare product 
 
 If an official state page links to an external vendor portal, payment processor, or one-stop system, treat that linked portal as official for procedural observation, but still record the government page that routes to it.
 
+## State Filing Pricing Standard
+
+Every state formation and post-formation action must be fee-complete before SOSFiler treats it as self-service or automatically priced.
+
+Each state filing map should separate:
+
+- `government_fee_cents`: mandatory state filing fee.
+- `processing_fee`: credit card, e-check, portal, expedited-online, or convenience fee.
+- `expedite_options`: optional rush/same-day/hourly service fees and processing times.
+- `certified_copy_fee_cents`: optional or required certified copy fees.
+- `certificate_status_fee_cents`: optional or required certificate of status/good standing/existence fees.
+- `name_reservation_fee_cents`: if required or offered before filing.
+- `amendment_fee_cents`: articles/certificate amendment fee.
+- `registered_agent_change_fee_cents`: fee to change registered agent/office.
+- `address_change_fee_cents`: principal/mailing/office address change fee, where separately filed.
+- `governing_person_change_fee_cents`: member, manager, officer, director, partner, or governing-person change fee where the state accepts or requires it.
+- `ownership_change_fee_cents`: membership/shareholder/ownership change fee only when state-filed; otherwise mark as internal-only.
+- `annual_report_fee_cents`: annual/periodic report or statement of information fee.
+- `reinstatement_fee_cents`: reinstatement fee and any penalty/tax dependency.
+- `dissolution_fee_cents`: dissolution, termination, cancellation, or withdrawal fee.
+- `foreign_registration_fee_cents`: foreign qualification/application for authority fee.
+- `foreign_amendment_fee_cents`: amendment to foreign registration fee.
+- `foreign_withdrawal_fee_cents`: foreign withdrawal/cancellation/surrender fee.
+- `variable_fee_formula`: any official formula that prevents a fixed quote.
+- `recommended_service_fee_cents`: SOSFiler's service fee.
+- `recommended_markup_strategy`: flat fee, percentage markup, pass-through plus service fee, quote required, or unavailable.
+- `price_confidence`: verified, formula_verified, range_only, needs_operator_quote, or unknown.
+
+Research must distinguish state-filed changes from internal-only company changes. For example, many states do not directly record LLC member changes except through an annual report, amendment, or internal operating agreement update. In those cases, the action should still exist as a SOSFiler service, but it must be classified as `internal_only` or tied to the actual state form that can lawfully capture the change.
+
+Never show a fixed state fee to a customer unless the official fee schedule or portal supports it.
+
 ## Exhaustive Local Research Method
 
 A single broad NotebookLM research query is not sufficient for city/county coverage. Broad research runs are only discovery passes. Exhaustive local coverage requires a sharded, jurisdiction-by-jurisdiction process.
@@ -211,6 +243,7 @@ At minimum, each action needs:
 - Portal URL and portal account requirements.
 - Government fee.
 - Processing/convenience/card fee.
+- All related action fees: formation, amendment, address change, registered agent change, governing-person/member/officer/director change, annual report, reinstatement, dissolution/withdrawal, copies, certificates, and expedite options.
 - SOSFiler recommended service fee.
 - Required customer inputs.
 - Physical location, mailing address, NAICS/business activity, estimated receipts, employee count, zoning/home occupation details, and owner/officer data where local licenses require them.
@@ -240,7 +273,7 @@ Only `verified_primary`, `verified_form`, or `verified_portal_observed` records 
 2. Begin at the official state business filing office pages for forms, fees, online services, and instructions.
 3. Collect official domestic formation, foreign qualification/authority, amendment, annual report, dissolution/withdrawal, registered agent, DBA/FBN, city/county general business license, tax registration, and copy/certificate materials.
 4. Identify the portal and whether the action can be filed online.
-5. Record all fees and processing fees separately.
+5. Record all fees and processing fees separately for formations and every post-formation action.
 6. Record every required customer input and generated document.
 7. For foreign entities, record whether a certificate of existence/good standing from the home jurisdiction is required, how recent it must be, and whether a fictitious/assumed name is required when the legal name is unavailable.
 8. For city/county filings, record whether the jurisdiction requires publication, zoning clearance, home occupation review, tax registration, estimated gross receipts, inspections, or renewal tracking.

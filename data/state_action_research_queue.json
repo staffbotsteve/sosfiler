@@ -15,9 +15,10 @@
       "priority": 1,
       "status": "researching",
       "reason": "Live Clarence High LLC order and Texas SOSDirect workflow already partially mapped.",
+      "notebooklm_fee_task_id": "e1517c6c-68ee-4d0c-9dfe-b428309a8241",
       "next_actions": [
         "Complete Texas LLC formation approval watcher.",
-        "Map LLC amendments, registered agent change, address change, dissolution, annual/franchise public information report, certificates, copies, foreign entity registrations, and withdrawals.",
+        "Map exact official fees and processing fees for LLC formation, amendments, registered agent change, address change, governing-person/member change if state-filed, dissolution, annual/franchise public information report, certificates, copies, foreign entity registrations, and withdrawals.",
         "Map state/county/city DBA or assumed-name paths and major city/county business license paths.",
         "Map corporations and nonprofits after LLC post-formation actions."
       ]
@@ -28,7 +29,7 @@
       "reason": "Existing SilverFlume automation scaffolding exists.",
       "next_actions": [
         "Verify current SilverFlume entity formation and change filing flows from official sources.",
-        "Map fees, annual list/business license renewal, foreign registrations, withdrawals, state business license, county/city DBA or business license paths."
+        "Map exact official fees and processing fees for formation, amendments, registered agent/address/governing-person changes, annual list/business license renewal, foreign registrations, withdrawals, state business license, county/city DBA or business license paths."
       ]
     },
     "CA": {
@@ -36,7 +37,7 @@
       "status": "not_started",
       "reason": "High-volume state with existing customer demand likely.",
       "next_actions": [
-        "Map BizFile Online formation, foreign registrations, Statement of Information, amendments, agent/address changes, dissolution/withdrawal, certificates, copies, county FBN publication paths, and city/county business tax certificate paths."
+        "Map exact official fees and processing fees for BizFile Online formation, foreign registrations, Statement of Information, amendments, agent/address/governing-person changes, dissolution/withdrawal, certificates, copies, county FBN publication paths, and city/county business tax certificate paths."
       ]
     },
     "DE": {
@@ -44,7 +45,7 @@
       "status": "not_started",
       "reason": "High-volume formation state; registered agent strategy is central.",
       "next_actions": [
-        "Map formation, foreign qualification, franchise tax/annual report, amendments, dissolution/withdrawal, certificates, copies, registered-agent dependency, county/city DBA paths, and local business license paths."
+        "Map exact official fees and processing fees for formation, foreign qualification, franchise tax/annual report, amendments, registered-agent/address/governing-person changes, dissolution/withdrawal, certificates, copies, registered-agent dependency, county/city DBA paths, and local business license paths."
       ]
     },
     "FL": {
@@ -52,7 +53,7 @@
       "status": "not_started",
       "reason": "High-volume online filing state.",
       "next_actions": [
-        "Map Sunbiz formations, foreign qualifications, annual reports, amendments, registered agent changes, dissolution/withdrawal, certificates, copies, fictitious name registrations, and local business tax receipts."
+        "Map exact official fees and processing fees for Sunbiz formations, foreign qualifications, annual reports, amendments, registered agent/address/officer changes, dissolution/withdrawal, certificates, copies, fictitious name registrations, and local business tax receipts."
       ]
     },
     "WY": {
@@ -60,7 +61,7 @@
       "status": "not_started",
       "reason": "Popular low-cost LLC state.",
       "next_actions": [
-        "Map formation, foreign registrations, annual report/license tax, amendments, RA changes, dissolution/withdrawal, certificates, copies, trade names, and local business licenses."
+        "Map exact official fees and processing fees for formation, foreign registrations, annual report/license tax, amendments, registered agent/address/governing-person changes, dissolution/withdrawal, certificates, copies, trade names, and local business licenses."
       ]
     },
     "NY": {
@@ -68,7 +69,7 @@
       "status": "not_started",
       "reason": "High-volume state with publication and extra compliance complexity.",
       "next_actions": [
-        "Map formation, foreign registrations, publication workflow, biennial statements, amendments, dissolution/withdrawal, certificates, copies, assumed names, county clerk DBA paths, and local licenses."
+        "Map exact official fees and processing fees for formation, foreign registrations, publication workflow, biennial statements, amendments, registered agent/address/governing-person changes, dissolution/withdrawal, certificates, copies, assumed names, county clerk DBA paths, and local licenses."
       ]
     },
     "GA": {
@@ -76,7 +77,7 @@
       "status": "not_started",
       "reason": "High-volume state with online annual registration.",
       "next_actions": [
-        "Map formation, foreign registrations, annual registration, amendments, RA changes, dissolution/withdrawal, certificates, copies, trade names, and local occupation tax/business license paths."
+        "Map exact official fees and processing fees for formation, foreign registrations, annual registration, amendments, registered agent/address/governing-person changes, dissolution/withdrawal, certificates, copies, trade names, and local occupation tax/business license paths."
       ]
     },
     "IL": {
@@ -84,7 +85,7 @@
       "status": "not_started",
       "reason": "Common formation state and relevant to existing order ID format/history.",
       "next_actions": [
-        "Map formation, foreign registrations, annual report, amendments, RA changes, dissolution/withdrawal, certificates, copies, assumed names, county/city business licenses."
+        "Map exact official fees and processing fees for formation, foreign registrations, annual report, amendments, registered agent/address/governing-person changes, dissolution/withdrawal, certificates, copies, assumed names, county/city business licenses."
       ]
     }
   },
