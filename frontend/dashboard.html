@@ -184,6 +184,24 @@ a:hover { color: var(--accent); text-decoration: none; }
 }
 .doc-list .download-btn:hover { background: rgba(204,255,0,0.2); box-shadow: 0 0 10px rgba(204,255,0,0.15); }
 
+/* Order items */
+.order-items { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 12px; }
+.order-item {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 14px;
+  background: rgba(255,255,255,0.02);
+  min-height: 112px;
+}
+.order-item .item-head { display: flex; justify-content: space-between; gap: 12px; align-items: flex-start; margin-bottom: 8px; }
+.order-item .item-title { font-size: 14px; font-weight: 700; line-height: 1.25; }
+.order-item .item-note { font-size: 12px; color: var(--muted); line-height: 1.45; }
+.item-status { flex: 0 0 auto; border-radius: 999px; padding: 4px 9px; font-size: 11px; font-weight: 700; white-space: nowrap; }
+.item-status.complete { background: rgba(57,255,20,0.12); color: var(--green); }
+.item-status.progress { background: rgba(204,255,0,0.1); color: var(--accent); }
+.item-status.pending { background: rgba(255,255,255,0.06); color: var(--muted); }
+.item-status.action { background: rgba(255,107,0,0.12); color: var(--yellow); }
+
 /* Compliance */
 .deadline-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border); gap: 12px; }
 .deadline-item:last-child { border-bottom: none; }
@@ -282,6 +300,13 @@ a:hover { color: var(--accent); text-decoration: none; }
         <h3>State Filing Details</h3>
         <div id="filingInfo"></div>
       </div>
+
+      <div class="card full">
+        <h3>Order Items</h3>
+        <div id="orderItems">
+          <div class="loading"><div class="spinner"></div></div>
+        </div>
+      </div>
       
       <!-- EIN -->
       <div class="card" id="einCard">
@@ -370,6 +395,7 @@ a:hover { color: var(--accent); text-decoration: none; }
 <script>
 let orderId = '';
 let token = '';
+let currentOrderData = null;
 const stateNames = {"AL":"Alabama","AK":"Alaska","AZ":"Arizona","AR":"Arkansas","CA":"California","CO":"Colorado","CT":"Connecticut","DE":"Delaware","DC":"District of Columbia","FL":"Florida","GA":"Georgia","HI":"Hawaii","ID":"Idaho","IL":"Illinois","IN":"Indiana","IA":"Iowa","KS":"Kansas","KY":"Kentucky","LA":"Louisiana","ME":"Maine","MD":"Maryland","MA":"Massachusetts","MI":"Michigan","MN":"Minnesota","MS":"Mississippi","MO":"Missouri","MT":"Montana","NE":"Nebraska","NV":"Nevada","NH":"New Hampshire","NJ":"New Jersey","NM":"New Mexico","NY":"New York","NC":"North Carolina","ND":"North Dakota","OH":"Ohio","OK":"Oklahoma","OR":"Oregon","PA":"Pennsylvania","RI":"Rhode Island","SC":"South Carolina","SD":"South Dakota","TN":"Tennessee","TX":"Texas","UT":"Utah","VT":"Vermont","VA":"Virginia","WA":"Washington","WV":"West Virginia","WI":"Wisconsin","WY":"Wyoming"};
 
 // Check URL params
@@ -423,7 +449,9 @@ async function loadOrderData() {
       throw new Error('Failed to load');
     }
     const data = await res.json();
+    currentOrderData = data;
     renderDashboard(data);
+    if (data.documents) renderDocuments(data.documents || []);
   } catch (e) {
     console.error('Load error:', e);
   }
@@ -435,6 +463,10 @@ async function loadDocuments() {
     if (!res.ok) return;
     const data = await res.json();
     renderDocuments(data.documents || []);
+    if (currentOrderData) {
+      currentOrderData.documents = data.documents || [];
+      renderOrderItems(currentOrderData);
+    }
   } catch (e) {}
 }
 
@@ -511,6 +543,7 @@ function renderDashboard(data) {
   renderFeeReceipt(data);
 
   renderFilingInfo(data);
+  renderOrderItems(data);
   
   // Compliance
   renderCompliance(data.compliance_deadlines || []);
@@ -556,6 +589,96 @@ function renderFilingInfo(data) {
     <div class="info-row"><span class="label">Submission Method</span><span class="value">${job.portal_name || job.filing_method || 'Operator review'}</span></div>
     <div class="info-row"><span class="label">Filing Status</span><span class="value">${job.status || data.status}</span></div>
     <div class="info-row"><span class="label">Evidence on File</span><span class="value">${evidence.length ? evidence.map(a => a.artifact_type.replace(/_/g, ' ')).join(', ') : 'Pending'}</span></div>`;
+}
+
+function hasDoc(docs, type) {
+  return (docs || []).some(doc => doc.doc_type === type);
+}
+
+function orderItem(title, status, statusClass, note) {
+  return `
+    <div class="order-item">
+      <div class="item-head">
+        <div class="item-title">${title}</div>
+        <div class="item-status ${statusClass}">${status}</div>
+      </div>
+      <div class="item-note">${note}</div>
+    </div>`;
+}
+
+function renderOrderItems(data) {
+  const el = document.getElementById('orderItems');
+  if (!el) return;
+  const docs = data.documents || [];
+  const filedStatuses = ['submitted_to_state','awaiting_state','state_approved','ein_pending','ein_received','complete','approved'];
+  const approvedStatuses = ['state_approved','ein_pending','ein_received','complete','approved'];
+  const docsReady = !!data.documents_ready_at || docs.length > 0;
+  const isLLC = data.entity_type === 'LLC';
+  const isCorp = ['C-Corp', 'S-Corp'].includes(data.entity_type);
+  const isNonprofit = data.entity_type === 'Nonprofit';
+  const formationDocName = data.filing_job?.form_name || `${stateNames[data.state] || data.state} formation filing`;
+  const items = [
+    orderItem(
+      'Formation filing',
+      filedStatuses.includes(data.status) ? 'Submitted' : (data.status === 'ready_to_file' ? 'Queued' : 'In progress'),
+      filedStatuses.includes(data.status) ? 'progress' : (data.status === 'ready_to_file' ? 'action' : 'pending'),
+      filedStatuses.includes(data.status)
+        ? `${formationDocName} was submitted to the state. Approval is still pending until the state completes review.`
+        : `${formationDocName} will be prepared and submitted through the appropriate state filing channel.`
+    ),
+    orderItem(
+      'State filing receipt',
+      hasDoc(docs, 'submitted_receipt') ? 'Ready' : 'Pending',
+      hasDoc(docs, 'submitted_receipt') ? 'complete' : 'pending',
+      hasDoc(docs, 'submitted_receipt') ? 'Receipt evidence is available in the document vault.' : 'Appears after SOSFiler submits the state filing.'
+    ),
+    orderItem(
+      'State approval document',
+      approvedStatuses.includes(data.status) || hasDoc(docs, 'approved_certificate') ? 'Ready' : 'Pending',
+      approvedStatuses.includes(data.status) || hasDoc(docs, 'approved_certificate') ? 'complete' : 'pending',
+      'The file-stamped formation document or certificate appears here after state approval.'
+    ),
+    orderItem(
+      'Filing authorization',
+      hasDoc(docs, 'filing_authorization') ? 'Ready' : 'Included',
+      hasDoc(docs, 'filing_authorization') ? 'complete' : 'progress',
+      'Customer authorization for SOSFiler to prepare and submit the filing.'
+    ),
+  ];
+
+  if (isLLC) {
+    items.push(
+      orderItem('Operating agreement', hasDoc(docs, 'operating_agreement') ? 'Ready' : (docsReady ? 'Pending' : 'Included'), hasDoc(docs, 'operating_agreement') ? 'complete' : 'pending', 'Internal LLC governance document supplied with the formation package.'),
+      orderItem('Initial resolutions', hasDoc(docs, 'initial_resolutions') ? 'Ready' : (docsReady ? 'Pending' : 'Included'), hasDoc(docs, 'initial_resolutions') ? 'complete' : 'pending', 'Initial company approvals for banking, records, EIN, and setup.'),
+      orderItem('Membership certificate', hasDoc(docs, 'member_certificate') ? 'Ready' : (docsReady ? 'Pending' : 'Included'), hasDoc(docs, 'member_certificate') ? 'complete' : 'pending', 'Ownership certificate for the member interests issued at formation.'),
+      orderItem('Organizational minutes', hasDoc(docs, 'meeting_minutes') ? 'Ready' : (docsReady ? 'Pending' : 'Included'), hasDoc(docs, 'meeting_minutes') ? 'complete' : 'pending', 'Initial meeting record for company organization.')
+    );
+  }
+  if (isCorp) {
+    items.push(
+      orderItem('Corporate bylaws', hasDoc(docs, 'corporate_bylaws') ? 'Ready' : (docsReady ? 'Pending' : 'Included'), hasDoc(docs, 'corporate_bylaws') ? 'complete' : 'pending', 'Internal governance rules for the corporation.'),
+      orderItem('Initial board resolutions', hasDoc(docs, 'corporate_initial_resolutions') ? 'Ready' : (docsReady ? 'Pending' : 'Included'), hasDoc(docs, 'corporate_initial_resolutions') ? 'complete' : 'pending', 'Initial corporate approvals and officer authority.'),
+      orderItem('Stock certificates', hasDoc(docs, 'stock_certificate') ? 'Ready' : (docsReady ? 'Pending' : 'Included'), hasDoc(docs, 'stock_certificate') ? 'complete' : 'pending', 'Initial equity certificate records for shareholders.')
+    );
+  }
+  if (isNonprofit) {
+    items.push(
+      orderItem('Nonprofit bylaws', hasDoc(docs, 'nonprofit_bylaws') ? 'Ready' : (docsReady ? 'Pending' : 'Included'), hasDoc(docs, 'nonprofit_bylaws') ? 'complete' : 'pending', 'Internal governance rules for the nonprofit.'),
+      orderItem('Initial board resolutions', hasDoc(docs, 'nonprofit_initial_resolutions') ? 'Ready' : (docsReady ? 'Pending' : 'Included'), hasDoc(docs, 'nonprofit_initial_resolutions') ? 'complete' : 'pending', 'Initial nonprofit board approvals.'),
+      orderItem('Conflict of interest policy', hasDoc(docs, 'conflict_of_interest_policy') ? 'Ready' : (docsReady ? 'Pending' : 'Included'), hasDoc(docs, 'conflict_of_interest_policy') ? 'complete' : 'pending', 'Governance policy commonly needed for nonprofit records.')
+    );
+  }
+
+  items.push(
+    orderItem(
+      'EIN application',
+      data.ein ? 'Complete' : (approvedStatuses.includes(data.status) ? 'Ready next' : 'Waiting'),
+      data.ein ? 'complete' : (approvedStatuses.includes(data.status) ? 'action' : 'pending'),
+      data.ein ? 'EIN has been received.' : 'SOSFiler applies after state approval because the IRS requires the formed legal entity details.'
+    )
+  );
+
+  el.innerHTML = `<div class="order-items">${items.join('')}</div>`;
 }
 
 function renderDocuments(docs) {

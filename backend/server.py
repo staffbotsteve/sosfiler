@@ -1415,6 +1415,10 @@ async def get_order_status(order_id: str, token: str = ""):
         "SELECT artifact_type, filename, is_evidence, created_at FROM filing_artifacts WHERE order_id = ? ORDER BY created_at ASC",
         (order_id,)
     ).fetchall()
+    docs = conn.execute(
+        "SELECT doc_type, filename, format, created_at FROM documents WHERE order_id = ? ORDER BY created_at ASC",
+        (order_id,)
+    ).fetchall()
     conn.close()
     
     formation_data = json.loads(order["formation_data"])
@@ -1454,6 +1458,7 @@ async def get_order_status(order_id: str, token: str = ""):
         "filing_job": filing_job_payload,
         "filing_events": [dict(e) for e in filing_events],
         "filing_artifacts": [dict(a) for a in filing_artifacts],
+        "documents": [dict(d) for d in docs],
         "total_cents": order.get("total_cents", 0)
     }
 
