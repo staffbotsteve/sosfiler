@@ -1999,21 +1999,86 @@ async def get_user_order_detail(order_id: str, request: Request):
         "SELECT doc_type, filename, format, created_at FROM documents WHERE order_id = ? ORDER BY created_at",
         (order_id,),
     ).fetchall()
+    updates = conn.execute(
+        "SELECT status, message, created_at FROM status_updates WHERE order_id = ? ORDER BY created_at ASC",
+        (order_id,),
+    ).fetchall()
+    deadlines = conn.execute(
+        "SELECT deadline_type, due_date, status FROM compliance_deadlines WHERE order_id = ? ORDER BY due_date ASC",
+        (order_id,),
+    ).fetchall()
     filing_job = conn.execute(
         "SELECT * FROM filing_jobs WHERE order_id = ? ORDER BY created_at DESC LIMIT 1",
         (order_id,),
     ).fetchone()
+    filing_events = conn.execute(
+        "SELECT event_type, message, actor, evidence_path, created_at FROM filing_events WHERE order_id = ? ORDER BY created_at ASC",
+        (order_id,),
+    ).fetchall()
+    filing_artifacts = conn.execute(
+        "SELECT artifact_type, filename, is_evidence, created_at FROM filing_artifacts WHERE order_id = ? ORDER BY created_at ASC",
+        (order_id,),
+    ).fetchall()
     conn.close()
 
     payload = dict(order)
     payload["formation_data"] = parse_json_field(payload.get("formation_data"), {})
     payload["documents"] = [dict(d) for d in docs]
+    payload["timeline"] = [dict(u) for u in updates]
+    payload["compliance_deadlines"] = [dict(d) for d in deadlines]
+    payload["filing_events"] = [dict(e) for e in filing_events]
+    payload["filing_artifacts"] = [dict(a) for a in filing_artifacts]
     payload["filing_job"] = dict(filing_job) if filing_job else None
     if payload["filing_job"]:
         payload["filing_job"]["required_consents"] = parse_json_field(payload["filing_job"].get("required_consents"), [])
         payload["filing_job"]["required_evidence"] = parse_json_field(payload["filing_job"].get("required_evidence"), {})
     payload.pop("token", None)
     return {"order": payload}
+
+@app.get("/api/user/orders/{order_id}/download/{filename}")
+async def download_user_document(order_id: str, filename: str, request: Request):
+    user = get_current_user(request)
+    if not user:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+
+    conn = get_db()
+    link_orders_to_user_by_email(conn, user["id"], user["email"])
+    conn.commit()
+    doc = conn.execute(
+        """
+        SELECT d.file_path, d.filename
+        FROM documents d
+        JOIN orders o ON o.id = d.order_id
+        WHERE d.order_id = ?
+          AND d.filename = ?
+          AND (o.user_id = ? OR lower(o.email) = lower(?))
+        """,
+        (order_id, filename, user["id"], user["email"]),
+    ).fetchone()
+    conn.close()
+
+    if not doc:
+        raise HTTPException(status_code=404, detail="Document not found")
+
+    file_path = Path(doc["file_path"])
+    if not file_path.exists():
+        raise HTTPException(status_code=404, detail="File not found on disk")
+
+    suffix = file_path.suffix.lower()
+    media_types = {
+        ".pdf": "application/pdf",
+        ".md": "text/markdown",
+        ".json": "application/json",
+        ".png": "image/png",
+        ".jpg": "image/jpeg",
+        ".jpeg": "image/jpeg",
+        ".txt": "text/plain",
+    }
+    return FileResponse(
+        str(file_path),
+        filename=doc["filename"],
+        media_type=media_types.get(suffix, "application/octet-stream"),
+    )
 
 # --- Health check ---
 @app.get("/api/health")

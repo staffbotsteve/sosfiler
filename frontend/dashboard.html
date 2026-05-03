@@ -252,6 +252,32 @@ a:hover { color: var(--accent); text-decoration: none; }
 
 /* Empty state */
 .empty { text-align: center; padding: 30px; color: var(--muted); }
+.company-list { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; }
+.company-card {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 18px;
+  background: rgba(255,255,255,0.02);
+  cursor: pointer;
+  text-align: left;
+  color: var(--text);
+  font-family: 'Inter', sans-serif;
+}
+.company-card:hover { border-color: rgba(204,255,0,0.35); box-shadow: 0 0 18px rgba(204,255,0,0.08); }
+.company-card .name { font-weight: 800; font-size: 16px; margin-bottom: 6px; }
+.company-card .meta { color: var(--muted); font-size: 13px; line-height: 1.5; }
+.company-toolbar { display: flex; justify-content: space-between; gap: 12px; align-items: center; margin-bottom: 18px; }
+.back-btn {
+  display: none;
+  width: auto;
+  padding: 9px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: rgba(255,255,255,0.03);
+  color: var(--text);
+  font-size: 13px;
+  cursor: pointer;
+}
 </style>
 </head>
 <body>
@@ -274,8 +300,27 @@ a:hover { color: var(--accent); text-decoration: none; }
 </div>
 
 <!-- Dashboard -->
+<div class="dashboard" id="companyListView">
+  <div class="container">
+    <div class="header-card">
+      <div>
+        <div class="biz-name">Your Companies</div>
+        <div class="biz-meta">Select a company to view filings, included documents, receipts, and next steps.</div>
+      </div>
+    </div>
+    <div class="card full">
+      <div class="company-toolbar">
+        <h3 style="margin:0;">Companies</h3>
+        <a href="/app.html" class="download-btn" style="text-decoration:none;">Start New Formation</a>
+      </div>
+      <div id="companyList"><div class="loading"><div class="spinner"></div></div></div>
+    </div>
+  </div>
+</div>
+
 <div class="dashboard" id="dashboard">
   <div class="container">
+    <button class="back-btn" id="backToCompanies" onclick="showCompanyList()">Back to Companies</button>
     
     <!-- Header -->
     <div class="header-card">
@@ -396,7 +441,14 @@ a:hover { color: var(--accent); text-decoration: none; }
 let orderId = '';
 let token = '';
 let currentOrderData = null;
+let accountMode = false;
+let refreshTimer = null;
 const stateNames = {"AL":"Alabama","AK":"Alaska","AZ":"Arizona","AR":"Arkansas","CA":"California","CO":"Colorado","CT":"Connecticut","DE":"Delaware","DC":"District of Columbia","FL":"Florida","GA":"Georgia","HI":"Hawaii","ID":"Idaho","IL":"Illinois","IN":"Indiana","IA":"Iowa","KS":"Kansas","KY":"Kentucky","LA":"Louisiana","ME":"Maine","MD":"Maryland","MA":"Massachusetts","MI":"Michigan","MN":"Minnesota","MS":"Mississippi","MO":"Missouri","MT":"Montana","NE":"Nebraska","NV":"Nevada","NH":"New Hampshire","NJ":"New Jersey","NM":"New Mexico","NY":"New York","NC":"North Carolina","ND":"North Dakota","OH":"Ohio","OK":"Oklahoma","OR":"Oregon","PA":"Pennsylvania","RI":"Rhode Island","SC":"South Carolina","SD":"South Dakota","TN":"Tennessee","TX":"Texas","UT":"Utah","VT":"Vermont","VA":"Virginia","WA":"Washington","WV":"West Virginia","WI":"Wisconsin","WY":"Wyoming"};
+
+function authHeaders() {
+  const authToken = localStorage.getItem('sosfiler_token');
+  return authToken ? { 'Authorization': `Bearer ${authToken}` } : {};
+}
 
 // Check URL params
 function checkUrlParams() {
@@ -406,7 +458,13 @@ function checkUrlParams() {
   if (oid && tok) {
     orderId = oid;
     token = tok;
+    accountMode = false;
     showDashboard();
+    return true;
+  }
+
+  if (localStorage.getItem('sosfiler_token')) {
+    showCompanyList();
     return true;
   }
   
@@ -416,6 +474,7 @@ function checkUrlParams() {
     if (saved && saved.order_id && saved.token) {
       orderId = saved.order_id;
       token = saved.token;
+      accountMode = false;
       showDashboard();
       return true;
     }
@@ -429,26 +488,34 @@ function login() {
   token = document.getElementById('loginToken').value.trim();
   if (!orderId || !token) { alert('Please enter both Order ID and Token.'); return; }
   localStorage.setItem('sosfiler_order', JSON.stringify({ order_id: orderId, token: token }));
+  accountMode = false;
   showDashboard();
 }
 
 async function showDashboard() {
   document.getElementById('loginGate').style.display = 'none';
+  document.getElementById('companyListView').classList.remove('active');
   document.getElementById('dashboard').classList.add('active');
+  document.getElementById('backToCompanies').style.display = accountMode ? 'inline-block' : 'none';
   await loadOrderData();
-  await loadDocuments();
+  if (!accountMode) await loadDocuments();
   // Auto-refresh every 30 seconds
-  setInterval(loadOrderData, 30000);
+  if (refreshTimer) clearInterval(refreshTimer);
+  refreshTimer = setInterval(loadOrderData, 30000);
 }
 
 async function loadOrderData() {
   try {
-    const res = await fetch(`/api/status/${orderId}?token=${token}`);
+    const res = accountMode
+      ? await fetch(`/api/user/orders/${orderId}`, { headers: authHeaders() })
+      : await fetch(`/api/status/${orderId}?token=${token}`);
     if (!res.ok) {
       if (res.status === 403) { alert('Invalid order ID or token.'); return; }
+      if (res.status === 401) { alert('Please sign in again.'); return; }
       throw new Error('Failed to load');
     }
-    const data = await res.json();
+    const payload = await res.json();
+    const data = accountMode ? normalizeUserOrder(payload.order) : payload;
     currentOrderData = data;
     renderDashboard(data);
     if (data.documents) renderDocuments(data.documents || []);
@@ -468,6 +535,72 @@ async function loadDocuments() {
       renderOrderItems(currentOrderData);
     }
   } catch (e) {}
+}
+
+function normalizeUserOrder(order) {
+  return {
+    ...order,
+    order_id: order.id,
+    fee_breakdown: {
+      platform_fee_cents: order.platform_fee_cents || 0,
+      state_fee_cents: order.state_fee_cents || 0,
+      gov_processing_fee_cents: order.gov_processing_fee_cents || 0,
+      total_cents: order.total_cents || 0
+    }
+  };
+}
+
+async function showCompanyList() {
+  accountMode = true;
+  orderId = '';
+  token = '';
+  if (refreshTimer) clearInterval(refreshTimer);
+  document.getElementById('loginGate').style.display = 'none';
+  document.getElementById('dashboard').classList.remove('active');
+  document.getElementById('companyListView').classList.add('active');
+  const el = document.getElementById('companyList');
+  el.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+  try {
+    const res = await fetch('/api/user/orders', { headers: authHeaders() });
+    if (!res.ok) {
+      el.innerHTML = '<div class="empty">Sign in from the formation app to see your companies, or use an order ID and token.</div>';
+      document.getElementById('loginGate').style.display = '';
+      return;
+    }
+    const data = await res.json();
+    renderCompanyList(data.orders || []);
+  } catch (e) {
+    el.innerHTML = '<div class="empty">Could not load companies.</div>';
+  }
+}
+
+function renderCompanyList(orders) {
+  const el = document.getElementById('companyList');
+  if (!orders.length) {
+    el.innerHTML = '<div class="empty">No companies are linked to this account yet.</div>';
+    return;
+  }
+  const statusLabels = {
+    'ready_to_file': 'Ready for State Filing',
+    'submitted_to_state': 'Submitted to State',
+    'state_approved': 'State Approved',
+    'complete': 'Complete',
+    'paid': 'Paid',
+    'generating_documents': 'Generating Documents'
+  };
+  el.innerHTML = `<div class="company-list">${orders.map(order => `
+    <button class="company-card" onclick="openCompany('${order.id}')">
+      <div class="name">${order.business_name}</div>
+      <div class="meta">${order.entity_type} · ${stateNames[order.state] || order.state}</div>
+      <div class="meta">${statusLabels[order.status] || order.status} · ${order.document_count || 0} document${Number(order.document_count || 0) === 1 ? '' : 's'}</div>
+      <div class="meta">Order ${order.id}</div>
+    </button>`).join('')}</div>`;
+}
+
+function openCompany(id) {
+  accountMode = true;
+  orderId = id;
+  showDashboard();
 }
 
 function renderDashboard(data) {
@@ -714,8 +847,27 @@ function renderDocuments(docs) {
       <div>
         <div class="doc-name">${docNames[doc.doc_type] || doc.doc_type} <span class="doc-format">(${doc.format.toUpperCase()})</span></div>
       </div>
-      <a href="/api/documents/${orderId}/download/${doc.filename}?token=${token}" class="download-btn">Download</a>
+      <a href="${accountMode ? `/api/user/orders/${orderId}/download/${doc.filename}` : `/api/documents/${orderId}/download/${doc.filename}?token=${token}`}" class="download-btn" ${accountMode ? `onclick="return downloadAccountDoc(event, '${doc.filename}')"` : ''}>Download</a>
     </li>`).join('')}</ul>`;
+}
+
+async function downloadAccountDoc(event, filename) {
+  event.preventDefault();
+  const res = await fetch(`/api/user/orders/${orderId}/download/${filename}`, { headers: authHeaders() });
+  if (!res.ok) {
+    alert('Could not download this document. Please sign in again.');
+    return false;
+  }
+  const blob = await res.blob();
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+  return false;
 }
 
 function renderCompliance(deadlines) {
