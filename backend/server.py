@@ -452,6 +452,30 @@ def add_status_update(order_id: str, status: str, message: str = ""):
     conn.commit()
     conn.close()
 
+
+def add_customer_document_if_missing(
+    conn,
+    order_id: str,
+    doc_type: str,
+    filename: str,
+    file_path: str,
+    fmt: str = "",
+):
+    """Expose operator evidence in the customer document vault."""
+    if not file_path:
+        return
+    existing = conn.execute(
+        "SELECT id FROM documents WHERE order_id = ? AND filename = ?",
+        (order_id, filename),
+    ).fetchone()
+    if existing:
+        return
+    file_format = fmt or Path(filename).suffix.lstrip(".").lower() or "file"
+    conn.execute(
+        "INSERT INTO documents (order_id, doc_type, filename, file_path, format) VALUES (?, ?, ?, ?, ?)",
+        (order_id, doc_type, filename, file_path, file_format),
+    )
+
 def get_filing_action(state: str, entity_type: str, action_type: str = "formation") -> Optional[dict]:
     state = state.upper()
     entity_type = "LLC" if entity_type == "LLC" else entity_type
@@ -1484,6 +1508,14 @@ async def add_filing_evidence(job_id: str, evidence: FilingEvidenceRequest, requ
         INSERT INTO filing_artifacts (filing_job_id, order_id, artifact_type, filename, file_path, is_evidence)
         VALUES (?, ?, ?, ?, ?, ?)
     """, (job_id, job["order_id"], evidence.artifact_type, evidence.filename, evidence.file_path, is_evidence))
+    if is_evidence:
+        add_customer_document_if_missing(
+            conn,
+            job["order_id"],
+            evidence.artifact_type,
+            evidence.filename,
+            evidence.file_path,
+        )
     conn.execute("""
         INSERT INTO filing_events (filing_job_id, order_id, event_type, message, actor, evidence_path)
         VALUES (?, ?, ?, ?, 'operator', ?)
@@ -1515,6 +1547,13 @@ async def mark_filing_submitted(job_id: str, evidence: FilingEvidenceRequest, re
         INSERT INTO filing_artifacts (filing_job_id, order_id, artifact_type, filename, file_path, is_evidence)
         VALUES (?, ?, ?, ?, ?, 1)
     """, (job_id, job["order_id"], evidence.artifact_type, evidence.filename, evidence.file_path))
+    add_customer_document_if_missing(
+        conn,
+        job["order_id"],
+        evidence.artifact_type,
+        evidence.filename,
+        evidence.file_path,
+    )
     conn.execute("""
         UPDATE filing_jobs
         SET status = 'submitted_to_state', submitted_at = datetime('now'), evidence_summary = ?, updated_at = datetime('now')
@@ -1560,6 +1599,13 @@ async def mark_filing_approved(job_id: str, evidence: FilingEvidenceRequest, req
         INSERT INTO filing_artifacts (filing_job_id, order_id, artifact_type, filename, file_path, is_evidence)
         VALUES (?, ?, ?, ?, ?, 1)
     """, (job_id, job["order_id"], evidence.artifact_type, evidence.filename, evidence.file_path))
+    add_customer_document_if_missing(
+        conn,
+        job["order_id"],
+        evidence.artifact_type,
+        evidence.filename,
+        evidence.file_path,
+    )
     conn.execute("""
         UPDATE filing_jobs
         SET status = 'state_approved', approved_at = datetime('now'), evidence_summary = ?, updated_at = datetime('now')
@@ -1625,10 +1671,20 @@ async def download_document(order_id: str, filename: str, token: str = ""):
     if not file_path.exists():
         raise HTTPException(status_code=404, detail="File not found on disk")
     
+    suffix = file_path.suffix.lower()
+    media_types = {
+        ".pdf": "application/pdf",
+        ".md": "text/markdown",
+        ".json": "application/json",
+        ".png": "image/png",
+        ".jpg": "image/jpeg",
+        ".jpeg": "image/jpeg",
+        ".txt": "text/plain",
+    }
     return FileResponse(
         str(file_path),
         filename=doc["filename"],
-        media_type="application/pdf" if doc["filename"].endswith(".pdf") else "text/markdown"
+        media_type=media_types.get(suffix, "application/octet-stream"),
     )
 
 @app.post("/api/ein")
