@@ -12,6 +12,8 @@ NotebookLM notebook:
 Every state/action record must be sourced from official or primary materials whenever possible:
 
 - Secretary of State, Corporation Commission, Department of State, or equivalent filing office.
+- County clerk, recorder, assessor, tax collector, or equivalent county filing office for fictitious business names and county licenses.
+- City clerk, finance department, business tax office, licensing department, or equivalent municipal filing office for city business licenses.
 - Official fee schedules.
 - Official forms and instructions.
 - Official online filing portal pages/help pages.
@@ -44,6 +46,9 @@ Include:
 - State business license registrations that are required as a general condition of doing business, separate from industry licenses.
 - Name reservation.
 - DBA / assumed name / fictitious name filings.
+- County fictitious business name filings, renewals, abandonments, withdrawals, and publication requirements.
+- City and county general business licenses, business tax certificates, privilege licenses, occupational licenses, gross-receipts licenses, and home-occupation permits where generally required to operate.
+- Local business license renewals, amendments, address changes, ownership changes, and closure/cancellation filings.
 - Registered agent change.
 - Registered office change.
 - Principal office / mailing address change.
@@ -69,6 +74,15 @@ Foreign entity research must distinguish:
 - General state business license or tax registration needed to legally operate.
 - Local business license/permit needs, which may be handled by the license agent rather than the formation filing system.
 
+Local licensing and fictitious-name research must distinguish:
+
+- State-level DBA/assumed-name filings.
+- County-level fictitious business name filings and publication requirements.
+- City-level business licenses or business tax certificates.
+- County-level general business licenses or tax registrations.
+- Industry-specific licenses, which may stay under `license_agent.py` unless they are part of a general business-opening package.
+- Jurisdictions where a city and county both require separate registrations.
+
 ## Deliverable Shape
 
 Each researched filing must produce a record compatible with `data/filing_actions.schema.json` and eventually be added to `data/filing_actions.json`.
@@ -79,6 +93,7 @@ At minimum, each action needs:
 - Entity type.
 - Action type.
 - Domestic vs foreign/entity authority classification.
+- State, county, city, or multi-jurisdiction scope.
 - Customer-facing product name.
 - Whether it is state-filed, internal-document-only, or both.
 - Filing method: API, web portal, upload, email, mail, in-person, or manual review.
@@ -87,6 +102,7 @@ At minimum, each action needs:
 - Processing/convenience/card fee.
 - SOSFiler recommended service fee.
 - Required customer inputs.
+- Physical location, mailing address, NAICS/business activity, estimated receipts, employee count, zoning/home occupation details, and owner/officer data where local licenses require them.
 - Required consents/signatures.
 - Required generated documents.
 - Required certificates from the home jurisdiction, such as certificate of existence/good standing.
@@ -110,21 +126,22 @@ Only `verified_primary`, `verified_form`, or `verified_portal_observed` records 
 ## Research Workflow
 
 1. Start with one state and one entity family.
-2. Collect official domestic formation, foreign qualification/authority, amendment, annual report, dissolution/withdrawal, registered agent, general business license, tax registration, and copy/certificate materials.
+2. Collect official domestic formation, foreign qualification/authority, amendment, annual report, dissolution/withdrawal, registered agent, DBA/FBN, city/county general business license, tax registration, and copy/certificate materials.
 3. Identify the portal and whether the action can be filed online.
 4. Record all fees and processing fees separately.
 5. Record every required customer input and generated document.
 6. For foreign entities, record whether a certificate of existence/good standing from the home jurisdiction is required, how recent it must be, and whether a fictitious/assumed name is required when the legal name is unavailable.
-7. Record the evidence required for:
+7. For city/county filings, record whether the jurisdiction requires publication, zoning clearance, home occupation review, tax registration, estimated gross receipts, inspections, or renewal tracking.
+8. Record the evidence required for:
    - ready to file,
    - submitted,
    - approved,
    - rejected,
    - completed.
-8. Note whether customer notification should be automatic or operator-reviewed.
-9. Add the action record to the research queue or `filing_actions.json`.
-10. Build or update the product workflow and portal/operator adapter.
-11. Test with notional data before customer use.
+9. Note whether customer notification should be automatic or operator-reviewed.
+10. Add the action record to the research queue or `filing_actions.json`.
+11. Build or update the product workflow and portal/operator adapter.
+12. Test with notional data before customer use.
 
 ## Implementation Targets
 
@@ -142,6 +159,7 @@ The research should drive these product areas:
 - Status notification policy.
 - Compliance calendar.
 - Upsell/cross-sell surfaces for later changes and annual filings.
+- License-agent integration for city/county business licenses and industry-specific licenses.
 
 ## First States
 
@@ -163,3 +181,6 @@ Recommended order:
 - What evidence should be shown to customers versus retained internally only?
 - Which foreign qualification filings can be completed without ordering a separate certificate of good standing from the home state?
 - Which general state business registrations belong in SOSFiler's formation/change workflow versus the license agent workflow?
+- Which local license/FBN filings are common enough to productize directly versus route to license-agent/operator research?
+- How should SOSFiler price publication coordination for fictitious business names?
+- Which local business-license filings require customer-provided revenue estimates, zoning details, landlord approval, inspections, or local tax account setup?

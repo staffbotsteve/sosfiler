@@ -35,14 +35,20 @@
         "entity_type": { "type": "string" },
         "action_type": {
           "type": "string",
-          "description": "Examples: formation, foreign_registration, foreign_amendment, foreign_withdrawal, amendment, annual_report, dissolution, reinstatement, registered_agent_change, address_change, governing_person_change, name_reservation, dba, certificate_status, certified_copy, tax_registration, general_business_license, internal_member_change."
+          "description": "Examples: formation, foreign_registration, foreign_amendment, foreign_withdrawal, amendment, annual_report, dissolution, reinstatement, registered_agent_change, address_change, governing_person_change, name_reservation, dba, fictitious_business_name, fbn_publication, city_business_license, county_business_license, local_business_tax_certificate, license_amendment, license_renewal, certificate_status, certified_copy, tax_registration, general_business_license, internal_member_change."
         },
         "customer_product_name": { "type": "string" },
         "jurisdiction_role": {
           "type": "string",
-          "enum": ["domestic", "foreign", "statewide_business_authority", "internal_only", "unknown"],
+          "enum": ["domestic", "foreign", "statewide_business_authority", "local_business_authority", "internal_only", "unknown"],
           "description": "Whether this action creates or changes the domestic entity, qualifies a foreign entity, creates a general license/authority to do business, or is an internal-only SOSFiler service."
         },
+        "jurisdiction_scope": {
+          "type": "string",
+          "enum": ["state", "county", "city", "city_and_county", "multi_jurisdiction", "internal", "unknown"]
+        },
+        "county": { "type": "string" },
+        "city": { "type": "string" },
         "state_filed": { "type": "boolean", "default": true },
         "internal_documents_required": { "type": "boolean", "default": false },
         "office": { "type": "string" },
@@ -87,6 +93,22 @@
         },
         "expected_processing_time": { "type": "string" },
         "required_customer_inputs": { "type": "array", "items": { "type": "string" } },
+        "local_license_requirements": {
+          "type": "object",
+          "description": "For city/county licensing or FBN filings, records local operating-authority inputs and follow-on requirements.",
+          "properties": {
+            "publication_required": { "type": "boolean" },
+            "publication_deadline_days": { "type": "integer", "minimum": 0 },
+            "zoning_clearance_required": { "type": "boolean" },
+            "home_occupation_review_required": { "type": "boolean" },
+            "estimated_receipts_required": { "type": "boolean" },
+            "employee_count_required": { "type": "boolean" },
+            "naics_required": { "type": "boolean" },
+            "renewal_frequency": { "type": "string" },
+            "notes": { "type": "string" }
+          },
+          "additionalProperties": true
+        },
         "home_jurisdiction_requirements": {
           "type": "object",
           "description": "For foreign registrations/qualifications, records home-state evidence needed before filing.",
