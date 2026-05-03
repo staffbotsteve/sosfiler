@@ -79,6 +79,36 @@
           "additionalProperties": true
         },
         "recommended_service_fee_cents": { "type": "integer", "minimum": 0 },
+        "recommended_markup_strategy": {
+          "type": "string",
+          "enum": ["flat_fee", "percent_markup", "pass_through_plus_service_fee", "quote_required", "unavailable", "unknown"]
+        },
+        "price_confidence": {
+          "type": "string",
+          "enum": ["verified", "formula_verified", "range_only", "needs_operator_quote", "unknown"]
+        },
+        "variable_fee_formula": {
+          "type": "string",
+          "description": "Official formula when fees depend on revenue, employee count, business activity, location, square footage, publication vendor, or other variable inputs."
+        },
+        "fee_components": {
+          "type": "object",
+          "description": "Detailed fee components for local licensing/DBA/FBN and other filings.",
+          "properties": {
+            "initial_filing_fee_cents": { "type": "integer", "minimum": 0 },
+            "per_owner_fee_cents": { "type": "integer", "minimum": 0 },
+            "per_name_fee_cents": { "type": "integer", "minimum": 0 },
+            "copy_fee_cents": { "type": "integer", "minimum": 0 },
+            "certified_copy_fee_cents": { "type": "integer", "minimum": 0 },
+            "publication_estimate_cents": { "type": "integer", "minimum": 0 },
+            "renewal_fee_cents": { "type": "integer", "minimum": 0 },
+            "amendment_fee_cents": { "type": "integer", "minimum": 0 },
+            "closure_fee_cents": { "type": "integer", "minimum": 0 },
+            "late_fee_cents": { "type": "integer", "minimum": 0 },
+            "price_notes": { "type": "string" }
+          },
+          "additionalProperties": true
+        },
         "expedite_options": {
           "type": "array",
           "items": {
@@ -99,6 +129,7 @@
           "properties": {
             "publication_required": { "type": "boolean" },
             "publication_deadline_days": { "type": "integer", "minimum": 0 },
+            "publication_fee_source": { "type": "string" },
             "zoning_clearance_required": { "type": "boolean" },
             "home_occupation_review_required": { "type": "boolean" },
             "estimated_receipts_required": { "type": "boolean" },

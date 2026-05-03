@@ -85,6 +85,20 @@ For every state:
    - `state_or_county_handled`: official page routes the filing to another jurisdiction.
    - `needs_operator_research`: no reliable official page found yet.
 6. Store the source URL, date checked, and source type for every local jurisdiction.
+7. Record all pricing inputs for each jurisdiction:
+   - initial filing fee,
+   - per-owner/per-registrant fee,
+   - per-name fee,
+   - additional copy/certified copy fee,
+   - publication fee or publication coordination rule,
+   - online payment/card/e-check/convenience fee,
+   - renewal fee,
+   - amendment/change fee,
+   - abandonment/withdrawal/closure fee,
+   - late fee or penalty,
+   - variable fee formula, such as employee count, gross receipts, NAICS/business activity, location, or square footage.
+8. If exact pricing cannot be determined from an official page, mark the price status as `needs_operator_quote` rather than guessing.
+9. Recommend a SOSFiler service fee or markup only after government fees and effort/risk are known.
 
 NotebookLM should be used in state-sized or smaller shards for local work, not national all-at-once prompts. Example shards:
 
@@ -94,6 +108,30 @@ NotebookLM should be used in state-sized or smaller shards for local work, not n
 - `Florida official city and county business tax receipt local business license by county municipality`
 
 The product should initially expose local filings as operator-assisted unless that city/county has a verified official filing map.
+
+## Local Pricing Standard
+
+DBA/FBN and local business-license research must be fee-complete enough to support profitable pricing.
+
+Each local filing map should separate:
+
+- `government_fee_cents`: mandatory government filing fee.
+- `processing_fee`: card, e-check, portal, or convenience fee.
+- `publication_estimate_cents`: publication amount or estimate if publication is required.
+- `renewal_fee_cents`: government renewal fee.
+- `amendment_fee_cents`: government amendment/change fee.
+- `closure_fee_cents`: abandonment, withdrawal, or license closure fee.
+- `variable_fee_formula`: any formula that prevents a fixed quote.
+- `recommended_service_fee_cents`: SOSFiler's filing service fee.
+- `recommended_markup_strategy`: flat fee, percentage markup, pass-through plus service fee, quote required, or unavailable.
+- `price_confidence`: verified, formula_verified, range_only, needs_operator_quote, or unknown.
+
+Default pricing guidance until better margin data exists:
+
+- Pass government and processing fees through at cost.
+- Use flat SOSFiler fees for low-risk filing tasks where the official map is verified.
+- Use quote-required pricing when the government fee depends on revenue, employee count, business activity, inspections, zoning, or publication vendor selection.
+- Never show a customer a fixed government fee unless the official source supports it.
 
 ## Scope
 

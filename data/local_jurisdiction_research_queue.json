@@ -15,7 +15,9 @@
   "coverage_rules": [
     "Use official county/city/state/government directories to enumerate jurisdictions.",
     "Do not treat national commercial summaries as complete local coverage.",
-    "Record official URL, source type, filing owner, fees, publication, renewal, amendment, and closure rules for each jurisdiction.",
+    "Record official URL, source type, filing owner, exact government fees, processing fees, publication fees or quote rules, renewal fees, amendment fees, closure fees, late fees, and variable fee formulas for each jurisdiction.",
+    "Mark price_confidence as verified, formula_verified, range_only, needs_operator_quote, or unknown.",
+    "Recommend a SOSFiler markup strategy only after the government fee and effort/risk are known.",
     "Default unmapped jurisdictions to operator-assisted research."
   ],
   "priority_shards": [
@@ -23,15 +25,18 @@
       "id": "TX-county-dba",
       "state": "TX",
       "scope": "county",
-      "topic": "Official county clerk assumed name / DBA filings for all Texas counties",
+      "topic": "Official county clerk assumed name / DBA filings for all Texas counties, including exact initial filing fee, per-owner/name fees, copy/certified copy fees, online processing fee, renewal fee, amendment fee, abandonment/withdrawal fee, publication requirement/cost if any, source URL, and price confidence",
       "status": "researching",
-      "notebooklm_task_id": "c5b2db82-b38b-4b65-bae1-0ca810b03b78"
+      "notebooklm_task_id": "c40f29c3-ffe4-4f52-90c9-da1d4507488b",
+      "supersedes_task_ids": [
+        "c5b2db82-b38b-4b65-bae1-0ca810b03b78"
+      ]
     },
     {
       "id": "TX-city-license",
       "state": "TX",
       "scope": "city",
-      "topic": "Official city business licenses, business tax certificates, zoning clearance, and home occupation permits for Texas municipalities",
+      "topic": "Official city business licenses, business tax certificates, zoning clearance, and home occupation permits for Texas municipalities, including exact initial license fee, renewal fee, amendment/closure fee, revenue/employee/activity formulas, inspections, processing fees, source URL, and price confidence",
       "status": "not_started",
       "notebooklm_task_id": null
     },
@@ -39,7 +44,7 @@
       "id": "CA-county-fbn",
       "state": "CA",
       "scope": "county",
-      "topic": "Official county fictitious business name filings and publication requirements for all California counties",
+      "topic": "Official county fictitious business name filings and publication requirements for all California counties, including exact filing fee, registrant/name fees, copy/certified copy fees, publication deadline, publication cost/quote handling, renewal, amendment, abandonment, processing fees, source URL, and price confidence",
       "status": "not_started",
       "notebooklm_task_id": null
     },
@@ -47,7 +52,7 @@
       "id": "FL-local-btr",
       "state": "FL",
       "scope": "city_and_county",
-      "topic": "Official local business tax receipt requirements for Florida counties and municipalities",
+      "topic": "Official local business tax receipt requirements for Florida counties and municipalities, including exact tax receipt fee, renewal, transfer/amendment, closure, penalty, revenue/activity formulas, processing fees, source URL, and price confidence",
       "status": "not_started",
       "notebooklm_task_id": null
     },
@@ -55,7 +60,7 @@
       "id": "NV-state-local-license",
       "state": "NV",
       "scope": "state_city_county",
-      "topic": "Nevada state business license, county/city business licenses, and Clark/Washoe local requirements",
+      "topic": "Nevada state business license, county/city business licenses, and Clark/Washoe local requirements, including exact government fees, renewals, amendments, closures, penalties, variable formulas, processing fees, source URL, and price confidence",
       "status": "not_started",
       "notebooklm_task_id": null
     }
