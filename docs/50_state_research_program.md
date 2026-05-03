@@ -91,6 +91,32 @@ Research must distinguish state-filed changes from internal-only company changes
 
 Never show a fixed state fee to a customer unless the official fee schedule or portal supports it.
 
+## Filing Process Path Standard
+
+Every action record must capture the actual ordered process, not just the final form.
+
+For each filing, research must identify:
+
+- Required prerequisite filings, such as name reservation, name registration, certificate of existence/good standing, registered agent consent, tax clearance, publication, or prior annual report.
+- Whether a prerequisite is mandatory, optional, or only required in specific conditions.
+- How long a prerequisite remains valid.
+- Whether SOSFiler should bundle the prerequisite into the customer checkout flow.
+- The ordered filing sequence, including portal pages, forms, uploads, signatures, review screens, payment screens, confirmation screens, and post-submission tracking.
+- Customer-selectable options, especially expedite levels, copies, certificates, publication handling, and registered agent service.
+- Which options are shown to the customer as add-ons versus handled internally by SOSFiler.
+- Evidence required after each step.
+
+Example: if Arizona requires or practically routes foreign corporation qualification through name reservation before filing for authority, the Arizona foreign corporation action must record name reservation as a prerequisite step with its fee, validity period, evidence, and whether it should be exposed as an included or optional checkout item.
+
+Research must also capture all official expedite options:
+
+- label shown by the state,
+- processing time,
+- government fee,
+- whether it applies online, mail, walk-in, or all channels,
+- whether it can be combined with other expedite options,
+- whether SOSFiler should expose it to the customer.
+
 ## Exhaustive Local Research Method
 
 A single broad NotebookLM research query is not sufficient for city/county coverage. Broad research runs are only discovery passes. Exhaustive local coverage requires a sharded, jurisdiction-by-jurisdiction process.
@@ -240,6 +266,7 @@ At minimum, each action needs:
 - Customer-facing product name.
 - Whether it is state-filed, internal-document-only, or both.
 - Filing method: API, web portal, upload, email, mail, in-person, or manual review.
+- Ordered process path and prerequisite filings.
 - Portal URL and portal account requirements.
 - Government fee.
 - Processing/convenience/card fee.
@@ -250,6 +277,7 @@ At minimum, each action needs:
 - Required consents/signatures.
 - Required generated documents.
 - Required certificates from the home jurisdiction, such as certificate of existence/good standing.
+- Customer-selectable options such as expedite, certified copies, certificates, registered agent service, publication coordination, and name reservation.
 - Required evidence before status changes.
 - Approval/rejection detection method.
 - Customer portal document/status outputs.
@@ -273,20 +301,21 @@ Only `verified_primary`, `verified_form`, or `verified_portal_observed` records 
 2. Begin at the official state business filing office pages for forms, fees, online services, and instructions.
 3. Collect official domestic formation, foreign qualification/authority, amendment, annual report, dissolution/withdrawal, registered agent, DBA/FBN, city/county general business license, tax registration, and copy/certificate materials.
 4. Identify the portal and whether the action can be filed online.
-5. Record all fees and processing fees separately for formations and every post-formation action.
-6. Record every required customer input and generated document.
-7. For foreign entities, record whether a certificate of existence/good standing from the home jurisdiction is required, how recent it must be, and whether a fictitious/assumed name is required when the legal name is unavailable.
-8. For city/county filings, record whether the jurisdiction requires publication, zoning clearance, home occupation review, tax registration, estimated gross receipts, inspections, or renewal tracking.
-9. Record the evidence required for:
+5. Record ordered process path, prerequisite filings, and customer-selectable options.
+6. Record all fees and processing fees separately for formations and every post-formation action.
+7. Record every required customer input and generated document.
+8. For foreign entities, record whether a certificate of existence/good standing from the home jurisdiction is required, how recent it must be, and whether a fictitious/assumed name is required when the legal name is unavailable.
+9. For city/county filings, record whether the jurisdiction requires publication, zoning clearance, home occupation review, tax registration, estimated gross receipts, inspections, or renewal tracking.
+10. Record the evidence required for:
    - ready to file,
    - submitted,
    - approved,
    - rejected,
    - completed.
-10. Note whether customer notification should be automatic or operator-reviewed.
-11. Add the action record to the research queue or `filing_actions.json`.
-12. Build or update the product workflow and portal/operator adapter.
-13. Test with notional data before customer use.
+11. Note whether customer notification should be automatic or operator-reviewed.
+12. Add the action record to the research queue or `filing_actions.json`.
+13. Build or update the product workflow and portal/operator adapter.
+14. Test with notional data before customer use.
 
 ## Implementation Targets
 

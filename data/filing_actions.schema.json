@@ -129,7 +129,66 @@
             "properties": {
               "label": { "type": "string" },
               "fee_cents": { "type": "integer", "minimum": 0 },
-              "processing_time": { "type": "string" }
+              "processing_time": { "type": "string" },
+              "channel": { "type": "string" },
+              "customer_selectable": { "type": "boolean" },
+              "combinable": { "type": "boolean" },
+              "source_url": { "type": "string" }
+            },
+            "additionalProperties": true
+          }
+        },
+        "prerequisite_filings": {
+          "type": "array",
+          "description": "Required or conditional filings/steps before this action can be submitted.",
+          "items": {
+            "type": "object",
+            "properties": {
+              "action_type": { "type": "string" },
+              "label": { "type": "string" },
+              "required": { "type": "boolean" },
+              "condition": { "type": "string" },
+              "fee_cents": { "type": "integer", "minimum": 0 },
+              "validity_period": { "type": "string" },
+              "evidence_required": { "type": "array", "items": { "type": "string" } },
+              "customer_selectable": { "type": "boolean" },
+              "source_url": { "type": "string" }
+            },
+            "additionalProperties": true
+          }
+        },
+        "process_steps": {
+          "type": "array",
+          "description": "Ordered filing path from intake through submission, payment, approval, and evidence capture.",
+          "items": {
+            "type": "object",
+            "properties": {
+              "step": { "type": "integer", "minimum": 1 },
+              "actor": { "type": "string", "enum": ["customer", "sosfiler", "state_portal", "third_party", "operator"] },
+              "title": { "type": "string" },
+              "description": { "type": "string" },
+              "portal_page": { "type": "string" },
+              "required_inputs": { "type": "array", "items": { "type": "string" } },
+              "evidence_output": { "type": "array", "items": { "type": "string" } },
+              "status_after_step": { "type": "string" }
+            },
+            "required": ["step", "title"]
+          }
+        },
+        "customer_options": {
+          "type": "array",
+          "description": "Options SOSFiler may expose to customers during checkout or post-order flows.",
+          "items": {
+            "type": "object",
+            "properties": {
+              "code": { "type": "string" },
+              "label": { "type": "string" },
+              "option_type": { "type": "string", "enum": ["expedite", "copy", "certificate", "registered_agent", "publication", "name_reservation", "other"] },
+              "government_fee_cents": { "type": "integer", "minimum": 0 },
+              "service_fee_cents": { "type": "integer", "minimum": 0 },
+              "required": { "type": "boolean" },
+              "default_selected": { "type": "boolean" },
+              "source_url": { "type": "string" }
             },
             "additionalProperties": true
           }

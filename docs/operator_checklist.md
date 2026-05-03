@@ -44,6 +44,8 @@ Use this as the running list of owner/operator tasks that are outside normal app
 
 - [ ] Complete the state-by-state filing method map for LLC, corporation, nonprofit, amendments, dissolutions, annual reports, and certificates.
 - [ ] Require exact official state fees, processing fees, expedite fees, and price confidence for every formation and post-formation action before making the action self-service.
+- [ ] Capture ordered process paths, prerequisite filings, validity periods, customer-selectable options, and evidence gates for every action.
+- [ ] Expose official expedite options to customers when verified, including fee, processing time, channel, and whether the option can be combined with other services.
 - [ ] Distinguish state-filed member/manager/officer/director/address changes from internal-only ownership/governance updates.
 - [ ] Include foreign qualification/registration, amendments to foreign registrations, and withdrawal/cancellation for every entity type that can do business across state lines.
 - [ ] Include statewide business-license and tax-registration gateways that are required to legally operate in a state.
