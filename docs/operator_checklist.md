@@ -47,6 +47,7 @@ Use this as the running list of owner/operator tasks that are outside normal app
 - [ ] Include statewide business-license and tax-registration gateways that are required to legally operate in a state.
 - [ ] Include state, county, and city DBA / assumed name / fictitious business name filings, including publication and renewal rules.
 - [ ] Include city and county general business licenses, business tax certificates, and local operating permits, with routing to the license agent when appropriate.
+- [ ] Track exhaustive local coverage in `data/local_jurisdiction_research_queue.json`; broad NotebookLM source counts are discovery only, not completion.
 - [ ] Track state fee, card processing fee, expedited fee, and portal account requirements separately.
 - [ ] Flag portals that support API/bulk upload versus browser automation versus manual filing.
 - [ ] Define evidence required before any customer-facing status changes.

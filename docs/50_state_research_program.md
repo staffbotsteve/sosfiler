@@ -59,6 +59,42 @@ Commercial pages may be used only to discover likely filings or compare product 
 
 If an official state page links to an external vendor portal, payment processor, or one-stop system, treat that linked portal as official for procedural observation, but still record the government page that routes to it.
 
+## Exhaustive Local Research Method
+
+A single broad NotebookLM research query is not sufficient for city/county coverage. Broad research runs are only discovery passes. Exhaustive local coverage requires a sharded, jurisdiction-by-jurisdiction process.
+
+For every state:
+
+1. Build the official county list from a state, Census, NACo, or other official government directory.
+2. Build the official municipality list from a state municipal league, state government directory, Census places list, or other official government directory.
+3. For each county, find the official clerk/recorder/tax/licensing page that controls:
+   - fictitious business name / DBA / assumed name,
+   - county business license,
+   - county business tax certificate,
+   - publication, renewal, abandonment, and withdrawal.
+4. For each city or incorporated municipality, find the official city clerk/finance/business tax/licensing page that controls:
+   - city business license,
+   - business tax certificate,
+   - local business tax receipt,
+   - home occupation permit,
+   - zoning clearance,
+   - license amendment, renewal, and closure.
+5. Mark each jurisdiction as one of:
+   - `mapped_official`: official page found and filing fields/fees recorded.
+   - `mapped_no_general_license`: official page confirms no general local business license/FBN path.
+   - `state_or_county_handled`: official page routes the filing to another jurisdiction.
+   - `needs_operator_research`: no reliable official page found yet.
+6. Store the source URL, date checked, and source type for every local jurisdiction.
+
+NotebookLM should be used in state-sized or smaller shards for local work, not national all-at-once prompts. Example shards:
+
+- `Texas official county clerk assumed name DBA filing for all 254 counties`
+- `Texas official city business license business tax certificate home occupation permit major municipalities`
+- `California official county FBN fictitious business name publication all counties`
+- `Florida official city and county business tax receipt local business license by county municipality`
+
+The product should initially expose local filings as operator-assisted unless that city/county has a verified official filing map.
+
 ## Scope
 
 Research all U.S. states plus District of Columbia.

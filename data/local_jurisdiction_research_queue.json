@@ -1,0 +1,69 @@
+{
+  "purpose": "Track exhaustive city/county DBA, fictitious business name, and local business license research. Broad NotebookLM research is not enough; each state must be split into county and municipality shards.",
+  "notebooklm": {
+    "title": "SOSFiler 50-State Formation and Change Filing Research",
+    "id": "200a224f-8a1a-4f82-8104-9bcbddaf0e0d"
+  },
+  "statuses": {
+    "not_started": "No local jurisdiction research started.",
+    "directory_needed": "Need official county/municipality list before filing research.",
+    "researching": "Official local pages are being gathered.",
+    "partial": "Some local jurisdictions mapped; coverage incomplete.",
+    "mapped_official": "Official pages and core filing rules are mapped.",
+    "implemented": "Mapped local filings are wired into SOSFiler product/operator workflows."
+  },
+  "coverage_rules": [
+    "Use official county/city/state/government directories to enumerate jurisdictions.",
+    "Do not treat national commercial summaries as complete local coverage.",
+    "Record official URL, source type, filing owner, fees, publication, renewal, amendment, and closure rules for each jurisdiction.",
+    "Default unmapped jurisdictions to operator-assisted research."
+  ],
+  "priority_shards": [
+    {
+      "id": "TX-county-dba",
+      "state": "TX",
+      "scope": "county",
+      "topic": "Official county clerk assumed name / DBA filings for all Texas counties",
+      "status": "researching",
+      "notebooklm_task_id": "c5b2db82-b38b-4b65-bae1-0ca810b03b78"
+    },
+    {
+      "id": "TX-city-license",
+      "state": "TX",
+      "scope": "city",
+      "topic": "Official city business licenses, business tax certificates, zoning clearance, and home occupation permits for Texas municipalities",
+      "status": "not_started",
+      "notebooklm_task_id": null
+    },
+    {
+      "id": "CA-county-fbn",
+      "state": "CA",
+      "scope": "county",
+      "topic": "Official county fictitious business name filings and publication requirements for all California counties",
+      "status": "not_started",
+      "notebooklm_task_id": null
+    },
+    {
+      "id": "FL-local-btr",
+      "state": "FL",
+      "scope": "city_and_county",
+      "topic": "Official local business tax receipt requirements for Florida counties and municipalities",
+      "status": "not_started",
+      "notebooklm_task_id": null
+    },
+    {
+      "id": "NV-state-local-license",
+      "state": "NV",
+      "scope": "state_city_county",
+      "topic": "Nevada state business license, county/city business licenses, and Clark/Washoe local requirements",
+      "status": "not_started",
+      "notebooklm_task_id": null
+    }
+  ],
+  "jurisdiction_result_statuses": [
+    "mapped_official",
+    "mapped_no_general_license",
+    "state_or_county_handled",
+    "needs_operator_research"
+  ]
+}
