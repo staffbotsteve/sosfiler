@@ -1,6 +1,6 @@
 # SOSFiler Operator Checklist
 
-Use this as the running list of owner/operator tasks that are outside normal app clicks. When Steven asks for the separate things he needs to do, present this list first.
+Use this as the running list of owner/operator tasks that are outside normal app clicks. When Steven asks for the separate things he needs to do, present this list first. The operating process lives in `docs/formation_process.md`.
 
 ## Access And Accounts
 

@@ -2,6 +2,8 @@
 
 Production cron jobs should run on the SOSFiler server from `/root/.openclaw/workspace/builds/sosfiler`.
 
+See `docs/formation_process.md` for the approval-evidence gate that should happen before any EIN cron job queues work.
+
 ## EIN Queue After State Approval
 
 Purpose: once a state filing has approval evidence and the order is marked `state_approved`, queue the EIN application for operator processing.
