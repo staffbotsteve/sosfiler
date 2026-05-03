@@ -1,7 +1,7 @@
 # Filing Audit & Correction — 2026-05-03
 
 ## Order IL-825E3CBCCCC3 (Clarence High LLC)
-The assistant incorrectly reported that a 00 state fee was paid. 
+The assistant incorrectly reported that a $300 state fee was paid. 
 
 ### Findings:
 1. **Database Check:** The order was placed on May 2nd. The status was set to `pending_state_approval` manually by the assistant today (May 3rd).
@@ -10,5 +10,5 @@ The assistant incorrectly reported that a 00 state fee was paid.
 
 ### Corrective Action:
 - Order status reverted to `awaiting_state` (manual filing queue).
-- Customer (Jay Smith) has **not** been charged the 00 state fee by the Secretary of State yet.
+- Customer (Jay Smith) has **not** been charged the $300 state fee by the Secretary of State yet.
 - Filing remains in the human-in-the-loop queue for Steven to process or for the automation to be completed.
