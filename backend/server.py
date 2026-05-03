@@ -104,6 +104,11 @@ def get_db():
     conn.execute("PRAGMA foreign_keys=ON")
     return conn
 
+def _ensure_column(conn, table: str, column: str, definition: str):
+    existing = {row["name"] for row in conn.execute(f"PRAGMA table_info({table})").fetchall()}
+    if column not in existing:
+        conn.execute(f"ALTER TABLE {table} ADD COLUMN {column} {definition}")
+
 def init_db():
     conn = get_db()
     conn.executescript("""
@@ -131,6 +136,7 @@ def init_db():
             stripe_session_id TEXT,
             stripe_payment_intent TEXT,
             state_fee_cents INTEGER NOT NULL,
+            gov_processing_fee_cents INTEGER NOT NULL DEFAULT 0,
             platform_fee_cents INTEGER NOT NULL DEFAULT 4900,
             total_cents INTEGER NOT NULL,
             filing_confirmation TEXT,
@@ -158,6 +164,54 @@ def init_db():
             filename TEXT NOT NULL,
             file_path TEXT NOT NULL,
             format TEXT NOT NULL DEFAULT 'pdf',
+            created_at TEXT NOT NULL DEFAULT (datetime('now'))
+        );
+
+        CREATE TABLE IF NOT EXISTS filing_jobs (
+            id TEXT PRIMARY KEY,
+            order_id TEXT NOT NULL REFERENCES orders(id),
+            action_type TEXT NOT NULL DEFAULT 'formation',
+            state TEXT NOT NULL,
+            entity_type TEXT NOT NULL,
+            status TEXT NOT NULL DEFAULT 'pending_payment',
+            automation_level TEXT NOT NULL DEFAULT 'manual_review',
+            filing_method TEXT NOT NULL DEFAULT 'web_portal',
+            office TEXT,
+            form_name TEXT,
+            portal_name TEXT,
+            portal_url TEXT,
+            state_fee_cents INTEGER NOT NULL DEFAULT 0,
+            processing_fee_cents INTEGER NOT NULL DEFAULT 0,
+            total_government_cents INTEGER NOT NULL DEFAULT 0,
+            required_consents TEXT,
+            required_evidence TEXT,
+            evidence_summary TEXT,
+            last_error TEXT,
+            created_at TEXT NOT NULL DEFAULT (datetime('now')),
+            updated_at TEXT NOT NULL DEFAULT (datetime('now')),
+            submitted_at TEXT,
+            approved_at TEXT
+        );
+
+        CREATE TABLE IF NOT EXISTS filing_events (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            filing_job_id TEXT NOT NULL REFERENCES filing_jobs(id),
+            order_id TEXT NOT NULL REFERENCES orders(id),
+            event_type TEXT NOT NULL,
+            message TEXT,
+            actor TEXT NOT NULL DEFAULT 'system',
+            evidence_path TEXT,
+            created_at TEXT NOT NULL DEFAULT (datetime('now'))
+        );
+
+        CREATE TABLE IF NOT EXISTS filing_artifacts (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            filing_job_id TEXT NOT NULL REFERENCES filing_jobs(id),
+            order_id TEXT NOT NULL REFERENCES orders(id),
+            artifact_type TEXT NOT NULL,
+            filename TEXT NOT NULL,
+            file_path TEXT NOT NULL,
+            is_evidence INTEGER NOT NULL DEFAULT 0,
             created_at TEXT NOT NULL DEFAULT (datetime('now'))
         );
         
@@ -206,9 +260,14 @@ def init_db():
         CREATE INDEX IF NOT EXISTS idx_orders_status ON orders(status);
         CREATE INDEX IF NOT EXISTS idx_status_updates_order ON status_updates(order_id);
         CREATE INDEX IF NOT EXISTS idx_documents_order ON documents(order_id);
+        CREATE INDEX IF NOT EXISTS idx_filing_jobs_order ON filing_jobs(order_id);
+        CREATE INDEX IF NOT EXISTS idx_filing_jobs_status ON filing_jobs(status);
+        CREATE INDEX IF NOT EXISTS idx_filing_events_order ON filing_events(order_id);
+        CREATE INDEX IF NOT EXISTS idx_filing_artifacts_order ON filing_artifacts(order_id);
         CREATE INDEX IF NOT EXISTS idx_compliance_order ON compliance_deadlines(order_id);
         CREATE INDEX IF NOT EXISTS idx_license_filings_email ON license_filings(email);
     """)
+    _ensure_column(conn, "orders", "gov_processing_fee_cents", "INTEGER NOT NULL DEFAULT 0")
     conn.commit()
     conn.close()
 
@@ -226,6 +285,12 @@ for entity_type, filename in [("llc", "state_requirements_v2.json"), ("corp", "c
 
 with open(DATA_DIR / "state_fees.json") as f:
     STATE_FEES = json.load(f)
+
+try:
+    with open(DATA_DIR / "filing_actions.json") as f:
+        FILING_ACTIONS = json.load(f)
+except Exception:
+    FILING_ACTIONS = {}
 
 with open(DATA_DIR / "state_requirements.json") as f:
     STATE_REQUIREMENTS = json.load(f)
@@ -339,8 +404,32 @@ class ChatRequest(BaseModel):
     session_id: str
     context: Optional[dict] = None
 
+class FilingEvidenceRequest(BaseModel):
+    artifact_type: str = Field(..., pattern="^(submitted_receipt|submitted_document|approved_certificate|state_correspondence|other)$")
+    filename: str
+    file_path: str
+    message: str = ""
+
 
 # --- Auth helpers ---
+def parse_json_field(value, fallback):
+    if not value:
+        return fallback
+    try:
+        return json.loads(value)
+    except Exception:
+        return fallback
+
+
+def verify_admin_access(request: Request):
+    admin_token = os.getenv("ADMIN_TOKEN")
+    if not admin_token:
+        raise HTTPException(status_code=503, detail="Admin filing API is not configured")
+    provided = request.headers.get("x-admin-token", "")
+    if not secrets.compare_digest(provided, admin_token):
+        raise HTTPException(status_code=403, detail="Invalid admin token")
+
+
 def verify_order_access(order_id: str, token: str) -> dict:
     conn = get_db()
     row = conn.execute("SELECT * FROM orders WHERE id = ? AND token = ?", (order_id, token)).fetchone()
@@ -361,6 +450,135 @@ def add_status_update(order_id: str, status: str, message: str = ""):
     )
     conn.commit()
     conn.close()
+
+def get_filing_action(state: str, entity_type: str, action_type: str = "formation") -> Optional[dict]:
+    state = state.upper()
+    entity_type = "LLC" if entity_type == "LLC" else entity_type
+    return (
+        FILING_ACTIONS.get(state, {})
+        .get(entity_type, {})
+        .get(action_type)
+    )
+
+def calculate_processing_fee_cents(action: Optional[dict], state_fee_cents: int) -> int:
+    if not action:
+        return 0
+    rule = action.get("processing_fee") or {}
+    if rule.get("type") == "percent" and rule.get("applies_to") == "state_fee":
+        return int(round(state_fee_cents * float(rule.get("rate", 0))))
+    if rule.get("type") == "fixed":
+        return int(rule.get("amount_cents", 0))
+    return 0
+
+def build_fee_breakdown(state: str, entity_type: str, include_ra: bool = False) -> dict:
+    entity_key = "LLC" if entity_type == "LLC" else "Corp"
+    state_fee_cents = int(STATE_FEES[entity_key][state]["filing_fee"] * 100)
+    action = get_filing_action(state, entity_type)
+    processing_fee_cents = calculate_processing_fee_cents(action, state_fee_cents)
+    ra_fee_cents = RA_RENEWAL_FEE if include_ra else 0
+    total_cents = PLATFORM_FEE + state_fee_cents + processing_fee_cents + ra_fee_cents
+    return {
+        "platform_fee_cents": PLATFORM_FEE,
+        "state_fee_cents": state_fee_cents,
+        "gov_processing_fee_cents": processing_fee_cents,
+        "registered_agent_fee_cents": ra_fee_cents,
+        "total_cents": total_cents,
+        "processing_fee_rule": (action or {}).get("processing_fee"),
+    }
+
+def create_or_update_filing_job(order: dict, action_type: str = "formation", status: Optional[str] = None) -> dict:
+    action = get_filing_action(order["state"], order["entity_type"], action_type) or {}
+    processing_fee_cents = int(order.get("gov_processing_fee_cents") or 0)
+    if not processing_fee_cents:
+        processing_fee_cents = calculate_processing_fee_cents(action, int(order.get("state_fee_cents") or 0))
+    job_id = f"FIL-{order['id']}-{action_type}".replace("_", "-")
+    job_status = status or order.get("status", "pending_payment")
+    required_evidence = {
+        "submitted": action.get("required_evidence_for_submitted", []),
+        "approved": action.get("required_evidence_for_approved", []),
+    }
+    conn = get_db()
+    conn.execute("""
+        INSERT INTO filing_jobs (
+            id, order_id, action_type, state, entity_type, status, automation_level,
+            filing_method, office, form_name, portal_name, portal_url, state_fee_cents,
+            processing_fee_cents, total_government_cents, required_consents,
+            required_evidence, updated_at
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))
+        ON CONFLICT(id) DO UPDATE SET
+            status = excluded.status,
+            automation_level = excluded.automation_level,
+            filing_method = excluded.filing_method,
+            office = excluded.office,
+            form_name = excluded.form_name,
+            portal_name = excluded.portal_name,
+            portal_url = excluded.portal_url,
+            state_fee_cents = excluded.state_fee_cents,
+            processing_fee_cents = excluded.processing_fee_cents,
+            total_government_cents = excluded.total_government_cents,
+            required_consents = excluded.required_consents,
+            required_evidence = excluded.required_evidence,
+            updated_at = datetime('now')
+    """, (
+        job_id, order["id"], action_type, order["state"], order["entity_type"], job_status,
+        action.get("automation_level", "manual_review"),
+        action.get("filing_method", "web_portal"),
+        action.get("office", f"{order['state']} Secretary of State"),
+        action.get("form_name", "Formation filing"),
+        action.get("portal_name", ""),
+        action.get("portal_url", ""),
+        int(order.get("state_fee_cents") or 0),
+        processing_fee_cents,
+        int(order.get("state_fee_cents") or 0) + processing_fee_cents,
+        json.dumps(action.get("required_consents", [])),
+        json.dumps(required_evidence),
+    ))
+    row = conn.execute("SELECT * FROM filing_jobs WHERE id = ?", (job_id,)).fetchone()
+    conn.commit()
+    conn.close()
+    return dict(row)
+
+def add_filing_event(order_id: str, event_type: str, message: str, actor: str = "system", evidence_path: str = ""):
+    conn = get_db()
+    job = conn.execute("SELECT * FROM filing_jobs WHERE order_id = ? AND action_type = 'formation' ORDER BY created_at DESC LIMIT 1", (order_id,)).fetchone()
+    if not job:
+        order = conn.execute("SELECT * FROM orders WHERE id = ?", (order_id,)).fetchone()
+        conn.close()
+        if order:
+            create_or_update_filing_job(dict(order))
+            return add_filing_event(order_id, event_type, message, actor, evidence_path)
+        return
+    conn.execute(
+        "INSERT INTO filing_events (filing_job_id, order_id, event_type, message, actor, evidence_path) VALUES (?, ?, ?, ?, ?, ?)",
+        (job["id"], order_id, event_type, message, actor, evidence_path)
+    )
+    conn.commit()
+    conn.close()
+
+def generate_internal_documents(order_id: str, formation_data: dict):
+    """Synchronous wrapper for callers that need explicit document generation."""
+    raise RuntimeError("generate_internal_documents must be awaited via generate_internal_documents_async")
+
+async def generate_internal_documents_async(order_id: str, formation_data: dict) -> list[dict]:
+    from document_generator import DocumentGenerator
+    doc_gen = DocumentGenerator()
+    docs = await doc_gen.generate_all(order_id, formation_data)
+    conn = get_db()
+    existing = {
+        row["filename"]
+        for row in conn.execute("SELECT filename FROM documents WHERE order_id = ?", (order_id,)).fetchall()
+    }
+    for doc in docs:
+        if doc["filename"] in existing:
+            continue
+        conn.execute(
+            "INSERT INTO documents (order_id, doc_type, filename, file_path, format) VALUES (?, ?, ?, ?, ?)",
+            (order_id, doc["type"], doc["filename"], doc["path"], doc["format"])
+        )
+    conn.commit()
+    conn.close()
+    return docs
 
 
 
@@ -632,15 +850,19 @@ async def get_state_fee(state: str, entity_type: str = "LLC"):
     if state not in STATE_FEES.get(et, {}):
         raise HTTPException(status_code=404, detail=f"State {state} not found")
     fee_data = STATE_FEES[et][state]
+    breakdown = build_fee_breakdown(state, et)
     return {
         "state": state,
         "state_name": STATE_FEES["state_names"].get(state, state),
         "entity_type": et,
         "state_filing_fee": fee_data["filing_fee"],
         "platform_fee": PLATFORM_FEE / 100,
-        "total": fee_data["filing_fee"] + PLATFORM_FEE / 100,
+        "gov_processing_fee": breakdown["gov_processing_fee_cents"] / 100,
+        "total": breakdown["total_cents"] / 100,
+        "fee_breakdown": breakdown,
         "notes": fee_data.get("notes", ""),
-        "expedited_fee": fee_data.get("expedited")
+        "expedited_fee": fee_data.get("expedited"),
+        "filing_action": get_filing_action(state, et)
     }
 
 # --- TASK 2: Filing Expert Chat API ---
@@ -892,10 +1114,11 @@ async def create_formation(data: FormationRequest):
     if state not in STATE_FEES.get(entity_key, {}):
         raise HTTPException(status_code=400, detail=f"Invalid state: {state}")
     
-    # Calculate fees
-    state_fee_cents = STATE_FEES[entity_key][state]["filing_fee"] * 100
-    ra_fee_cents = RA_RENEWAL_FEE if data.ra_choice == "sosfiler" else 0
-    total_cents = state_fee_cents + PLATFORM_FEE + ra_fee_cents
+    # Calculate fees, including state portal/card processing fees when known.
+    fees = build_fee_breakdown(state, entity_key, include_ra=data.ra_choice == "sosfiler")
+    state_fee_cents = fees["state_fee_cents"]
+    gov_processing_fee_cents = fees["gov_processing_fee_cents"]
+    total_cents = fees["total_cents"]
     
     # Generate order ID and token
     order_id = f"IL-{uuid.uuid4().hex[:12].upper()}"
@@ -909,16 +1132,23 @@ async def create_formation(data: FormationRequest):
     conn = get_db()
     conn.execute("""
         INSERT INTO orders (id, user_id, email, token, entity_type, state, business_name, 
-                          formation_data, state_fee_cents, platform_fee_cents, total_cents)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                          formation_data, state_fee_cents, gov_processing_fee_cents,
+                          platform_fee_cents, total_cents)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     """, (
         order_id, user_id, data.email, token, data.entity_type, state,
-        data.business_name, data.model_dump_json(), state_fee_cents,
+        data.business_name, data.model_dump_json(), state_fee_cents, gov_processing_fee_cents,
         PLATFORM_FEE, total_cents
     ))
     conn.commit()
     conn.close()
     
+    order_for_job = {
+        "id": order_id, "state": state, "entity_type": data.entity_type,
+        "state_fee_cents": state_fee_cents, "gov_processing_fee_cents": gov_processing_fee_cents,
+        "status": "pending_payment"
+    }
+    create_or_update_filing_job(order_for_job, status="pending_payment")
     add_status_update(order_id, "pending_payment", "Order created. Awaiting payment.")
     
     return {
@@ -928,6 +1158,8 @@ async def create_formation(data: FormationRequest):
         "total_cents": total_cents,
         "platform_fee": PLATFORM_FEE / 100,
         "state_fee": state_fee_cents / 100,
+        "gov_processing_fee": gov_processing_fee_cents / 100,
+        "fee_breakdown": fees,
         "status": "pending_payment"
     }
 
@@ -973,6 +1205,20 @@ async def create_checkout_session(data: CheckoutRequest):
                 "quantity": 1
             }
         ]
+
+        gov_processing_fee_cents = int(order.get("gov_processing_fee_cents") or 0)
+        if gov_processing_fee_cents:
+            line_items.append({
+                "price_data": {
+                    "currency": "usd",
+                    "unit_amount": gov_processing_fee_cents,
+                    "product_data": {
+                        "name": f"{state_name} Processing / Convenience Fee",
+                        "description": "State portal or card processing fee passed through at cost"
+                    }
+                },
+                "quantity": 1
+            })
         
         # Add RA line item if selected
         if ra_choice == "sosfiler":
@@ -1052,9 +1298,7 @@ async def stripe_webhook(request: Request, background_tasks: BackgroundTasks):
     return {"status": "ok"}
 
 async def run_formation_pipeline(order_id: str):
-    """Full formation pipeline: payment confirmed → prepare → submit → approved → internal docs → complete."""
-    from document_generator import DocumentGenerator
-    from compliance import ComplianceEngine
+    """Payment confirmed -> internal docs -> manual/evidence-backed state filing queue."""
     from notifier import Notifier
     
     conn = get_db()
@@ -1065,94 +1309,36 @@ async def run_formation_pipeline(order_id: str):
     notifier = Notifier()
     
     try:
-        # Step 1: Prepare
-        add_status_update(order_id, "preparing", "Preparing your formation documents for state submission...")
+        # Step 1: Prepare and notify without claiming a state submission.
+        create_or_update_filing_job(order, status="paid")
+        add_status_update(order_id, "preparing", "Preparing your company documents and state filing packet...")
         await notifier.send_order_confirmation(order, formation_data)
         
-        # Step 2: File with state
-        add_status_update(order_id, "submitted_to_state", f"Filing submitted to {order['state']} Secretary of State portal.")
-        await notifier.send_filing_submitted(order, formation_data)
-        
-        # In production, this calls state_filing.py (scrapers/APIs)
-        from state_filing import StateFiler
-        filer = StateFiler()
-        filing_result = await filer.file(order["state"], formation_data, order_id)
-        
-        if filing_result.get("success"):
-            conn = get_db()
-            conn.execute("""
-                UPDATE orders SET status = 'state_approved', filing_confirmation = ?,
-                filed_at = datetime('now'), approved_at = datetime('now'),
-                updated_at = datetime('now') WHERE id = ?
-            """, (json.dumps(filing_result), order_id))
-            conn.commit()
-            conn.close()
-            add_status_update(order_id, "state_approved", f"Filing approved by State! Confirmation: {filing_result.get('confirmation_number', 'N/A')}")
-        else:
-            add_status_update(order_id, "awaiting_state", "Filing submitted and awaiting Secretary of State processing.")
-            return # Wait for manual or poll-based approval update
-
-        # Step 3: Generate Internal Documents
-        add_status_update(order_id, "generating_docs", "Generating internal company documents (Operating Agreement, Resolutions)...")
-        doc_gen = DocumentGenerator()
-        # Note: document_generator.py generate_all normally generates articles.
-        # Per TASK 3: remove generate_articles() call from flow.
-        # We assume doc_gen.generate_all has been updated or we call specific internal doc methods.
-        # If we can't change generate_all, we'll just have to deal with it, 
-        # but the task said "remove the call to generate_articles() from the flow."
-        docs = await doc_gen.generate_all(order_id, formation_data)
-        
-        # Store document references
-        conn = get_db()
-        for doc in docs:
-            conn.execute(
-                "INSERT INTO documents (order_id, doc_type, filename, file_path, format) VALUES (?, ?, ?, ?, ?)",
-                (order_id, doc["type"], doc["filename"], doc["path"], doc["format"])
-            )
-        conn.commit()
-        conn.close()
-        
-        # Step 4: Apply for EIN
-        add_status_update(order_id, "ein_pending", "Applying for EIN with the IRS...")
-        from ein_filing import EINFiler
-        ein_filer = EINFiler()
-        ein_result = await ein_filer.apply(formation_data, order_id)
-        
-        if ein_result.get("ein"):
-            conn = get_db()
-            conn.execute(
-                "UPDATE orders SET ein = ?, updated_at = datetime('now') WHERE id = ?",
-                (ein_result["ein"], order_id)
-            )
-            conn.commit()
-            conn.close()
-            add_status_update(order_id, "ein_received", f"EIN received: {ein_result['ein']}")
-            await notifier.send_ein_received(order, ein_result["ein"])
-        
-        # Step 5: Set up compliance calendar
-        compliance = ComplianceEngine()
-        deadlines = compliance.generate_calendar(order["state"], formation_data, order_id)
-        
-        conn = get_db()
-        for dl in deadlines:
-            conn.execute(
-                "INSERT INTO compliance_deadlines (order_id, deadline_type, due_date) VALUES (?, ?, ?)",
-                (order_id, dl["type"], dl["due_date"])
-            )
-        conn.commit()
-        conn.close()
-        
-        # Step 6: Mark complete
-        add_status_update(order_id, "complete", "All documents ready! Your entity is formed and internal documents are generated.")
+        # Step 2: Generate internal records immediately. These are not state evidence.
+        add_status_update(order_id, "generating_documents", "Generating internal company documents and filing data...")
+        await generate_internal_documents_async(order_id, formation_data)
         conn = get_db()
         conn.execute(
-            "UPDATE orders SET status = 'complete', documents_ready_at = datetime('now'), updated_at = datetime('now') WHERE id = ?",
+            "UPDATE orders SET documents_ready_at = datetime('now'), updated_at = datetime('now') WHERE id = ?",
             (order_id,)
         )
         conn.commit()
         conn.close()
-        
-        await notifier.send_documents_ready(order, formation_data)
+
+        # Step 3: Route state filing to the evidence-backed operator queue.
+        job = create_or_update_filing_job(order, status="ready_to_file")
+        add_filing_event(
+            order_id,
+            "ready_to_file",
+            f"{job.get('form_name', 'State filing')} is ready for operator submission through {job.get('portal_name') or job.get('portal_url')}.",
+        )
+        add_status_update(
+            order_id,
+            "ready_to_file",
+            f"Internal documents are ready. State filing is queued for verified submission to {order['state']}."
+        )
+        if hasattr(notifier, "send_manual_filing_required"):
+            await notifier.send_manual_filing_required(order, formation_data, job)
         
     except Exception as e:
         add_status_update(order_id, "error", f"Error in formation pipeline: {str(e)}")
@@ -1174,9 +1360,34 @@ async def get_order_status(order_id: str, token: str = ""):
         "SELECT deadline_type, due_date, status FROM compliance_deadlines WHERE order_id = ? ORDER BY due_date ASC",
         (order_id,)
     ).fetchall()
+
+    filing_job = conn.execute(
+        "SELECT * FROM filing_jobs WHERE order_id = ? AND action_type = 'formation' ORDER BY created_at DESC LIMIT 1",
+        (order_id,)
+    ).fetchone()
+    filing_events = conn.execute(
+        "SELECT event_type, message, actor, evidence_path, created_at FROM filing_events WHERE order_id = ? ORDER BY created_at ASC",
+        (order_id,)
+    ).fetchall()
+    filing_artifacts = conn.execute(
+        "SELECT artifact_type, filename, is_evidence, created_at FROM filing_artifacts WHERE order_id = ? ORDER BY created_at ASC",
+        (order_id,)
+    ).fetchall()
     conn.close()
     
     formation_data = json.loads(order["formation_data"])
+    action = get_filing_action(order["state"], order["entity_type"])
+    fee_breakdown = {
+        "platform_fee_cents": order.get("platform_fee_cents", PLATFORM_FEE),
+        "state_fee_cents": order.get("state_fee_cents", 0),
+        "gov_processing_fee_cents": order.get("gov_processing_fee_cents", 0),
+        "total_cents": order.get("total_cents", 0),
+        "processing_fee_rule": (action or {}).get("processing_fee"),
+    }
+    filing_job_payload = dict(filing_job) if filing_job else None
+    if filing_job_payload:
+        filing_job_payload["required_consents"] = parse_json_field(filing_job_payload.get("required_consents"), [])
+        filing_job_payload["required_evidence"] = parse_json_field(filing_job_payload.get("required_evidence"), {})
     
     return {
         "order_id": order_id,
@@ -1196,8 +1407,164 @@ async def get_order_status(order_id: str, token: str = ""):
         "documents_ready_at": order.get("documents_ready_at"),
         "platform_fee_cents": order.get("platform_fee_cents", PLATFORM_FEE),
         "state_fee_cents": order.get("state_fee_cents", 0),
+        "gov_processing_fee_cents": order.get("gov_processing_fee_cents", 0),
+        "fee_breakdown": fee_breakdown,
+        "filing_job": filing_job_payload,
+        "filing_events": [dict(e) for e in filing_events],
+        "filing_artifacts": [dict(a) for a in filing_artifacts],
         "total_cents": order.get("total_cents", 0)
     }
+
+@app.get("/api/admin/filing-queue")
+async def get_filing_queue(request: Request, state: str = "", status: str = "ready_to_file"):
+    """Operator queue for evidence-backed state filings."""
+    verify_admin_access(request)
+    clauses = []
+    params = []
+    if state:
+        clauses.append("j.state = ?")
+        params.append(state.upper())
+    if status:
+        clauses.append("j.status = ?")
+        params.append(status)
+    where = "WHERE " + " AND ".join(clauses) if clauses else ""
+    conn = get_db()
+    rows = conn.execute(f"""
+        SELECT
+            j.*,
+            o.business_name,
+            o.email,
+            o.created_at AS order_created_at,
+            o.paid_at,
+            o.documents_ready_at
+        FROM filing_jobs j
+        JOIN orders o ON o.id = j.order_id
+        {where}
+        ORDER BY COALESCE(o.paid_at, o.created_at) ASC
+    """, params).fetchall()
+    conn.close()
+    jobs = []
+    for row in rows:
+        item = dict(row)
+        item["required_consents"] = parse_json_field(item.get("required_consents"), [])
+        item["required_evidence"] = parse_json_field(item.get("required_evidence"), {})
+        jobs.append(item)
+    return {"jobs": jobs}
+
+
+@app.post("/api/admin/filing-jobs/{job_id}/evidence")
+async def add_filing_evidence(job_id: str, evidence: FilingEvidenceRequest, request: Request):
+    """Attach filing evidence or state correspondence to a filing job."""
+    verify_admin_access(request)
+    conn = get_db()
+    job = conn.execute("SELECT * FROM filing_jobs WHERE id = ?", (job_id,)).fetchone()
+    if not job:
+        conn.close()
+        raise HTTPException(status_code=404, detail="Filing job not found")
+    is_evidence = 1 if evidence.artifact_type in {"submitted_receipt", "approved_certificate"} else 0
+    conn.execute("""
+        INSERT INTO filing_artifacts (filing_job_id, order_id, artifact_type, filename, file_path, is_evidence)
+        VALUES (?, ?, ?, ?, ?, ?)
+    """, (job_id, job["order_id"], evidence.artifact_type, evidence.filename, evidence.file_path, is_evidence))
+    conn.execute("""
+        INSERT INTO filing_events (filing_job_id, order_id, event_type, message, actor, evidence_path)
+        VALUES (?, ?, ?, ?, 'operator', ?)
+    """, (
+        job_id,
+        job["order_id"],
+        f"evidence_{evidence.artifact_type}",
+        evidence.message or f"Added {evidence.artifact_type.replace('_', ' ')} evidence.",
+        evidence.file_path,
+    ))
+    conn.commit()
+    conn.close()
+    return {"status": "ok"}
+
+
+@app.post("/api/admin/filing-jobs/{job_id}/mark-submitted")
+async def mark_filing_submitted(job_id: str, evidence: FilingEvidenceRequest, request: Request):
+    """Mark a filing submitted only when submission evidence is captured."""
+    verify_admin_access(request)
+    if evidence.artifact_type != "submitted_receipt":
+        raise HTTPException(status_code=400, detail="submitted_receipt evidence is required")
+    conn = get_db()
+    job = conn.execute("SELECT * FROM filing_jobs WHERE id = ?", (job_id,)).fetchone()
+    if not job:
+        conn.close()
+        raise HTTPException(status_code=404, detail="Filing job not found")
+    order = conn.execute("SELECT * FROM orders WHERE id = ?", (job["order_id"],)).fetchone()
+    conn.execute("""
+        INSERT INTO filing_artifacts (filing_job_id, order_id, artifact_type, filename, file_path, is_evidence)
+        VALUES (?, ?, ?, ?, ?, 1)
+    """, (job_id, job["order_id"], evidence.artifact_type, evidence.filename, evidence.file_path))
+    conn.execute("""
+        UPDATE filing_jobs
+        SET status = 'submitted_to_state', submitted_at = datetime('now'), evidence_summary = ?, updated_at = datetime('now')
+        WHERE id = ?
+    """, (evidence.message or evidence.filename, job_id))
+    conn.execute("""
+        UPDATE orders SET status = 'submitted_to_state', filed_at = datetime('now'), updated_at = datetime('now')
+        WHERE id = ?
+    """, (job["order_id"],))
+    conn.execute(
+        "INSERT INTO status_updates (order_id, status, message) VALUES (?, 'submitted_to_state', ?)",
+        (job["order_id"], evidence.message or f"Submitted to {job['state']} with receipt evidence on file.")
+    )
+    conn.execute("""
+        INSERT INTO filing_events (filing_job_id, order_id, event_type, message, actor, evidence_path)
+        VALUES (?, ?, 'submitted_to_state', ?, 'operator', ?)
+    """, (job_id, job["order_id"], evidence.message or "State filing submitted with evidence.", evidence.file_path))
+    conn.commit()
+    conn.close()
+
+    from notifier import Notifier
+    await Notifier().send_filing_submitted(dict(order), json.loads(order["formation_data"]), evidence.file_path)
+    return {"status": "submitted_to_state"}
+
+
+@app.post("/api/admin/filing-jobs/{job_id}/mark-approved")
+async def mark_filing_approved(job_id: str, evidence: FilingEvidenceRequest, request: Request):
+    """Mark a state filing approved only when approval evidence is captured."""
+    verify_admin_access(request)
+    if evidence.artifact_type != "approved_certificate":
+        raise HTTPException(status_code=400, detail="approved_certificate evidence is required")
+    conn = get_db()
+    job = conn.execute("SELECT * FROM filing_jobs WHERE id = ?", (job_id,)).fetchone()
+    if not job:
+        conn.close()
+        raise HTTPException(status_code=404, detail="Filing job not found")
+    order = conn.execute("SELECT * FROM orders WHERE id = ?", (job["order_id"],)).fetchone()
+    conn.execute("""
+        INSERT INTO filing_artifacts (filing_job_id, order_id, artifact_type, filename, file_path, is_evidence)
+        VALUES (?, ?, ?, ?, ?, 1)
+    """, (job_id, job["order_id"], evidence.artifact_type, evidence.filename, evidence.file_path))
+    conn.execute("""
+        UPDATE filing_jobs
+        SET status = 'state_approved', approved_at = datetime('now'), evidence_summary = ?, updated_at = datetime('now')
+        WHERE id = ?
+    """, (evidence.message or evidence.filename, job_id))
+    conn.execute("""
+        UPDATE orders SET status = 'state_approved', approved_at = datetime('now'), updated_at = datetime('now')
+        WHERE id = ?
+    """, (job["order_id"],))
+    conn.execute(
+        "INSERT INTO status_updates (order_id, status, message) VALUES (?, 'state_approved', ?)",
+        (job["order_id"], evidence.message or f"{job['state']} approved the filing. Approval evidence is on file.")
+    )
+    conn.execute("""
+        INSERT INTO filing_events (filing_job_id, order_id, event_type, message, actor, evidence_path)
+        VALUES (?, ?, 'state_approved', ?, 'operator', ?)
+    """, (job_id, job["order_id"], evidence.message or "State filing approved with evidence.", evidence.file_path))
+    conn.commit()
+    conn.close()
+
+    from notifier import Notifier
+    await Notifier().send_formation_approved(
+        dict(order),
+        json.loads(order["formation_data"]),
+        [{"path": evidence.file_path, "name": evidence.filename}],
+    )
+    return {"status": "state_approved"}
 
 @app.get("/api/documents/{order_id}")
 async def get_documents(order_id: str, token: str = ""):

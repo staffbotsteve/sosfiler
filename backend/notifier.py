@@ -143,9 +143,10 @@ class Notifier:
   
   <p><strong>What happens next:</strong></p>
   <ul>
-    <li>📄 We generate your formation documents (Articles, Operating Agreement, Resolutions)</li>
-    <li>📋 We file with the {state_name} Secretary of State</li>
-    <li>🔢 We apply for your EIN with the IRS</li>
+    <li>📄 We generate your internal company documents, including your Operating Agreement and initial resolutions</li>
+    <li>📋 We prepare the state filing packet and route it for verified submission</li>
+    <li>✅ We update your dashboard when submission evidence and state approval documents are on file</li>
+    <li>🔢 We prepare EIN data and apply after the state approves the formation</li>
     <li>📅 We set up your compliance calendar</li>
   </ul>
   
@@ -161,24 +162,46 @@ class Notifier:
 
     async def send_filing_submitted(self, order: dict, formation_data: dict, receipt_path: str = None):
         """Send notification when filing is submitted to the state."""
+        if not receipt_path:
+            logger.warning("Blocked filing-submitted notification for %s because no receipt/evidence path was provided", order.get("id", ""))
+            return False
+
         content = f"""
 <div class="card">
   <h2>📋 Filing Submitted</h2>
   <p><span class="status-badge status-filing">Filing in Progress</span></p>
   <p>We've submitted the formation documents for <strong>{order.get('business_name', '')}</strong> to the {order.get('state', '')} Secretary of State.</p>
-  <p>Typical processing time: 1-5 business days depending on state.</p>
+  <p>Submission evidence is on file in the SOSFiler operator record. Typical processing time varies by state.</p>
   <a href="{DASHBOARD_URL}?order_id={order.get('id', '')}&token={order.get('token', '')}" class="btn">Track Status →</a>
 </div>"""
         
         html = self._base_template(content)
         attachments = []
-        if receipt_path:
+        if receipt_path and os.path.exists(receipt_path):
             attachments.append({'path': receipt_path, 'name': f"Filing_Receipt_{order.get('business_name', 'LLC')}.pdf"})
 
         # Notify Customer
         await self._send_email(order.get("email", ""), f"📋 Filing Submitted — {order.get('business_name', '')}", html, attachments=attachments)
         # Notify Admin
         await self._send_email(ADMIN_EMAIL, f"ADMN: Filing Submitted — {order.get('business_name', '')}", html, attachments=attachments)
+        return True
+
+    async def send_manual_filing_required(self, order: dict, formation_data: dict, filing_job: dict):
+        """Send internal notice when an order is ready for human/evidence-backed filing."""
+        content = f"""
+<div class="card">
+  <h2>Manual Filing Ready</h2>
+  <p><strong>Order:</strong> {order.get('id', '')}</p>
+  <p><strong>Business:</strong> {order.get('business_name', '')}</p>
+  <p><strong>Customer:</strong> {order.get('email', '')}</p>
+  <p><strong>State/Form:</strong> {filing_job.get('state', '')} {filing_job.get('form_name', 'Formation filing')}</p>
+  <p><strong>Portal:</strong> {filing_job.get('portal_name', '')} — {filing_job.get('portal_url', '')}</p>
+  <p><strong>Government total:</strong> ${(filing_job.get('total_government_cents', 0) or 0) / 100:.2f}</p>
+  <p>Submit only through the official portal, then attach receipt evidence before changing the customer-facing status.</p>
+</div>"""
+
+        html = self._base_template(content)
+        await self._send_email(ADMIN_EMAIL, f"ACTION: Manual Filing Ready — {order.get('business_name', '')}", html)
 
     async def send_formation_approved(self, order: dict, formation_data: dict, approved_docs: list = None):
         """Send notification when formation is approved and Statement of Organizer is ready."""
@@ -197,7 +220,8 @@ class Notifier:
         attachments = []
         if approved_docs:
             for doc in approved_docs:
-                attachments.append({'path': doc['path'], 'name': doc['name']})
+                if os.path.exists(doc['path']):
+                    attachments.append({'path': doc['path'], 'name': doc['name']})
 
         # Notify Customer
         await self._send_email(order.get("email", ""), f"✅ LLC Approved — {order.get('business_name', '')}", html, attachments=attachments)

@@ -1,0 +1,44 @@
+{
+  "TX": {
+    "LLC": {
+      "formation": {
+        "state": "TX",
+        "entity_type": "LLC",
+        "action_type": "formation",
+        "office": "Texas Secretary of State",
+        "form_name": "Form 205 - Certificate of Formation, Limited Liability Company",
+        "portal_name": "SOSDirect / SOSUpload",
+        "portal_url": "https://www.sos.state.tx.us/corp/options.shtml",
+        "automation_level": "manual_review",
+        "filing_method": "web_portal",
+        "state_fee_cents": 30000,
+        "processing_fee": {
+          "type": "percent",
+          "rate": 0.027,
+          "applies_to": "state_fee",
+          "label": "Texas credit card convenience fee",
+          "source_note": "Texas SOS states credit card fees are subject to a statutorily authorized convenience fee of 2.7 percent of total fees."
+        },
+        "expected_processing_time": "Real-time to several business days depending on SOSDirect/SOSUpload path and state review.",
+        "required_consents": [
+          "Customer authorization for SOSFiler to prepare and submit formation documents",
+          "Registered agent consent in written or electronic form"
+        ],
+        "required_evidence_for_submitted": [
+          "Texas SOSDirect/SOSUpload receipt or confirmation",
+          "Submitted Form 205 copy or filing image"
+        ],
+        "required_evidence_for_approved": [
+          "Texas Certificate of Filing",
+          "File-stamped Certificate of Formation"
+        ],
+        "source_urls": [
+          "https://www.sos.state.tx.us/corp/instructions/205.shtml",
+          "https://www.sos.state.tx.us/corp/options.shtml",
+          "https://www.sos.state.tx.us/corp/sosda/index.shtml?vm=r"
+        ],
+        "last_verified": "2026-05-03"
+      }
+    }
+  }
+}

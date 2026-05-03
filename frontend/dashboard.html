@@ -131,9 +131,9 @@ a:hover { color: var(--accent); text-decoration: none; }
 .header-card .biz-meta { color: var(--muted); font-size: 14px; margin-top: 4px; }
 .status-badge { display: inline-block; padding: 6px 16px; border-radius: 20px; font-size: 13px; font-weight: 600; }
 .status-pending_payment { background: rgba(255,107,0,0.15); color: var(--yellow); }
-.status-paid, .status-generating_documents { background: rgba(204,255,0,0.1); color: var(--accent); }
-.status-filing, .status-processing { background: rgba(204,255,0,0.1); color: var(--accent); }
-.status-approved, .status-complete { background: rgba(57,255,20,0.15); color: var(--green); }
+.status-paid, .status-preparing, .status-generating_documents, .status-ready_to_file { background: rgba(204,255,0,0.1); color: var(--accent); }
+.status-filing, .status-processing, .status-submitted_to_state, .status-awaiting_state { background: rgba(204,255,0,0.1); color: var(--accent); }
+.status-approved, .status-state_approved, .status-complete { background: rgba(57,255,20,0.15); color: var(--green); }
 .status-error, .status-failed { background: rgba(255,51,102,0.15); color: var(--red); }
 .status-ein_pending, .status-ein_received { background: rgba(167,139,250,0.15); color: var(--purple); }
 
@@ -276,6 +276,11 @@ a:hover { color: var(--accent); text-decoration: none; }
         <div class="timeline" id="timeline">
           <div class="loading"><div class="spinner"></div></div>
         </div>
+      </div>
+
+      <div class="card full" id="filingInfoCard" style="display:none;">
+        <h3>State Filing Details</h3>
+        <div id="filingInfo"></div>
       </div>
       
       <!-- EIN -->
@@ -444,10 +449,15 @@ function renderDashboard(data) {
   const statusLabels = {
     'pending_payment': '⏳ Awaiting Payment',
     'paid': '✅ Paid',
+    'preparing': 'Preparing Filing Packet',
     'generating_documents': '📄 Generating Documents',
+    'ready_to_file': 'Ready for State Filing',
     'filing': '📋 Filing with State',
     'processing': '⏳ Processing',
+    'submitted_to_state': 'Submitted to State',
+    'awaiting_state': 'Awaiting State Review',
     'approved': '✅ Approved',
+    'state_approved': 'State Approved',
     'ein_pending': '🔢 EIN Pending',
     'ein_received': '🔢 EIN Received',
     'complete': '🎉 Complete',
@@ -492,12 +502,15 @@ function renderDashboard(data) {
     <div class="info-row"><span class="label">Name</span><span class="value">${data.business_name}</span></div>
     <div class="info-row"><span class="label">Type</span><span class="value">${data.entity_type}</span></div>
     <div class="info-row"><span class="label">State</span><span class="value">${stateNames[data.state] || data.state}</span></div>
-    <div class="info-row"><span class="label">Formed</span><span class="value">${formatDate(data.approved_at || data.created_at)}</span></div>
+    <div class="info-row"><span class="label">Created</span><span class="value">${formatDate(data.created_at)}</span></div>
+    <div class="info-row"><span class="label">State Approved</span><span class="value">${formatDate(data.approved_at)}</span></div>
     <div class="info-row"><span class="label">EIN</span><span class="value">${data.ein || 'Pending'}</span></div>
-    <div class="info-row"><span class="label">Registered Agent</span><span class="value" style="color: var(--green);">✓ Active (SOSFiler)</span></div>`;
+    <div class="info-row"><span class="label">Registered Agent</span><span class="value">On file with order</span></div>`;
   
   // Fee Receipt
   renderFeeReceipt(data);
+
+  renderFilingInfo(data);
   
   // Compliance
   renderCompliance(data.compliance_deadlines || []);
@@ -512,18 +525,37 @@ function renderFeeReceipt(data) {
     el.innerHTML = '<div class="empty" style="font-size:13px;">Receipt available after payment.</div>';
     return;
   }
-  const stateFeeMap = {"AL":200,"AK":250,"AZ":50,"AR":45,"CA":70,"CO":50,"CT":120,"DE":90,"DC":99,"FL":125,"GA":100,"HI":50,"ID":100,"IL":150,"IN":95,"IA":50,"KS":160,"KY":40,"LA":100,"ME":175,"MD":100,"MA":500,"MI":50,"MN":155,"MS":50,"MO":50,"MT":70,"NE":105,"NV":75,"NH":100,"NJ":125,"NM":50,"NY":200,"NC":125,"ND":135,"OH":99,"OK":100,"OR":100,"PA":125,"RI":150,"SC":110,"SD":150,"TN":300,"TX":300,"UT":54,"VT":125,"VA":100,"WA":200,"WV":100,"WI":130,"WY":100};
-  const sFee = stateFeeMap[data.state] || 0;
-  const serviceFee = 49;
-  const total = serviceFee + sFee;
+  const serviceFee = (data.platform_fee_cents || 0) / 100;
+  const sFee = (data.state_fee_cents || 0) / 100;
+  const processingFee = (data.gov_processing_fee_cents || 0) / 100;
+  const total = (data.total_cents || 0) / 100;
   const sName = stateNames[data.state] || data.state;
   
   el.innerHTML = `
-    <div class="info-row"><span class="label">SOSFiler service fee</span><span class="value">$${serviceFee}.00</span></div>
-    <div class="info-row"><span class="label">State of ${sName} filing fee</span><span class="value">$${sFee}.00</span></div>
+    <div class="info-row"><span class="label">SOSFiler service fee</span><span class="value">${formatMoney(serviceFee)}</span></div>
+    <div class="info-row"><span class="label">State of ${sName} filing fee</span><span class="value">${formatMoney(sFee)}</span></div>
+    ${processingFee > 0 ? `<div class="info-row"><span class="label">State card/convenience fee</span><span class="value">${formatMoney(processingFee)}</span></div>` : ''}
     <div style="font-size:11px;color:var(--muted);padding:2px 0 8px;">Government charge passed through at cost</div>
-    <div class="info-row" style="font-weight:700;"><span class="label" style="color:#fff;">Total</span><span class="value" style="color:var(--accent);">$${total}.00</span></div>
+    <div class="info-row" style="font-weight:700;"><span class="label" style="color:#fff;">Total</span><span class="value" style="color:var(--accent);">${formatMoney(total)}</span></div>
     <div style="font-size:11px;color:var(--muted);margin-top:8px;">Paid ${formatDate(data.paid_at)}</div>`;
+}
+
+function renderFilingInfo(data) {
+  const card = document.getElementById('filingInfoCard');
+  const el = document.getElementById('filingInfo');
+  const job = data.filing_job;
+  if (!job) {
+    card.style.display = 'none';
+    return;
+  }
+  card.style.display = '';
+  const evidence = data.filing_artifacts || [];
+  el.innerHTML = `
+    <div class="info-row"><span class="label">Office</span><span class="value">${job.office || `${data.state} Secretary of State`}</span></div>
+    <div class="info-row"><span class="label">Form</span><span class="value">${job.form_name || 'Formation filing'}</span></div>
+    <div class="info-row"><span class="label">Submission Method</span><span class="value">${job.portal_name || job.filing_method || 'Operator review'}</span></div>
+    <div class="info-row"><span class="label">Filing Status</span><span class="value">${job.status || data.status}</span></div>
+    <div class="info-row"><span class="label">Evidence on File</span><span class="value">${evidence.length ? evidence.map(a => a.artifact_type.replace(/_/g, ' ')).join(', ') : 'Pending'}</span></div>`;
 }
 
 function renderDocuments(docs) {
@@ -593,17 +625,22 @@ function renderCompliance(deadlines) {
 function renderChecklist(data) {
   const el = document.getElementById('checklist');
   const state = data.state;
+  const paidStatuses = ['paid','preparing','generating_documents','ready_to_file','submitted_to_state','awaiting_state','state_approved','ein_pending','ein_received','complete','approved'];
+  const docsStatuses = ['ready_to_file','submitted_to_state','awaiting_state','state_approved','ein_pending','ein_received','complete','approved'];
+  const filedStatuses = ['submitted_to_state','awaiting_state','state_approved','ein_pending','ein_received','complete','approved'];
+  const approvedStatuses = ['state_approved','ein_pending','ein_received','complete','approved'];
   
   const items = [
-    { done: ['paid','complete','approved'].includes(data.status), text: '💳 Pay for formation' },
-    { done: ['complete','approved','filing','processing'].includes(data.status), text: '📄 Formation documents generated' },
-    { done: ['complete','approved'].includes(data.status), text: `📋 Filed with ${stateNames[state] || state} Secretary of State` },
+    { done: paidStatuses.includes(data.status), text: '💳 Pay for formation' },
+    { done: !!data.documents_ready_at || docsStatuses.includes(data.status), text: '📄 Internal company documents generated' },
+    { done: filedStatuses.includes(data.status), text: `📋 Filed with ${stateNames[state] || state} Secretary of State` },
+    { done: approvedStatuses.includes(data.status), text: '✅ Receive state approval documents' },
     { done: !!data.ein, text: '🔢 Receive EIN from IRS' },
     { done: false, text: '🏦 Open a business bank account (bring Articles + EIN letter)' },
     { done: false, text: '📊 Set up business accounting (Wave, QuickBooks, etc.)' },
     { done: false, text: `💼 Get business insurance (if applicable)` },
     { done: false, text: `📋 Register for state/local business licenses` },
-    { done: false, text: '📝 File BOI Report with FinCEN (within 90 days)' },
+    { done: false, text: '📝 Review federal reporting requirements that apply to your company' },
   ];
   
   // Add state-specific items
@@ -624,6 +661,10 @@ function formatDate(dateStr) {
     const d = new Date(dateStr);
     return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
   } catch (e) { return dateStr; }
+}
+
+function formatMoney(value) {
+  return `$${Number(value || 0).toFixed(2)}`;
 }
 
 // --- Additional Services ---
