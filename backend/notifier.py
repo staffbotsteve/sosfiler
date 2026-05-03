@@ -186,6 +186,24 @@ class Notifier:
         await self._send_email(ADMIN_EMAIL, f"ADMN: Filing Submitted — {order.get('business_name', '')}", html, attachments=attachments)
         return True
 
+    async def send_admin_filing_submitted(self, order: dict, filing_job: dict, receipt_path: str = None, message: str = ""):
+        """Send an internal-only state submission notice."""
+        content = f"""
+<div class="card">
+  <h2>Filing Submitted - Admin Only</h2>
+  <p><strong>Order:</strong> {order.get('id', '')}</p>
+  <p><strong>Business:</strong> {order.get('business_name', '')}</p>
+  <p><strong>Customer:</strong> {order.get('email', '')}</p>
+  <p><strong>State/Form:</strong> {filing_job.get('state', '')} {filing_job.get('form_name', 'Formation filing')}</p>
+  <p><strong>Evidence:</strong> {receipt_path or 'On file'}</p>
+  <p>{message or 'The filing was marked submitted with evidence. Customer notification was suppressed.'}</p>
+</div>"""
+        html = self._base_template(content)
+        attachments = []
+        if receipt_path and os.path.exists(receipt_path):
+            attachments.append({'path': receipt_path, 'name': f"Filing_Receipt_{order.get('business_name', 'LLC')}.pdf"})
+        await self._send_email(ADMIN_EMAIL, f"ADMN ONLY: Filing Submitted — {order.get('business_name', '')}", html, attachments=attachments)
+
     async def send_manual_filing_required(self, order: dict, formation_data: dict, filing_job: dict):
         """Send internal notice when an order is ready for human/evidence-backed filing."""
         content = f"""
@@ -227,6 +245,24 @@ class Notifier:
         await self._send_email(order.get("email", ""), f"✅ LLC Approved — {order.get('business_name', '')}", html, attachments=attachments)
         # Notify Admin
         await self._send_email(ADMIN_EMAIL, f"ADMN: LLC Approved — {order.get('business_name', '')}", html, attachments=attachments)
+
+    async def send_admin_formation_approved(self, order: dict, filing_job: dict, approved_path: str = None, message: str = ""):
+        """Send an internal-only state approval notice."""
+        content = f"""
+<div class="card">
+  <h2>Formation Approved - Admin Only</h2>
+  <p><strong>Order:</strong> {order.get('id', '')}</p>
+  <p><strong>Business:</strong> {order.get('business_name', '')}</p>
+  <p><strong>Customer:</strong> {order.get('email', '')}</p>
+  <p><strong>State/Form:</strong> {filing_job.get('state', '')} {filing_job.get('form_name', 'Formation filing')}</p>
+  <p><strong>Approval Evidence:</strong> {approved_path or 'On file'}</p>
+  <p>{message or 'The filing was marked approved with evidence. Customer notification was suppressed.'}</p>
+</div>"""
+        html = self._base_template(content)
+        attachments = []
+        if approved_path and os.path.exists(approved_path):
+            attachments.append({'path': approved_path, 'name': f"Approval_{order.get('business_name', 'LLC')}.pdf"})
+        await self._send_email(ADMIN_EMAIL, f"ADMN ONLY: Formation Approved — {order.get('business_name', '')}", html, attachments=attachments)
 
     async def send_documents_ready(self, order: dict, formation_data: dict):
         """Send notification when all documents are ready."""

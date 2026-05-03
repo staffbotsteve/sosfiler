@@ -409,6 +409,7 @@ class FilingEvidenceRequest(BaseModel):
     filename: str
     file_path: str
     message: str = ""
+    notify_customer: bool = False
 
 
 # --- Auth helpers ---
@@ -1518,8 +1519,12 @@ async def mark_filing_submitted(job_id: str, evidence: FilingEvidenceRequest, re
     conn.close()
 
     from notifier import Notifier
-    await Notifier().send_filing_submitted(dict(order), json.loads(order["formation_data"]), evidence.file_path)
-    return {"status": "submitted_to_state"}
+    notifier = Notifier()
+    if evidence.notify_customer:
+        await notifier.send_filing_submitted(dict(order), json.loads(order["formation_data"]), evidence.file_path)
+    else:
+        await notifier.send_admin_filing_submitted(dict(order), dict(job), evidence.file_path, evidence.message)
+    return {"status": "submitted_to_state", "customer_notified": evidence.notify_customer}
 
 
 @app.post("/api/admin/filing-jobs/{job_id}/mark-approved")
@@ -1559,12 +1564,16 @@ async def mark_filing_approved(job_id: str, evidence: FilingEvidenceRequest, req
     conn.close()
 
     from notifier import Notifier
-    await Notifier().send_formation_approved(
-        dict(order),
-        json.loads(order["formation_data"]),
-        [{"path": evidence.file_path, "name": evidence.filename}],
-    )
-    return {"status": "state_approved"}
+    notifier = Notifier()
+    if evidence.notify_customer:
+        await notifier.send_formation_approved(
+            dict(order),
+            json.loads(order["formation_data"]),
+            [{"path": evidence.file_path, "name": evidence.filename}],
+        )
+    else:
+        await notifier.send_admin_formation_approved(dict(order), dict(job), evidence.file_path, evidence.message)
+    return {"status": "state_approved", "customer_notified": evidence.notify_customer}
 
 @app.get("/api/documents/{order_id}")
 async def get_documents(order_id: str, token: str = ""):
