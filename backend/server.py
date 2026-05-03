@@ -606,6 +606,20 @@ def create_jwt_token(user_id: str):
     }
     return jwt.encode(payload, JWT_SECRET, algorithm="HS256")
 
+def link_orders_to_user_by_email(conn, user_id: str, email: str):
+    """Attach pre-login orders to a customer account when the emails match."""
+    if not user_id or not email:
+        return
+    conn.execute(
+        """
+        UPDATE orders
+        SET user_id = ?, updated_at = datetime('now')
+        WHERE lower(email) = lower(?)
+          AND (user_id IS NULL OR user_id = '')
+        """,
+        (user_id, email),
+    )
+
 def get_current_user(request: Request):
     auth_header = request.headers.get("Authorization")
     if not auth_header or not auth_header.startswith("Bearer "):
@@ -626,6 +640,7 @@ def handle_oauth_login(email: str, name: str, provider: str, provider_id: str):
     user = conn.execute("SELECT * FROM users WHERE email = ?", (email,)).fetchone()
     if user:
         user_id = user["id"]
+        link_orders_to_user_by_email(conn, user_id, email)
         conn.execute("UPDATE users SET last_login = datetime('now') WHERE id = ?", (user_id,))
     else:
         user_id = f"USR-{uuid.uuid4().hex[:12].upper()}"
@@ -633,6 +648,7 @@ def handle_oauth_login(email: str, name: str, provider: str, provider_id: str):
             "INSERT INTO users (id, email, name, auth_provider, auth_provider_id, last_login) VALUES (?, ?, ?, ?, ?, datetime('now'))",
             (user_id, email, name, provider, provider_id)
         )
+        link_orders_to_user_by_email(conn, user_id, email)
     conn.commit()
     conn.close()
     return create_jwt_token(user_id)
@@ -652,6 +668,7 @@ async def auth_signup(data: AuthSignupRequest):
         "INSERT INTO users (id, email, name, auth_provider, password_hash, last_login) VALUES (?, ?, ?, 'email', ?, datetime('now'))",
         (user_id, data.email, data.name, password_hash)
     )
+    link_orders_to_user_by_email(conn, user_id, data.email)
     conn.commit()
     conn.close()
     
@@ -1868,13 +1885,74 @@ async def get_user_orders(request: Request):
         raise HTTPException(status_code=401, detail="Not authenticated")
     
     conn = get_db()
+    link_orders_to_user_by_email(conn, user["id"], user["email"])
+    conn.commit()
     orders = conn.execute(
-        "SELECT id, entity_type, state, business_name, status, created_at, total_cents FROM orders WHERE user_id = ? ORDER BY created_at DESC",
-        (user["id"],)
+        """
+        SELECT
+            o.id,
+            o.entity_type,
+            o.state,
+            o.business_name,
+            o.status,
+            o.created_at,
+            o.paid_at,
+            o.documents_ready_at,
+            o.total_cents,
+            COUNT(d.id) AS document_count
+        FROM orders o
+        LEFT JOIN documents d ON d.order_id = o.id
+        WHERE o.user_id = ?
+           OR lower(o.email) = lower(?)
+        GROUP BY o.id
+        ORDER BY COALESCE(o.paid_at, o.created_at) DESC
+        """,
+        (user["id"], user["email"])
     ).fetchall()
     conn.close()
     
     return {"orders": [dict(o) for o in orders]}
+
+@app.get("/api/user/orders/{order_id}")
+async def get_user_order_detail(order_id: str, request: Request):
+    user = get_current_user(request)
+    if not user:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+
+    conn = get_db()
+    link_orders_to_user_by_email(conn, user["id"], user["email"])
+    conn.commit()
+    order = conn.execute(
+        """
+        SELECT *
+        FROM orders
+        WHERE id = ?
+          AND (user_id = ? OR lower(email) = lower(?))
+        """,
+        (order_id, user["id"], user["email"]),
+    ).fetchone()
+    if not order:
+        conn.close()
+        raise HTTPException(status_code=404, detail="Order not found")
+    docs = conn.execute(
+        "SELECT doc_type, filename, format, created_at FROM documents WHERE order_id = ? ORDER BY created_at",
+        (order_id,),
+    ).fetchall()
+    filing_job = conn.execute(
+        "SELECT * FROM filing_jobs WHERE order_id = ? ORDER BY created_at DESC LIMIT 1",
+        (order_id,),
+    ).fetchone()
+    conn.close()
+
+    payload = dict(order)
+    payload["formation_data"] = parse_json_field(payload.get("formation_data"), {})
+    payload["documents"] = [dict(d) for d in docs]
+    payload["filing_job"] = dict(filing_job) if filing_job else None
+    if payload["filing_job"]:
+        payload["filing_job"]["required_consents"] = parse_json_field(payload["filing_job"].get("required_consents"), [])
+        payload["filing_job"]["required_evidence"] = parse_json_field(payload["filing_job"].get("required_evidence"), {})
+    payload.pop("token", None)
+    return {"order": payload}
 
 # --- Health check ---
 @app.get("/api/health")

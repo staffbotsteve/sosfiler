@@ -24,6 +24,54 @@
           "Customer authorization for SOSFiler to prepare and submit formation documents",
           "Registered agent consent in written or electronic form"
         ],
+        "pre_submission_blockers": [
+          {
+            "code": "missing_texas_registered_agent",
+            "message": "Texas LLC formations require a registered agent who is a Texas resident or authorized organization and a Texas street/building registered office address."
+          },
+          {
+            "code": "missing_registered_agent_consent",
+            "message": "Registered agent consent must be retained before SOSFiler submits the filing."
+          }
+        ],
+        "portal_field_sequence": [
+          {
+            "page": "Business Organizations Menu",
+            "fields": [
+              "entity_type=Domestic Limited Liability Company (LLC)",
+              "filing_type=Certificate of Formation"
+            ]
+          },
+          {
+            "page": "Article 1 - Entity Name and Type",
+            "fields": [
+              "organization_type=Limited Liability Company",
+              "entity_name"
+            ]
+          },
+          {
+            "page": "Initial Mailing Address",
+            "fields": [
+              "mailing_address_line1",
+              "mailing_address_line2",
+              "mailing_city",
+              "mailing_state",
+              "mailing_zip",
+              "mailing_country"
+            ]
+          },
+          {
+            "page": "Article 2 - Registered Agent and Office",
+            "fields": [
+              "registered_agent_business_name_or_individual_name",
+              "registered_office_street_address",
+              "registered_office_city",
+              "registered_office_state=TX",
+              "registered_office_zip",
+              "registered_agent_consent_status"
+            ]
+          }
+        ],
         "required_evidence_for_submitted": [
           "Texas SOSDirect/SOSUpload receipt or confirmation",
           "Submitted Form 205 copy or filing image"
