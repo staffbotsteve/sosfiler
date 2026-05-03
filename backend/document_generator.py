@@ -48,6 +48,9 @@ class DocumentGenerator:
 
         entity_type = data.get("entity_type", "LLC")
 
+        authorization = await self.generate_filing_authorization(order_id, data)
+        docs.extend(authorization)
+
         if entity_type == "LLC":
             # 1. Operating Agreement
             oa = await self.generate_operating_agreement(order_id, data)
@@ -190,6 +193,8 @@ class DocumentGenerator:
             "llc_name": data.get("business_name", ""),
             "entity_name": data.get("business_name", ""),
             "entity_type": entity_type,
+            "customer_name": data.get("customer_name") or primary_member.get("name", ""),
+            "customer_email": data.get("email", ""),
             "state": state,
             "state_name": state_names.get(state, state),
             "filing_office": filing_offices.get(state, f"{state} Secretary of State"),
@@ -197,6 +202,7 @@ class DocumentGenerator:
             "principal_address": f"{data.get('principal_address', '')}, {data.get('principal_city', '')}, {data.get('principal_state', '')} {data.get('principal_zip', '')}",
             "mailing_address": data.get("mailing_address") or f"{data.get('principal_address', '')}, {data.get('principal_city', '')}, {data.get('principal_state', '')} {data.get('principal_zip', '')}",
             "registered_agent_name": data.get("ra_name") or "SOSFiler Registered Agent Services",
+            "self_registered_agent": data.get("ra_choice") == "self",
             "registered_agent_address": (
                 f"{data.get('ra_address', '')}, {data.get('ra_city', '')}, {data.get('ra_state', '')} {data.get('ra_zip', '')}"
                 if data.get("ra_choice") == "self" and data.get("ra_address")
@@ -312,6 +318,17 @@ class DocumentGenerator:
         }
         
         return context
+
+    async def generate_filing_authorization(self, order_id: str, data: dict) -> list[dict]:
+        """Generate customer authorization for SOSFiler to prepare and submit filings."""
+        return await self._generate_markdown_pdf_doc(
+            order_id,
+            data,
+            "filing_authorization.md",
+            "filing_authorization",
+            "filing_authorization",
+            "Filing Authorization",
+        )
 
     async def generate_articles(self, order_id: str, data: dict) -> list[dict]:
         """Generate Articles of Organization."""
