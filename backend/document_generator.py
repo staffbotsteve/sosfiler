@@ -34,35 +34,46 @@ class DocumentGenerator:
     async def generate_all(self, order_id: str, data: dict, skip_articles: bool = True) -> list[dict]:
         """Generate all internal documents for an order. Returns list of doc metadata.
         
-        Note: Articles of Organization are NOT generated — the state returns those.
-        We only generate internal company documents:
-        - Operating Agreement
-        - Initial Resolutions
-        - Meeting Minutes
-        - Member Certificates
-        - Statement of Organizer
-        - EIN Application Data (SS-4)
+        Note: state-approved formation documents are returned by the state.
+        We generate internal governance documents:
+        - LLC: Operating Agreement, Initial Resolutions, Meeting Minutes, Member Certificates
+        - Corporation: Bylaws, Initial Board Resolutions, Incorporator Statement, Stock Certificates
+        - Nonprofit: Bylaws, Initial Board Resolutions, Conflict Policy, Incorporator Statement
+        - All: EIN Application Data (SS-4)
         """
         order_dir = self.docs_dir / order_id
         order_dir.mkdir(exist_ok=True)
 
         docs = []
 
-        # 1. Operating Agreement
-        oa = await self.generate_operating_agreement(order_id, data)
-        docs.extend(oa)
+        entity_type = data.get("entity_type", "LLC")
 
-        # 2. Initial Resolutions
-        resolutions = await self.generate_initial_resolutions(order_id, data)
-        docs.extend(resolutions)
+        if entity_type == "LLC":
+            # 1. Operating Agreement
+            oa = await self.generate_operating_agreement(order_id, data)
+            docs.extend(oa)
 
-        # 3. Meeting Minutes
-        minutes = await self.generate_meeting_minutes(order_id, data)
-        docs.extend(minutes)
+            # 2. Initial Resolutions
+            resolutions = await self.generate_initial_resolutions(order_id, data)
+            docs.extend(resolutions)
 
-        # 4. Member Certificates
-        certs = await self.generate_member_certificates(order_id, data)
-        docs.extend(certs)
+            # 3. Meeting Minutes
+            minutes = await self.generate_meeting_minutes(order_id, data)
+            docs.extend(minutes)
+
+            # 4. Member Certificates
+            certs = await self.generate_member_certificates(order_id, data)
+            docs.extend(certs)
+        elif entity_type in ("C-Corp", "S-Corp"):
+            docs.extend(await self.generate_corporate_bylaws(order_id, data))
+            docs.extend(await self.generate_corporate_initial_resolutions(order_id, data))
+            docs.extend(await self.generate_incorporator_statement(order_id, data))
+            docs.extend(await self.generate_stock_certificates(order_id, data))
+        elif entity_type == "Nonprofit":
+            docs.extend(await self.generate_nonprofit_bylaws(order_id, data))
+            docs.extend(await self.generate_nonprofit_initial_resolutions(order_id, data))
+            docs.extend(await self.generate_conflict_of_interest_policy(order_id, data))
+            docs.extend(await self.generate_incorporator_statement(order_id, data))
 
         # 5. EIN Application Data (SS-4)
         ss4 = await self.generate_ss4_data(order_id, data)
@@ -156,6 +167,7 @@ class DocumentGenerator:
         """Build template context from formation data."""
         members = data.get("members", [])
         state = data.get("state", "")
+        entity_type = data.get("entity_type", "LLC")
         
         # State names mapping
         state_names = {
@@ -176,6 +188,8 @@ class DocumentGenerator:
         
         context = {
             "llc_name": data.get("business_name", ""),
+            "entity_name": data.get("business_name", ""),
+            "entity_type": entity_type,
             "state": state,
             "state_name": state_names.get(state, state),
             "filing_office": filing_offices.get(state, f"{state} Secretary of State"),
@@ -217,6 +231,33 @@ class DocumentGenerator:
                 }
                 for m in members
             ],
+            "shareholders": [
+                {
+                    "name": m.get("name", ""),
+                    "address": f"{m.get('address', '')}, {m.get('city', '')}, {m.get('state', '')} {m.get('zip_code', '')}",
+                    "shares": int(m.get("shares") or max(1, round(float(m.get("ownership_pct", 0)) * 10))),
+                    "ownership_pct": m.get("ownership_pct", 0),
+                    "title": "Shareholder"
+                }
+                for m in members
+            ],
+            "directors": [
+                {
+                    "name": m.get("name", ""),
+                    "address": f"{m.get('address', '')}, {m.get('city', '')}, {m.get('state', '')} {m.get('zip_code', '')}",
+                    "title": "Director"
+                }
+                for m in members
+            ],
+            "officers": [
+                {"name": primary_member.get("name", ""), "office": "President"},
+                {"name": primary_member.get("name", ""), "office": "Secretary"},
+                {"name": primary_member.get("name", ""), "office": "Treasurer"},
+            ] if primary_member else [],
+            "authorized_shares": data.get("authorized_shares", 1000),
+            "par_value": data.get("par_value", "No par value"),
+            "board_quorum": "a majority of directors then in office",
+            "shareholder_quorum": "a majority of shares entitled to vote",
             "managers": data.get("managers", []),
             "initial_contribution": "To Be Determined",
             "successor_name": "To Be Designated",
@@ -226,10 +267,16 @@ class DocumentGenerator:
             "s_corp_election": data.get("entity_type") in ("S-Corp",),
             "bank_name": "To Be Selected",
             "authorized_signers": [
-                {"name": m.get("name", ""), "title": "Member"} for m in members
+                {"name": m.get("name", ""), "title": "Member" if entity_type == "LLC" else "Officer"} for m in members
             ],
             "signers": [
                 {"name": m.get("name", ""), "title": "Member"} for m in members
+            ],
+            "corporate_signers": [
+                {"name": m.get("name", ""), "title": "Director"} for m in members
+            ],
+            "nonprofit_signers": [
+                {"name": m.get("name", ""), "title": "Director"} for m in members
             ],
             "attendees": [
                 {"name": m.get("name", ""), "title": "Member", "ownership_pct": m.get("ownership_pct", 0)} for m in members
@@ -410,6 +457,115 @@ class DocumentGenerator:
             docs.append({"type": "member_certificate", "filename": f"member_certificate_{safe_name}.pdf", "path": str(pdf_path), "format": "pdf"})
         
         return docs
+
+    async def _generate_markdown_pdf_doc(
+        self,
+        order_id: str,
+        data: dict,
+        template_name: str,
+        doc_type: str,
+        filename_base: str,
+        title: str,
+    ) -> list[dict]:
+        """Render one markdown template to markdown and PDF outputs."""
+        template = self._load_template(template_name)
+        context = self._build_context(data)
+        content = self._render_template(template, context)
+
+        docs = []
+        md_path = self.docs_dir / order_id / f"{filename_base}.md"
+        md_path.parent.mkdir(parents=True, exist_ok=True)
+        md_path.write_text(content)
+        docs.append({"type": doc_type, "filename": f"{filename_base}.md", "path": str(md_path), "format": "markdown"})
+
+        pdf_path = self.docs_dir / order_id / f"{filename_base}.pdf"
+        self._markdown_to_pdf(content, str(pdf_path), f"{title} — {context['entity_name']}")
+        docs.append({"type": doc_type, "filename": f"{filename_base}.pdf", "path": str(pdf_path), "format": "pdf"})
+        return docs
+
+    async def generate_corporate_bylaws(self, order_id: str, data: dict) -> list[dict]:
+        """Generate corporate bylaws for C-Corp and S-Corp formations."""
+        return await self._generate_markdown_pdf_doc(
+            order_id, data, "corporate_bylaws.md", "corporate_bylaws", "corporate_bylaws", "Corporate Bylaws"
+        )
+
+    async def generate_corporate_initial_resolutions(self, order_id: str, data: dict) -> list[dict]:
+        """Generate initial board resolutions for corporations."""
+        return await self._generate_markdown_pdf_doc(
+            order_id,
+            data,
+            "corporate_initial_resolutions.md",
+            "corporate_initial_resolutions",
+            "corporate_initial_resolutions",
+            "Initial Board Resolutions",
+        )
+
+    async def generate_incorporator_statement(self, order_id: str, data: dict) -> list[dict]:
+        """Generate incorporator statement for corporation/nonprofit records."""
+        return await self._generate_markdown_pdf_doc(
+            order_id,
+            data,
+            "incorporator_statement.md",
+            "incorporator_statement",
+            "incorporator_statement",
+            "Incorporator Statement",
+        )
+
+    async def generate_stock_certificates(self, order_id: str, data: dict) -> list[dict]:
+        """Generate stock certificates for each initial shareholder."""
+        template = self._load_template("stock_certificate.md")
+        context = self._build_context(data)
+        shareholders = context.get("shareholders", [])
+
+        docs = []
+        for i, shareholder in enumerate(shareholders):
+            cert_context = {**context, **shareholder}
+            cert_context["certificate_number"] = f"SC-{str(i+1).zfill(3)}"
+            cert_context["issue_date"] = datetime.now().strftime("%B %d, %Y")
+            cert_context["authorized_signer_name"] = context.get("member_name", "")
+            cert_context["authorized_signer_title"] = "President"
+
+            content = self._render_template(template, cert_context)
+            safe_name = re.sub(r'[^a-zA-Z0-9]', '_', shareholder.get("name", f"shareholder_{i+1}"))
+
+            md_path = self.docs_dir / order_id / f"stock_certificate_{safe_name}.md"
+            md_path.parent.mkdir(parents=True, exist_ok=True)
+            md_path.write_text(content)
+            docs.append({"type": "stock_certificate", "filename": f"stock_certificate_{safe_name}.md", "path": str(md_path), "format": "markdown"})
+
+            pdf_path = self.docs_dir / order_id / f"stock_certificate_{safe_name}.pdf"
+            self._markdown_to_pdf(content, str(pdf_path), f"Stock Certificate — {shareholder.get('name', '')}")
+            docs.append({"type": "stock_certificate", "filename": f"stock_certificate_{safe_name}.pdf", "path": str(pdf_path), "format": "pdf"})
+
+        return docs
+
+    async def generate_nonprofit_bylaws(self, order_id: str, data: dict) -> list[dict]:
+        """Generate nonprofit bylaws."""
+        return await self._generate_markdown_pdf_doc(
+            order_id, data, "nonprofit_bylaws.md", "nonprofit_bylaws", "nonprofit_bylaws", "Nonprofit Bylaws"
+        )
+
+    async def generate_nonprofit_initial_resolutions(self, order_id: str, data: dict) -> list[dict]:
+        """Generate initial board resolutions for nonprofits."""
+        return await self._generate_markdown_pdf_doc(
+            order_id,
+            data,
+            "nonprofit_initial_resolutions.md",
+            "nonprofit_initial_resolutions",
+            "nonprofit_initial_resolutions",
+            "Initial Board Resolutions",
+        )
+
+    async def generate_conflict_of_interest_policy(self, order_id: str, data: dict) -> list[dict]:
+        """Generate nonprofit conflict of interest policy."""
+        return await self._generate_markdown_pdf_doc(
+            order_id,
+            data,
+            "conflict_of_interest_policy.md",
+            "conflict_of_interest_policy",
+            "conflict_of_interest_policy",
+            "Conflict of Interest Policy",
+        )
 
     async def generate_ss4_data(self, order_id: str, data: dict) -> list[dict]:
         """Generate IRS Form SS-4 data for EIN application."""
