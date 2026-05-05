@@ -96,6 +96,17 @@ def _validate_no_sql_injection(value: str, field_name: str) -> str:
         raise ValueError(f"{field_name} contains invalid characters")
     return value
 
+
+def _normalize_ssn_itin(value: str) -> str:
+    return _re.sub(r"\D", "", value or "")
+
+
+def _validate_full_ssn_itin(value: str, field_name: str = "responsible_party_ssn") -> str:
+    normalized = _normalize_ssn_itin(value)
+    if not _re.fullmatch(r"\d{9}", normalized):
+        raise ValueError(f"{field_name} must be a full 9-digit SSN/ITIN for EIN filing")
+    return normalized
+
 # --- Database ---
 def get_db():
     conn = sqlite3.connect(str(DB_PATH))
@@ -350,6 +361,7 @@ class MemberInfo(BaseModel):
     city: str
     state: str
     zip_code: str
+    ssn_itin: Optional[str] = None
     ownership_pct: float
     ssn_last4: Optional[str] = None  # Only for EIN responsible party
     is_responsible_party: bool = False
@@ -396,8 +408,13 @@ class FormationRequest(BaseModel):
     non_compete: bool = False
     tax_distributions: bool = True
     # EIN info
-    responsible_party_ssn: Optional[str] = None
+    responsible_party_ssn: str
     fiscal_year_end: str = "December"
+
+    @field_validator("responsible_party_ssn")
+    @classmethod
+    def validate_responsible_party_ssn(cls, v: str) -> str:
+        return _validate_full_ssn_itin(v)
 
 class CheckoutRequest(BaseModel):
     order_id: str
@@ -1265,6 +1282,18 @@ async def check_name_availability(state: str, name: str, entity_type: str = "LLC
 async def create_formation(data: FormationRequest):
     """Create a new formation order."""
     state = data.state.upper()
+    responsible_members = [member for member in data.members if member.is_responsible_party]
+    if len(responsible_members) != 1:
+        raise HTTPException(status_code=400, detail="Exactly one responsible party is required for EIN filing.")
+    responsible_ssn = _validate_full_ssn_itin(data.responsible_party_ssn)
+    responsible = responsible_members[0]
+    if responsible.ssn_itin:
+        member_ssn = _validate_full_ssn_itin(responsible.ssn_itin, "responsible_party_member_ssn")
+        if member_ssn != responsible_ssn:
+            raise HTTPException(status_code=400, detail="Responsible party SSN/ITIN does not match the selected member.")
+    data.responsible_party_ssn = responsible_ssn
+    responsible.ssn_itin = responsible_ssn
+    responsible.ssn_last4 = responsible_ssn[-4:]
     
     # Validate state
     entity_key = "LLC" if data.entity_type == "LLC" else "Corp"

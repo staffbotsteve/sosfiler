@@ -588,9 +588,9 @@ textarea { resize: vertical; min-height: 80px; }
           </div>
           <div class="two-col">
             <div>
-              <label>SSN (for EIN — Responsible Party)</label>
-              <input type="password" class="m-ssn" placeholder="XXX-XX-XXXX" maxlength="11">
-              <p class="field-hint">Required for EIN application. Encrypted & never stored in plain text.</p>
+              <label class="required">SSN/ITIN (for EIN — Responsible Party)</label>
+              <input type="password" class="m-ssn" placeholder="XXX-XX-XXXX" maxlength="11" inputmode="numeric" autocomplete="off" required>
+              <p class="field-hint">Required before submission because the IRS requires the full responsible-party SSN/ITIN for EIN issuance.</p>
             </div>
             <div>
               <label style="margin-top:26px;">&nbsp;</label>
@@ -1266,6 +1266,16 @@ function validateStep(step) {
         alert('Please enter at least one member.');
         return false;
       }
+      const responsibleMembers = members.filter(m => m.is_responsible_party);
+      if (responsibleMembers.length !== 1) {
+        alert('Please choose exactly one responsible party for the EIN application.');
+        return false;
+      }
+      const responsibleSsn = normalizeTaxId(responsibleMembers[0].ssn_itin || '');
+      if (!isValidTaxId(responsibleSsn)) {
+        alert('Please enter the full 9-digit SSN/ITIN for the responsible party. The IRS will not issue an EIN with only the last four digits.');
+        return false;
+      }
       const totalPct = members.reduce((sum, m) => sum + (parseFloat(m.ownership_pct) || 0), 0);
       if (Math.abs(totalPct - 100) > 0.01) {
         alert(`Ownership percentages must total 100%. Current total: ${totalPct}%`);
@@ -1275,6 +1285,14 @@ function validateStep(step) {
     default:
       return true;
   }
+}
+
+function normalizeTaxId(value) {
+  return (value || '').replace(/\D/g, '');
+}
+
+function isValidTaxId(value) {
+  return /^\d{9}$/.test(normalizeTaxId(value));
 }
 
 // Data collection
@@ -1339,6 +1357,7 @@ function collectMembers() {
   blocks.forEach(block => {
     const name = block.querySelector('.m-name').value.trim();
     if (name) {
+      const ssn = normalizeTaxId(block.querySelector('.m-ssn')?.value || '');
       members.push({
         name: name,
         ownership_pct: parseFloat(block.querySelector('.m-pct').value) || 0,
@@ -1346,7 +1365,8 @@ function collectMembers() {
         city: block.querySelector('.m-city').value.trim(),
         state: block.querySelector('.m-state').value.trim(),
         zip_code: block.querySelector('.m-zip').value.trim(),
-        ssn_last4: (block.querySelector('.m-ssn').value || '').slice(-4),
+        ssn_itin: ssn,
+        ssn_last4: ssn.slice(-4),
         is_responsible_party: block.querySelector('.m-responsible')?.checked || false
       });
     }
@@ -1829,6 +1849,16 @@ function addMember() {
         <input type="text" class="m-state" placeholder="State" maxlength="2">
         <input type="text" class="m-zip" placeholder="ZIP" maxlength="10">
       </div></div>
+    </div>
+    <div class="two-col">
+      <div>
+        <label>SSN/ITIN (required if responsible party)</label>
+        <input type="password" class="m-ssn" placeholder="XXX-XX-XXXX" maxlength="11" inputmode="numeric" autocomplete="off">
+      </div>
+      <div>
+        <label style="margin-top:26px;">&nbsp;</label>
+        <label style="font-weight:400;"><input type="checkbox" class="m-responsible"> Responsible Party for EIN</label>
+      </div>
     </div>`;
   container.appendChild(block);
   
@@ -1925,6 +1955,8 @@ async function submitAndPay() {
   document.querySelectorAll('.step-panel').forEach(p => p.classList.remove('active'));
   document.getElementById('stepLoading').classList.add('active');
   
+  const responsibleParty = (formData.members || []).find(m => m.is_responsible_party) || (formData.members || [])[0] || {};
+
   // Build payload
   const payload = {
     email: formData.email || (JSON.parse(localStorage.getItem('sosfiler_user') || '{}').email) || prompt('Enter your email address for order updates:') || '',
@@ -1952,7 +1984,7 @@ async function submitAndPay() {
     transfer_restrictions: formData.transfer_restrictions ?? true,
     non_compete: formData.non_compete ?? false,
     tax_distributions: formData.tax_distributions ?? true,
-    responsible_party_ssn: formData.members?.[0]?.ssn_last4 || '',
+    responsible_party_ssn: normalizeTaxId(responsibleParty.ssn_itin || ''),
     fiscal_year_end: 'December'
   };
   
@@ -2086,6 +2118,7 @@ function restoreProgress() {
           f('.m-city', firstMember.city);
           f('.m-state', firstMember.state);
           f('.m-zip', firstMember.zip_code);
+          f('.m-ssn', firstMember.ssn_itin);
         }
       }
       
