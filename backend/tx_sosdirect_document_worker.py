@@ -337,6 +337,7 @@ async def login(page, user_id: str, password: str) -> str:
 async def collect_candidate_links(page, identifiers: list[str]) -> list[CandidateLink]:
     rows = await page.locator("tr").all()
     candidates: list[CandidateLink] = []
+    seen_hrefs: set[str] = set()
     for row in rows:
         try:
             row_text = re.sub(r"\s+", " ", await row.inner_text(timeout=2_000)).strip()
@@ -348,7 +349,9 @@ async def collect_candidate_links(page, identifiers: list[str]) -> list[Candidat
         for link in links:
             href = await link.get_attribute("href") or ""
             link_text = re.sub(r"\s+", " ", await link.inner_text(timeout=2_000)).strip()
-            if href and link_looks_like_document(link_text, href):
+            href_key = href.lower()
+            if href and href_key not in seen_hrefs and link_looks_like_document(link_text, href):
+                seen_hrefs.add(href_key)
                 candidates.append(CandidateLink(href=href, text=link_text, row_text=row_text))
     return candidates
 
