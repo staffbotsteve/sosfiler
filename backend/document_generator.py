@@ -2,7 +2,7 @@
 SOSFiler — AI-Powered Document Generator
 Generates all formation documents from wizard data.
 Uses templates + OpenAI GPT-4o for customization.
-Outputs PDF (via ReportLab) and Markdown.
+Outputs PDF (via ReportLab) and plain text.
 """
 
 import os
@@ -86,20 +86,20 @@ class DocumentGenerator:
 
     async def generate_statement_of_organizer(self, order_id: str, data: dict, filing_confirmation: str = "") -> list[dict]:
         """Generate Statement of Organizer transferring authority to Members."""
-        template = self._load_template("statement_of_organizer.md")
+        template = self._load_template("statement_of_organizer.txt")
         context = self._build_context(data)
         context["filing_confirmation"] = filing_confirmation or "On file with state"
         content = self._render_template(template, context)
 
         docs = []
-        md_path = self.docs_dir / order_id / "statement_of_organizer.md"
+        md_path = self.docs_dir / order_id / "statement_of_organizer.txt"
         md_path.parent.mkdir(parents=True, exist_ok=True)
         md_path.write_text(content)
         docs.append({
             "type": "statement_of_organizer",
-            "filename": "statement_of_organizer.md",
+            "filename": "statement_of_organizer.txt",
             "path": str(md_path),
-            "format": "markdown"
+            "format": "text"
         })
 
         pdf_path = self.docs_dir / order_id / "statement_of_organizer.pdf"
@@ -115,6 +115,8 @@ class DocumentGenerator:
 
     def _load_template(self, template_name: str) -> str:
         path = self.templates_dir / template_name
+        if not path.exists() and template_name.endswith(".txt"):
+            path = self.templates_dir / f"{template_name[:-4]}.md"
         if not path.exists():
             return ""
         return path.read_text()
@@ -321,10 +323,10 @@ class DocumentGenerator:
 
     async def generate_filing_authorization(self, order_id: str, data: dict) -> list[dict]:
         """Generate customer authorization for SOSFiler to prepare and submit filings."""
-        return await self._generate_markdown_pdf_doc(
+        return await self._generate_text_pdf_doc(
             order_id,
             data,
-            "filing_authorization.md",
+            "filing_authorization.txt",
             "filing_authorization",
             "filing_authorization",
             "Filing Authorization",
@@ -333,12 +335,12 @@ class DocumentGenerator:
     async def generate_articles(self, order_id: str, data: dict) -> list[dict]:
         """Generate Articles of Organization."""
         state = data.get("state", "")
-        template_name = f"articles_of_organization_{state}.md"
+        template_name = f"articles_of_organization_{state}.txt"
         template = self._load_template(template_name)
         
         if not template:
             # Fallback: generate from first available template and customize
-            template = self._load_template("articles_of_organization_CA.md")
+            template = self._load_template("articles_of_organization_CA.txt")
         
         context = self._build_context(data)
         content = self._render_template(template, context)
@@ -349,15 +351,15 @@ class DocumentGenerator:
         
         docs = []
         
-        # Save as Markdown
-        md_path = self.docs_dir / order_id / f"articles_of_organization_{state}.md"
+        # Save as plain text
+        md_path = self.docs_dir / order_id / f"articles_of_organization_{state}.txt"
         md_path.parent.mkdir(parents=True, exist_ok=True)
         md_path.write_text(content)
         docs.append({
             "type": "articles_of_organization",
-            "filename": f"articles_of_organization_{state}.md",
+            "filename": f"articles_of_organization_{state}.txt",
             "path": str(md_path),
-            "format": "markdown"
+            "format": "text"
         })
         
         # Generate PDF
@@ -376,7 +378,7 @@ class DocumentGenerator:
         """Generate Operating Agreement."""
         members = data.get("members", [])
         is_single = len(members) <= 1
-        template_name = "operating_agreement_single.md" if is_single else "operating_agreement_multi.md"
+        template_name = "operating_agreement_single.txt" if is_single else "operating_agreement_multi.txt"
         template = self._load_template(template_name)
         
         context = self._build_context(data)
@@ -388,14 +390,14 @@ class DocumentGenerator:
         docs = []
         oa_type = "single_member" if is_single else "multi_member"
         
-        md_path = self.docs_dir / order_id / f"operating_agreement_{oa_type}.md"
+        md_path = self.docs_dir / order_id / f"operating_agreement_{oa_type}.txt"
         md_path.parent.mkdir(parents=True, exist_ok=True)
         md_path.write_text(content)
         docs.append({
             "type": "operating_agreement",
-            "filename": f"operating_agreement_{oa_type}.md",
+            "filename": f"operating_agreement_{oa_type}.txt",
             "path": str(md_path),
-            "format": "markdown"
+            "format": "text"
         })
         
         pdf_path = self.docs_dir / order_id / f"operating_agreement_{oa_type}.pdf"
@@ -411,15 +413,15 @@ class DocumentGenerator:
 
     async def generate_initial_resolutions(self, order_id: str, data: dict) -> list[dict]:
         """Generate Initial Resolutions."""
-        template = self._load_template("initial_resolutions.md")
+        template = self._load_template("initial_resolutions.txt")
         context = self._build_context(data)
         content = self._render_template(template, context)
         
         docs = []
-        md_path = self.docs_dir / order_id / "initial_resolutions.md"
+        md_path = self.docs_dir / order_id / "initial_resolutions.txt"
         md_path.parent.mkdir(parents=True, exist_ok=True)
         md_path.write_text(content)
-        docs.append({"type": "initial_resolutions", "filename": "initial_resolutions.md", "path": str(md_path), "format": "markdown"})
+        docs.append({"type": "initial_resolutions", "filename": "initial_resolutions.txt", "path": str(md_path), "format": "text"})
         
         pdf_path = self.docs_dir / order_id / "initial_resolutions.pdf"
         self._markdown_to_pdf(content, str(pdf_path), f"Initial Resolutions — {context['llc_name']}")
@@ -429,15 +431,15 @@ class DocumentGenerator:
 
     async def generate_meeting_minutes(self, order_id: str, data: dict) -> list[dict]:
         """Generate Organizational Meeting Minutes."""
-        template = self._load_template("meeting_minutes.md")
+        template = self._load_template("meeting_minutes.txt")
         context = self._build_context(data)
         content = self._render_template(template, context)
         
         docs = []
-        md_path = self.docs_dir / order_id / "organizational_meeting_minutes.md"
+        md_path = self.docs_dir / order_id / "organizational_meeting_minutes.txt"
         md_path.parent.mkdir(parents=True, exist_ok=True)
         md_path.write_text(content)
-        docs.append({"type": "meeting_minutes", "filename": "organizational_meeting_minutes.md", "path": str(md_path), "format": "markdown"})
+        docs.append({"type": "meeting_minutes", "filename": "organizational_meeting_minutes.txt", "path": str(md_path), "format": "text"})
         
         pdf_path = self.docs_dir / order_id / "organizational_meeting_minutes.pdf"
         self._markdown_to_pdf(content, str(pdf_path), f"Meeting Minutes — {context['llc_name']}")
@@ -447,7 +449,7 @@ class DocumentGenerator:
 
     async def generate_member_certificates(self, order_id: str, data: dict) -> list[dict]:
         """Generate Member/Shareholder Certificates for each member."""
-        template = self._load_template("member_certificate.md")
+        template = self._load_template("member_certificate.txt")
         context = self._build_context(data)
         members = data.get("members", [])
         
@@ -464,10 +466,10 @@ class DocumentGenerator:
             content = self._render_template(template, cert_context)
             safe_name = re.sub(r'[^a-zA-Z0-9]', '_', member.get("name", f"member_{i+1}"))
             
-            md_path = self.docs_dir / order_id / f"member_certificate_{safe_name}.md"
+            md_path = self.docs_dir / order_id / f"member_certificate_{safe_name}.txt"
             md_path.parent.mkdir(parents=True, exist_ok=True)
             md_path.write_text(content)
-            docs.append({"type": "member_certificate", "filename": f"member_certificate_{safe_name}.md", "path": str(md_path), "format": "markdown"})
+            docs.append({"type": "member_certificate", "filename": f"member_certificate_{safe_name}.txt", "path": str(md_path), "format": "text"})
             
             pdf_path = self.docs_dir / order_id / f"member_certificate_{safe_name}.pdf"
             self._markdown_to_pdf(content, str(pdf_path), f"Membership Certificate — {member.get('name', '')}")
@@ -475,7 +477,7 @@ class DocumentGenerator:
         
         return docs
 
-    async def _generate_markdown_pdf_doc(
+    async def _generate_text_pdf_doc(
         self,
         order_id: str,
         data: dict,
@@ -484,16 +486,16 @@ class DocumentGenerator:
         filename_base: str,
         title: str,
     ) -> list[dict]:
-        """Render one markdown template to markdown and PDF outputs."""
+        """Render one text template to text and PDF outputs."""
         template = self._load_template(template_name)
         context = self._build_context(data)
         content = self._render_template(template, context)
 
         docs = []
-        md_path = self.docs_dir / order_id / f"{filename_base}.md"
+        md_path = self.docs_dir / order_id / f"{filename_base}.txt"
         md_path.parent.mkdir(parents=True, exist_ok=True)
         md_path.write_text(content)
-        docs.append({"type": doc_type, "filename": f"{filename_base}.md", "path": str(md_path), "format": "markdown"})
+        docs.append({"type": doc_type, "filename": f"{filename_base}.txt", "path": str(md_path), "format": "text"})
 
         pdf_path = self.docs_dir / order_id / f"{filename_base}.pdf"
         self._markdown_to_pdf(content, str(pdf_path), f"{title} — {context['entity_name']}")
@@ -502,16 +504,16 @@ class DocumentGenerator:
 
     async def generate_corporate_bylaws(self, order_id: str, data: dict) -> list[dict]:
         """Generate corporate bylaws for C-Corp and S-Corp formations."""
-        return await self._generate_markdown_pdf_doc(
-            order_id, data, "corporate_bylaws.md", "corporate_bylaws", "corporate_bylaws", "Corporate Bylaws"
+        return await self._generate_text_pdf_doc(
+            order_id, data, "corporate_bylaws.txt", "corporate_bylaws", "corporate_bylaws", "Corporate Bylaws"
         )
 
     async def generate_corporate_initial_resolutions(self, order_id: str, data: dict) -> list[dict]:
         """Generate initial board resolutions for corporations."""
-        return await self._generate_markdown_pdf_doc(
+        return await self._generate_text_pdf_doc(
             order_id,
             data,
-            "corporate_initial_resolutions.md",
+            "corporate_initial_resolutions.txt",
             "corporate_initial_resolutions",
             "corporate_initial_resolutions",
             "Initial Board Resolutions",
@@ -519,10 +521,10 @@ class DocumentGenerator:
 
     async def generate_incorporator_statement(self, order_id: str, data: dict) -> list[dict]:
         """Generate incorporator statement for corporation/nonprofit records."""
-        return await self._generate_markdown_pdf_doc(
+        return await self._generate_text_pdf_doc(
             order_id,
             data,
-            "incorporator_statement.md",
+            "incorporator_statement.txt",
             "incorporator_statement",
             "incorporator_statement",
             "Incorporator Statement",
@@ -530,7 +532,7 @@ class DocumentGenerator:
 
     async def generate_stock_certificates(self, order_id: str, data: dict) -> list[dict]:
         """Generate stock certificates for each initial shareholder."""
-        template = self._load_template("stock_certificate.md")
+        template = self._load_template("stock_certificate.txt")
         context = self._build_context(data)
         shareholders = context.get("shareholders", [])
 
@@ -545,10 +547,10 @@ class DocumentGenerator:
             content = self._render_template(template, cert_context)
             safe_name = re.sub(r'[^a-zA-Z0-9]', '_', shareholder.get("name", f"shareholder_{i+1}"))
 
-            md_path = self.docs_dir / order_id / f"stock_certificate_{safe_name}.md"
+            md_path = self.docs_dir / order_id / f"stock_certificate_{safe_name}.txt"
             md_path.parent.mkdir(parents=True, exist_ok=True)
             md_path.write_text(content)
-            docs.append({"type": "stock_certificate", "filename": f"stock_certificate_{safe_name}.md", "path": str(md_path), "format": "markdown"})
+            docs.append({"type": "stock_certificate", "filename": f"stock_certificate_{safe_name}.txt", "path": str(md_path), "format": "text"})
 
             pdf_path = self.docs_dir / order_id / f"stock_certificate_{safe_name}.pdf"
             self._markdown_to_pdf(content, str(pdf_path), f"Stock Certificate — {shareholder.get('name', '')}")
@@ -558,16 +560,16 @@ class DocumentGenerator:
 
     async def generate_nonprofit_bylaws(self, order_id: str, data: dict) -> list[dict]:
         """Generate nonprofit bylaws."""
-        return await self._generate_markdown_pdf_doc(
-            order_id, data, "nonprofit_bylaws.md", "nonprofit_bylaws", "nonprofit_bylaws", "Nonprofit Bylaws"
+        return await self._generate_text_pdf_doc(
+            order_id, data, "nonprofit_bylaws.txt", "nonprofit_bylaws", "nonprofit_bylaws", "Nonprofit Bylaws"
         )
 
     async def generate_nonprofit_initial_resolutions(self, order_id: str, data: dict) -> list[dict]:
         """Generate initial board resolutions for nonprofits."""
-        return await self._generate_markdown_pdf_doc(
+        return await self._generate_text_pdf_doc(
             order_id,
             data,
-            "nonprofit_initial_resolutions.md",
+            "nonprofit_initial_resolutions.txt",
             "nonprofit_initial_resolutions",
             "nonprofit_initial_resolutions",
             "Initial Board Resolutions",
@@ -575,10 +577,10 @@ class DocumentGenerator:
 
     async def generate_conflict_of_interest_policy(self, order_id: str, data: dict) -> list[dict]:
         """Generate nonprofit conflict of interest policy."""
-        return await self._generate_markdown_pdf_doc(
+        return await self._generate_text_pdf_doc(
             order_id,
             data,
-            "conflict_of_interest_policy.md",
+            "conflict_of_interest_policy.txt",
             "conflict_of_interest_policy",
             "conflict_of_interest_policy",
             "Conflict of Interest Policy",
@@ -651,10 +653,10 @@ class DocumentGenerator:
 """
         
         docs = []
-        md_path = self.docs_dir / order_id / "ein_ss4_data.md"
+        md_path = self.docs_dir / order_id / "ein_ss4_data.txt"
         md_path.parent.mkdir(parents=True, exist_ok=True)
         md_path.write_text(content)
-        docs.append({"type": "ein_ss4_data", "filename": "ein_ss4_data.md", "path": str(md_path), "format": "markdown"})
+        docs.append({"type": "ein_ss4_data", "filename": "ein_ss4_data.txt", "path": str(md_path), "format": "text"})
         
         # Also save raw JSON
         json_path = self.docs_dir / order_id / "ein_ss4_data.json"

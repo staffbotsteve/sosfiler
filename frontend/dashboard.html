@@ -143,7 +143,7 @@ a:hover { color: var(--accent); text-decoration: none; }
 .status-badge { display: inline-block; padding: 6px 16px; border-radius: 20px; font-size: 13px; font-weight: 600; }
 .status-pending_payment { background: rgba(255,107,0,0.15); color: var(--yellow); }
 .status-paid, .status-preparing, .status-generating_documents, .status-ready_to_file { background: rgba(204,255,0,0.1); color: var(--accent); }
-.status-filing, .status-processing, .status-submitted_to_state, .status-awaiting_state { background: rgba(204,255,0,0.1); color: var(--accent); }
+.status-filing, .status-processing, .status-submitted_to_state, .status-awaiting_state, .status-pending_state_review, .status-received_needs_sosdirect_check { background: rgba(204,255,0,0.1); color: var(--accent); }
 .status-approved, .status-state_approved, .status-complete { background: rgba(57,255,20,0.15); color: var(--green); }
 .status-error, .status-failed { background: rgba(255,51,102,0.15); color: var(--red); }
 .status-ein_pending, .status-ein_received { background: rgba(167,139,250,0.15); color: var(--purple); }
@@ -918,6 +918,8 @@ function renderCompanyList(orders) {
   const statusLabels = {
     'ready_to_file': 'Ready for State Filing',
     'submitted_to_state': 'Submitted to State',
+    'pending_state_review': 'Pending State Review',
+    'received_needs_sosdirect_check': 'Received by State',
     'state_approved': 'State Approved',
     'complete': 'Complete',
     'paid': 'Paid',
@@ -956,6 +958,8 @@ function renderDashboard(data) {
     'processing': '⏳ Processing',
     'submitted_to_state': 'Submitted to State',
     'awaiting_state': 'Awaiting State Review',
+    'pending_state_review': 'Pending State Review',
+    'received_needs_sosdirect_check': 'Received by State',
     'approved': '✅ Approved',
     'state_approved': 'State Approved',
     'ein_pending': '🔢 EIN Pending',
@@ -1078,7 +1082,7 @@ function renderOrderItems(data) {
   const el = document.getElementById('orderItems');
   if (!el) return;
   const docs = data.documents || [];
-  const filedStatuses = ['submitted_to_state','awaiting_state','state_approved','ein_pending','ein_received','complete','approved'];
+  const filedStatuses = ['submitted_to_state','awaiting_state','pending_state_review','received_needs_sosdirect_check','state_approved','ein_pending','ein_received','complete','approved'];
   const approvedStatuses = ['state_approved','ein_pending','ein_received','complete','approved'];
   const docsReady = !!data.documents_ready_at || docs.length > 0;
   const isLLC = data.entity_type === 'LLC';
@@ -1245,9 +1249,9 @@ function renderCompliance(deadlines) {
 function renderChecklist(data) {
   const el = document.getElementById('checklist');
   const state = data.state;
-  const paidStatuses = ['paid','preparing','generating_documents','ready_to_file','submitted_to_state','awaiting_state','state_approved','ein_pending','ein_received','complete','approved'];
-  const docsStatuses = ['ready_to_file','submitted_to_state','awaiting_state','state_approved','ein_pending','ein_received','complete','approved'];
-  const filedStatuses = ['submitted_to_state','awaiting_state','state_approved','ein_pending','ein_received','complete','approved'];
+  const paidStatuses = ['paid','preparing','generating_documents','ready_to_file','submitted_to_state','awaiting_state','pending_state_review','received_needs_sosdirect_check','state_approved','ein_pending','ein_received','complete','approved'];
+  const docsStatuses = ['ready_to_file','submitted_to_state','awaiting_state','pending_state_review','received_needs_sosdirect_check','state_approved','ein_pending','ein_received','complete','approved'];
+  const filedStatuses = ['submitted_to_state','awaiting_state','pending_state_review','received_needs_sosdirect_check','state_approved','ein_pending','ein_received','complete','approved'];
   const approvedStatuses = ['state_approved','ein_pending','ein_received','complete','approved'];
   
   const items = [
