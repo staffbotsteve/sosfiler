@@ -438,6 +438,14 @@ class FilingEvidenceRequest(BaseModel):
     message: str = ""
     notify_customer: bool = False
 
+class ResponsiblePartySSNRequest(BaseModel):
+    ssn_itin: str
+
+    @field_validator("ssn_itin")
+    @classmethod
+    def validate_ssn_itin(cls, v: str) -> str:
+        return _validate_full_ssn_itin(v, "ssn_itin")
+
 
 # --- Auth helpers ---
 def parse_json_field(value, fallback):
@@ -478,6 +486,72 @@ def add_status_update(order_id: str, status: str, message: str = ""):
     )
     conn.commit()
     conn.close()
+
+
+def formation_data_needs_ssn(formation_data: dict) -> bool:
+    return not _re.fullmatch(r"\d{9}", _normalize_ssn_itin(formation_data.get("responsible_party_ssn", "")))
+
+
+def update_responsible_party_ssn(order_id: str, ssn_itin: str, user: dict | None = None, token: str = "") -> dict:
+    ssn = _validate_full_ssn_itin(ssn_itin, "ssn_itin")
+    conn = get_db()
+    try:
+        if user:
+            link_orders_to_user_by_email(conn, user["id"], user["email"])
+            order = conn.execute(
+                """
+                SELECT * FROM orders
+                WHERE id = ?
+                  AND (user_id = ? OR lower(email) = lower(?))
+                """,
+                (order_id, user["id"], user["email"]),
+            ).fetchone()
+        else:
+            order = conn.execute("SELECT * FROM orders WHERE id = ? AND token = ?", (order_id, token)).fetchone()
+        if not order:
+            raise HTTPException(status_code=403, detail="Invalid order access")
+
+        formation_data = parse_json_field(order["formation_data"], {})
+        members = formation_data.get("members") or []
+        responsible = next((m for m in members if m.get("is_responsible_party")), members[0] if members else None)
+        if responsible is None:
+            raise HTTPException(status_code=400, detail="No responsible party is available for this order.")
+        responsible["ssn_itin"] = ssn
+        responsible["ssn_last4"] = ssn[-4:]
+        responsible["is_responsible_party"] = True
+        formation_data["responsible_party_ssn"] = ssn
+        formation_data["members"] = members
+
+        conn.execute(
+            "UPDATE orders SET formation_data = ?, updated_at = datetime('now') WHERE id = ?",
+            (json.dumps(formation_data), order_id),
+        )
+
+        queue_path = DOCS_DIR / order_id / "ein_queue.json"
+        if queue_path.exists():
+            queue = parse_json_field(queue_path.read_text(), {})
+            queue.setdefault("ss4_data", {})
+            queue["ss4_data"].setdefault("responsible_party", {})
+            queue["ss4_data"]["responsible_party"]["ssn"] = ssn
+            queue["status"] = "ready_for_submission"
+            queue["ssn_received_at"] = datetime.utcnow().isoformat()
+            queue_path.write_text(json.dumps(queue, indent=2))
+
+        existing = conn.execute(
+            "SELECT 1 FROM status_updates WHERE order_id = ? AND status = 'ein_ready_for_submission' LIMIT 1",
+            (order_id,),
+        ).fetchone()
+        if not existing:
+            conn.execute(
+                "INSERT INTO status_updates (order_id, status, message) VALUES (?, 'ein_ready_for_submission', ?)",
+                (order_id, "Responsible-party SSN/ITIN received securely through the customer portal. EIN application is ready for IRS submission."),
+            )
+        if order["status"] in {"state_approved", "ein_pending", "ein_queued"}:
+            conn.execute("UPDATE orders SET status = 'ein_pending', updated_at = datetime('now') WHERE id = ?", (order_id,))
+        conn.commit()
+        return {"status": "ok", "ein_queue_ready": queue_path.exists()}
+    finally:
+        conn.close()
 
 
 def add_customer_document_if_missing(
@@ -1587,6 +1661,7 @@ async def get_order_status(order_id: str, token: str = ""):
         "business_name": order["business_name"],
         "email": order["email"],
         "ein": order.get("ein"),
+        "ein_requires_ssn": not order.get("ein") and formation_data_needs_ssn(formation_data),
         "filing_confirmation": json.loads(order["filing_confirmation"]) if order.get("filing_confirmation") else None,
         "timeline": [dict(u) for u in updates],
         "compliance_deadlines": [dict(d) for d in deadlines],
@@ -1835,6 +1910,19 @@ async def download_document(order_id: str, filename: str, token: str = ""):
         filename=doc["filename"],
         media_type=media_types.get(suffix, "application/octet-stream"),
     )
+
+@app.post("/api/orders/{order_id}/responsible-party-ssn")
+async def submit_responsible_party_ssn(order_id: str, payload: ResponsiblePartySSNRequest, token: str = ""):
+    """Secure order-token flow for collecting the full SSN/ITIN required by the IRS EIN application."""
+    return update_responsible_party_ssn(order_id, payload.ssn_itin, token=token)
+
+@app.post("/api/user/orders/{order_id}/responsible-party-ssn")
+async def submit_user_responsible_party_ssn(order_id: str, payload: ResponsiblePartySSNRequest, request: Request):
+    """Authenticated-account flow for collecting the full SSN/ITIN required by the IRS EIN application."""
+    user = get_current_user(request)
+    if not user:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+    return update_responsible_party_ssn(order_id, payload.ssn_itin, user=user)
 
 @app.post("/api/ein")
 async def trigger_ein(order_id: str, token: str = "", background_tasks: BackgroundTasks = None):
@@ -2167,6 +2255,7 @@ async def get_user_order_detail(order_id: str, request: Request):
 
     payload = dict(order)
     payload["formation_data"] = parse_json_field(payload.get("formation_data"), {})
+    payload["ein_requires_ssn"] = not payload.get("ein") and formation_data_needs_ssn(payload["formation_data"])
     payload["documents"] = [dict(d) for d in docs]
     payload["timeline"] = [dict(u) for u in updates]
     payload["compliance_deadlines"] = [dict(d) for d in deadlines]

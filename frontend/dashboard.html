@@ -997,6 +997,14 @@ function renderDashboard(data) {
         <div class="ein-number">${data.ein}</div>
       </div>
       <p style="font-size: 13px; color: var(--muted);">Use this for bank accounts, tax returns, and hiring.</p>`;
+  } else if (data.ein_requires_ssn) {
+    einContent.innerHTML = `
+      <p style="color: var(--yellow); font-size: 14px;">The IRS requires the full responsible-party SSN/ITIN before we can submit the EIN application.</p>
+      <form onsubmit="return submitResponsiblePartySSN(event)" style="margin-top: 12px;">
+        <input id="responsibleSsnInput" type="password" inputmode="numeric" maxlength="11" autocomplete="off" placeholder="XXX-XX-XXXX" style="width:100%; padding:12px; border-radius:6px; border:1px solid var(--border); background:var(--bg); color:var(--text);">
+        <button class="download-btn" type="submit" style="margin-top:10px; width:100%;">Submit securely</button>
+        <div id="ssnSubmitStatus" style="font-size:12px; color:var(--muted); margin-top:8px;"></div>
+      </form>`;
   } else if (['ein_pending'].includes(data.status)) {
     einContent.innerHTML = `<p style="color: var(--yellow); font-size: 14px;">⏳ EIN application in progress. IRS processes Mon-Fri 7am-10pm ET. Usually ready within 1-2 business days.</p>`;
   }
@@ -1022,6 +1030,42 @@ function renderDashboard(data) {
   
   // Checklist
   renderChecklist(data);
+}
+
+function normalizeTaxId(value) {
+  return (value || '').replace(/\D/g, '');
+}
+
+async function submitResponsiblePartySSN(event) {
+  event.preventDefault();
+  const input = document.getElementById('responsibleSsnInput');
+  const status = document.getElementById('ssnSubmitStatus');
+  const ssn = normalizeTaxId(input?.value || '');
+  if (!/^\d{9}$/.test(ssn)) {
+    status.textContent = 'Enter the full 9-digit SSN/ITIN.';
+    status.style.color = 'var(--red)';
+    return false;
+  }
+  status.textContent = 'Submitting securely...';
+  status.style.color = 'var(--muted)';
+  const endpoint = accountMode
+    ? `/api/user/orders/${orderId}/responsible-party-ssn`
+    : `/api/orders/${orderId}/responsible-party-ssn?token=${encodeURIComponent(token)}`;
+  const res = await fetch(endpoint, {
+    method: 'POST',
+    headers: accountMode ? { ...authHeaders(), 'Content-Type': 'application/json' } : { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ ssn_itin: ssn })
+  });
+  if (!res.ok) {
+    status.textContent = 'Could not save this securely. Please try again or contact support.';
+    status.style.color = 'var(--red)';
+    return false;
+  }
+  status.textContent = 'Received. Your EIN application is ready for IRS submission.';
+  status.style.color = 'var(--accent)';
+  if (currentOrderData) currentOrderData.ein_requires_ssn = false;
+  await loadOrderData();
+  return false;
 }
 
 function renderFeeReceipt(data) {
