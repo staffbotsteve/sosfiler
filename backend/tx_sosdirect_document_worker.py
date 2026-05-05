@@ -400,7 +400,7 @@ async def process_job(page, conn: sqlite3.Connection, job: sqlite3.Row, order: s
         await page.goto("https://direct.sos.state.tx.us/acct/acct-batch.asp?spage=batch-search", wait_until="domcontentloaded", timeout=45_000)
         await page.fill('input[name="sid"]', session_id)
         await page.fill('input[name="op_email"]', os.environ.get("TX_SOSDIRECT_CONTACT_EMAIL", "admin@swanbill.biz"))
-        await page.locator('form[action*="batch-view"] input[type="submit"][name="submit"]').click()
+        await page.locator('input[type="submit"][name="submit"][value="Search"]').first.click()
         await page.wait_for_load_state("domcontentloaded", timeout=45_000)
     else:
         await page.goto(BRIEFCASE_URL, wait_until="domcontentloaded", timeout=45_000)
