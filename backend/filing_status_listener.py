@@ -385,6 +385,8 @@ def run_listener(limit: int = 50, state: str = "", dry_run: bool = False) -> dic
                     state=job["state"],
                     status="error",
                     message=message,
+                    source_statuses={},
+                    downloaded_documents=[],
                 )
             results.append({
                 "job_id": result.job_id,
