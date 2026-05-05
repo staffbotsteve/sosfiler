@@ -8,11 +8,13 @@ Use this as the running list of owner/operator tasks that are outside normal app
 - [ ] Add `https://sosfiler.com/dashboard.html` as an allowed redirect/callback URL for Apple Sign in.
 - [ ] Add `https://sosfiler.com/dashboard.html` as an allowed redirect/callback URL for Facebook Login.
 - [ ] Store the Texas SOSDirect account in the company credential vault with the account user ID, portal URL, and recovery email.
+- [ ] Add `TX_SOSDIRECT_USER_ID` and `TX_SOSDIRECT_PASSWORD` to the production `.env` file for the authenticated Texas document retriever.
 - [ ] Decide whether SOSFiler will keep one master filer account per state or per-operator accounts where state portals support it.
 
 ## Texas Formation Operations
 
 - [ ] Monitor the Texas SOSDirect briefcase and admin inbox for approval/rejection of Clarence High LLC.
+- [ ] Confirm the Texas SOSDirect document retriever cron is installed and checking Briefcase every 15 minutes.
 - [ ] When Texas approves Clarence High LLC, capture the filed certificate as evidence and mark the filing job `state_approved`.
 - [ ] Verify the approval certificate appears in Jay Smith's customer portal document vault.
 - [ ] Verify Jay Smith's portal shows all included deliverables: state filing, approval certificate, filing authorization, operating agreement, initial resolutions, membership certificate, organizational minutes, and EIN.

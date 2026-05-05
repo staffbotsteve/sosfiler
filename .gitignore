@@ -16,6 +16,7 @@ generated_docs/
 
 # Filing receipts (contain PII)
 filing_receipts/
+data/filing_listener_runs/
 
 # Python
 __pycache__/

@@ -62,6 +62,7 @@ Use these signals together. Do not report a single Texas status from the public 
    - Check the briefcase/order results for the submitted document.
    - Download available certificate, filed document, or rejection evidence.
    - Treat briefcase documents as time-sensitive; Texas materials warn that some documents may only be available for a limited period.
+   - Automation path: `backend/tx_sosdirect_document_worker.py` performs this check with the SOSFiler SOSDirect credentials and attaches captured approval documents to the customer portal.
 
 4. **Texas Business Filing Tracker**
    - URL: `https://webservices.sos.state.tx.us/filing-status/status.aspx`

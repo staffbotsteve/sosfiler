@@ -99,3 +99,43 @@ Dry run:
 ```bash
 cd /root/.openclaw/workspace/builds/sosfiler && /usr/bin/python3 backend/filing_status_listener.py --dry-run --json
 ```
+
+## Texas SOSDirect Authenticated Document Retriever
+
+Purpose: log into the SOSFiler Texas SOSDirect account, inspect Briefcase for active Texas filings, download matching filed/approval documents, attach them to the customer portal, and mark the order `state_approved` when approval evidence is captured.
+
+Required secrets:
+
+```bash
+TX_SOSDIRECT_USER_ID=...
+TX_SOSDIRECT_PASSWORD=...
+```
+
+Command:
+
+```bash
+cd /root/.openclaw/workspace/builds/sosfiler && /usr/bin/python3 backend/tx_sosdirect_document_worker.py --limit 25 >> logs/tx_sosdirect_document_worker.log 2>&1
+```
+
+Suggested schedule:
+
+```cron
+*/15 * * * * cd /root/.openclaw/workspace/builds/sosfiler && /usr/bin/python3 backend/tx_sosdirect_document_worker.py --limit 25 >> logs/tx_sosdirect_document_worker.log 2>&1
+```
+
+Behavior:
+
+- Uses the company SOSDirect subscriber account instead of creating customer-specific Texas portal accounts.
+- Checks only active Texas filing jobs.
+- Matches Briefcase rows by business name, order ID, and known Texas document/session identifiers.
+- Downloads matching approval/certificate/formation documents into `generated_docs/<order_id>/state_filings/`.
+- Adds downloaded evidence to `filing_artifacts` and `documents`, making it visible in the customer portal.
+- Marks the filing job and order `state_approved` only after a matching approval document is captured.
+- Writes diagnostic Briefcase HTML snapshots under `data/filing_listener_runs/tx_sosdirect/` when no document is found, so portal layout changes can be debugged without guessing.
+- Does not submit filings, make payments, order new copies, or email customers.
+
+Dry run:
+
+```bash
+cd /root/.openclaw/workspace/builds/sosfiler && /usr/bin/python3 backend/tx_sosdirect_document_worker.py --dry-run --order-id IL-825E3CBCCCC3
+```
