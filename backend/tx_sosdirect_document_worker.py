@@ -22,7 +22,7 @@ from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
-from urllib.parse import urljoin
+from urllib.parse import unquote, urljoin
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -370,7 +370,8 @@ async def save_response_body(response, target: Path) -> bool:
 async def download_candidate(page, order_id: str, candidate: CandidateLink, index: int) -> Path | None:
     target_dir = DOCS_DIR / order_id / "state_filings"
     target_dir.mkdir(parents=True, exist_ok=True)
-    abs_url = urljoin(page.url, candidate.href)
+    href = candidate.href.replace("\\", "/")
+    abs_url = urljoin(page.url, href)
 
     base = safe_name(candidate.text or Path(abs_url).name or f"tx-sosdirect-document-{index}")
     suffix = Path(abs_url).suffix
@@ -379,13 +380,19 @@ async def download_candidate(page, order_id: str, candidate: CandidateLink, inde
     target = target_dir / f"tx-sosdirect-{base}-{index}{suffix}"
 
     try:
-        response = await page.goto(abs_url, wait_until="domcontentloaded", timeout=45_000)
-        if await save_response_body(response, target):
+        response = await page.context.request.get(abs_url, timeout=45_000)
+        content_type = (response.headers.get("content-type") or "").lower()
+        disposition = response.headers.get("content-disposition") or ""
+        filename_match = re.search(r'filename="?([^";]+)"?', disposition, flags=re.I)
+        if filename_match:
+            target = target_dir / safe_name(unquote(filename_match.group(1)))
+        if response.ok and any(kind in content_type for kind in ("pdf", "octet-stream", "zip", "image")):
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_bytes(await response.body())
             return target
     except Exception:
         pass
 
-    await page.goto(BRIEFCASE_URL, wait_until="domcontentloaded", timeout=45_000)
     link = page.locator(f'a[href="{candidate.href}"]').first
     try:
         async with page.expect_download(timeout=10_000) as download_info:
