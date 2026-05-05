@@ -62,6 +62,22 @@ APPROVAL_WORDS = (
 )
 
 
+def redact_sensitive_html(content: str) -> str:
+    content = re.sub(
+        r'(name="web_password"[^>]*value=")[^"]*(")',
+        r'\1[REDACTED]\2',
+        content,
+        flags=re.I,
+    )
+    content = re.sub(
+        r'(name="client_id"[^>]*value=")[^"]*(")',
+        r'\1[REDACTED]\2',
+        content,
+        flags=re.I,
+    )
+    return content
+
+
 @dataclass
 class CandidateLink:
     href: str
@@ -279,13 +295,28 @@ async def login(page, user_id: str, password: str) -> str:
     await page.click('input[type="submit"][name="submit"], input[type="Submit"][name="submit"]')
     await page.wait_for_load_state("domcontentloaded", timeout=45_000)
     content = await page.content()
-    if "SOSDirect Account Login" in content and 'name="client_id"' in content:
+    if await page.locator('select[name="payment_type_id"]').count():
+        payment_type = os.environ.get("TX_SOSDIRECT_PAYMENT_TYPE_ID", "5")
+        await page.select_option('select[name="payment_type_id"]', payment_type)
+        contact_defaults = {
+            "ordering_party_name": os.environ.get("TX_SOSDIRECT_CONTACT_NAME", "SOS Filer"),
+            "ordering_party_phone": os.environ.get("TX_SOSDIRECT_CONTACT_PHONE", "9165057744"),
+            "ordering_party_email": os.environ.get("TX_SOSDIRECT_CONTACT_EMAIL", "admin@swanbill.biz"),
+        }
+        for field, value in contact_defaults.items():
+            locator = page.locator(f'input[name="{field}"]')
+            if await locator.count():
+                await locator.fill(value)
+        await page.click('input[type="submit"][name="Submit"][value="Continue"]')
+        await page.wait_for_load_state("domcontentloaded", timeout=45_000)
+        content = await page.content()
+    if "SOSDirect Account Login" in content and 'input type="text" name="client_id"' in content:
         failure_dir = RUN_DIR / "login"
         failure_dir.mkdir(parents=True, exist_ok=True)
         stamp = datetime.utcnow().strftime("%Y%m%dT%H%M%SZ")
         html_path = failure_dir / f"{stamp}-login-failed.html"
         screenshot_path = failure_dir / f"{stamp}-login-failed.png"
-        html_path.write_text(content, errors="ignore")
+        html_path.write_text(redact_sensitive_html(content), errors="ignore")
         await page.screenshot(path=str(screenshot_path), full_page=True)
         raise RuntimeError("SOSDirect login failed or password reset is required.")
     match = re.search(r"session code is:\s*([A-Z0-9]+)", content, flags=re.I)
