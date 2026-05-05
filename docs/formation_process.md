@@ -11,6 +11,7 @@ This is the living process document for how SOSFiler should intake, file, track,
 - External filings should default to operator/admin notifications until a customer-facing message is intentionally approved.
 - Sensitive identifiers, portal credentials, payment details, and customer tax data must stay out of repo docs and chat transcripts.
 - State/action research must follow `docs/50_state_research_program.md`; only verified official-source records should drive product promises, pricing, or automation.
+- EIN automation must follow `docs/ein_automation_program.md`; the official IRS confirmation letter/CP575 is the evidence gate for completion.
 
 ## Formation Lifecycle
 
@@ -137,7 +138,7 @@ Internal trigger:
 6. `backend/ein_queue_worker.py` creates the EIN queue artifact and adds `ein_pending` / `ein_queued` records.
 7. After the IRS application is completed and the EIN confirmation/CP575 file is captured in `generated_docs/<order_id>/`, `backend/ein_completion_ingest.py` publishes it to the customer portal and records `ein_received`.
 
-The queue worker does not submit anything to the IRS and does not email customers. It queues the EIN task for controlled operator/assisted processing. The completion ingester only publishes captured IRS confirmation documents into the portal.
+The queue worker does not submit anything to the IRS and does not email customers. It queues the EIN task for controlled browser-worker processing. The completion ingester only publishes captured IRS confirmation documents into the portal. The main web server must not be treated as the only EIN executor because the IRS assistant may block cloud/headless environments; see `docs/ein_automation_program.md`.
 
 ## Current Texas/Jay Order Notes
 
