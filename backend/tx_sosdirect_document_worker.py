@@ -50,6 +50,8 @@ DOCUMENT_LINK_WORDS = (
     "pdf",
     "image",
     "receipt",
+    "response",
+    "zip",
 )
 
 APPROVAL_WORDS = (
@@ -59,6 +61,8 @@ APPROVAL_WORDS = (
     "formation",
     "filing",
     "in existence",
+    "processed",
+    "legal entity filing document",
 )
 
 
