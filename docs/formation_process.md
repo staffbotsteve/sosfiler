@@ -42,19 +42,20 @@ For Texas LLC formations, the trigger for EIN work is not name reservation or na
 
 ### Texas Signals
 
-Use these signals in priority order:
+Use these signals together. Do not report a single Texas status from the public Business Filing Tracker alone.
 
 1. **SOSDirect/TXSOS email**
    - Watch the admin inbox for filing/order acknowledgements, approval notices, rejection notices, and document-ready emails.
    - Convert matching messages into filing events.
    - Attach the email body, attachment, PDF, image, or zip contents as evidence when available.
 
-2. **Texas Business Filing Tracker**
-   - URL: `https://webservices.sos.state.tx.us/filing-status/status.aspx`
-   - Use the submitted filing/session/document identifiers to check status.
-   - Texas status should move from received/processing to filed or rejected.
-   - If filed, retrieve the Certificate of Filing or file-stamped document.
-   - If rejected, retrieve the rejection letter and move the job to operator review.
+2. **SOSDirect Entity Inquiry**
+   - Log into the SOSFiler Texas SOSDirect account.
+   - Use `Business Organizations > Name Availability Search` / entity inquiry for the exact legal name.
+   - Capture the filing number, entity type, entity status, name type, and name status.
+   - Treat entity inquiry as the best non-document signal for the current entity lifecycle.
+   - `Pending Review` means Texas has created an entity record, but has not issued final approval evidence.
+   - `In existence` or equivalent must still be paired with a Certificate of Filing or filed/stamped document before marking `state_approved`.
 
 3. **SOSDirect Briefcase**
    - Log into the SOSFiler Texas SOSDirect account.
@@ -62,10 +63,37 @@ Use these signals in priority order:
    - Download available certificate, filed document, or rejection evidence.
    - Treat briefcase documents as time-sensitive; Texas materials warn that some documents may only be available for a limited period.
 
-4. **Certificate Verification**
+4. **Texas Business Filing Tracker**
+   - URL: `https://webservices.sos.state.tx.us/filing-status/status.aspx`
+   - Use the submitted filing/session/document identifiers to check status.
+   - Treat this as the document-intake tracker, not the full entity lifecycle status.
+   - `Received` means the submitted document has been received/entered into the tracker. It does not rule out a separate SOSDirect entity status such as `Pending Review`.
+   - If the tracker exposes a certificate/rejection `View` link, retrieve it and reconcile with SOSDirect entity inquiry and briefcase.
+
+5. **Certificate Verification**
    - URL: `https://sosdirectws.sos.state.tx.us/pdfondemand/CertVerification.aspx`
    - Use this after a Certificate of Filing has a certificate/document number.
    - Verification is supporting evidence, not a substitute for storing the actual certificate.
+
+### Texas Composite Status Rule
+
+When reporting Texas status internally or to the customer portal, store/report source-specific statuses:
+
+- `document_tracker_status`: public Business Filing Tracker result, such as `Received`.
+- `entity_status`: SOSDirect entity inquiry result, such as `Pending Review`.
+- `name_status`: SOSDirect entity inquiry name result, such as `Pend. for Review`.
+- `briefcase_status`: briefcase document result, such as no document, certificate available, or rejection available.
+- `approval_evidence_status`: whether a Certificate of Filing, file-stamped formation document, or rejection letter has been captured.
+
+The displayed operational status should be the strongest official signal:
+
+1. Rejection evidence captured -> `rejected/operator_review`.
+2. Approval certificate or file-stamped formation captured -> `state_approved`.
+3. SOSDirect entity inquiry shows `Pending Review` -> `pending_state_review`.
+4. Public tracker shows only `Received` and no entity inquiry has been checked -> `received_needs_sosdirect_check`.
+5. No official state signal -> `submitted_unconfirmed`.
+
+Never describe `document_tracker_status = Received` as the full Texas status unless SOSDirect entity inquiry and briefcase have not yet been checked, and make that limitation explicit.
 
 ### Texas State Approval Gate
 
@@ -122,5 +150,12 @@ This worker does not submit anything to the IRS and does not email customers. It
   - Document type: Legal entity filing document
   - Status: `Received`
   - Filing number: not yet assigned
+- SOSDirect entity inquiry screenshot supplied by Steven on May 5, 2026:
+  - Filing number: `806580183`
+  - Entity type: Domestic Limited Liability Company (LLC)
+  - Entity status: `Pending Review`
+  - Name type: Legal
+  - Name status: `Pend. for Review`
+  - Operational status: `pending_state_review`
 - Next required evidence: Texas Certificate of Filing or rejection letter.
 - EIN should not be started until the approval evidence is captured and the order is marked `state_approved`.

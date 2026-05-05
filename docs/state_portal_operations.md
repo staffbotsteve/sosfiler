@@ -21,6 +21,9 @@ Operational implications:
 - Treat the SOSDirect account as a production portal credential for SOSFiler's Texas filing adapter.
 - Store the USER ID, password, and payment handling notes only in a secrets manager, not in repo docs, code, chat transcripts, or environment examples.
 - Route SOSDirect emails into the filing job system so USER IDs, confirmations, receipts, rejections, and approvals become filing events with evidence.
+- Treat the public Business Filing Tracker as a document-intake tracker only. Do not use `Received` there as the whole Texas filing status when SOSDirect entity inquiry may already show a stronger entity status such as `Pending Review`.
+- For every Texas status check, reconcile at least two sources when available: public Business Filing Tracker plus SOSDirect entity inquiry or Briefcase.
+- Store source-specific status fields separately: document tracker status, SOSDirect entity status, name status, briefcase status, and approval evidence status.
 - Do not mark an order `submitted_to_state` unless a receipt/confirmation or filed image has been captured.
 - Do not mark an order `state_approved` unless the Certificate of Filing or file-stamped formation document has been captured.
 - Default customer notifications to off for operator evidence actions unless explicitly enabled for that order.
