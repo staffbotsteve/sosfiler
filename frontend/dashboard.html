@@ -148,6 +148,21 @@ a:hover { color: var(--accent); text-decoration: none; }
 .status-error, .status-failed { background: rgba(255,51,102,0.15); color: var(--red); }
 .status-ein_pending, .status-ein_received { background: rgba(167,139,250,0.15); color: var(--purple); }
 
+/* Action banner */
+.action-banner {
+  display: none;
+  border: 1px solid rgba(255,204,0,0.4);
+  border-left: 4px solid var(--yellow);
+  background: rgba(255,204,0,0.1);
+  border-radius: 12px;
+  padding: 18px;
+  margin-bottom: 20px;
+}
+.action-banner.active { display: flex; justify-content: space-between; gap: 16px; align-items: center; flex-wrap: wrap; }
+.action-banner .title { font-size: 16px; font-weight: 800; color: var(--text); margin-bottom: 4px; }
+.action-banner .copy { font-size: 13px; color: var(--muted); line-height: 1.45; }
+.action-banner .download-btn { white-space: nowrap; text-decoration: none; }
+
 /* Grid */
 .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
 @media (max-width: 700px) { .grid { grid-template-columns: 1fr; } }
@@ -386,6 +401,8 @@ a:hover { color: var(--accent); text-decoration: none; }
       </div>
       <div class="status-badge" id="dashStatus">—</div>
     </div>
+
+    <div class="action-banner" id="actionBanner"></div>
 
     <div class="grid">
       
@@ -970,6 +987,7 @@ function renderDashboard(data) {
   };
   statusEl.textContent = statusLabels[data.status] || data.status;
   statusEl.className = `status-badge status-${data.status}`;
+  renderActionBanner(data);
   
   // Timeline
   const timeline = data.timeline || [];
@@ -999,10 +1017,10 @@ function renderDashboard(data) {
       <p style="font-size: 13px; color: var(--muted);">Use this for bank accounts, tax returns, and hiring.</p>`;
   } else if (data.ein_requires_ssn) {
     einContent.innerHTML = `
-      <p style="color: var(--yellow); font-size: 14px;">The IRS requires the full responsible-party SSN/ITIN before we can submit the EIN application.</p>
+      <p style="color: var(--yellow); font-size: 14px;">Action needed: enter the full responsible-party SSN/ITIN before we can submit the EIN application.</p>
       <form onsubmit="return submitResponsiblePartySSN(event)" style="margin-top: 12px;">
         <input id="responsibleSsnInput" type="password" inputmode="numeric" maxlength="11" autocomplete="off" placeholder="XXX-XX-XXXX" style="width:100%; padding:12px; border-radius:6px; border:1px solid var(--border); background:var(--bg); color:var(--text);">
-        <button class="download-btn" type="submit" style="margin-top:10px; width:100%;">Submit securely</button>
+        <button class="download-btn" type="submit" style="margin-top:10px; width:100%;">Submit SSN securely for EIN</button>
         <div id="ssnSubmitStatus" style="font-size:12px; color:var(--muted); margin-top:8px;"></div>
       </form>`;
   } else if (['ein_pending'].includes(data.status)) {
@@ -1030,6 +1048,28 @@ function renderDashboard(data) {
   
   // Checklist
   renderChecklist(data);
+}
+
+function renderActionBanner(data) {
+  const banner = document.getElementById('actionBanner');
+  if (!banner) return;
+  if (data.ein_requires_ssn && !data.ein) {
+    banner.classList.add('active');
+    banner.innerHTML = `
+      <div>
+        <div class="title">Action needed: submit SSN/ITIN for EIN</div>
+        <div class="copy">Your state formation documents are ready. To finish the EIN application, enter the responsible party's full 9-digit SSN/ITIN in the EIN section.</div>
+      </div>
+      <button class="download-btn" onclick="scrollToEinSsnForm()">Enter SSN/ITIN</button>`;
+    return;
+  }
+  banner.classList.remove('active');
+  banner.innerHTML = '';
+}
+
+function scrollToEinSsnForm() {
+  document.getElementById('einCard')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  setTimeout(() => document.getElementById('responsibleSsnInput')?.focus(), 350);
 }
 
 function normalizeTaxId(value) {
