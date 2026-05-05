@@ -1,0 +1,284 @@
+{
+  "dry_run": false,
+  "finished_at": "2026-05-05T02:22:24+00:00",
+  "id": "9883d6b1-36cf-4010-a66e-f36fdbc057ec",
+  "jobs": [
+    {
+      "job_id": "nv-state-filing-map",
+      "next_status": "in_progress",
+      "seed_results": [
+        {
+          "checked_at": "2026-05-05T02:21:40+00:00",
+          "content_type": "text/html",
+          "http_status": 200,
+          "sample_chars": 1038,
+          "status": "reachable",
+          "title": "",
+          "url": "https://www.nvsilverflume.gov/home"
+        },
+        {
+          "checked_at": "2026-05-05T02:21:41+00:00",
+          "content_type": "text/html",
+          "http_status": 200,
+          "sample_chars": 1039,
+          "status": "reachable",
+          "title": "",
+          "url": "https://www.nvsos.gov/sos/businesses"
+        },
+        {
+          "checked_at": "2026-05-05T02:21:41+00:00",
+          "content_type": "text/html",
+          "http_status": 200,
+          "sample_chars": 1037,
+          "status": "reachable",
+          "title": "",
+          "url": "https://www.nvsos.gov/sos/businesses/start-a-business"
+        }
+      ],
+      "state": "NV",
+      "task_type": "state_filing_map",
+      "title": "NV state business filing map"
+    },
+    {
+      "job_id": "ca-state-filing-map",
+      "next_status": "in_progress",
+      "seed_results": [
+        {
+          "checked_at": "2026-05-05T02:21:41+00:00",
+          "content_type": "text/html",
+          "http_status": 200,
+          "sample_chars": 212,
+          "status": "reachable",
+          "title": "",
+          "url": "https://bizfileonline.sos.ca.gov/"
+        },
+        {
+          "checked_at": "2026-05-05T02:21:41+00:00",
+          "content_type": "text/html; charset=UTF-8",
+          "http_status": 200,
+          "sample_chars": 63485,
+          "status": "reachable",
+          "title": "Business Entities :: California Secretary of State",
+          "url": "https://www.sos.ca.gov/business-programs/business-entities"
+        },
+        {
+          "checked_at": "2026-05-05T02:21:42+00:00",
+          "content_type": "text/html; charset=UTF-8",
+          "http_status": 200,
+          "sample_chars": 64039,
+          "status": "reachable",
+          "title": "Filing Tips :: California Secretary of State",
+          "url": "https://www.sos.ca.gov/business-programs/business-entities/filing-tips"
+        },
+        {
+          "checked_at": "2026-05-05T02:21:43+00:00",
+          "content_type": "text/html; charset=UTF-8",
+          "http_status": 200,
+          "sample_chars": 65316,
+          "status": "reachable",
+          "title": "Forms, Samples and Fees :: California Secretary of State",
+          "url": "https://www.sos.ca.gov/business-programs/business-entities/forms"
+        }
+      ],
+      "state": "CA",
+      "task_type": "state_filing_map",
+      "title": "CA state business filing map"
+    },
+    {
+      "job_id": "de-state-filing-map",
+      "next_status": "in_progress",
+      "seed_results": [
+        {
+          "checked_at": "2026-05-05T02:21:45+00:00",
+          "content_type": "text/html; charset=UTF-8",
+          "http_status": 200,
+          "sample_chars": 59052,
+          "status": "reachable",
+          "title": "Division of Corporations - State of Delaware -",
+          "url": "https://corp.delaware.gov/"
+        },
+        {
+          "checked_at": "2026-05-05T02:21:46+00:00",
+          "error": "HTTP Error 404: Not Found",
+          "status": "error",
+          "url": "https://corp.delaware.gov/fees/"
+        },
+        {
+          "checked_at": "2026-05-05T02:21:46+00:00",
+          "content_type": "text/html; charset=UTF-8",
+          "http_status": 200,
+          "sample_chars": 48706,
+          "status": "reachable",
+          "title": "Forms by Document Type - Division of Corporations - State of Delaware",
+          "url": "https://corp.delaware.gov/forms/"
+        },
+        {
+          "checked_at": "2026-05-05T02:21:47+00:00",
+          "content_type": "text/html; charset=utf-8",
+          "http_status": 200,
+          "sample_chars": 42761,
+          "status": "reachable",
+          "title": "DIVISION OF CORPORATIONS",
+          "url": "https://icis.corp.delaware.gov/ecorp/"
+        }
+      ],
+      "state": "DE",
+      "task_type": "state_filing_map",
+      "title": "DE state business filing map"
+    },
+    {
+      "job_id": "fl-state-filing-map",
+      "next_status": "in_progress",
+      "seed_results": [
+        {
+          "checked_at": "2026-05-05T02:21:48+00:00",
+          "content_type": "text/html; charset=utf-8",
+          "http_status": 200,
+          "sample_chars": 39191,
+          "status": "reachable",
+          "title": "Division of Corporations - Florida Department of State",
+          "url": "https://dos.fl.gov/sunbiz/"
+        },
+        {
+          "checked_at": "2026-05-05T02:21:48+00:00",
+          "content_type": "text/html; charset=utf-8",
+          "http_status": 200,
+          "sample_chars": 39191,
+          "status": "reachable",
+          "title": "Division of Corporations - Florida Department of State",
+          "url": "https://dos.myflorida.com/sunbiz/"
+        },
+        {
+          "checked_at": "2026-05-05T02:21:49+00:00",
+          "error": "HTTP Error 404: Not Found",
+          "status": "error",
+          "url": "https://dos.myflorida.com/sunbiz/efile/"
+        },
+        {
+          "checked_at": "2026-05-05T02:21:49+00:00",
+          "content_type": "text/html; charset=utf-8",
+          "http_status": 200,
+          "sample_chars": 30678,
+          "status": "reachable",
+          "title": "Forms &amp; Fees - Division of Corporations - Florida Department of State",
+          "url": "https://dos.myflorida.com/sunbiz/forms/"
+        }
+      ],
+      "state": "FL",
+      "task_type": "state_filing_map",
+      "title": "FL state business filing map"
+    },
+    {
+      "job_id": "wy-state-filing-map",
+      "next_status": "in_progress",
+      "seed_results": [
+        {
+          "checked_at": "2026-05-05T02:21:50+00:00",
+          "content_type": "text/html; charset=utf-8",
+          "http_status": 200,
+          "sample_chars": 44022,
+          "status": "reachable",
+          "title": "Wyoming Secretary of State",
+          "url": "https://sos.wyo.gov/Business/Default.aspx"
+        },
+        {
+          "checked_at": "2026-05-05T02:21:50+00:00",
+          "error": "HTTP Error 404: Not Found",
+          "status": "error",
+          "url": "https://sos.wyo.gov/Business/Fees.aspx"
+        },
+        {
+          "checked_at": "2026-05-05T02:21:51+00:00",
+          "content_type": "text/html; charset=utf-8",
+          "http_status": 200,
+          "sample_chars": 80456,
+          "status": "reachable",
+          "title": "Wyoming Secretary of State",
+          "url": "https://sos.wyo.gov/Forms/Default.aspx"
+        }
+      ],
+      "state": "WY",
+      "task_type": "state_filing_map",
+      "title": "WY state business filing map"
+    },
+    {
+      "job_id": "ny-state-filing-map",
+      "next_status": "in_progress",
+      "seed_results": [
+        {
+          "checked_at": "2026-05-05T02:21:51+00:00",
+          "error": "HTTP Error 404: Not Found",
+          "status": "error",
+          "url": "https://dos.ny.gov/business"
+        },
+        {
+          "checked_at": "2026-05-05T02:21:52+00:00",
+          "content_type": "text/html; charset=UTF-8",
+          "http_status": 200,
+          "sample_chars": 37947,
+          "status": "reachable",
+          "title": "Certificate of Status | Department of State",
+          "url": "https://dos.ny.gov/certificate-status"
+        },
+        {
+          "checked_at": "2026-05-05T02:21:52+00:00",
+          "error": "HTTP Error 404: Not Found",
+          "status": "error",
+          "url": "https://dos.ny.gov/corporations"
+        }
+      ],
+      "state": "NY",
+      "task_type": "state_filing_map",
+      "title": "NY state business filing map"
+    },
+    {
+      "job_id": "ga-state-filing-map",
+      "next_status": "in_progress",
+      "seed_results": [
+        {
+          "checked_at": "2026-05-05T02:21:53+00:00",
+          "content_type": "text/html; charset=utf-8",
+          "http_status": 200,
+          "sample_chars": 17065,
+          "status": "reachable",
+          "title": "Georgia Corporations Division",
+          "url": "https://ecorp.sos.ga.gov/"
+        },
+        {
+          "checked_at": "2026-05-05T02:21:53+00:00",
+          "content_type": "text/html; charset=UTF-8",
+          "http_status": 200,
+          "sample_chars": 181857,
+          "status": "reachable",
+          "title": "Georgia Business Forms | Georgia Secretary of State",
+          "url": "https://sos.ga.gov/page/georgia-business-forms"
+        }
+      ],
+      "state": "GA",
+      "task_type": "state_filing_map",
+      "title": "GA state business filing map"
+    },
+    {
+      "job_id": "il-state-filing-map",
+      "next_status": "blocked",
+      "seed_results": [
+        {
+          "checked_at": "2026-05-05T02:21:53+00:00",
+          "error": "The read operation timed out",
+          "status": "error",
+          "url": "https://www.ilsos.gov/departments/business_services/home.html"
+        },
+        {
+          "checked_at": "2026-05-05T02:22:09+00:00",
+          "error": "The read operation timed out",
+          "status": "error",
+          "url": "https://www.ilsos.gov/departments/business_services/publications_and_forms/home.html"
+        }
+      ],
+      "state": "IL",
+      "task_type": "state_filing_map",
+      "title": "IL state business filing map"
+    }
+  ],
+  "started_at": "2026-05-05T02:21:40+00:00"
+}

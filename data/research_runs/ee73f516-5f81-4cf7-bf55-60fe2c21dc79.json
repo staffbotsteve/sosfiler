@@ -1,0 +1,116 @@
+{
+  "dry_run": false,
+  "finished_at": "2026-05-05T02:21:01+00:00",
+  "id": "ee73f516-5f81-4cf7-bf55-60fe2c21dc79",
+  "jobs": [
+    {
+      "job_id": "az-state-filing-map",
+      "next_status": "in_progress",
+      "seed_results": [
+        {
+          "checked_at": "2026-05-05T02:20:53+00:00",
+          "error": "HTTP Error 404: Not Found",
+          "status": "error",
+          "url": "https://azcc.gov/business"
+        },
+        {
+          "checked_at": "2026-05-05T02:20:54+00:00",
+          "content_type": "text/html; charset=utf-8",
+          "http_status": 200,
+          "sample_chars": 47897,
+          "status": "reachable",
+          "title": "Corporation Division | Arizona Corporation Commission",
+          "url": "https://azcc.gov/corporations"
+        },
+        {
+          "checked_at": "2026-05-05T02:20:55+00:00",
+          "content_type": "text/html; charset=utf-8",
+          "http_status": 200,
+          "sample_chars": 48766,
+          "status": "reachable",
+          "title": "Fee and Payment Info | Arizona Corporation Commission",
+          "url": "https://azcc.gov/corporations/fee-and-payment-info"
+        },
+        {
+          "checked_at": "2026-05-05T02:20:56+00:00",
+          "content_type": "text/html; charset=utf-8",
+          "http_status": 200,
+          "sample_chars": 85414,
+          "status": "reachable",
+          "title": "LLC Forms",
+          "url": "https://azcc.gov/corporations/forms"
+        },
+        {
+          "checked_at": "2026-05-05T02:20:57+00:00",
+          "content_type": "text/html; charset=utf-8",
+          "http_status": 200,
+          "sample_chars": 113825,
+          "status": "reachable",
+          "title": "Corporation Forms",
+          "url": "https://azcc.gov/corporations/forms/corporation-forms"
+        },
+        {
+          "checked_at": "2026-05-05T02:20:57+00:00",
+          "error": "HTTP Error 404: Not Found",
+          "status": "error",
+          "url": "https://azcc.gov/corporations/forms/limited-liability-company-forms"
+        }
+      ],
+      "state": "AZ",
+      "task_type": "state_filing_map",
+      "title": "AZ state business filing map"
+    },
+    {
+      "job_id": "tx-state-filing-map",
+      "next_status": "in_progress",
+      "seed_results": [
+        {
+          "checked_at": "2026-05-05T02:20:58+00:00",
+          "content_type": "text/html",
+          "http_status": 200,
+          "sample_chars": 16041,
+          "status": "reachable",
+          "title": "DIRECT ACCESS SUBSCRIBER LOGIN",
+          "url": "https://direct.sos.state.tx.us/"
+        },
+        {
+          "checked_at": "2026-05-05T02:20:59+00:00",
+          "content_type": "text/html; charset=iso-8859-1",
+          "http_status": 200,
+          "sample_chars": 7448,
+          "status": "reachable",
+          "title": "Business Filings - Status",
+          "url": "https://webservices.sos.state.tx.us/filing-status/status.aspx"
+        },
+        {
+          "checked_at": "2026-05-05T02:20:59+00:00",
+          "error": "HTTP Error 403: Forbidden",
+          "status": "error",
+          "url": "https://www.sos.texas.gov/corp/"
+        },
+        {
+          "checked_at": "2026-05-05T02:21:00+00:00",
+          "content_type": "text/html",
+          "http_status": 200,
+          "sample_chars": 78905,
+          "status": "reachable",
+          "title": "Business and Nonprofit Forms",
+          "url": "https://www.sos.texas.gov/corp/forms_boc.shtml"
+        },
+        {
+          "checked_at": "2026-05-05T02:21:01+00:00",
+          "content_type": "text/html",
+          "http_status": 200,
+          "sample_chars": 27327,
+          "status": "reachable",
+          "title": "SOSDirect - An Online Business Service from the Office of the Secretary of State",
+          "url": "https://www.sos.texas.gov/corp/sosda/index.shtml"
+        }
+      ],
+      "state": "TX",
+      "task_type": "state_filing_map",
+      "title": "TX state business filing map"
+    }
+  ],
+  "started_at": "2026-05-05T02:20:53+00:00"
+}

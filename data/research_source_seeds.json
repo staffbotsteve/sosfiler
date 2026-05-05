@@ -1,0 +1,192 @@
+{
+  "purpose": "Official source seeds for the queue-driven SOSFiler research worker. These URLs are starting points only; fee and process facts must still be verified and extracted into filing action records.",
+  "states": {
+    "AZ": {
+      "all": [
+        "https://azcc.gov/corporations",
+        "https://azcc.gov/corporations/forms",
+        "https://azcc.gov/corporations/fee-and-payment-info"
+      ],
+      "state_filing_map": [
+        "https://azcc.gov/corporations/forms/corporation-forms",
+        "https://azcc.gov/corporations/forms"
+      ],
+      "state_tax_gateway": [
+        "https://azdor.gov/business"
+      ],
+      "county_directory": [
+        "https://az.gov/counties"
+      ],
+      "municipality_directory": [
+        "https://www.azleague.org"
+      ]
+    },
+    "TX": {
+      "all": [
+        "https://www.sos.texas.gov/corp/",
+        "https://direct.sos.state.tx.us/",
+        "https://webservices.sos.state.tx.us/filing-status/status.aspx"
+      ],
+      "state_filing_map": [
+        "https://www.sos.texas.gov/corp/forms_boc.shtml",
+        "https://www.sos.texas.gov/corp/sosda/index.shtml"
+      ],
+      "state_tax_gateway": [
+        "https://comptroller.texas.gov/taxes/franchise/",
+        "https://comptroller.texas.gov/taxes/permit/"
+      ],
+      "county_directory": [
+        "https://www.county.org/County-Information/County-Websites"
+      ],
+      "municipality_directory": [
+        "https://www.tml.org/215/City-Officials-Directory"
+      ]
+    },
+    "NV": {
+      "all": [
+        "https://www.nvsos.gov/sos/businesses",
+        "https://www.nvsilverflume.gov/home"
+      ],
+      "state_filing_map": [
+        "https://www.nvsos.gov/sos/businesses/start-a-business"
+      ],
+      "state_tax_gateway": [
+        "https://tax.nv.gov/"
+      ],
+      "county_directory": [
+        "https://www.nvnaco.org/members/"
+      ],
+      "municipality_directory": [
+        "https://www.nvleague.org/"
+      ]
+    },
+    "CA": {
+      "all": [
+        "https://www.sos.ca.gov/business-programs/business-entities",
+        "https://bizfileonline.sos.ca.gov/"
+      ],
+      "state_filing_map": [
+        "https://www.sos.ca.gov/business-programs/business-entities/forms",
+        "https://www.sos.ca.gov/business-programs/business-entities/filing-tips"
+      ],
+      "state_tax_gateway": [
+        "https://www.ftb.ca.gov/file/business/",
+        "https://www.cdtfa.ca.gov/services/"
+      ],
+      "county_directory": [
+        "https://www.counties.org/county-websites-profile-information"
+      ],
+      "municipality_directory": [
+        "https://www.calcities.org"
+      ]
+    },
+    "DE": {
+      "all": [
+        "https://corp.delaware.gov/",
+        "https://icis.corp.delaware.gov/ecorp/"
+      ],
+      "state_filing_map": [
+        "https://corp.delaware.gov/forms/",
+        "https://corp.delaware.gov/fees/"
+      ],
+      "state_tax_gateway": [
+        "https://revenue.delaware.gov/business-tax-forms/"
+      ],
+      "county_directory": [
+        "https://delaware.gov/guides/counties/"
+      ],
+      "municipality_directory": [
+        "https://stateplanning.delaware.gov/municipalities/"
+      ]
+    },
+    "FL": {
+      "all": [
+        "https://dos.myflorida.com/sunbiz/",
+        "https://dos.fl.gov/sunbiz/"
+      ],
+      "state_filing_map": [
+        "https://dos.myflorida.com/sunbiz/forms/",
+        "https://dos.myflorida.com/sunbiz/efile/"
+      ],
+      "state_tax_gateway": [
+        "https://floridarevenue.com/taxes/Pages/registration.aspx"
+      ],
+      "county_directory": [
+        "https://www.fl-counties.com/counties/"
+      ],
+      "municipality_directory": [
+        "https://www.floridaleagueofcities.com/research-resources/municipal-directory"
+      ]
+    },
+    "WY": {
+      "all": [
+        "https://sos.wyo.gov/Business/Default.aspx"
+      ],
+      "state_filing_map": [
+        "https://sos.wyo.gov/Forms/Default.aspx",
+        "https://sos.wyo.gov/Business/Fees.aspx"
+      ],
+      "state_tax_gateway": [
+        "https://revenue.wyo.gov/"
+      ],
+      "county_directory": [
+        "https://www.wyomingcountycommissioners.com/counties"
+      ],
+      "municipality_directory": [
+        "https://www.wyomuni.org/"
+      ]
+    },
+    "NY": {
+      "all": [
+        "https://dos.ny.gov/business"
+      ],
+      "state_filing_map": [
+        "https://dos.ny.gov/corporations",
+        "https://dos.ny.gov/certificate-status"
+      ],
+      "state_tax_gateway": [
+        "https://www.tax.ny.gov/bus/"
+      ],
+      "county_directory": [
+        "https://www.ny.gov/counties"
+      ],
+      "municipality_directory": [
+        "https://www.ny.gov/local-government"
+      ]
+    },
+    "GA": {
+      "all": [
+        "https://sos.ga.gov/page/georgia-business-forms"
+      ],
+      "state_filing_map": [
+        "https://ecorp.sos.ga.gov/"
+      ],
+      "state_tax_gateway": [
+        "https://dor.georgia.gov/taxes/business-taxes"
+      ],
+      "county_directory": [
+        "https://georgia.gov/counties"
+      ],
+      "municipality_directory": [
+        "https://www.gacities.com/Resources/GMA-City-Search.aspx"
+      ]
+    },
+    "IL": {
+      "all": [
+        "https://www.ilsos.gov/departments/business_services/home.html"
+      ],
+      "state_filing_map": [
+        "https://www.ilsos.gov/departments/business_services/publications_and_forms/home.html"
+      ],
+      "state_tax_gateway": [
+        "https://tax.illinois.gov/businesses.html"
+      ],
+      "county_directory": [
+        "https://www2.illinois.gov/sites/counties/Pages/default.aspx"
+      ],
+      "municipality_directory": [
+        "https://www.iml.org/"
+      ]
+    }
+  }
+}

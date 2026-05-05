@@ -114,5 +114,13 @@ This worker does not submit anything to the IRS and does not email customers. It
 - Entity: Clarence High LLC
 - State: Texas
 - Current known state: submitted to Texas, awaiting final filed/rejected result.
+- Public Texas Business Filing Tracker check on May 4, 2026 Pacific time:
+  - Document number: `1583055400004`
+  - Entity name: Clarence High LLC
+  - Delivery method: Web
+  - Received: `05/03/2026`
+  - Document type: Legal entity filing document
+  - Status: `Received`
+  - Filing number: not yet assigned
 - Next required evidence: Texas Certificate of Filing or rejection letter.
 - EIN should not be started until the approval evidence is captured and the order is marked `state_approved`.

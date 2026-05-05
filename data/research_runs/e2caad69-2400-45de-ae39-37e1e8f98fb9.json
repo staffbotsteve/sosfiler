@@ -1,0 +1,92 @@
+{
+  "dry_run": false,
+  "finished_at": "2026-05-04T21:14:11+00:00",
+  "id": "e2caad69-2400-45de-ae39-37e1e8f98fb9",
+  "jobs": [
+    {
+      "job_id": "az-state-filing-map",
+      "next_status": "blocked",
+      "seed_results": [
+        {
+          "checked_at": "2026-05-04T21:14:10+00:00",
+          "error": "<urlopen error [Errno 8] nodename nor servname provided, or not known>",
+          "status": "error",
+          "url": "https://azcc.gov/business"
+        },
+        {
+          "checked_at": "2026-05-04T21:14:11+00:00",
+          "error": "<urlopen error [Errno 8] nodename nor servname provided, or not known>",
+          "status": "error",
+          "url": "https://azcc.gov/corporations"
+        },
+        {
+          "checked_at": "2026-05-04T21:14:11+00:00",
+          "error": "<urlopen error [Errno 8] nodename nor servname provided, or not known>",
+          "status": "error",
+          "url": "https://azcc.gov/corporations/fee-and-payment-info"
+        },
+        {
+          "checked_at": "2026-05-04T21:14:11+00:00",
+          "error": "<urlopen error [Errno 8] nodename nor servname provided, or not known>",
+          "status": "error",
+          "url": "https://azcc.gov/corporations/forms"
+        },
+        {
+          "checked_at": "2026-05-04T21:14:11+00:00",
+          "error": "<urlopen error [Errno 8] nodename nor servname provided, or not known>",
+          "status": "error",
+          "url": "https://azcc.gov/corporations/forms/corporation-forms"
+        },
+        {
+          "checked_at": "2026-05-04T21:14:11+00:00",
+          "error": "<urlopen error [Errno 8] nodename nor servname provided, or not known>",
+          "status": "error",
+          "url": "https://azcc.gov/corporations/forms/limited-liability-company-forms"
+        }
+      ],
+      "state": "AZ",
+      "task_type": "state_filing_map",
+      "title": "AZ state business filing map"
+    },
+    {
+      "job_id": "tx-state-filing-map",
+      "next_status": "blocked",
+      "seed_results": [
+        {
+          "checked_at": "2026-05-04T21:14:11+00:00",
+          "error": "<urlopen error [Errno 8] nodename nor servname provided, or not known>",
+          "status": "error",
+          "url": "https://direct.sos.state.tx.us/"
+        },
+        {
+          "checked_at": "2026-05-04T21:14:11+00:00",
+          "error": "<urlopen error [Errno 8] nodename nor servname provided, or not known>",
+          "status": "error",
+          "url": "https://webservices.sos.state.tx.us/filing-status/status.aspx"
+        },
+        {
+          "checked_at": "2026-05-04T21:14:11+00:00",
+          "error": "<urlopen error [Errno 8] nodename nor servname provided, or not known>",
+          "status": "error",
+          "url": "https://www.sos.texas.gov/corp/"
+        },
+        {
+          "checked_at": "2026-05-04T21:14:11+00:00",
+          "error": "<urlopen error [Errno 8] nodename nor servname provided, or not known>",
+          "status": "error",
+          "url": "https://www.sos.texas.gov/corp/forms_boc.shtml"
+        },
+        {
+          "checked_at": "2026-05-04T21:14:11+00:00",
+          "error": "<urlopen error [Errno 8] nodename nor servname provided, or not known>",
+          "status": "error",
+          "url": "https://www.sos.texas.gov/corp/sosda/index.shtml"
+        }
+      ],
+      "state": "TX",
+      "task_type": "state_filing_map",
+      "title": "TX state business filing map"
+    }
+  ],
+  "started_at": "2026-05-04T21:14:10+00:00"
+}
