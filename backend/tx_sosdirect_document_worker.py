@@ -280,6 +280,13 @@ async def login(page, user_id: str, password: str) -> str:
     await page.wait_for_load_state("domcontentloaded", timeout=45_000)
     content = await page.content()
     if "SOSDirect Account Login" in content and 'name="client_id"' in content:
+        failure_dir = RUN_DIR / "login"
+        failure_dir.mkdir(parents=True, exist_ok=True)
+        stamp = datetime.utcnow().strftime("%Y%m%dT%H%M%SZ")
+        html_path = failure_dir / f"{stamp}-login-failed.html"
+        screenshot_path = failure_dir / f"{stamp}-login-failed.png"
+        html_path.write_text(content, errors="ignore")
+        await page.screenshot(path=str(screenshot_path), full_page=True)
         raise RuntimeError("SOSDirect login failed or password reset is required.")
     match = re.search(r"session code is:\s*([A-Z0-9]+)", content, flags=re.I)
     return match.group(1) if match else ""
