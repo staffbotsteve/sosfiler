@@ -132,9 +132,11 @@ Internal trigger:
 2. Order has `approved_at`.
 3. Order does not already have an EIN.
 4. No existing EIN queue status or `generated_docs/<order_id>/ein_queue.json` exists.
-5. `backend/ein_queue_worker.py` creates the EIN queue artifact and adds `ein_pending` / `ein_queued` records.
+5. Captured state approval evidence exists in the filing artifacts or customer document vault.
+6. `backend/ein_queue_worker.py` creates the EIN queue artifact and adds `ein_pending` / `ein_queued` records.
+7. After the IRS application is completed and the EIN confirmation/CP575 file is captured in `generated_docs/<order_id>/`, `backend/ein_completion_ingest.py` publishes it to the customer portal and records `ein_received`.
 
-This worker does not submit anything to the IRS and does not email customers. It queues the EIN task for operator/assisted processing.
+The queue worker does not submit anything to the IRS and does not email customers. It queues the EIN task for controlled operator/assisted processing. The completion ingester only publishes captured IRS confirmation documents into the portal.
 
 ## Current Texas/Jay Order Notes
 

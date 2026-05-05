@@ -6,7 +6,7 @@ See `docs/formation_process.md` for the approval-evidence gate that should happe
 
 ## EIN Queue After State Approval
 
-Purpose: once a state filing has approval evidence and the order is marked `state_approved`, queue the EIN application for operator processing.
+Purpose: once a state filing has approval evidence and the order is marked `state_approved`, queue the EIN application for operator/assisted IRS processing.
 
 Command:
 
@@ -23,11 +23,12 @@ Suggested schedule:
 Behavior:
 
 - Selects orders with `status = 'state_approved'`, `approved_at` present, and no EIN.
+- Requires captured approval evidence in `filing_artifacts` or `documents` before queueing.
 - Skips orders that already have an EIN queue status or `generated_docs/<order_id>/ein_queue.json`.
 - Creates `generated_docs/<order_id>/ein_queue.json`.
 - Adds an `ein_pending` status update.
 - Adds an `ein_queued` filing event.
-- Does not submit anything to the IRS.
+- Does not submit anything to the IRS by itself; it prepares the order for the controlled IRS application step.
 - Does not send customer emails.
 
 Dry run:
@@ -35,6 +36,30 @@ Dry run:
 ```bash
 cd /root/.openclaw/workspace/builds/sosfiler && /usr/bin/python3 backend/ein_queue_worker.py --dry-run
 ```
+
+## EIN Confirmation Document Ingest
+
+Purpose: after the IRS EIN application is completed and the confirmation/CP575 document is captured, publish it into the customer's portal.
+
+Command:
+
+```bash
+cd /root/.openclaw/workspace/builds/sosfiler && /usr/bin/python3 backend/ein_completion_ingest.py --limit 50 >> logs/ein_completion_ingest.log 2>&1
+```
+
+Suggested schedule:
+
+```cron
+*/15 * * * * cd /root/.openclaw/workspace/builds/sosfiler && /usr/bin/python3 backend/ein_completion_ingest.py --limit 50 >> logs/ein_completion_ingest.log 2>&1
+```
+
+Behavior:
+
+- Looks for captured files in `generated_docs/<order_id>/` with names like `ein_confirmation*.pdf`, `irs_ein_confirmation*.pdf`, or `cp575*.pdf`.
+- Adds the captured EIN confirmation document to the `documents` table with `doc_type = 'ein_confirmation_letter'`.
+- Adds an `ein_received` status update and filing event exactly once.
+- Updates the order to `ein_received`; if the EIN number is present in a `.txt` confirmation file, also stores it on the order.
+- Does not email customers.
 
 ## State Filing Status Listener
 

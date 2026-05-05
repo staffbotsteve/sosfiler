@@ -46,6 +46,35 @@ def already_queued(conn: sqlite3.Connection, order_id: str) -> bool:
     return row is not None or queue_path.exists()
 
 
+def approval_evidence_exists(conn: sqlite3.Connection, order_id: str) -> bool:
+    """Require captured state approval evidence before EIN work is queued."""
+    artifact = conn.execute(
+        """
+        SELECT 1
+        FROM filing_artifacts
+        WHERE order_id = ?
+          AND artifact_type = 'approved_certificate'
+          AND is_evidence = 1
+        LIMIT 1
+        """,
+        (order_id,),
+    ).fetchone()
+    if artifact:
+        return True
+
+    document = conn.execute(
+        """
+        SELECT 1
+        FROM documents
+        WHERE order_id = ?
+          AND doc_type = 'approved_certificate'
+        LIMIT 1
+        """,
+        (order_id,),
+    ).fetchone()
+    return document is not None
+
+
 def prepare_ss4(data: dict) -> dict:
     members = data.get("members", [])
     responsible = next(
@@ -164,6 +193,13 @@ def queue_ready_orders(limit: int = 25, dry_run: bool = False) -> list[dict]:
 
         results = []
         for order in orders:
+            if not approval_evidence_exists(conn, order["id"]):
+                results.append({
+                    "order_id": order["id"],
+                    "business_name": order["business_name"],
+                    "status": "missing_approval_evidence",
+                })
+                continue
             if already_queued(conn, order["id"]):
                 results.append({
                     "order_id": order["id"],

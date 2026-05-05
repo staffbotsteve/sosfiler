@@ -20,10 +20,12 @@ Use this as the running list of owner/operator tasks that are outside normal app
 ## EIN Workflow
 
 - [ ] Install the EIN queue cron job on the production server.
+- [ ] Install the EIN confirmation document ingest cron job on the production server.
 - [ ] Confirm the cron job runs after Texas approval and creates `generated_docs/<order_id>/ein_queue.json`.
 - [ ] Complete the IRS EIN application during IRS online assistant hours after the state approval certificate is available.
-- [ ] Upload the EIN confirmation letter into the order document vault.
-- [ ] Mark the EIN deliverable complete and notify the correct recipient according to the order notification policy.
+- [ ] Save the IRS EIN confirmation/CP575 file into `generated_docs/<order_id>/` using an `ein_confirmation`, `irs_ein_confirmation`, or `cp575` filename.
+- [ ] Confirm the EIN confirmation ingester adds the document to the customer portal and records `ein_received`.
+- [ ] Notify the correct recipient according to the order notification policy.
 
 ## Customer Portal
 
