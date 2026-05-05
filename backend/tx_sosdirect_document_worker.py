@@ -140,6 +140,13 @@ def known_identifiers(job: sqlite3.Row, order: sqlite3.Row) -> list[str]:
     return [item.lower() for item in identifiers if item]
 
 
+def evidence_value(job: sqlite3.Row, key: str) -> str:
+    if not job["evidence_summary"]:
+        return ""
+    evidence = parse_json(job["evidence_summary"], {})
+    return str(evidence.get(key) or "")
+
+
 def row_matches(row_text: str, identifiers: list[str]) -> bool:
     text = row_text.lower()
     return any(identifier and identifier in text for identifier in identifiers)
@@ -388,7 +395,15 @@ async def download_candidate(page, order_id: str, candidate: CandidateLink, inde
 async def process_job(page, conn: sqlite3.Connection, job: sqlite3.Row, order: sqlite3.Row, dry_run: bool = False) -> dict[str, Any]:
     order_id = job["order_id"]
     identifiers = known_identifiers(job, order)
-    await page.goto(BRIEFCASE_URL, wait_until="domcontentloaded", timeout=45_000)
+    session_id = evidence_value(job, "session_id")
+    if session_id:
+        await page.goto("https://direct.sos.state.tx.us/acct/acct-batch.asp?spage=batch-search", wait_until="domcontentloaded", timeout=45_000)
+        await page.fill('input[name="sid"]', session_id)
+        await page.fill('input[name="op_email"]', os.environ.get("TX_SOSDIRECT_CONTACT_EMAIL", "admin@swanbill.biz"))
+        await page.locator('form[action*="batch-view"] input[type="submit"][name="submit"]').click()
+        await page.wait_for_load_state("domcontentloaded", timeout=45_000)
+    else:
+        await page.goto(BRIEFCASE_URL, wait_until="domcontentloaded", timeout=45_000)
     content = await page.content()
     debug_path = write_debug(order_id, "briefcase.html", content)
 
