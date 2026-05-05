@@ -19,13 +19,10 @@ DOCS_DIR = BASE_DIR / "generated_docs"
 
 EIN_FILE_PATTERNS = (
     "ein_confirmation*.pdf",
-    "ein_confirmation*.txt",
     "ein_confirmation*.png",
     "irs_ein_confirmation*.pdf",
-    "irs_ein_confirmation*.txt",
     "irs_ein_confirmation*.png",
     "cp575*.pdf",
-    "cp575*.txt",
     "cp575*.png",
 )
 

@@ -584,6 +584,49 @@ def resolve_document_path(file_path: str) -> Path:
     return BASE_DIR / path
 
 
+OFFICIAL_DOCUMENT_TYPES = {
+    "approved_certificate",
+    "state_filed_document",
+    "state_acknowledgment",
+    "submitted_receipt",
+    "ein_confirmation_letter",
+}
+
+HIDDEN_CUSTOMER_DOCUMENT_TYPES = {
+    "ein_ss4_data",
+}
+
+SOURCE_DOCUMENT_FORMATS = {"text", "txt", "md", "markdown", "json"}
+PREFERRED_CUSTOMER_FORMATS = {"pdf": 0, "png": 1, "jpg": 1, "jpeg": 1, "zip": 2}
+
+
+def customer_visible_documents(rows) -> list[dict]:
+    """Return customer-facing document rows without source/data clutter."""
+    docs = [dict(row) for row in rows]
+    candidates: list[dict] = []
+    for doc in docs:
+        doc_type = doc.get("doc_type", "")
+        fmt = (doc.get("format") or Path(doc.get("filename", "")).suffix.lstrip(".")).lower()
+        doc["format"] = fmt
+        if doc_type in HIDDEN_CUSTOMER_DOCUMENT_TYPES:
+            continue
+        if doc_type in OFFICIAL_DOCUMENT_TYPES and fmt in SOURCE_DOCUMENT_FORMATS:
+            continue
+        candidates.append(doc)
+
+    grouped: dict[str, list[dict]] = {}
+    for doc in candidates:
+        grouped.setdefault(doc.get("doc_type", ""), []).append(doc)
+
+    visible: list[dict] = []
+    for group in grouped.values():
+        best_rank = min(PREFERRED_CUSTOMER_FORMATS.get(doc.get("format", ""), 9) for doc in group)
+        best_docs = [doc for doc in group if PREFERRED_CUSTOMER_FORMATS.get(doc.get("format", ""), 9) == best_rank]
+        visible.extend(best_docs)
+
+    return sorted(visible, key=lambda doc: (doc.get("created_at") or "", doc.get("filename") or ""))
+
+
 def get_filing_action(state: str, entity_type: str, action_type: str = "formation") -> Optional[dict]:
     state = state.upper()
     entity_type = "LLC" if entity_type == "LLC" else entity_type
@@ -1684,7 +1727,7 @@ async def get_order_status(order_id: str, token: str = ""):
         "filing_job": filing_job_payload,
         "filing_events": [dict(e) for e in filing_events],
         "filing_artifacts": [dict(a) for a in filing_artifacts],
-        "documents": [dict(d) for d in docs],
+        "documents": customer_visible_documents(docs),
         "total_cents": order.get("total_cents", 0)
     }
 
@@ -1881,7 +1924,7 @@ async def get_documents(order_id: str, token: str = ""):
     ).fetchall()
     conn.close()
     
-    return {"order_id": order_id, "documents": [dict(d) for d in docs]}
+    return {"order_id": order_id, "documents": customer_visible_documents(docs)}
 
 @app.get("/api/documents/{order_id}/download/{filename}")
 async def download_document(order_id: str, filename: str, token: str = ""):
@@ -2263,7 +2306,7 @@ async def get_user_order_detail(order_id: str, request: Request):
     payload = dict(order)
     payload["formation_data"] = parse_json_field(payload.get("formation_data"), {})
     payload["ein_requires_ssn"] = not payload.get("ein") and formation_data_needs_ssn(payload["formation_data"])
-    payload["documents"] = [dict(d) for d in docs]
+    payload["documents"] = customer_visible_documents(docs)
     payload["timeline"] = [dict(u) for u in updates]
     payload["compliance_deadlines"] = [dict(d) for d in deadlines]
     payload["filing_events"] = [dict(e) for e in filing_events]
