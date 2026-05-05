@@ -365,7 +365,27 @@ def run_listener(limit: int = 50, state: str = "", dry_run: bool = False) -> dic
             }
         for job, order in active_jobs(conn, state=state, limit=limit):
             adapter = ADAPTERS.get(job["state"], StateStatusAdapter())
-            result = adapter.check(conn, job, order, dry_run=dry_run)
+            try:
+                result = adapter.check(conn, job, order, dry_run=dry_run)
+            except Exception as exc:
+                message = f"{type(exc).__name__}: {exc}"
+                if not dry_run:
+                    insert_event(
+                        conn,
+                        order_id=job["order_id"],
+                        filing_job_id=job["id"],
+                        state=job["state"],
+                        event_type="listener_error",
+                        message=message,
+                        payload={"error_type": type(exc).__name__},
+                    )
+                result = ListenerResult(
+                    job_id=job["id"],
+                    order_id=job["order_id"],
+                    state=job["state"],
+                    status="error",
+                    message=message,
+                )
             results.append({
                 "job_id": result.job_id,
                 "order_id": result.order_id,
