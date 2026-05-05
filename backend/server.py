@@ -577,6 +577,13 @@ def add_customer_document_if_missing(
         (order_id, doc_type, filename, file_path, file_format),
     )
 
+def resolve_document_path(file_path: str) -> Path:
+    path = Path(file_path)
+    if path.is_absolute():
+        return path
+    return BASE_DIR / path
+
+
 def get_filing_action(state: str, entity_type: str, action_type: str = "formation") -> Optional[dict]:
     state = state.upper()
     entity_type = "LLC" if entity_type == "LLC" else entity_type
@@ -1891,7 +1898,7 @@ async def download_document(order_id: str, filename: str, token: str = ""):
     if not doc:
         raise HTTPException(status_code=404, detail="Document not found")
     
-    file_path = Path(doc["file_path"])
+    file_path = resolve_document_path(doc["file_path"])
     if not file_path.exists():
         raise HTTPException(status_code=404, detail="File not found on disk")
     
@@ -2293,7 +2300,7 @@ async def download_user_document(order_id: str, filename: str, request: Request)
     if not doc:
         raise HTTPException(status_code=404, detail="Document not found")
 
-    file_path = Path(doc["file_path"])
+    file_path = resolve_document_path(doc["file_path"])
     if not file_path.exists():
         raise HTTPException(status_code=404, detail="File not found on disk")
 
