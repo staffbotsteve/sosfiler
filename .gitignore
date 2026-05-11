@@ -35,6 +35,7 @@ _sg_check.py
 
 # Generated research/runtime outputs
 automations/
+data/research_jobs.json
 data/research_jobs.lock
 data/research_blockers.jsonl
 data/research_runs/
