@@ -312,7 +312,7 @@ async def login(page, user_id: str, password: str) -> str:
         contact_defaults = {
             "ordering_party_name": os.environ.get("TX_SOSDIRECT_CONTACT_NAME", "SOS Filer"),
             "ordering_party_phone": os.environ.get("TX_SOSDIRECT_CONTACT_PHONE", "9165057744"),
-            "ordering_party_email": os.environ.get("TX_SOSDIRECT_CONTACT_EMAIL", "admin@swanbill.biz"),
+            "ordering_party_email": os.environ.get("TX_SOSDIRECT_CONTACT_EMAIL", "admin@sosfiler.com"),
         }
         for field, value in contact_defaults.items():
             locator = page.locator(f'input[name="{field}"]')
@@ -413,7 +413,7 @@ async def process_job(page, conn: sqlite3.Connection, job: sqlite3.Row, order: s
     if session_id:
         await page.goto("https://direct.sos.state.tx.us/acct/acct-batch.asp?spage=batch-search", wait_until="domcontentloaded", timeout=45_000)
         await page.fill('input[name="sid"]', session_id)
-        await page.fill('input[name="op_email"]', os.environ.get("TX_SOSDIRECT_CONTACT_EMAIL", "admin@swanbill.biz"))
+        await page.fill('input[name="op_email"]', os.environ.get("TX_SOSDIRECT_CONTACT_EMAIL", "admin@sosfiler.com"))
         await page.locator('input[type="submit"][name="submit"][value="Search"]').first.click()
         await page.wait_for_load_state("domcontentloaded", timeout=45_000)
     else:

@@ -1,0 +1,30 @@
+SOSFiler Jurisdiction Data Schema
+
+Core Files
+
+data/regulatory/jurisdictions.json stores state jurisdiction seeds and official domains. County and city records will be added after official directories are discovered.
+
+data/regulatory/research_batches.json stores the first controlled research batches. Each state currently has a state filing map batch and a local filing map batch.
+
+data/regulatory/filings.json stores verified or sample filing records. This file begins with the Texas LLC certificate of formation as a sample record and should grow into the filing intelligence database.
+
+Primary Record Types
+
+Jurisdiction records identify the authority being researched. Fields include jurisdiction_id, name, level, state, parent_id, official_domains, filing_authority, portal_type, priority, and notes.
+
+Research batch records identify a controlled research unit. Fields include batch_id, jurisdiction_id, title, priority, scope, required_filings, discovery_queries, official_domains, status, and created_at.
+
+Filing records identify one productizable filing. Fields include filing_id, jurisdiction_id, jurisdiction_name, jurisdiction_level, filing_category, entity_types, filing_name, authority, domestic_or_foreign, form_number, form_name, portal_name, portal_url, submission_channels, required_customer_inputs, required_documents, output_documents, annual_or_renewal_rule, expected_turnaround, fee_components, processing_fee, expedite_options, process_steps, automation, source_citations, price_confidence, verification_status, last_verified_at, and notes.
+
+Pricing Fields
+
+Fee components must identify whether a fee is required, fixed, formula-based, percentage-based, unknown, or optional. Processing fees must be separated from government filing fees. Expedited processing options must include label, fee, channel, processing time, customer-selectable status, and source URL.
+
+Automation Fields
+
+Automation profiles must identify method, account strategy, submission strategy, status query strategy, document collection strategy, blockers, and selector or API notes. A record with missing process steps or missing output documents is not automation-ready.
+
+Verification Fields
+
+Source citations must include URL, title, authority, source type, retrieved date, and content hash when available. Verification status must distinguish discovered, extracted, verified official, portal observed, needs operator review, and stale.
+

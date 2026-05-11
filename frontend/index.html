@@ -5,13 +5,14 @@
 <link rel="icon" type="image/png" href="/favicon.png">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SOSFiler — Start Your Business for $49 Flat. No Hidden Fees.</title>
-<meta name="description" content="File all Secretary of State filings in minutes, not weeks. LLCs, Corps, Nonprofits, DBAs, and licenses.">
+<meta name="description" content="Automated business formation with verified filing evidence, operator backup, EIN support, DBAs, and licenses.">
 <link rel="manifest" href="/manifest.json">
 <meta name="theme-color" content="#CCFF00">
 <link rel="apple-touch-icon" href="/icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/chat-widget.css">
 <style>
 :root {
   --bg: #0A0A0A;
@@ -596,8 +597,8 @@ footer a { color: var(--cyan); }
       </div>
       <div class="step">
         <div class="number">2</div>
-        <h4>We Generate & File</h4>
-        <p>We instantly generate all your formation documents, file with your state's Secretary of State, and apply for your EIN with the IRS.</p>
+        <h4>We Generate & Verify</h4>
+        <p>We generate your formation documents, route the state filing through the best available automation path, and use operator review when a government portal requires it.</p>
       </div>
       <div class="step">
         <div class="number">3</div>
@@ -625,7 +626,7 @@ footer a { color: var(--cyan); }
       </div>
       <div class="faq-item" onclick="this.classList.toggle('open')">
         <div class="faq-q">How fast is the filing?</div>
-        <div class="faq-a">We submit your filing the same day you complete checkout (during business hours). Actual approval time depends on your state — some states approve in minutes (like Colorado, Florida), others take 3-7 business days. We show you real-time status updates.</div>
+        <div class="faq-a">We prepare your filing immediately and submit through the fastest verified channel available for your state. Some portals support smooth automation; others require operator verification, CAPTCHA, or account steps. Your dashboard shows evidence-backed status updates instead of guesswork.</div>
       </div>
       <div class="faq-item" onclick="this.classList.toggle('open')">
         <div class="faq-q">Do I need a lawyer?</div>
@@ -725,7 +726,7 @@ footer a { color: var(--cyan); }
       <a href="/dashboard.html">Dashboard</a> · 
       <a href="/terms.html">Terms of Service</a> · 
       <a href="/privacy.html">Privacy Policy</a> · 
-      <a href="mailto:s.swan@providence.aero">Contact</a>
+      <a href="mailto:support@sosfiler.com">Contact</a>
     </p>
     <p style="margin-top: 16px;">© 2026 SOSFiler. Not a law firm. We provide document preparation and filing services.</p>
   </div>
@@ -955,5 +956,6 @@ if (window.location.hash.includes('access_token=')) {
   }
 }
 </script>
+<script src="/chat-widget.js"></script>
 </body>
 </html>

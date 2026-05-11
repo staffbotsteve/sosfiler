@@ -602,7 +602,11 @@ class DocumentGenerator:
             "line_5b_city_state_zip": f"{data.get('principal_city', '')}, {data.get('principal_state', '')} {data.get('principal_zip', '')}",
             "line_6_county_state": f"{data.get('principal_city', '')} County, {data.get('principal_state', '')}",
             "line_7a_responsible_party_name": responsible.get("name", ""),
-            "line_7b_ssn_itin": data.get("responsible_party_ssn", "XXX-XX-XXXX"),
+            "line_7b_ssn_itin": (
+                f"Stored securely (last 4: {data.get('responsible_party_ssn_last4')})"
+                if data.get("responsible_party_ssn_vault_id")
+                else data.get("responsible_party_ssn", "XXX-XX-XXXX")
+            ),
             "line_8a_is_llc": data.get("entity_type") == "LLC",
             "line_8b_num_members": len(members),
             "line_8c_organized_in_us": True,

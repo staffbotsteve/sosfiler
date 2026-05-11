@@ -1,0 +1,45 @@
+SOSFiler Filing Automation Process
+
+Purpose
+
+Every filing SOSFiler sells should eventually have an automation profile covering submission, status monitoring, and document collection. Human operators may remain in the loop for payment, CAPTCHA, signatures, or government systems that prohibit automation, but the workflow should still be captured as a state machine.
+
+Automation Lanes
+
+Direct API is used when the government or an authorized filing platform provides a documented API. Partner API is used when the jurisdiction uses a platform such as Accela, OpenGov, Tyler/EnerGov, CivicPlus, Municode, GovOS, or a similar vendor and integration is available. Playwright is used when the official process is a web portal without an API. Email or upload is used when a filing is submitted by official email, PDF upload, or document portal. Mail only is used when no online route exists. Operator assisted is used when rules are verified but automation is blocked. Unsupported is used when the filing is out of scope or cannot be performed reliably.
+
+Required State Machine
+
+Each automation must define the following states: intake_complete, ready_to_file, automation_started, operator_required, payment_required, submitted, pending_government_review, rejected_or_needs_correction, approved, documents_collected, customer_notified, and complete. Some filings may skip states, but skipped states must be explicit.
+
+Adapter Run Harness
+
+The runtime adapter harness starts in dry-run mode. Operators can run POST /api/admin/filing-jobs/{job_id}/automation/run with operation preflight, submit, check_status, or collect_documents. The run is persisted in automation_runs with redacted logs, lane, adapter key, and filing job references. Dry-run submit never touches a government portal and never marks a filing submitted. Live submission remains blocked from this endpoint until a lane-specific adapter has approved credentials, idempotency, evidence capture, and rollback/stop behavior.
+
+Automation Run Review
+
+Operators can list recent runs with GET /api/admin/automation-runs and stop a run with POST /api/admin/automation-runs/{run_id}/stop. Every run should also write a filing_event so the audit trail connects customer order, filing job, automation attempt, and any later evidence upload or status transition.
+
+Submission Automation
+
+Before submission, the automation must run preflight validation against required customer inputs, required documents, registered agent consent, organizer/incorporator authorization, name availability where needed, payment readiness, and prerequisite filings. During submission, the automation must capture screenshots or structured logs for each portal page, field sequence, review screen, payment screen, confirmation number, session ID, and receipt.
+
+Current preflight checks block submission when payment is not authorized/paid, a duplicate filing risk exists, government fee quote is missing, business identity is incomplete, principal address is incomplete, registered-agent assignment/consent is missing, owner/officer roster is incomplete, customer filing authorization is missing, or the submitted/approved evidence contract is undefined. These checks run before dry-run adapter operations and are included in automation_runs metadata for operator review.
+
+Pilot portal preflight is available for browser automation lanes by running the same automation endpoint with operation preflight and dry_run false. This performs a safe official-portal reachability probe only. It does not enter customer data, does not submit, does not pay, and does not mark the filing submitted. Live submit and automated document collection remain disabled until each state adapter captures evidence and passes review.
+
+Status Monitoring
+
+Every pending filing must have a status-check method. The default cadence is every 15 minutes for active filings unless a jurisdiction rate limit or portal policy requires a slower interval. Status checks must read the official status exactly as displayed or returned. Derived labels may be shown to customers only after the raw government status is stored.
+
+Document Collection
+
+The document collector must capture all government-produced artifacts, including filed articles, certificates of filing, approval letters, receipts, rejection letters, correction notices, certificates of status, certified copies, business licenses, DBA/FBN statements, publication proof, and IRS EIN confirmations. Documents must be stored in the customer vault with issuer, document type, source, visibility, date captured, and order ID.
+
+Error Handling
+
+Automation must pause and escalate when a portal changes, a filing is rejected, required evidence is missing, payment fails, CAPTCHA or identity verification blocks access, a document cannot be downloaded, a customer correction is required, or a status cannot be reconciled with the prior known state.
+
+Customer Notifications
+
+Notifications are downstream of verified status transitions. The automation layer should emit events, not directly write customer-facing prose. Notification rules will later decide which stakeholders receive updates and which language appears in the customer portal.

@@ -5,7 +5,7 @@
 <link rel="icon" type="image/png" href="/favicon.png">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Start Your Business — SOSFiler</title>
-<meta name="description" content="Start your LLC in minutes. Complete the wizard and we handle the rest.">
+<meta name="description" content="Start your LLC with automated document preparation, verified filing status, and operator backup when state portals require it.">
 <link rel="manifest" href="/manifest.json">
 <meta name="theme-color" content="#0A0A0A">
 
@@ -1994,11 +1994,27 @@ async function submitAndPay() {
   }
   
   try {
-    // Create order
-    const orderRes = await fetch('/api/formation', {
+    const quoteRes = await fetch('/api/quote', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
+      body: JSON.stringify({
+        product_type: 'formation',
+        entity_type: payload.entity_type,
+        state: payload.state,
+        include_registered_agent: payload.ra_choice === 'sosfiler'
+      })
+    });
+    if (!quoteRes.ok) throw new Error('Failed to create quote');
+    const quote = await quoteRes.json();
+
+    const orderRes = await fetch('/api/orders', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        product_type: 'formation',
+        quote_id: quote.quote_id,
+        formation: payload
+      })
     });
     
     if (!orderRes.ok) throw new Error('Failed to create order');
@@ -2007,12 +2023,12 @@ async function submitAndPay() {
     // Save for later
     localStorage.setItem('sosfiler_order', JSON.stringify(order));
     
-    // Create checkout session
-    const checkoutRes = await fetch('/api/checkout', {
+    // Authorize estimated total; final government fees are reconciled before capture.
+    const checkoutRes = await fetch(`/api/orders/${encodeURIComponent(order.order_id)}/authorize`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        order_id: order.order_id,
+        quote_id: quote.quote_id,
         success_url: window.location.origin + '/dashboard.html',
         cancel_url: window.location.origin + '/app.html'
       })

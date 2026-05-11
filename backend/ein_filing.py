@@ -70,7 +70,9 @@ class EINFiler:
             "num_members": len(members),
             "responsible_party": {
                 "name": responsible.get("name", ""),
-                "ssn": data.get("responsible_party_ssn", ""),
+                "ssn": "",
+                "ssn_vault_id": data.get("responsible_party_ssn_vault_id", ""),
+                "ssn_last4": data.get("responsible_party_ssn_last4") or responsible.get("ssn_last4", ""),
                 "address": responsible.get("address", ""),
                 "city": responsible.get("city", ""),
                 "state": responsible.get("state", ""),

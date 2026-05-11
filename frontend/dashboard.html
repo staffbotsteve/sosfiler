@@ -10,6 +10,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/chat-widget.css">
 <style>
 :root {
   --bg: #0A0A0A;
@@ -142,11 +143,11 @@ a:hover { color: var(--accent); text-decoration: none; }
 .header-card .biz-meta { color: var(--muted); font-size: 14px; margin-top: 4px; }
 .status-badge { display: inline-block; padding: 6px 16px; border-radius: 20px; font-size: 13px; font-weight: 600; }
 .status-pending_payment { background: rgba(255,107,0,0.15); color: var(--yellow); }
-.status-paid, .status-preparing, .status-generating_documents, .status-ready_to_file { background: rgba(204,255,0,0.1); color: var(--accent); }
-.status-filing, .status-processing, .status-submitted_to_state, .status-awaiting_state, .status-pending_state_review, .status-received_needs_sosdirect_check { background: rgba(204,255,0,0.1); color: var(--accent); }
+.status-paid, .status-preparing, .status-generating_documents, .status-ready_to_file, .status-annual_report_packet_prepared { background: rgba(204,255,0,0.1); color: var(--accent); }
+.status-filing, .status-processing, .status-submitted, .status-submitted_to_state, .status-awaiting_state, .status-pending_government_review, .status-pending_state_review, .status-received_needs_sosdirect_check, .status-operator_required { background: rgba(204,255,0,0.1); color: var(--accent); }
 .status-approved, .status-state_approved, .status-complete { background: rgba(57,255,20,0.15); color: var(--green); }
 .status-error, .status-failed { background: rgba(255,51,102,0.15); color: var(--red); }
-.status-ein_pending, .status-ein_received { background: rgba(167,139,250,0.15); color: var(--purple); }
+.status-ein_pending, .status-ein_ready_for_submission, .status-ein_received { background: rgba(167,139,250,0.15); color: var(--purple); }
 
 /* Action banner */
 .action-banner {
@@ -342,7 +343,7 @@ a:hover { color: var(--accent); text-decoration: none; }
     </p>
     <div style="height:1px;background:var(--border);margin:20px 0;"></div>
     <p>Or enter an order ID and token to view one company.</p>
-    <input type="text" id="loginOrderId" placeholder="Order ID (e.g., IL-ABC123DEF456)">
+    <input type="text" id="loginOrderId" placeholder="Order ID (e.g., TX-ABC123DEF456)">
     <input type="text" id="loginToken" placeholder="Order token (from your email)">
     <button class="btn" onclick="login()">View Dashboard →</button>
     <p style="color: var(--muted); font-size: 12px; margin-top: 16px;">Check your email for your order ID and token.</p>
@@ -392,7 +393,7 @@ a:hover { color: var(--accent); text-decoration: none; }
 <div class="dashboard" id="dashboard">
   <div class="container">
     <button class="back-btn" id="backToCompanies" onclick="showCompanyList()">Back to Companies</button>
-    
+
     <!-- Header -->
     <div class="header-card">
       <div>
@@ -405,7 +406,7 @@ a:hover { color: var(--accent); text-decoration: none; }
     <div class="action-banner" id="actionBanner"></div>
 
     <div class="grid">
-      
+
       <!-- Filing Status Timeline -->
       <div class="card full">
         <h3>📋 Filing Status</h3>
@@ -425,7 +426,7 @@ a:hover { color: var(--accent); text-decoration: none; }
           <div class="loading"><div class="spinner"></div></div>
         </div>
       </div>
-      
+
       <!-- EIN -->
       <div class="card" id="einCard">
         <h3>🔢 EIN (Tax ID)</h3>
@@ -433,7 +434,7 @@ a:hover { color: var(--accent); text-decoration: none; }
           <p style="color: var(--muted); font-size: 14px;">Pending — we'll apply with the IRS once your LLC is filed.</p>
         </div>
       </div>
-      
+
       <!-- Business Info -->
       <div class="card">
         <h3>🏢 Business Info</h3>
@@ -462,7 +463,7 @@ a:hover { color: var(--accent); text-decoration: none; }
           <div class="empty">Compliance calendar will be set up after filing.</div>
         </div>
       </div>
-      
+
       <!-- What To Do Next -->
       <div class="card full">
         <h3>✅ What To Do Next</h3>
@@ -470,7 +471,7 @@ a:hover { color: var(--accent); text-decoration: none; }
       </div>
 
     </div>
-    
+
     <!-- Additional Services -->
     <div class="card full" style="margin-top: 20px;">
       <h3>🚀 Additional Services</h3>
@@ -503,8 +504,8 @@ a:hover { color: var(--accent); text-decoration: none; }
 
     <!-- Self-service links -->
     <div style="text-align: center; padding: 40px 0; color: var(--muted); font-size: 14px;">
-      <p>Need changes? <a href="mailto:s.swan@providence.aero">Contact</a> · 
-      <a href="#">File an amendment</a> · <a href="#">Dissolve LLC</a> · 
+      <p>Need changes? <a href="mailto:support@sosfiler.com">Contact</a> ·
+      <a href="#">File an amendment</a> · <a href="#">Dissolve LLC</a> ·
       <a href="/licenses.html">Browse All Licenses</a></p>
     </div>
   </div>
@@ -552,7 +553,7 @@ function checkUrlParams() {
     showCompanyList();
     return true;
   }
-  
+
   // Check localStorage
   try {
     const saved = JSON.parse(localStorage.getItem('sosfiler_order'));
@@ -564,7 +565,7 @@ function checkUrlParams() {
       return true;
     }
   } catch (e) {}
-  
+
   return false;
 }
 
@@ -963,16 +964,22 @@ function renderDashboard(data) {
   document.getElementById('dashEntityType').textContent = data.entity_type || 'LLC';
   document.getElementById('dashState').textContent = stateNames[data.state] || data.state;
   document.getElementById('dashOrderId').textContent = data.order_id;
-  
+
   const statusEl = document.getElementById('dashStatus');
   const statusLabels = {
     'pending_payment': '⏳ Awaiting Payment',
+    'payment_authorized': 'Payment Authorized',
     'paid': '✅ Paid',
     'preparing': 'Preparing Filing Packet',
     'generating_documents': '📄 Generating Documents',
     'ready_to_file': 'Ready for State Filing',
+    'operator_required': 'Operator Verification Required',
+    'registered_agent_processing': 'Registered Agent Assignment In Progress',
+    'registered_agent_assigned': 'Registered Agent Assigned',
+    'annual_report_packet_prepared': 'Annual Report Packet Ready',
     'filing': '📋 Filing with State',
     'processing': '⏳ Processing',
+    'submitted': 'Submitted with Evidence',
     'submitted_to_state': 'Submitted to State',
     'awaiting_state': 'Awaiting State Review',
     'pending_state_review': 'Pending State Review',
@@ -980,6 +987,7 @@ function renderDashboard(data) {
     'approved': '✅ Approved',
     'state_approved': 'State Approved',
     'ein_pending': '🔢 EIN Pending',
+    'ein_ready_for_submission': 'EIN Ready for IRS Submission',
     'ein_received': '🔢 EIN Received',
     'complete': '🎉 Complete',
     'error': '❌ Error',
@@ -988,7 +996,7 @@ function renderDashboard(data) {
   statusEl.textContent = statusLabels[data.status] || data.status;
   statusEl.className = `status-badge status-${data.status}`;
   renderActionBanner(data);
-  
+
   // Timeline
   const timeline = data.timeline || [];
   const timelineEl = document.getElementById('timeline');
@@ -1005,7 +1013,7 @@ function renderDashboard(data) {
         </div>`;
     }).join('');
   }
-  
+
   // EIN
   const einContent = document.getElementById('einContent');
   if (data.ein) {
@@ -1024,9 +1032,13 @@ function renderDashboard(data) {
         <div id="ssnSubmitStatus" style="font-size:12px; color:var(--muted); margin-top:8px;"></div>
       </form>`;
   } else if (['ein_pending'].includes(data.status)) {
-    einContent.innerHTML = `<p style="color: var(--yellow); font-size: 14px;">⏳ EIN application in progress. IRS processes Mon-Fri 7am-10pm ET. Usually ready within 1-2 business days.</p>`;
+    const queue = data.ein_queue || {};
+    const availability = queue.irs_availability || {};
+    einContent.innerHTML = `
+      <p style="color: var(--yellow); font-size: 14px;">EIN is queued for IRS submission. IRS online EIN hours are ${availability.window || 'Monday-Friday 7am-10pm ET'}.</p>
+      <p style="font-size: 12px; color: var(--muted); margin-top: 8px;">Queue state: ${routeLabel(queue.status || 'pending')}.</p>`;
   }
-  
+
   // Business Info
   document.getElementById('bizInfo').innerHTML = `
     <div class="info-row"><span class="label">Name</span><span class="value">${data.business_name}</span></div>
@@ -1036,18 +1048,24 @@ function renderDashboard(data) {
     <div class="info-row"><span class="label">State Approved</span><span class="value">${formatDate(data.approved_at)}</span></div>
     <div class="info-row"><span class="label">EIN</span><span class="value">${data.ein || 'Pending'}</span></div>
     <div class="info-row"><span class="label">Registered Agent</span><span class="value">On file with order</span></div>`;
-  
+
   // Fee Receipt
   renderFeeReceipt(data);
 
   renderFilingInfo(data);
   renderOrderItems(data);
-  
+
   // Compliance
   renderCompliance(data.compliance_deadlines || []);
-  
+
   // Checklist
   renderChecklist(data);
+}
+
+function routeLabel(value) {
+  return (value || '')
+    .replace(/_/g, ' ')
+    .replace(/\b\w/g, letter => letter.toUpperCase()) || 'Operator Verified';
 }
 
 function renderActionBanner(data) {
@@ -1119,7 +1137,7 @@ function renderFeeReceipt(data) {
   const processingFee = (data.gov_processing_fee_cents || 0) / 100;
   const total = (data.total_cents || 0) / 100;
   const sName = stateNames[data.state] || data.state;
-  
+
   el.innerHTML = `
     <div class="info-row"><span class="label">SOSFiler service fee</span><span class="value">${formatMoney(serviceFee)}</span></div>
     <div class="info-row"><span class="label">State of ${sName} filing fee</span><span class="value">${formatMoney(sFee)}</span></div>
@@ -1139,12 +1157,21 @@ function renderFilingInfo(data) {
   }
   card.style.display = '';
   const evidence = data.filing_artifacts || [];
+  const blockers = job.portal_blockers || [];
+  const isAnnual = job.action_type === 'annual_report';
+  const blockerText = blockers.length
+    ? blockers.slice(0, 3).map(b => b.message || b.code).join(' ')
+    : 'No portal blocker currently flagged from research.';
   el.innerHTML = `
     <div class="info-row"><span class="label">Office</span><span class="value">${job.office || `${data.state} Secretary of State`}</span></div>
     <div class="info-row"><span class="label">Form</span><span class="value">${job.form_name || 'Formation filing'}</span></div>
+    <div class="info-row"><span class="label">Product</span><span class="value">${routeLabel(job.action_type || 'formation')}</span></div>
     <div class="info-row"><span class="label">Submission Method</span><span class="value">${job.portal_name || job.filing_method || 'Operator review'}</span></div>
+    <div class="info-row"><span class="label">Automation Lane</span><span class="value">${routeLabel(job.automation_lane)}</span></div>
+    <div class="info-row"><span class="label">Portal Difficulty</span><span class="value">${routeLabel(job.automation_difficulty)}</span></div>
     <div class="info-row"><span class="label">Filing Status</span><span class="value">${job.status || data.status}</span></div>
-    <div class="info-row"><span class="label">Evidence on File</span><span class="value">${evidence.length ? evidence.map(a => a.artifact_type.replace(/_/g, ' ')).join(', ') : 'Pending'}</span></div>`;
+    <div class="info-row"><span class="label">Evidence on File</span><span class="value">${evidence.length ? evidence.map(a => a.artifact_type.replace(/_/g, ' ')).join(', ') : 'Pending'}</span></div>
+    <div style="font-size:12px;color:var(--muted);line-height:1.5;margin-top:8px;">${isAnnual ? 'Annual report states only update after operator-verified official evidence is on file. ' : ''}${blockerText}</div>`;
 }
 
 function hasDoc(docs, type) {
@@ -1166,34 +1193,41 @@ function renderOrderItems(data) {
   const el = document.getElementById('orderItems');
   if (!el) return;
   const docs = data.documents || [];
-  const filedStatuses = ['submitted_to_state','awaiting_state','pending_state_review','received_needs_sosdirect_check','state_approved','ein_pending','ein_received','complete','approved'];
+  const filedStatuses = ['submitted','submitted_to_state','awaiting_state','pending_state_review','received_needs_sosdirect_check','state_approved','ein_pending','ein_received','complete','approved'];
   const approvedStatuses = ['state_approved','ein_pending','ein_received','complete','approved'];
   const docsReady = !!data.documents_ready_at || docs.length > 0;
   const isLLC = data.entity_type === 'LLC';
   const isCorp = ['C-Corp', 'S-Corp'].includes(data.entity_type);
   const isNonprofit = data.entity_type === 'Nonprofit';
-  const formationDocName = data.filing_job?.form_name || `${stateNames[data.state] || data.state} formation filing`;
+  const isAnnual = data.filing_job?.action_type === 'annual_report';
+  const formationDocName = data.filing_job?.form_name || `${stateNames[data.state] || data.state} ${isAnnual ? 'annual report' : 'formation filing'}`;
   const items = [
     orderItem(
-      'Formation filing',
+      isAnnual ? 'Annual report filing' : 'Formation filing',
       filedStatuses.includes(data.status) ? 'Submitted' : (data.status === 'ready_to_file' ? 'Queued' : 'In progress'),
       filedStatuses.includes(data.status) ? 'progress' : (data.status === 'ready_to_file' ? 'action' : 'pending'),
       filedStatuses.includes(data.status)
         ? `${formationDocName} was submitted to the state. Approval is still pending until the state completes review.`
-        : `${formationDocName} will be prepared and submitted through the appropriate state filing channel.`
+        : `${formationDocName} will be prepared and submitted through the appropriate official filing channel.`
     ),
     orderItem(
-      'State filing receipt',
+      isAnnual ? 'Annual report receipt' : 'State filing receipt',
       hasDoc(docs, 'submitted_receipt') ? 'Ready' : 'Pending',
       hasDoc(docs, 'submitted_receipt') ? 'complete' : 'pending',
-      hasDoc(docs, 'submitted_receipt') ? 'Receipt evidence is available in the document vault.' : 'Appears after SOSFiler submits the state filing.'
+      hasDoc(docs, 'submitted_receipt') ? 'Receipt evidence is available in the document vault.' : 'Appears after SOSFiler submits the filing and captures official evidence.'
     ),
     orderItem(
-      'State approval document',
+      isAnnual ? 'Annual report acceptance evidence' : 'State approval document',
       approvedStatuses.includes(data.status) || hasDoc(docs, 'approved_certificate') ? 'Ready' : 'Pending',
       approvedStatuses.includes(data.status) || hasDoc(docs, 'approved_certificate') ? 'complete' : 'pending',
-      'The file-stamped formation document or certificate appears here after state approval.'
+      isAnnual ? 'Official acceptance or annual report confirmation appears here after completion.' : 'The file-stamped formation document or certificate appears here after state approval.'
     ),
+    ...(isAnnual ? [orderItem(
+      'Annual report packet',
+      hasDoc(docs, 'annual_report_packet') ? 'Ready' : 'Pending',
+      hasDoc(docs, 'annual_report_packet') ? 'complete' : 'pending',
+      'Operator-ready checklist and filing packet for the annual report.'
+    )] : []),
     orderItem(
       'Filing authorization',
       hasDoc(docs, 'filing_authorization') ? 'Ready' : 'Included',
@@ -1201,6 +1235,11 @@ function renderOrderItems(data) {
       'Customer authorization for SOSFiler to prepare and submit the filing.'
     ),
   ];
+
+  if (isAnnual) {
+    el.innerHTML = `<div class="order-items">${items.join('')}</div>`;
+    return;
+  }
 
   if (isLLC) {
     items.push(
@@ -1243,7 +1282,7 @@ function renderDocuments(docs) {
     el.innerHTML = '<div class="empty">Documents will appear here once generated.</div>';
     return;
   }
-  
+
   const docNames = {
     'filing_authorization': 'Filing Authorization',
     'articles_of_organization': '📄 Articles of Organization',
@@ -1263,8 +1302,10 @@ function renderDocuments(docs) {
     'statement_of_organizer': '🔏 Statement of Organizer',
     'submitted_receipt': 'State Filing Receipt',
     'approved_certificate': 'State Approval Certificate'
+    , 'annual_report_packet': 'Annual Report Filing Packet'
+    , 'state_correspondence': 'State Correspondence'
   };
-  
+
   el.innerHTML = `<ul class="doc-list">${docs.map(doc => `
     <li>
       <div>
@@ -1296,30 +1337,30 @@ async function downloadAccountDoc(event, filename) {
 function renderCompliance(deadlines) {
   const el = document.getElementById('complianceContent');
   const statusEl = document.getElementById('complianceStatus');
-  
+
   if (!deadlines.length) {
     el.innerHTML = '<div class="empty">Compliance calendar will be set up after filing.</div>';
     statusEl.innerHTML = '';
     return;
   }
-  
+
   const today = new Date().toISOString().split('T')[0];
   const in30 = new Date(Date.now() + 30 * 86400000).toISOString().split('T')[0];
-  
+
   const overdue = deadlines.filter(d => d.due_date < today && d.status === 'upcoming');
   const soon = deadlines.filter(d => d.due_date >= today && d.due_date <= in30);
-  
+
   let statusClass = 'green', statusMsg = 'All compliance deadlines are current.';
   if (overdue.length) { statusClass = 'red'; statusMsg = `${overdue.length} overdue deadline(s)!`; }
   else if (soon.length) { statusClass = 'yellow'; statusMsg = `${soon.length} deadline(s) due within 30 days.`; }
-  
+
   statusEl.innerHTML = `<div class="compliance-status ${statusClass}"><div class="compliance-dot"></div><span>${statusMsg}</span></div>`;
-  
+
   el.innerHTML = deadlines.slice(0, 10).map(d => {
     let dateClass = 'ok';
     if (d.due_date < today) dateClass = 'overdue';
     else if (d.due_date <= in30) dateClass = 'soon';
-    
+
     return `<div class="deadline-item">
       <div class="deadline-info">
         <div class="type">${d.deadline_type.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</div>
@@ -1333,11 +1374,11 @@ function renderCompliance(deadlines) {
 function renderChecklist(data) {
   const el = document.getElementById('checklist');
   const state = data.state;
-  const paidStatuses = ['paid','preparing','generating_documents','ready_to_file','submitted_to_state','awaiting_state','pending_state_review','received_needs_sosdirect_check','state_approved','ein_pending','ein_received','complete','approved'];
-  const docsStatuses = ['ready_to_file','submitted_to_state','awaiting_state','pending_state_review','received_needs_sosdirect_check','state_approved','ein_pending','ein_received','complete','approved'];
-  const filedStatuses = ['submitted_to_state','awaiting_state','pending_state_review','received_needs_sosdirect_check','state_approved','ein_pending','ein_received','complete','approved'];
-  const approvedStatuses = ['state_approved','ein_pending','ein_received','complete','approved'];
-  
+  const paidStatuses = ['payment_authorized','paid','preparing','generating_documents','ready_to_file','submitted_to_state','awaiting_state','pending_state_review','received_needs_sosdirect_check','state_approved','ein_pending','ein_received','complete','approved'];
+  const docsStatuses = ['ready_to_file','submitted','submitted_to_state','awaiting_state','pending_government_review','pending_state_review','received_needs_sosdirect_check','approved','state_approved','ein_pending','ein_received','complete'];
+  const filedStatuses = ['submitted','submitted_to_state','awaiting_state','pending_government_review','pending_state_review','received_needs_sosdirect_check','approved','state_approved','ein_pending','ein_received','complete'];
+  const approvedStatuses = ['approved','state_approved','ein_pending','ein_received','complete'];
+
   const items = [
     { done: paidStatuses.includes(data.status), text: '💳 Pay for formation' },
     { done: !!data.documents_ready_at || docsStatuses.includes(data.status), text: '📄 Internal company documents generated' },
@@ -1350,12 +1391,12 @@ function renderChecklist(data) {
     { done: false, text: `📋 Register for state/local business licenses` },
     { done: false, text: '📝 Review federal reporting requirements that apply to your company' },
   ];
-  
+
   // Add state-specific items
   if (state === 'NY') items.push({ done: false, text: '📰 Complete NY publication requirement (2 newspapers, 6 weeks, within 120 days)' });
   if (state === 'CA') items.push({ done: false, text: '📋 File Statement of Information (LLC-12) within 90 days' });
   if (state === 'GA') items.push({ done: false, text: '📰 Publish notice of formation in county legal organ' });
-  
+
   el.innerHTML = items.map(item => `
     <li>
       <span class="check">${item.done ? '✅' : '⬜'}</span>
@@ -1578,5 +1619,6 @@ async function checkSpecificLicense(typeId) {
 // Init
 checkAppleRedirect() || checkFacebookRedirect() || checkGoogleRedirect() || checkUrlParams();
 </script>
+<script src="/chat-widget.js"></script>
 </body>
 </html>

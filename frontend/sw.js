@@ -5,6 +5,8 @@ const STATIC_ASSETS = [
   '/index.html',
   '/app.html',
   '/dashboard.html',
+  '/chat-widget.css',
+  '/chat-widget.js',
   '/manifest.json'
 ];
 

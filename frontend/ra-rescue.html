@@ -21,6 +21,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/chat-widget.css">
 <style>
 :root {
   --bg: #0A0A0A;
@@ -554,7 +555,7 @@ footer a { color: var(--cyan); }
       <a href="/dashboard.html">Dashboard</a> · 
       <a href="/terms.html">Terms of Service</a> · 
       <a href="/privacy.html">Privacy Policy</a> · 
-      <a href="mailto:s.swan@providence.aero">Contact</a>
+      <a href="mailto:support@sosfiler.com">Contact</a>
     </p>
     <p style="margin-top: 16px;">© 2026 SOSFiler. Not a law firm. We provide document preparation and filing services.</p>
   </div>
@@ -607,5 +608,6 @@ if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('/sw.js').catch(() => {});
 }
 </script>
+<script src="/chat-widget.js"></script>
 </body>
 </html>
