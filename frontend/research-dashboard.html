@@ -1,0 +1,289 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SOSFiler Research Completion Dashboard</title>
+  <style>
+    :root {
+      --bg: #f3f5f7;
+      --panel: #ffffff;
+      --ink: #1e2430;
+      --muted: #667085;
+      --line: #d8dee8;
+      --green: #1f8a4c;
+      --green-bg: #dff8e8;
+      --red: #b42318;
+      --amber: #b54708;
+      --blue: #175cd3;
+      --gray: #98a2b3;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Avenir Next", "Segoe UI", sans-serif;
+      color: var(--ink);
+      background: radial-gradient(circle at top right, #e7eef8 0%, var(--bg) 48%, #edf4ec 100%);
+      min-height: 100vh;
+    }
+
+    .wrap {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    .hero {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      padding: 20px;
+      box-shadow: 0 12px 36px rgba(16, 24, 40, 0.06);
+      margin-bottom: 20px;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: 28px;
+      letter-spacing: -0.02em;
+    }
+
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      color: var(--muted);
+      font-size: 14px;
+      margin-top: 8px;
+    }
+
+    .stats {
+      margin-top: 16px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+    }
+
+    .stat {
+      background: #f8fafc;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 12px;
+    }
+
+    .stat .label { font-size: 12px; color: var(--muted); }
+    .stat .value { font-size: 24px; font-weight: 700; margin-top: 4px; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 12px;
+    }
+
+    .state {
+      background: var(--panel);
+      border: 2px solid var(--line);
+      border-radius: 16px;
+      padding: 14px;
+    }
+
+    .state.ready {
+      border-color: var(--green);
+      background: linear-gradient(180deg, #ffffff, var(--green-bg));
+    }
+
+    .state-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 8px;
+    }
+
+    .state-code {
+      font-size: 24px;
+      font-weight: 800;
+      letter-spacing: 0.02em;
+    }
+
+    .pill {
+      border-radius: 999px;
+      padding: 4px 10px;
+      font-size: 12px;
+      font-weight: 700;
+      border: 1px solid;
+    }
+
+    .pill.ready {
+      background: var(--green-bg);
+      color: var(--green);
+      border-color: var(--green);
+    }
+
+    .pill.not-ready {
+      background: #fff4ed;
+      color: var(--amber);
+      border-color: #f9dbaf;
+    }
+
+    .progress-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .bar {
+      width: 100%;
+      height: 8px;
+      border-radius: 999px;
+      background: #e6ecf3;
+      overflow: hidden;
+      margin-bottom: 12px;
+    }
+
+    .bar > span {
+      display: block;
+      height: 100%;
+      background: linear-gradient(90deg, #59a6ff, #1f8a4c);
+    }
+
+    .tasks {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+    }
+
+    .task {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 6px 8px;
+      font-size: 12px;
+      background: #fafcff;
+    }
+
+    .task strong { display: block; margin-bottom: 2px; }
+
+    .status-ready_for_review, .status-verified { color: var(--green); }
+    .status-in_progress { color: var(--blue); }
+    .status-blocked { color: var(--red); }
+    .status-pending, .status-missing { color: var(--gray); }
+
+    .error {
+      border: 1px solid #fda29b;
+      background: #fef3f2;
+      color: #912018;
+      border-radius: 12px;
+      padding: 12px;
+      margin-top: 12px;
+      display: none;
+    }
+
+    @media (max-width: 640px) {
+      .tasks { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="hero">
+      <h1>State Research Completion Dashboard</h1>
+      <div class="meta">
+        <span>Auto-refresh: every 20 seconds</span>
+        <span id="updatedAt">Updated: --</span>
+      </div>
+      <div class="stats">
+        <div class="stat">
+          <div class="label">States ready (green)</div>
+          <div id="readyStates" class="value">--</div>
+        </div>
+        <div class="stat">
+          <div class="label">Total states tracked</div>
+          <div id="totalStates" class="value">--</div>
+        </div>
+        <div class="stat">
+          <div class="label">Overall completion</div>
+          <div id="overallPct" class="value">--%</div>
+        </div>
+      </div>
+      <div id="errorBox" class="error"></div>
+    </section>
+
+    <section id="stateGrid" class="grid"></section>
+  </div>
+
+  <script>
+    const REQUIRED_LABELS = {
+      state_filing_map: "State filing",
+      state_tax_gateway: "State tax",
+      county_directory: "County dir",
+      municipality_directory: "City dir",
+      county_local_filings: "County filings",
+      city_local_filings: "City filings",
+      productization: "Productization"
+    };
+
+    function fmtDate(iso) {
+      const date = new Date(iso);
+      if (Number.isNaN(date.getTime())) return iso;
+      return date.toLocaleString();
+    }
+
+    function statusLabel(s) {
+      return String(s || "unknown").replaceAll("_", " ");
+    }
+
+    function stateCard(state) {
+      const readyClass = state.is_ready_for_formations_and_changes ? "ready" : "";
+      const pillClass = state.is_ready_for_formations_and_changes ? "ready" : "not-ready";
+      const pillText = state.is_ready_for_formations_and_changes ? "READY" : "NOT READY";
+      const taskRows = Object.entries(state.task_status)
+        .map(([task, status]) => `
+          <div class="task">
+            <strong>${REQUIRED_LABELS[task] || task}</strong>
+            <span class="status-${status}">${statusLabel(status)}</span>
+          </div>
+        `)
+        .join("");
+
+      return `
+        <article class="state ${readyClass}">
+          <div class="state-head">
+            <div class="state-code">${state.state}</div>
+            <div class="pill ${pillClass}">${pillText}</div>
+          </div>
+          <div class="progress-row">${state.complete_tasks}/${state.total_tasks} required tasks complete</div>
+          <div class="bar"><span style="width:${state.progress_pct}%"></span></div>
+          <div class="tasks">${taskRows}</div>
+        </article>
+      `;
+    }
+
+    async function refresh() {
+      const errorBox = document.getElementById("errorBox");
+      try {
+        const res = await fetch("/api/research/state-progress", { cache: "no-store" });
+        if (!res.ok) {
+          throw new Error(`HTTP ${res.status}`);
+        }
+        const data = await res.json();
+        document.getElementById("updatedAt").textContent = `Updated: ${fmtDate(data.updated_at)}`;
+        document.getElementById("readyStates").textContent = String(data.ready_states);
+        document.getElementById("totalStates").textContent = String(data.total_states);
+        const pct = data.total_states ? ((data.ready_states / data.total_states) * 100).toFixed(1) : "0.0";
+        document.getElementById("overallPct").textContent = `${pct}%`;
+        document.getElementById("stateGrid").innerHTML = data.states.map(stateCard).join("");
+        errorBox.style.display = "none";
+      } catch (err) {
+        errorBox.style.display = "block";
+        errorBox.textContent = `Could not load state progress: ${err.message}`;
+      }
+    }
+
+    refresh();
+    setInterval(refresh, 20000);
+  </script>
+</body>
+</html>
