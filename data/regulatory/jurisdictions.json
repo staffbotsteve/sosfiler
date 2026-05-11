@@ -1,0 +1,737 @@
+{
+  "coverage_goal": "All U.S. states plus District of Columbia; county and city children are discovered by research batches.",
+  "jurisdictions": [
+    {
+      "filing_authority": "Secretary of State or equivalent business filing office",
+      "jurisdiction_id": "tx_state",
+      "level": "state",
+      "name": "Texas",
+      "notes": "",
+      "official_domains": [
+        "sos.state.tx.us",
+        "direct.sos.state.tx.us",
+        "comptroller.texas.gov"
+      ],
+      "parent_id": null,
+      "portal_type": "to_research",
+      "priority": 1,
+      "state": "TX"
+    },
+    {
+      "filing_authority": "Secretary of State or equivalent business filing office",
+      "jurisdiction_id": "ca_state",
+      "level": "state",
+      "name": "California",
+      "notes": "",
+      "official_domains": [
+        "bizfileonline.sos.ca.gov",
+        "sos.ca.gov",
+        "ftb.ca.gov"
+      ],
+      "parent_id": null,
+      "portal_type": "to_research",
+      "priority": 2,
+      "state": "CA"
+    },
+    {
+      "filing_authority": "Secretary of State or equivalent business filing office",
+      "jurisdiction_id": "fl_state",
+      "level": "state",
+      "name": "Florida",
+      "notes": "",
+      "official_domains": [
+        "dos.fl.gov",
+        "sunbiz.org"
+      ],
+      "parent_id": null,
+      "portal_type": "to_research",
+      "priority": 3,
+      "state": "FL"
+    },
+    {
+      "filing_authority": "Secretary of State or equivalent business filing office",
+      "jurisdiction_id": "de_state",
+      "level": "state",
+      "name": "Delaware",
+      "notes": "",
+      "official_domains": [
+        "corp.delaware.gov"
+      ],
+      "parent_id": null,
+      "portal_type": "to_research",
+      "priority": 4,
+      "state": "DE"
+    },
+    {
+      "filing_authority": "Secretary of State or equivalent business filing office",
+      "jurisdiction_id": "nv_state",
+      "level": "state",
+      "name": "Nevada",
+      "notes": "",
+      "official_domains": [
+        "nvsilverflume.gov",
+        "sos.nv.gov"
+      ],
+      "parent_id": null,
+      "portal_type": "to_research",
+      "priority": 5,
+      "state": "NV"
+    },
+    {
+      "filing_authority": "Secretary of State or equivalent business filing office",
+      "jurisdiction_id": "az_state",
+      "level": "state",
+      "name": "Arizona",
+      "notes": "",
+      "official_domains": [
+        "azcc.gov",
+        "azleg.gov"
+      ],
+      "parent_id": null,
+      "portal_type": "to_research",
+      "priority": 6,
+      "state": "AZ"
+    },
+    {
+      "filing_authority": "Secretary of State or equivalent business filing office",
+      "jurisdiction_id": "ny_state",
+      "level": "state",
+      "name": "New York",
+      "notes": "",
+      "official_domains": [
+        "dos.ny.gov",
+        "businessexpress.ny.gov"
+      ],
+      "parent_id": null,
+      "portal_type": "to_research",
+      "priority": 7,
+      "state": "NY"
+    },
+    {
+      "filing_authority": "Secretary of State or equivalent business filing office",
+      "jurisdiction_id": "wy_state",
+      "level": "state",
+      "name": "Wyoming",
+      "notes": "",
+      "official_domains": [
+        "wyobiz.wyo.gov",
+        "sos.wyo.gov"
+      ],
+      "parent_id": null,
+      "portal_type": "to_research",
+      "priority": 8,
+      "state": "WY"
+    },
+    {
+      "filing_authority": "Secretary of State or equivalent business filing office",
+      "jurisdiction_id": "ga_state",
+      "level": "state",
+      "name": "Georgia",
+      "notes": "",
+      "official_domains": [
+        "sos.ga.gov"
+      ],
+      "parent_id": null,
+      "portal_type": "to_research",
+      "priority": 9,
+      "state": "GA"
+    },
+    {
+      "filing_authority": "Secretary of State or equivalent business filing office",
+      "jurisdiction_id": "il_state",
+      "level": "state",
+      "name": "Illinois",
+      "notes": "",
+      "official_domains": [
+        "ilsos.gov"
+      ],
+      "parent_id": null,
+      "portal_type": "to_research",
+      "priority": 10,
+      "state": "IL"
+    },
+    {
+      "filing_authority": "Secretary of State or equivalent business filing office",
+      "jurisdiction_id": "al_state",
+      "level": "state",
+      "name": "Alabama",
+      "notes": "",
+      "official_domains": [
+        "sos.alabama.gov"
+      ],
+      "parent_id": null,
+      "portal_type": "to_research",
+      "priority": 101,
+      "state": "AL"
+    },
+    {
+      "filing_authority": "Secretary of State or equivalent business filing office",
+      "jurisdiction_id": "ak_state",
+      "level": "state",
+      "name": "Alaska",
+      "notes": "",
+      "official_domains": [
+        "corporations.alaska.gov"
+      ],
+      "parent_id": null,
+      "portal_type": "to_research",
+      "priority": 102,
+      "state": "AK"
+    },
+    {
+      "filing_authority": "Secretary of State or equivalent business filing office",
+      "jurisdiction_id": "ar_state",
+      "level": "state",
+      "name": "Arkansas",
+      "notes": "",
+      "official_domains": [
+        "sos.arkansas.gov"
+      ],
+      "parent_id": null,
+      "portal_type": "to_research",
+      "priority": 104,
+      "state": "AR"
+    },
+    {
+      "filing_authority": "Secretary of State or equivalent business filing office",
+      "jurisdiction_id": "co_state",
+      "level": "state",
+      "name": "Colorado",
+      "notes": "",
+      "official_domains": [
+        "sos.state.co.us"
+      ],
+      "parent_id": null,
+      "portal_type": "to_research",
+      "priority": 106,
+      "state": "CO"
+    },
+    {
+      "filing_authority": "Secretary of State or equivalent business filing office",
+      "jurisdiction_id": "ct_state",
+      "level": "state",
+      "name": "Connecticut",
+      "notes": "",
+      "official_domains": [
+        "business.ct.gov"
+      ],
+      "parent_id": null,
+      "portal_type": "to_research",
+      "priority": 107,
+      "state": "CT"
+    },
+    {
+      "filing_authority": "Secretary of State or equivalent business filing office",
+      "jurisdiction_id": "dc_state",
+      "level": "state",
+      "name": "District of Columbia",
+      "notes": "",
+      "official_domains": [
+        "dlcp.dc.gov",
+        "dcra.dc.gov"
+      ],
+      "parent_id": null,
+      "portal_type": "to_research",
+      "priority": 109,
+      "state": "DC"
+    },
+    {
+      "filing_authority": "Secretary of State or equivalent business filing office",
+      "jurisdiction_id": "hi_state",
+      "level": "state",
+      "name": "Hawaii",
+      "notes": "",
+      "official_domains": [
+        "cca.hawaii.gov"
+      ],
+      "parent_id": null,
+      "portal_type": "to_research",
+      "priority": 112,
+      "state": "HI"
+    },
+    {
+      "filing_authority": "Secretary of State or equivalent business filing office",
+      "jurisdiction_id": "id_state",
+      "level": "state",
+      "name": "Idaho",
+      "notes": "",
+      "official_domains": [
+        "sosbiz.idaho.gov",
+        "sos.idaho.gov"
+      ],
+      "parent_id": null,
+      "portal_type": "to_research",
+      "priority": 113,
+      "state": "ID"
+    },
+    {
+      "filing_authority": "Secretary of State or equivalent business filing office",
+      "jurisdiction_id": "in_state",
+      "level": "state",
+      "name": "Indiana",
+      "notes": "",
+      "official_domains": [
+        "inbiz.in.gov",
+        "in.gov/sos"
+      ],
+      "parent_id": null,
+      "portal_type": "to_research",
+      "priority": 115,
+      "state": "IN"
+    },
+    {
+      "filing_authority": "Secretary of State or equivalent business filing office",
+      "jurisdiction_id": "ia_state",
+      "level": "state",
+      "name": "Iowa",
+      "notes": "",
+      "official_domains": [
+        "sos.iowa.gov"
+      ],
+      "parent_id": null,
+      "portal_type": "to_research",
+      "priority": 116,
+      "state": "IA"
+    },
+    {
+      "filing_authority": "Secretary of State or equivalent business filing office",
+      "jurisdiction_id": "ks_state",
+      "level": "state",
+      "name": "Kansas",
+      "notes": "",
+      "official_domains": [
+        "sos.ks.gov"
+      ],
+      "parent_id": null,
+      "portal_type": "to_research",
+      "priority": 117,
+      "state": "KS"
+    },
+    {
+      "filing_authority": "Secretary of State or equivalent business filing office",
+      "jurisdiction_id": "ky_state",
+      "level": "state",
+      "name": "Kentucky",
+      "notes": "",
+      "official_domains": [
+        "sos.ky.gov"
+      ],
+      "parent_id": null,
+      "portal_type": "to_research",
+      "priority": 118,
+      "state": "KY"
+    },
+    {
+      "filing_authority": "Secretary of State or equivalent business filing office",
+      "jurisdiction_id": "la_state",
+      "level": "state",
+      "name": "Louisiana",
+      "notes": "",
+      "official_domains": [
+        "sos.la.gov"
+      ],
+      "parent_id": null,
+      "portal_type": "to_research",
+      "priority": 119,
+      "state": "LA"
+    },
+    {
+      "filing_authority": "Secretary of State or equivalent business filing office",
+      "jurisdiction_id": "me_state",
+      "level": "state",
+      "name": "Maine",
+      "notes": "",
+      "official_domains": [
+        "maine.gov/sos"
+      ],
+      "parent_id": null,
+      "portal_type": "to_research",
+      "priority": 120,
+      "state": "ME"
+    },
+    {
+      "filing_authority": "Secretary of State or equivalent business filing office",
+      "jurisdiction_id": "md_state",
+      "level": "state",
+      "name": "Maryland",
+      "notes": "",
+      "official_domains": [
+        "egov.maryland.gov",
+        "dat.maryland.gov"
+      ],
+      "parent_id": null,
+      "portal_type": "to_research",
+      "priority": 121,
+      "state": "MD"
+    },
+    {
+      "filing_authority": "Secretary of State or equivalent business filing office",
+      "jurisdiction_id": "ma_state",
+      "level": "state",
+      "name": "Massachusetts",
+      "notes": "",
+      "official_domains": [
+        "sec.state.ma.us"
+      ],
+      "parent_id": null,
+      "portal_type": "to_research",
+      "priority": 122,
+      "state": "MA"
+    },
+    {
+      "filing_authority": "Secretary of State or equivalent business filing office",
+      "jurisdiction_id": "mi_state",
+      "level": "state",
+      "name": "Michigan",
+      "notes": "",
+      "official_domains": [
+        "michigan.gov/lara"
+      ],
+      "parent_id": null,
+      "portal_type": "to_research",
+      "priority": 123,
+      "state": "MI"
+    },
+    {
+      "filing_authority": "Secretary of State or equivalent business filing office",
+      "jurisdiction_id": "mn_state",
+      "level": "state",
+      "name": "Minnesota",
+      "notes": "",
+      "official_domains": [
+        "sos.state.mn.us"
+      ],
+      "parent_id": null,
+      "portal_type": "to_research",
+      "priority": 124,
+      "state": "MN"
+    },
+    {
+      "filing_authority": "Secretary of State or equivalent business filing office",
+      "jurisdiction_id": "ms_state",
+      "level": "state",
+      "name": "Mississippi",
+      "notes": "",
+      "official_domains": [
+        "sos.ms.gov"
+      ],
+      "parent_id": null,
+      "portal_type": "to_research",
+      "priority": 125,
+      "state": "MS"
+    },
+    {
+      "filing_authority": "Secretary of State or equivalent business filing office",
+      "jurisdiction_id": "mo_state",
+      "level": "state",
+      "name": "Missouri",
+      "notes": "",
+      "official_domains": [
+        "sos.mo.gov"
+      ],
+      "parent_id": null,
+      "portal_type": "to_research",
+      "priority": 126,
+      "state": "MO"
+    },
+    {
+      "filing_authority": "Secretary of State or equivalent business filing office",
+      "jurisdiction_id": "mt_state",
+      "level": "state",
+      "name": "Montana",
+      "notes": "",
+      "official_domains": [
+        "sosmt.gov"
+      ],
+      "parent_id": null,
+      "portal_type": "to_research",
+      "priority": 127,
+      "state": "MT"
+    },
+    {
+      "filing_authority": "Secretary of State or equivalent business filing office",
+      "jurisdiction_id": "ne_state",
+      "level": "state",
+      "name": "Nebraska",
+      "notes": "",
+      "official_domains": [
+        "sos.nebraska.gov"
+      ],
+      "parent_id": null,
+      "portal_type": "to_research",
+      "priority": 128,
+      "state": "NE"
+    },
+    {
+      "filing_authority": "Secretary of State or equivalent business filing office",
+      "jurisdiction_id": "nh_state",
+      "level": "state",
+      "name": "New Hampshire",
+      "notes": "",
+      "official_domains": [
+        "sos.nh.gov"
+      ],
+      "parent_id": null,
+      "portal_type": "to_research",
+      "priority": 130,
+      "state": "NH"
+    },
+    {
+      "filing_authority": "Secretary of State or equivalent business filing office",
+      "jurisdiction_id": "nj_state",
+      "level": "state",
+      "name": "New Jersey",
+      "notes": "",
+      "official_domains": [
+        "business.nj.gov",
+        "njportal.com"
+      ],
+      "parent_id": null,
+      "portal_type": "to_research",
+      "priority": 131,
+      "state": "NJ"
+    },
+    {
+      "filing_authority": "Secretary of State or equivalent business filing office",
+      "jurisdiction_id": "nm_state",
+      "level": "state",
+      "name": "New Mexico",
+      "notes": "",
+      "official_domains": [
+        "sos.nm.gov"
+      ],
+      "parent_id": null,
+      "portal_type": "to_research",
+      "priority": 132,
+      "state": "NM"
+    },
+    {
+      "filing_authority": "Secretary of State or equivalent business filing office",
+      "jurisdiction_id": "nc_state",
+      "level": "state",
+      "name": "North Carolina",
+      "notes": "",
+      "official_domains": [
+        "sosnc.gov"
+      ],
+      "parent_id": null,
+      "portal_type": "to_research",
+      "priority": 134,
+      "state": "NC"
+    },
+    {
+      "filing_authority": "Secretary of State or equivalent business filing office",
+      "jurisdiction_id": "nd_state",
+      "level": "state",
+      "name": "North Dakota",
+      "notes": "",
+      "official_domains": [
+        "sos.nd.gov"
+      ],
+      "parent_id": null,
+      "portal_type": "to_research",
+      "priority": 135,
+      "state": "ND"
+    },
+    {
+      "filing_authority": "Secretary of State or equivalent business filing office",
+      "jurisdiction_id": "oh_state",
+      "level": "state",
+      "name": "Ohio",
+      "notes": "",
+      "official_domains": [
+        "ohiosos.gov"
+      ],
+      "parent_id": null,
+      "portal_type": "to_research",
+      "priority": 136,
+      "state": "OH"
+    },
+    {
+      "filing_authority": "Secretary of State or equivalent business filing office",
+      "jurisdiction_id": "ok_state",
+      "level": "state",
+      "name": "Oklahoma",
+      "notes": "",
+      "official_domains": [
+        "sos.ok.gov"
+      ],
+      "parent_id": null,
+      "portal_type": "to_research",
+      "priority": 137,
+      "state": "OK"
+    },
+    {
+      "filing_authority": "Secretary of State or equivalent business filing office",
+      "jurisdiction_id": "or_state",
+      "level": "state",
+      "name": "Oregon",
+      "notes": "",
+      "official_domains": [
+        "sos.oregon.gov"
+      ],
+      "parent_id": null,
+      "portal_type": "to_research",
+      "priority": 138,
+      "state": "OR"
+    },
+    {
+      "filing_authority": "Secretary of State or equivalent business filing office",
+      "jurisdiction_id": "pa_state",
+      "level": "state",
+      "name": "Pennsylvania",
+      "notes": "",
+      "official_domains": [
+        "pa.gov",
+        "file.dos.pa.gov"
+      ],
+      "parent_id": null,
+      "portal_type": "to_research",
+      "priority": 139,
+      "state": "PA"
+    },
+    {
+      "filing_authority": "Secretary of State or equivalent business filing office",
+      "jurisdiction_id": "ri_state",
+      "level": "state",
+      "name": "Rhode Island",
+      "notes": "",
+      "official_domains": [
+        "business.sos.ri.gov"
+      ],
+      "parent_id": null,
+      "portal_type": "to_research",
+      "priority": 140,
+      "state": "RI"
+    },
+    {
+      "filing_authority": "Secretary of State or equivalent business filing office",
+      "jurisdiction_id": "sc_state",
+      "level": "state",
+      "name": "South Carolina",
+      "notes": "",
+      "official_domains": [
+        "sos.sc.gov"
+      ],
+      "parent_id": null,
+      "portal_type": "to_research",
+      "priority": 141,
+      "state": "SC"
+    },
+    {
+      "filing_authority": "Secretary of State or equivalent business filing office",
+      "jurisdiction_id": "sd_state",
+      "level": "state",
+      "name": "South Dakota",
+      "notes": "",
+      "official_domains": [
+        "sdsos.gov"
+      ],
+      "parent_id": null,
+      "portal_type": "to_research",
+      "priority": 142,
+      "state": "SD"
+    },
+    {
+      "filing_authority": "Secretary of State or equivalent business filing office",
+      "jurisdiction_id": "tn_state",
+      "level": "state",
+      "name": "Tennessee",
+      "notes": "",
+      "official_domains": [
+        "sos.tn.gov"
+      ],
+      "parent_id": null,
+      "portal_type": "to_research",
+      "priority": 143,
+      "state": "TN"
+    },
+    {
+      "filing_authority": "Secretary of State or equivalent business filing office",
+      "jurisdiction_id": "ut_state",
+      "level": "state",
+      "name": "Utah",
+      "notes": "",
+      "official_domains": [
+        "corporations.utah.gov"
+      ],
+      "parent_id": null,
+      "portal_type": "to_research",
+      "priority": 145,
+      "state": "UT"
+    },
+    {
+      "filing_authority": "Secretary of State or equivalent business filing office",
+      "jurisdiction_id": "vt_state",
+      "level": "state",
+      "name": "Vermont",
+      "notes": "",
+      "official_domains": [
+        "sos.vermont.gov"
+      ],
+      "parent_id": null,
+      "portal_type": "to_research",
+      "priority": 146,
+      "state": "VT"
+    },
+    {
+      "filing_authority": "Secretary of State or equivalent business filing office",
+      "jurisdiction_id": "va_state",
+      "level": "state",
+      "name": "Virginia",
+      "notes": "",
+      "official_domains": [
+        "scc.virginia.gov"
+      ],
+      "parent_id": null,
+      "portal_type": "to_research",
+      "priority": 147,
+      "state": "VA"
+    },
+    {
+      "filing_authority": "Secretary of State or equivalent business filing office",
+      "jurisdiction_id": "wa_state",
+      "level": "state",
+      "name": "Washington",
+      "notes": "",
+      "official_domains": [
+        "sos.wa.gov",
+        "dor.wa.gov"
+      ],
+      "parent_id": null,
+      "portal_type": "to_research",
+      "priority": 148,
+      "state": "WA"
+    },
+    {
+      "filing_authority": "Secretary of State or equivalent business filing office",
+      "jurisdiction_id": "wv_state",
+      "level": "state",
+      "name": "West Virginia",
+      "notes": "",
+      "official_domains": [
+        "business4.wv.gov",
+        "sos.wv.gov"
+      ],
+      "parent_id": null,
+      "portal_type": "to_research",
+      "priority": 149,
+      "state": "WV"
+    },
+    {
+      "filing_authority": "Secretary of State or equivalent business filing office",
+      "jurisdiction_id": "wi_state",
+      "level": "state",
+      "name": "Wisconsin",
+      "notes": "",
+      "official_domains": [
+        "dfi.wi.gov"
+      ],
+      "parent_id": null,
+      "portal_type": "to_research",
+      "priority": 150,
+      "state": "WI"
+    }
+  ],
+  "version": 1
+}

@@ -1,0 +1,242 @@
+{
+  "purpose": "Secondary competitor intelligence for product coverage, blocked-filing workarounds, packaging, and pricing comparison. Competitor pages are not authoritative sources for government filing fees, eligibility rules, process steps, or legal requirements.",
+  "status": "queued",
+  "source_of_truth_rule": "Use competitor sources to discover likely services and customer expectations. Verify every filing requirement, fee, turnaround, and automation process against official government or government-linked portal sources before marking a SOSFiler filing record ready.",
+  "targets": [
+    {
+      "competitor_code": "legalzoom",
+      "name": "LegalZoom",
+      "website_url": "https://www.legalzoom.com",
+      "priority": 1,
+      "seed_urls": [
+        "https://www.legalzoom.com/businessnavcomplete.html",
+        "https://www.legalzoom.com/business/business-operations/",
+        "https://www.legalzoom.com/business/business-operations/compliance",
+        "https://www.legalzoom.com/additional-business-services/registered-agent-services.html"
+      ],
+      "focus": [
+        "formation coverage",
+        "annual reports",
+        "amendments",
+        "foreign qualification",
+        "registered agent",
+        "business licenses",
+        "DBA",
+        "EIN",
+        "operating agreements",
+        "bylaws and resolutions",
+        "trademark",
+        "patent",
+        "certificates and certified copies",
+        "reinstatement",
+        "dissolution",
+        "entity conversion"
+      ]
+    },
+    {
+      "competitor_code": "northwest_registered_agent",
+      "name": "Northwest Registered Agent",
+      "website_url": "https://www.northwestregisteredagent.com",
+      "priority": 2,
+      "seed_urls": [
+        "https://www.northwestregisteredagent.com/service-signup",
+        "https://www.northwestregisteredagent.com/boi-reporting",
+        "https://www.northwestregisteredagent.com/boi-reporting/beneficial-ownership-report-service"
+      ],
+      "focus": [
+        "LLC formation",
+        "corporation formation",
+        "nonprofit formation",
+        "annual reports",
+        "foreign qualification",
+        "registered agent",
+        "registered agent change",
+        "business identity",
+        "mail forwarding",
+        "virtual office",
+        "trademark",
+        "BOI for foreign reporting companies"
+      ]
+    },
+    {
+      "competitor_code": "corpnet",
+      "name": "CorpNet",
+      "website_url": "https://www.corpnet.com",
+      "priority": 3,
+      "seed_urls": [
+        "https://www.corpnet.com/about/pricing/",
+        "https://www.corpnet.com/run-business/annual-reports/",
+        "https://www.corpnet.com/about/compare-registered-agent-providers/"
+      ],
+      "focus": [
+        "annual reports",
+        "registered agent",
+        "business licenses and permits",
+        "DBA",
+        "state tax registration",
+        "EIN",
+        "bulk registered agent pricing",
+        "compliance services"
+      ]
+    },
+    {
+      "competitor_code": "zenbusiness",
+      "name": "ZenBusiness",
+      "website_url": "https://www.zenbusiness.com",
+      "priority": 4,
+      "seed_urls": [
+        "https://help.zenbusiness.com/Worry_Free_Compliance/Annual_Reports_and_Amendments/What_is_a_business_amendment_and_do_I_need_to_do_anything%3F",
+        "https://help.zenbusiness.com/worry-free-compliance/what-is-a-business-amendment"
+      ],
+      "focus": [
+        "formation bundles",
+        "registered agent",
+        "annual report reminders",
+        "amendments",
+        "dashboard workflow",
+        "worry-free compliance"
+      ]
+    },
+    {
+      "competitor_code": "bizee",
+      "name": "Bizee / Incfile",
+      "website_url": "https://www.bizee.com",
+      "priority": 5,
+      "seed_urls": [],
+      "focus": [
+        "formation bundles",
+        "registered agent",
+        "annual reports",
+        "business licenses",
+        "DBA",
+        "EIN"
+      ]
+    },
+    {
+      "competitor_code": "incorp",
+      "name": "InCorp",
+      "website_url": "https://www.incorp.com",
+      "priority": 6,
+      "seed_urls": [
+        "https://www.incorp.com/default.aspx"
+      ],
+      "focus": [
+        "registered agent",
+        "formation",
+        "DBA",
+        "EIN",
+        "corporate kits",
+        "stock certificates",
+        "online forms library",
+        "compliance calendar"
+      ]
+    },
+    {
+      "competitor_code": "harbor_compliance",
+      "name": "Harbor Compliance",
+      "website_url": "https://www.harborcompliance.com",
+      "priority": 7,
+      "seed_urls": [],
+      "focus": [
+        "multi-state compliance",
+        "registered agent",
+        "annual reports",
+        "foreign qualification",
+        "entity management",
+        "business licenses"
+      ]
+    },
+    {
+      "competitor_code": "rocket_lawyer",
+      "name": "Rocket Lawyer",
+      "website_url": "https://www.rocketlawyer.com",
+      "priority": 8,
+      "seed_urls": [],
+      "focus": [
+        "formation",
+        "registered agent",
+        "legal documents",
+        "operating agreements",
+        "bylaws",
+        "legal plan"
+      ]
+    },
+    {
+      "competitor_code": "swyft_filings",
+      "name": "Swyft Filings",
+      "website_url": "https://www.swyftfilings.com",
+      "priority": 9,
+      "seed_urls": [],
+      "focus": [
+        "formation",
+        "registered agent",
+        "DBA",
+        "annual reports",
+        "amendments",
+        "licenses"
+      ]
+    },
+    {
+      "competitor_code": "incorporate_dot_com",
+      "name": "Incorporate.com",
+      "website_url": "https://www.incorporate.com",
+      "priority": 10,
+      "seed_urls": [],
+      "focus": [
+        "formation",
+        "registered agent",
+        "compliance",
+        "annual reports",
+        "foreign qualification"
+      ]
+    },
+    {
+      "competitor_code": "betterlegal",
+      "name": "BetterLegal",
+      "website_url": "https://www.betterlegal.com",
+      "priority": 11,
+      "seed_urls": [],
+      "focus": [
+        "formation",
+        "registered agent",
+        "business address",
+        "DBA",
+        "state compliance"
+      ]
+    }
+  ],
+  "initial_gap_categories": [
+    "registered_agent_service",
+    "registered_agent_change",
+    "annual_report_filing",
+    "business_license_discovery",
+    "business_license_filing",
+    "dba_fbn_assumed_name",
+    "foreign_qualification",
+    "articles_of_amendment",
+    "entity_conversion",
+    "dissolution",
+    "reinstatement",
+    "certificate_of_good_standing",
+    "certified_copy",
+    "operating_agreement",
+    "bylaws",
+    "initial_resolutions",
+    "corporate_minutes",
+    "stock_certificate",
+    "corporate_kit",
+    "ein",
+    "state_tax_id",
+    "seller_permit",
+    "trademark_search",
+    "trademark_filing",
+    "trademark_monitoring",
+    "trademark_maintenance",
+    "copyright",
+    "patent_search",
+    "provisional_patent",
+    "design_patent",
+    "utility_patent",
+    "boi_foreign_reporting_company"
+  ]
+}

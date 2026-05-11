@@ -1,0 +1,2547 @@
+{
+  "batches": {
+    "tx_local_filings": {
+      "batch_id": "tx_local_filings",
+      "candidate_count": 5,
+      "candidate_offset": 20,
+      "candidates": [
+        {
+          "authority": "Travis County Clerk",
+          "batch_id": "tx_local_filings",
+          "candidate_id": "tx_local_filings_314afbeb4624",
+          "confidence": "High",
+          "discovered_at": "2026-05-08T00:41:56+00:00",
+          "domain": "countyclerk.traviscountytx.gov",
+          "filing_topics": [
+            "DBA",
+            "FBN",
+            "Assumed Name Filings",
+            "Business Licenses",
+            "Business Tax Certificates",
+            "Home Occupation Permits",
+            "Zoning Clearances",
+            "Renewal Filings",
+            "License Renewals",
+            "Amendments",
+            "Closures",
+            "Late Fees"
+          ],
+          "jurisdiction_level": "County",
+          "jurisdiction_name": "Travis County",
+          "notes": "",
+          "official_url": "https://countyclerk.traviscountytx.gov/forms/",
+          "source_kind": "firecrawl_web_discovery",
+          "state": "TX"
+        },
+        {
+          "authority": "Planning & Development",
+          "batch_id": "tx_local_filings",
+          "candidate_id": "tx_local_filings_e17acac985ad",
+          "confidence": "high",
+          "discovered_at": "2026-05-08T00:41:56+00:00",
+          "domain": "dallascityhall.com",
+          "filing_topics": [
+            "Building Inspection Permit Application",
+            "Certificate of Occupancy",
+            "Home Occupation Declaration",
+            "Home Occupation Permits",
+            "Permit Fee Estimate Worksheet",
+            "Swimming Pool Permit Application",
+            "Zoning Applications"
+          ],
+          "jurisdiction_level": "City",
+          "jurisdiction_name": "City of Dallas",
+          "notes": "Contains various forms related to business permits and licenses.",
+          "official_url": "https://dallascityhall.com/departments/sustainabledevelopment/Pages/formsdept.aspx",
+          "source_kind": "firecrawl_web_discovery",
+          "state": "TX"
+        },
+        {
+          "authority": "Sustainable Development and Construction Department",
+          "batch_id": "tx_local_filings",
+          "candidate_id": "tx_local_filings_2f336e57de5b",
+          "confidence": "high",
+          "discovered_at": "2026-05-08T00:41:56+00:00",
+          "domain": "dallascityhall.com",
+          "filing_topics": [
+            "Certificate of Occupancy Application",
+            "Business Licenses",
+            "Home Occupation Permits",
+            "Zoning Clearance",
+            "Renewal Filings",
+            "Local Compliance Filings"
+          ],
+          "jurisdiction_level": "City",
+          "jurisdiction_name": "City of Dallas",
+          "notes": "",
+          "official_url": "https://dallascityhall.com/departments/sustainabledevelopment/buildinginspection/DCH%20documents/pdf/BI_CO%20Application_05-30-2017.pdf",
+          "source_kind": "firecrawl_web_discovery",
+          "state": "TX"
+        },
+        {
+          "authority": "Dallas City Hall",
+          "batch_id": "tx_local_filings",
+          "candidate_id": "tx_local_filings_a7a54a104d0d",
+          "confidence": "high",
+          "discovered_at": "2026-05-08T00:41:56+00:00",
+          "domain": "dallascityhall.com",
+          "filing_topics": [
+            "Amendments",
+            "Business Licenses",
+            "Business Tax Certificates",
+            "Closures",
+            "Home Occupation Permits",
+            "Renewal Filings",
+            "Renewals",
+            "Zoning",
+            "Zoning Clearance"
+          ],
+          "jurisdiction_level": "City",
+          "jurisdiction_name": "Dallas",
+          "notes": "This page provides resources for zoning and zoning changes, including links to zoning application intake logs and DallasNow for planning applications.",
+          "official_url": "https://dallascityhall.com/departments/pnv/Pages/Zoning-Resources.aspx",
+          "source_kind": "firecrawl_web_discovery",
+          "state": "TX"
+        },
+        {
+          "authority": "Dallas City Hall",
+          "batch_id": "tx_local_filings",
+          "candidate_id": "tx_local_filings_45afb2b9501d",
+          "confidence": "High",
+          "discovered_at": "2026-05-08T00:41:56+00:00",
+          "domain": "dallascityhall.com",
+          "filing_topics": [
+            "Amendments",
+            "Business Licenses",
+            "Business Tax Certificates",
+            "Closures",
+            "Home Occupation Permits",
+            "Renewal Filings",
+            "Zoning Clearance",
+            "amendments",
+            "business licenses",
+            "business tax certificates",
+            "closures",
+            "home occupation permits",
+            "local compliance filings",
+            "renewal filings",
+            "renewals",
+            "zoning clearance"
+          ],
+          "jurisdiction_level": "City",
+          "jurisdiction_name": "Dallas",
+          "notes": "Official city page for zoning regulations and related permits.",
+          "official_url": "https://dallascityhall.com/departments/sustainabledevelopment/Pages/zoning_use_regulations.aspx",
+          "source_kind": "firecrawl_web_discovery",
+          "state": "TX"
+        }
+      ],
+      "captured_at": "2026-05-08T00:41:56+00:00",
+      "discovered_count": 62,
+      "enable_web_discovery": true,
+      "error": "",
+      "max_candidates": 5,
+      "providers": [
+        {
+          "candidate_count": 62,
+          "configured": true,
+          "error": "",
+          "provider": "firecrawl",
+          "raw": {
+            "data": {
+              "source_candidates": [
+                {
+                  "authority": "McLennan County Appraisal District",
+                  "confidence": "High",
+                  "domain": "mclennancad.org",
+                  "filing_topics": [
+                    "DBA",
+                    "FBN",
+                    "Assumed Name Filings",
+                    "Business Licenses",
+                    "Tax Certificates",
+                    "Home Occupation Permits",
+                    "Zoning Clearances",
+                    "Renewals",
+                    "Amendments",
+                    "Closures",
+                    "Late Fees"
+                  ],
+                  "jurisdiction_level": "County",
+                  "jurisdiction_name": "McLennan County",
+                  "notes": "",
+                  "official_url": "http://www.mclennancad.org",
+                  "state": "TX"
+                },
+                {
+                  "authority": "McLennan County Tax Assessor-Collector",
+                  "confidence": "High",
+                  "domain": "co.mclennan.tx.us",
+                  "filing_topics": [
+                    "Business Licenses",
+                    "Tax Certificates",
+                    "Renewals",
+                    "Amendments",
+                    "Closures",
+                    "Late Fees"
+                  ],
+                  "jurisdiction_level": "County",
+                  "jurisdiction_name": "McLennan County",
+                  "notes": "",
+                  "official_url": "http://www.co.mclennan.tx.us",
+                  "state": "TX"
+                },
+                {
+                  "authority": "Brazoria County Tax Assessor-Collector",
+                  "confidence": "High",
+                  "domain": "brazoriacountytx.gov",
+                  "filing_topics": [
+                    "DBA",
+                    "FBN",
+                    "Assumed Name Filings",
+                    "Business Licenses",
+                    "Business Tax Certificates",
+                    "Home Occupation Permits",
+                    "Zoning Clearances",
+                    "Renewal Filings",
+                    "License Renewals",
+                    "Amendments",
+                    "Closures"
+                  ],
+                  "jurisdiction_level": "County",
+                  "jurisdiction_name": "Brazoria County",
+                  "notes": "",
+                  "official_url": "https://www.brazoriacountytx.gov/",
+                  "state": "TX"
+                },
+                {
+                  "authority": "Brazoria County Appraisal District",
+                  "confidence": "High",
+                  "domain": "brazoriacad.org",
+                  "filing_topics": [
+                    "Property Tax Notices",
+                    "Tax Assessor-Collector Information"
+                  ],
+                  "jurisdiction_level": "County",
+                  "jurisdiction_name": "Brazoria County Appraisal District",
+                  "notes": "",
+                  "official_url": "http://www.brazoriacad.org/",
+                  "state": "TX"
+                },
+                {
+                  "authority": "Texas Comptroller",
+                  "confidence": "High",
+                  "domain": "comptroller.texas.gov",
+                  "filing_topics": [
+                    "Tax Permit Application",
+                    "Sales and Use Tax",
+                    "Business Licenses",
+                    "Home Occupation Permits",
+                    "Zoning Clearance",
+                    "Renewal Filings",
+                    "Local Compliance Filings"
+                  ],
+                  "jurisdiction_level": "State",
+                  "jurisdiction_name": "Texas Comptroller of Public Accounts",
+                  "notes": "Official page for applying for tax permits and related business licenses.",
+                  "official_url": "https://comptroller.texas.gov/taxes/permit/",
+                  "state": "Texas"
+                },
+                {
+                  "authority": "Texas Comptroller of Public Accounts",
+                  "confidence": "high",
+                  "domain": "comptroller.texas.gov",
+                  "filing_topics": [
+                    "Sales and Use Tax",
+                    "911 Surcharge and Fees",
+                    "Sales Tax Surcharge on Diesel Equipment",
+                    "Business Licenses",
+                    "Home Occupation Permits",
+                    "Zoning Clearance",
+                    "Renewal Filings",
+                    "License Renewals",
+                    "Amendments",
+                    "Closures",
+                    "Late Fees"
+                  ],
+                  "jurisdiction_level": "State",
+                  "jurisdiction_name": "Texas Comptroller of Public Accounts",
+                  "notes": "Official page for applying for tax permits and related business licenses.",
+                  "official_url": "https://comptroller.texas.gov/taxes/permit/",
+                  "state": "Texas"
+                },
+                {
+                  "authority": "Texas Comptroller of Public Accounts",
+                  "confidence": "high",
+                  "domain": "comptroller.texas.gov",
+                  "filing_topics": [
+                    "Sales and Use Tax",
+                    "911 Surcharge and Fees",
+                    "Sales Tax Surcharge on Diesel Equipment"
+                  ],
+                  "jurisdiction_level": "State",
+                  "jurisdiction_name": "Texas Comptroller of Public Accounts",
+                  "notes": "Online application for tax permits, including sales tax.",
+                  "official_url": "https://comptroller.texas.gov/taxes/permit/",
+                  "state": "Texas"
+                },
+                {
+                  "authority": "Texas Comptroller of Public Accounts",
+                  "confidence": "high",
+                  "domain": "comptroller.texas.gov",
+                  "filing_topics": [
+                    "Sales and Use Tax",
+                    "911 Surcharge and Fees",
+                    "Sales Tax Surcharge on Diesel Equipment",
+                    "Tax Permit Application",
+                    "Business Licenses",
+                    "Home Occupation Permits"
+                  ],
+                  "jurisdiction_level": "State",
+                  "jurisdiction_name": "Texas Comptroller of Public Accounts",
+                  "notes": "Official page for applying for various tax permits and licenses in Texas.",
+                  "official_url": "https://comptroller.texas.gov/taxes/permit/",
+                  "state": "Texas"
+                },
+                {
+                  "authority": "Texas Comptroller of Public Accounts",
+                  "confidence": "high",
+                  "domain": "comptroller.texas.gov",
+                  "filing_topics": [
+                    "Sales and Use Tax",
+                    "911 Surcharge and Fees",
+                    "Sales Tax Surcharge on Diesel Equipment",
+                    "Business Licenses",
+                    "Home Occupation Permits",
+                    "Zoning Clearance",
+                    "Renewal Filings",
+                    "Local Compliance Filings"
+                  ],
+                  "jurisdiction_level": "State",
+                  "jurisdiction_name": "Texas Comptroller of Public Accounts",
+                  "notes": "Official page for applying for tax permits and related business licenses.",
+                  "official_url": "https://comptroller.texas.gov/taxes/permit/",
+                  "state": "TX"
+                },
+                {
+                  "authority": "Texas Comptroller of Public Accounts",
+                  "confidence": "high",
+                  "domain": "comptroller.texas.gov",
+                  "filing_topics": [
+                    "Franchise Tax Public Information Report",
+                    "Ownership Information Report",
+                    "DBA filings",
+                    "FBN filings",
+                    "Assumed-name filings"
+                  ],
+                  "jurisdiction_level": "State",
+                  "jurisdiction_name": "Texas Comptroller of Public Accounts",
+                  "notes": "Official page for filing requirements related to franchise tax and business entity information.",
+                  "official_url": "https://comptroller.texas.gov/taxes/franchise/pir-oir-filing-req.php",
+                  "state": "Texas"
+                },
+                {
+                  "authority": "Texas Comptroller",
+                  "confidence": "high",
+                  "domain": "comptroller.texas.gov",
+                  "filing_topics": [
+                    "Sales Tax Permit Application",
+                    "Franchise Tax",
+                    "Property Tax Assistance",
+                    "Business Tax Certificates",
+                    "Home Occupation Permits",
+                    "Zoning Clearance Dependencies"
+                  ],
+                  "jurisdiction_level": "State",
+                  "jurisdiction_name": "Texas Comptroller of Public Accounts",
+                  "notes": "",
+                  "official_url": "https://comptroller.texas.gov/taxes/permit/",
+                  "state": "TX"
+                },
+                {
+                  "authority": "Texas Comptroller",
+                  "confidence": "high",
+                  "domain": "comptroller.texas.gov",
+                  "filing_topics": [
+                    "Franchise Tax",
+                    "Terminate or Reinstate a Business",
+                    "Franchise Tax Notices"
+                  ],
+                  "jurisdiction_level": "State",
+                  "jurisdiction_name": "Texas Comptroller of Public Accounts",
+                  "notes": "",
+                  "official_url": "https://comptroller.texas.gov/taxes/franchise/",
+                  "state": "TX"
+                },
+                {
+                  "authority": "Texas Comptroller",
+                  "confidence": "high",
+                  "domain": "comptroller.texas.gov",
+                  "filing_topics": [
+                    "Property Tax Assistance",
+                    "Property Tax Exemptions",
+                    "Refund Information"
+                  ],
+                  "jurisdiction_level": "State",
+                  "jurisdiction_name": "Texas Comptroller of Public Accounts",
+                  "notes": "",
+                  "official_url": "https://comptroller.texas.gov/taxes/property-tax/",
+                  "state": "TX"
+                },
+                {
+                  "authority": "Texas Comptroller",
+                  "confidence": "high",
+                  "domain": "comptroller.texas.gov",
+                  "filing_topics": [
+                    "File and Pay",
+                    "Due Dates",
+                    "Penalty Waivers"
+                  ],
+                  "jurisdiction_level": "State",
+                  "jurisdiction_name": "Texas Comptroller of Public Accounts",
+                  "notes": "",
+                  "official_url": "https://comptroller.texas.gov/taxes/file-pay/",
+                  "state": "TX"
+                },
+                {
+                  "authority": "Texas Comptroller",
+                  "confidence": "high",
+                  "domain": "comptroller.texas.gov",
+                  "filing_topics": [
+                    "Forms for Taxes",
+                    "Application Portals"
+                  ],
+                  "jurisdiction_level": "State",
+                  "jurisdiction_name": "Texas Comptroller of Public Accounts",
+                  "notes": "",
+                  "official_url": "https://comptroller.texas.gov/taxes/forms/",
+                  "state": "TX"
+                },
+                {
+                  "authority": "Travis County Clerk",
+                  "confidence": "High",
+                  "domain": "countyclerk.traviscountytx.gov",
+                  "filing_topics": [
+                    "DBA",
+                    "FBN",
+                    "Assumed Name Filings",
+                    "Business Licenses",
+                    "Tax Certificates",
+                    "Home Occupation Permits",
+                    "Zoning Clearances",
+                    "Renewal Filings",
+                    "License Renewals",
+                    "Amendments",
+                    "Closures",
+                    "Late Fees"
+                  ],
+                  "jurisdiction_level": "County",
+                  "jurisdiction_name": "Travis County",
+                  "notes": "",
+                  "official_url": "https://countyclerk.traviscountytx.gov/departments/recording/dbas/",
+                  "state": "TX"
+                },
+                {
+                  "authority": "Travis County Clerk",
+                  "confidence": "high",
+                  "domain": "countyclerk.traviscountytx.gov",
+                  "filing_topics": [
+                    "DBA",
+                    "FBN",
+                    "assumed-name filings",
+                    "business licenses",
+                    "business tax certificates",
+                    "home occupation permits",
+                    "renewals",
+                    "amendments",
+                    "closures",
+                    "late fees"
+                  ],
+                  "jurisdiction_level": "County",
+                  "jurisdiction_name": "Travis County",
+                  "notes": "",
+                  "official_url": "https://countyclerk.traviscountytx.gov/departments/recording/",
+                  "state": "TX"
+                },
+                {
+                  "authority": "Travis County Clerk",
+                  "confidence": "High",
+                  "domain": "countyclerk.traviscountytx.gov",
+                  "filing_topics": [
+                    "DBA",
+                    "FBN",
+                    "Assumed Name Filings",
+                    "Business Licenses",
+                    "Business Tax Certificates",
+                    "Home Occupation Permits",
+                    "Zoning Clearances",
+                    "Renewal Filings",
+                    "License Renewals",
+                    "Amendments",
+                    "Closures",
+                    "Late Fees"
+                  ],
+                  "jurisdiction_level": "County",
+                  "jurisdiction_name": "Travis County",
+                  "notes": "",
+                  "official_url": "https://countyclerk.traviscountytx.gov/departments/recording/search-copies-of-records/",
+                  "state": "TX"
+                },
+                {
+                  "authority": "Travis County Clerk",
+                  "confidence": "High",
+                  "domain": "countyclerk.traviscountytx.gov",
+                  "filing_topics": [
+                    "DBA",
+                    "FBN",
+                    "Assumed Name Filings",
+                    "Business Licenses",
+                    "Business Tax Certificates",
+                    "Home Occupation Permits",
+                    "Zoning Clearances",
+                    "Renewal Filings",
+                    "License Renewals",
+                    "Amendments",
+                    "Closures",
+                    "Late Fees"
+                  ],
+                  "jurisdiction_level": "County",
+                  "jurisdiction_name": "Travis County",
+                  "notes": "",
+                  "official_url": "https://countyclerk.traviscountytx.gov/forms/",
+                  "state": "TX"
+                },
+                {
+                  "authority": "Travis County Clerk",
+                  "confidence": "high",
+                  "domain": "countyclerk.traviscountytx.gov",
+                  "filing_topics": [
+                    "DBA",
+                    "FBN",
+                    "Assumed Name Filings",
+                    "Business Licenses",
+                    "Business Tax Certificates",
+                    "Home Occupation Permits",
+                    "Zoning Clearances",
+                    "Renewal Filings",
+                    "License Renewals",
+                    "Amendments",
+                    "Closures",
+                    "Late Fees"
+                  ],
+                  "jurisdiction_level": "County",
+                  "jurisdiction_name": "Travis County",
+                  "notes": "",
+                  "official_url": "https://countyclerk.traviscountytx.gov/departments/recording/forms/",
+                  "state": "TX"
+                },
+                {
+                  "authority": "Travis County Clerk",
+                  "confidence": "high",
+                  "domain": "countyclerk.traviscountytx.gov",
+                  "filing_topics": [
+                    "DBA",
+                    "FBN",
+                    "assumed-name filings",
+                    "business licenses",
+                    "business tax certificates",
+                    "home occupation permits",
+                    "renewals",
+                    "amendments",
+                    "closures",
+                    "late fees"
+                  ],
+                  "jurisdiction_level": "County",
+                  "jurisdiction_name": "Travis County",
+                  "notes": "",
+                  "official_url": "https://countyclerk.traviscountytx.gov/departments/recording/fee-information/",
+                  "state": "TX"
+                },
+                {
+                  "authority": "Office of Procurement Services",
+                  "confidence": "high",
+                  "domain": "dallascityhall.com",
+                  "filing_topics": [
+                    "Amusement Center License",
+                    "Beer License",
+                    "Billiard Hall License",
+                    "Coin Operated Machines",
+                    "Dance Hall License",
+                    "Liquor License",
+                    "Precious Metal Vendor",
+                    "Sexually Oriented Business License"
+                  ],
+                  "jurisdiction_level": "City",
+                  "jurisdiction_name": "Dallas",
+                  "notes": "Includes various business licenses and permits with application details.",
+                  "official_url": "https://dallascityhall.com/departments/procurement/Pages/special_collections_licenses.aspx",
+                  "state": "TX"
+                },
+                {
+                  "authority": "Planning & Development",
+                  "confidence": "high",
+                  "domain": "dallascityhall.com",
+                  "filing_topics": [
+                    "Building Inspection Permit Application",
+                    "Certificate of Occupancy",
+                    "Home Occupation Declaration",
+                    "Permit Fee Estimate Worksheet",
+                    "Swimming Pool Permit Application"
+                  ],
+                  "jurisdiction_level": "City",
+                  "jurisdiction_name": "City of Dallas",
+                  "notes": "Contains various forms related to business permits and licenses.",
+                  "official_url": "https://dallascityhall.com/departments/sustainabledevelopment/Pages/formsdept.aspx",
+                  "state": "TX"
+                },
+                {
+                  "authority": "Dallas City Hall",
+                  "confidence": "high",
+                  "domain": "dallascityhall.com",
+                  "filing_topics": [
+                    "Zoning",
+                    "Home Occupation Permits",
+                    "Zoning Clearance",
+                    "Business Licenses",
+                    "Renewals",
+                    "Amendments",
+                    "Closures"
+                  ],
+                  "jurisdiction_level": "City",
+                  "jurisdiction_name": "Dallas",
+                  "notes": "This page provides resources for zoning and zoning changes, including links to zoning application intake logs and DallasNow for planning applications.",
+                  "official_url": "https://dallascityhall.com/departments/pnv/Pages/Zoning-Resources.aspx",
+                  "state": "TX"
+                },
+                {
+                  "authority": "Dallas City Hall",
+                  "confidence": "high",
+                  "domain": "dallascityhall.com",
+                  "filing_topics": [
+                    "Current Planning Applications",
+                    "Zoning Requests",
+                    "Consultations"
+                  ],
+                  "jurisdiction_level": "City",
+                  "jurisdiction_name": "Dallas",
+                  "notes": "DallasNow is used for submitting current planning applications and provides a referral system for rezoning.",
+                  "official_url": "https://dallascityhall.com/departments/sustainabledevelopment/Pages/DallasNow.aspx",
+                  "state": "TX"
+                },
+                {
+                  "authority": "Dallas City Hall",
+                  "confidence": "high",
+                  "domain": "dallascityhall.com",
+                  "filing_topics": [
+                    "City Plan Commission",
+                    "Public Meetings",
+                    "Zoning Regulations"
+                  ],
+                  "jurisdiction_level": "City",
+                  "jurisdiction_name": "Dallas",
+                  "notes": "The City Plan Commission acts as an advisory committee to the City Council and provides information on public meetings and zoning regulations.",
+                  "official_url": "https://dallascityhall.com/government/Boards-and-Commissions/City-Plan-and-Zoning-Commission/Pages/Meetings.aspx",
+                  "state": "TX"
+                },
+                {
+                  "authority": "Dallas City Hall",
+                  "confidence": "high",
+                  "domain": "dallascityhall.com",
+                  "filing_topics": [
+                    "Open Records Requests",
+                    "Public Records"
+                  ],
+                  "jurisdiction_level": "City",
+                  "jurisdiction_name": "Dallas",
+                  "notes": "The City Secretary's Office provides access to public records and open records requests.",
+                  "official_url": "https://dallascityhall.com/government/citysecretary/Pages/default.aspx",
+                  "state": "TX"
+                },
+                {
+                  "authority": "Dallas City Hall",
+                  "confidence": "high",
+                  "domain": "dallascityhall.com",
+                  "filing_topics": [
+                    "Public Meeting Schedule",
+                    "Agendas",
+                    "Minutes"
+                  ],
+                  "jurisdiction_level": "City",
+                  "jurisdiction_name": "Dallas",
+                  "notes": "Links to public meeting schedules, posted agendas, and minutes for transparency.",
+                  "official_url": "https://dallascityhall.com/government/citysecretary/Pages/Public-Meetings.aspx",
+                  "state": "TX"
+                },
+                {
+                  "authority": "Dallas Planning & Development",
+                  "confidence": "high",
+                  "domain": "dallascityhall.com",
+                  "filing_topics": [
+                    "Building Inspection Permit Application",
+                    "Certificate of Occupancy",
+                    "Home Occupation Permits",
+                    "Permit Fee Estimate Worksheet",
+                    "Zoning Applications"
+                  ],
+                  "jurisdiction_level": "City",
+                  "jurisdiction_name": "Dallas",
+                  "notes": "Includes various forms related to business permits, zoning, and inspections.",
+                  "official_url": "https://dallascityhall.com/departments/sustainabledevelopment/Pages/formsdept.aspx",
+                  "state": "TX"
+                },
+                {
+                  "authority": "Dallas Code Compliance",
+                  "confidence": "high",
+                  "domain": "dallascityhall.com",
+                  "filing_topics": [
+                    "Vacant Building Registration Application",
+                    "Graffiti Program Form"
+                  ],
+                  "jurisdiction_level": "City",
+                  "jurisdiction_name": "Dallas",
+                  "notes": "Forms related to compliance and permits.",
+                  "official_url": "https://dallascityhall.com/departments/codecompliance/DCH%20documents/downloads/vacant_building_application.pdf",
+                  "state": "TX"
+                },
+                {
+                  "authority": "Dallas Water Utilities Department",
+                  "confidence": "high",
+                  "domain": "dallascityhall.com",
+                  "filing_topics": [
+                    "Security Alarm Permit",
+                    "Swimming Pool Permit Application"
+                  ],
+                  "jurisdiction_level": "City",
+                  "jurisdiction_name": "Dallas",
+                  "notes": "Includes permits related to water utilities and special collections.",
+                  "official_url": "https://dallascityhall.com/departments/waterutilities/special_collections/DCH%20Documents/SecurityAlarmInformation.pdf",
+                  "state": "TX"
+                },
+                {
+                  "authority": "Sustainable Development and Construction Department",
+                  "confidence": "high",
+                  "domain": "dallascityhall.com",
+                  "filing_topics": [
+                    "Certificate of Occupancy Application",
+                    "Business Licenses",
+                    "Home Occupation Permits",
+                    "Zoning Clearance",
+                    "Renewal Filings",
+                    "Local Compliance Filings"
+                  ],
+                  "jurisdiction_level": "City",
+                  "jurisdiction_name": "City of Dallas",
+                  "notes": "",
+                  "official_url": "https://dallascityhall.com/departments/sustainabledevelopment/buildinginspection/DCH%20documents/pdf/BI_CO%20Application_05-30-2017.pdf",
+                  "state": "TX"
+                },
+                {
+                  "authority": "Office of Procurement Services",
+                  "confidence": "high",
+                  "domain": "dallascityhall.com",
+                  "filing_topics": [
+                    "Burglar/Security Alarm Permit",
+                    "Amusement Center License",
+                    "Beer License",
+                    "Billiard Hall License",
+                    "Coin Operated Machines",
+                    "Dance Hall License",
+                    "Liquor License",
+                    "Motor Vehicle Escort License",
+                    "Precious Metal Vendor",
+                    "Sexually Oriented Business License",
+                    "Fire Prevention Permits",
+                    "Swimming Pool Permit"
+                  ],
+                  "jurisdiction_level": "City",
+                  "jurisdiction_name": "Dallas",
+                  "notes": "",
+                  "official_url": "https://dallascityhall.com/departments/procurement/Pages/special_collections.aspx",
+                  "state": "TX"
+                },
+                {
+                  "authority": "Dallas City Hall",
+                  "confidence": "high",
+                  "domain": "dallascityhall.com",
+                  "filing_topics": [
+                    "Alcohol permits",
+                    "Business licenses",
+                    "Local fees",
+                    "Renewals",
+                    "Amendments",
+                    "Closures"
+                  ],
+                  "jurisdiction_level": "City",
+                  "jurisdiction_name": "City of Dallas",
+                  "notes": "Page provides information on alcohol permits and related fees.",
+                  "official_url": "https://dallascityhall.com/departments/waterutilities/special_collections/Pages/special_collections_licenses.aspx",
+                  "state": "TX"
+                },
+                {
+                  "authority": "Dallas City Hall",
+                  "confidence": "High",
+                  "domain": "dallascityhall.com",
+                  "filing_topics": [
+                    "Zoning Clearance",
+                    "Home Occupation Permits",
+                    "Business Licenses",
+                    "Business Tax Certificates",
+                    "Renewal Filings",
+                    "Amendments",
+                    "Closures"
+                  ],
+                  "jurisdiction_level": "City",
+                  "jurisdiction_name": "Dallas",
+                  "notes": "Official city page for zoning regulations and related permits.",
+                  "official_url": "https://dallascityhall.com/departments/sustainabledevelopment/Pages/zoning_use_regulations.aspx",
+                  "state": "TX"
+                },
+                {
+                  "authority": "Dallas City Hall",
+                  "confidence": "High",
+                  "domain": "dallascityhall.com",
+                  "filing_topics": [
+                    "Permitting",
+                    "Inspections",
+                    "Business Licenses",
+                    "Home Occupation Permits"
+                  ],
+                  "jurisdiction_level": "City",
+                  "jurisdiction_name": "Dallas",
+                  "notes": "Official page for permitting and inspections.",
+                  "official_url": "https://dallascityhall.com/departments/sustainabledevelopment/buildinginspection/Pages/default.aspx",
+                  "state": "TX"
+                },
+                {
+                  "authority": "Dallas City Hall",
+                  "confidence": "High",
+                  "domain": "dallascityhall.com",
+                  "filing_topics": [
+                    "Permit Applications",
+                    "Business Licenses",
+                    "Home Occupation Permits"
+                  ],
+                  "jurisdiction_level": "City",
+                  "jurisdiction_name": "Dallas",
+                  "notes": "Permit center for various applications.",
+                  "official_url": "https://dallascityhall.com/departments/sustainabledevelopment/Pages/PermitCenter2.aspx",
+                  "state": "TX"
+                },
+                {
+                  "authority": "Dallas City Hall",
+                  "confidence": "Medium",
+                  "domain": "dallascityhall.com",
+                  "filing_topics": [
+                    "Business Resources",
+                    "Zoning Information"
+                  ],
+                  "jurisdiction_level": "City",
+                  "jurisdiction_name": "Dallas",
+                  "notes": "Resources for businesses including zoning information.",
+                  "official_url": "https://dallascityhall.com/departments/sustainabledevelopment/Pages/resources.aspx",
+                  "state": "TX"
+                },
+                {
+                  "authority": "City of Dallas Planning & Development",
+                  "confidence": "high",
+                  "domain": "dallascityhall.com",
+                  "filing_topics": [
+                    "Zoning",
+                    "Home Occupation Permits",
+                    "Zoning Clearance",
+                    "Business Licenses",
+                    "Renewal Filings",
+                    "Amendments",
+                    "Closures"
+                  ],
+                  "jurisdiction_level": "City",
+                  "jurisdiction_name": "Dallas",
+                  "notes": "",
+                  "official_url": "https://dallascityhall.com/departments/pnv/Pages/Zoning-Resources.aspx",
+                  "state": "TX"
+                },
+                {
+                  "authority": "City of Dallas",
+                  "confidence": "high",
+                  "domain": "dallascityhall.com",
+                  "filing_topics": [
+                    "Current Planning Applications",
+                    "Zoning Requests",
+                    "Consultations"
+                  ],
+                  "jurisdiction_level": "City",
+                  "jurisdiction_name": "Dallas",
+                  "notes": "",
+                  "official_url": "https://dallascityhall.com/departments/sustainabledevelopment/Pages/DallasNow.aspx",
+                  "state": "TX"
+                },
+                {
+                  "authority": "City of Dallas",
+                  "confidence": "high",
+                  "domain": "dallascityhall.com",
+                  "filing_topics": [
+                    "City Plan Commission",
+                    "Public Meetings",
+                    "Zoning Ordinance"
+                  ],
+                  "jurisdiction_level": "City",
+                  "jurisdiction_name": "Dallas",
+                  "notes": "",
+                  "official_url": "https://dallascityhall.com/government/Boards-and-Commissions/City-Plan-and-Zoning-Commission/Pages/Meetings.aspx",
+                  "state": "TX"
+                },
+                {
+                  "authority": "City of Dallas",
+                  "confidence": "high",
+                  "domain": "dallascityhall.com",
+                  "filing_topics": [
+                    "Open Records Requests",
+                    "Public Records"
+                  ],
+                  "jurisdiction_level": "City",
+                  "jurisdiction_name": "Dallas",
+                  "notes": "",
+                  "official_url": "https://dallascityhall.com/government/citysecretary/Pages/default.aspx",
+                  "state": "TX"
+                },
+                {
+                  "authority": "City of Dallas",
+                  "confidence": "high",
+                  "domain": "dallascityhall.com",
+                  "filing_topics": [
+                    "Public Meeting Schedule",
+                    "Posted Agendas",
+                    "Minutes"
+                  ],
+                  "jurisdiction_level": "City",
+                  "jurisdiction_name": "Dallas",
+                  "notes": "",
+                  "official_url": "https://dallascityhall.com/government/citysecretary/Pages/Public-Meetings.aspx",
+                  "state": "TX"
+                },
+                {
+                  "authority": "Dallas City Hall",
+                  "confidence": "high",
+                  "domain": "dallascityhall.com",
+                  "filing_topics": [
+                    "zoning clearance",
+                    "home occupation permits",
+                    "business licenses",
+                    "business tax certificates",
+                    "renewals",
+                    "amendments",
+                    "closures"
+                  ],
+                  "jurisdiction_level": "City",
+                  "jurisdiction_name": "Dallas",
+                  "notes": "Official city page for zoning regulations and business permits.",
+                  "official_url": "https://dallascityhall.com/departments/sustainabledevelopment/Pages/zoning_use_regulations.aspx",
+                  "state": "TX"
+                },
+                {
+                  "authority": "Dallas City Hall",
+                  "confidence": "high",
+                  "domain": "dallascityhall.com",
+                  "filing_topics": [
+                    "permitting",
+                    "inspections",
+                    "business licenses",
+                    "home occupation permits"
+                  ],
+                  "jurisdiction_level": "City",
+                  "jurisdiction_name": "Dallas",
+                  "notes": "Official page for permitting and inspections.",
+                  "official_url": "https://dallascityhall.com/departments/sustainabledevelopment/buildinginspection/Pages/default.aspx",
+                  "state": "TX"
+                },
+                {
+                  "authority": "Dallas City Hall",
+                  "confidence": "high",
+                  "domain": "dallascityhall.com",
+                  "filing_topics": [
+                    "permit applications",
+                    "business licenses",
+                    "renewals"
+                  ],
+                  "jurisdiction_level": "City",
+                  "jurisdiction_name": "Dallas",
+                  "notes": "Permit center for business licenses and applications.",
+                  "official_url": "https://dallascityhall.com/departments/sustainabledevelopment/Pages/PermitCenter2.aspx",
+                  "state": "TX"
+                },
+                {
+                  "authority": "Dallas City Hall",
+                  "confidence": "high",
+                  "domain": "dallascityhall.com",
+                  "filing_topics": [
+                    "Alcohol permits",
+                    "Business licenses",
+                    "Local fees",
+                    "Renewals",
+                    "Amendments",
+                    "Closures"
+                  ],
+                  "jurisdiction_level": "City",
+                  "jurisdiction_name": "City of Dallas",
+                  "notes": "This page provides information on alcohol permits and related fees, which are part of local business licensing.",
+                  "official_url": "https://dallascityhall.com/departments/waterutilities/special_collections/Pages/special_collections_licenses.aspx",
+                  "state": "TX"
+                },
+                {
+                  "authority": "Dallas City Hall",
+                  "confidence": "high",
+                  "domain": "dallascityhall.com",
+                  "filing_topics": [
+                    "zoning clearance",
+                    "home occupation permits",
+                    "business licenses",
+                    "business tax certificates",
+                    "renewals",
+                    "amendments",
+                    "closures"
+                  ],
+                  "jurisdiction_level": "City",
+                  "jurisdiction_name": "Dallas",
+                  "notes": "",
+                  "official_url": "https://dallascityhall.com/departments/sustainabledevelopment/Pages/zoning_use_regulations.aspx",
+                  "state": "TX"
+                },
+                {
+                  "authority": "Dallas City Hall",
+                  "confidence": "high",
+                  "domain": "dallascityhall.com",
+                  "filing_topics": [
+                    "permitting",
+                    "inspections",
+                    "business licenses",
+                    "home occupation permits"
+                  ],
+                  "jurisdiction_level": "City",
+                  "jurisdiction_name": "Dallas",
+                  "notes": "",
+                  "official_url": "https://dallascityhall.com/departments/sustainabledevelopment/buildinginspection/Pages/default.aspx",
+                  "state": "TX"
+                },
+                {
+                  "authority": "Dallas City Hall",
+                  "confidence": "high",
+                  "domain": "dallascityhall.com",
+                  "filing_topics": [
+                    "permit applications",
+                    "business licenses",
+                    "renewals"
+                  ],
+                  "jurisdiction_level": "City",
+                  "jurisdiction_name": "Dallas",
+                  "notes": "",
+                  "official_url": "https://dallascityhall.com/departments/sustainabledevelopment/Pages/PermitCenter2.aspx",
+                  "state": "TX"
+                },
+                {
+                  "authority": "Dallas City Hall",
+                  "confidence": "high",
+                  "domain": "dallascityhall.com",
+                  "filing_topics": [
+                    "zoning clearance",
+                    "home occupation permits",
+                    "business licenses",
+                    "business tax certificates",
+                    "renewal filings",
+                    "local compliance filings"
+                  ],
+                  "jurisdiction_level": "City",
+                  "jurisdiction_name": "Dallas",
+                  "notes": "Official city page for zoning regulations and related permits.",
+                  "official_url": "https://dallascityhall.com/departments/sustainabledevelopment/Pages/zoning_use_regulations.aspx",
+                  "state": "TX"
+                },
+                {
+                  "authority": "Dallas City Hall",
+                  "confidence": "high",
+                  "domain": "dallascityhall.com",
+                  "filing_topics": [
+                    "Zoning",
+                    "Home Occupation Permits",
+                    "Zoning Clearance",
+                    "Business Licenses",
+                    "Business Tax Certificates",
+                    "Renewal Filings",
+                    "Amendments",
+                    "Closures"
+                  ],
+                  "jurisdiction_level": "City",
+                  "jurisdiction_name": "Dallas",
+                  "notes": "This page provides resources for zoning and related permits in Dallas.",
+                  "official_url": "https://dallascityhall.com/departments/pnv/Pages/Zoning-Resources.aspx",
+                  "state": "TX"
+                },
+                {
+                  "authority": "Dallas City Hall",
+                  "confidence": "high",
+                  "domain": "dallascityhall.com",
+                  "filing_topics": [
+                    "Current Planning Applications",
+                    "Zoning Requests",
+                    "Rezoning Process"
+                  ],
+                  "jurisdiction_level": "City",
+                  "jurisdiction_name": "Dallas",
+                  "notes": "DallasNow is used for submitting current planning applications including rezoning.",
+                  "official_url": "https://dallascityhall.com/departments/sustainabledevelopment/Pages/DallasNow.aspx",
+                  "state": "TX"
+                },
+                {
+                  "authority": "Dallas City Hall",
+                  "confidence": "high",
+                  "domain": "dallascityhall.com",
+                  "filing_topics": [
+                    "City Plan Commission",
+                    "Public Meetings",
+                    "Zoning Applications"
+                  ],
+                  "jurisdiction_level": "City",
+                  "jurisdiction_name": "Dallas",
+                  "notes": "Information on the City Plan Commission and public meeting schedules.",
+                  "official_url": "https://dallascityhall.com/government/Boards-and-Commissions/City-Plan-and-Zoning-Commission/Pages/Meetings.aspx",
+                  "state": "TX"
+                },
+                {
+                  "authority": "Dallas City Hall",
+                  "confidence": "high",
+                  "domain": "dallascityhall.com",
+                  "filing_topics": [
+                    "Open Records Requests",
+                    "Public Records"
+                  ],
+                  "jurisdiction_level": "City",
+                  "jurisdiction_name": "Dallas",
+                  "notes": "Access to public records and open records requests.",
+                  "official_url": "https://dallascityhall.com/government/citysecretary/Pages/default.aspx",
+                  "state": "TX"
+                },
+                {
+                  "authority": "Dallas City Hall",
+                  "confidence": "high",
+                  "domain": "dallascityhall.com",
+                  "filing_topics": [
+                    "Public Meeting Schedule",
+                    "Agendas",
+                    "Minutes"
+                  ],
+                  "jurisdiction_level": "City",
+                  "jurisdiction_name": "Dallas",
+                  "notes": "Links to public meeting schedules, agendas, and minutes.",
+                  "official_url": "https://dallascityhall.com/government/citysecretary/Pages/Public-Meetings.aspx",
+                  "state": "TX"
+                },
+                {
+                  "authority": "Texas Secretary of State",
+                  "confidence": "high",
+                  "domain": "sos.texas.gov",
+                  "filing_topics": [
+                    "DBA",
+                    "FBN",
+                    "Assumed Name Filings",
+                    "Business Licenses",
+                    "Business Tax Certificates",
+                    "Home Occupation Permits",
+                    "Zoning Clearances",
+                    "Renewal Filings",
+                    "License Renewals",
+                    "Amendments",
+                    "Closures",
+                    "Late Fees"
+                  ],
+                  "jurisdiction_level": "State",
+                  "jurisdiction_name": "Texas Secretary of State",
+                  "notes": "",
+                  "official_url": "https://www.sos.texas.gov/",
+                  "state": "TX"
+                },
+                {
+                  "authority": "Texas Secretary of State",
+                  "confidence": "high",
+                  "domain": "sos.texas.gov",
+                  "filing_topics": [
+                    "Business Filings",
+                    "DBA",
+                    "FBN",
+                    "Assumed Name Filings"
+                  ],
+                  "jurisdiction_level": "State",
+                  "jurisdiction_name": "SOSDirect - Business Filings",
+                  "notes": "",
+                  "official_url": "https://www.sos.texas.gov/corp/sosda/index.shtml",
+                  "state": "TX"
+                },
+                {
+                  "authority": "Texas Secretary of State",
+                  "confidence": "high",
+                  "domain": "sos.texas.gov",
+                  "filing_topics": [
+                    "Business Licenses",
+                    "Filing Fees",
+                    "Name Availability",
+                    "Certificate Verification"
+                  ],
+                  "jurisdiction_level": "State",
+                  "jurisdiction_name": "Business Organizations",
+                  "notes": "",
+                  "official_url": "https://direct.sos.state.tx.us/home/home-corp.asp",
+                  "state": "TX"
+                },
+                {
+                  "authority": "Texas Secretary of State",
+                  "confidence": "high",
+                  "domain": "sos.texas.gov",
+                  "filing_topics": [
+                    "UCC Filings",
+                    "Fees"
+                  ],
+                  "jurisdiction_level": "State",
+                  "jurisdiction_name": "UCC",
+                  "notes": "",
+                  "official_url": "https://www.sos.texas.gov/ucc/index.shtml",
+                  "state": "TX"
+                },
+                {
+                  "authority": "Ellis County Clerk",
+                  "confidence": "high",
+                  "domain": "elliscountytx.gov",
+                  "filing_topics": [
+                    "Assumed Names",
+                    "DBA Filings",
+                    "FBN Filings"
+                  ],
+                  "jurisdiction_level": "County",
+                  "jurisdiction_name": "Ellis County",
+                  "notes": "",
+                  "official_url": "https://www.elliscountytx.gov/819/Assumed-Names",
+                  "state": "TX"
+                },
+                {
+                  "authority": "County Clerk",
+                  "confidence": "High",
+                  "domain": "elliscountytx.gov",
+                  "filing_topics": [
+                    "Assumed Names",
+                    "DBA Filings",
+                    "FBN Filings"
+                  ],
+                  "jurisdiction_level": "County",
+                  "jurisdiction_name": "Ellis County",
+                  "notes": "",
+                  "official_url": "https://www.elliscountytx.gov/819/Assumed-Names",
+                  "state": "TX"
+                }
+              ]
+            },
+            "error": "",
+            "job_id": "",
+            "raw": {
+              "creditsUsed": 467,
+              "data": {
+                "source_candidates": [
+                  {
+                    "authority": "McLennan County Appraisal District",
+                    "confidence": "High",
+                    "domain": "mclennancad.org",
+                    "filing_topics": [
+                      "DBA",
+                      "FBN",
+                      "Assumed Name Filings",
+                      "Business Licenses",
+                      "Tax Certificates",
+                      "Home Occupation Permits",
+                      "Zoning Clearances",
+                      "Renewals",
+                      "Amendments",
+                      "Closures",
+                      "Late Fees"
+                    ],
+                    "jurisdiction_level": "County",
+                    "jurisdiction_name": "McLennan County",
+                    "notes": "",
+                    "official_url": "http://www.mclennancad.org",
+                    "state": "TX"
+                  },
+                  {
+                    "authority": "McLennan County Tax Assessor-Collector",
+                    "confidence": "High",
+                    "domain": "co.mclennan.tx.us",
+                    "filing_topics": [
+                      "Business Licenses",
+                      "Tax Certificates",
+                      "Renewals",
+                      "Amendments",
+                      "Closures",
+                      "Late Fees"
+                    ],
+                    "jurisdiction_level": "County",
+                    "jurisdiction_name": "McLennan County",
+                    "notes": "",
+                    "official_url": "http://www.co.mclennan.tx.us",
+                    "state": "TX"
+                  },
+                  {
+                    "authority": "Brazoria County Tax Assessor-Collector",
+                    "confidence": "High",
+                    "domain": "brazoriacountytx.gov",
+                    "filing_topics": [
+                      "DBA",
+                      "FBN",
+                      "Assumed Name Filings",
+                      "Business Licenses",
+                      "Business Tax Certificates",
+                      "Home Occupation Permits",
+                      "Zoning Clearances",
+                      "Renewal Filings",
+                      "License Renewals",
+                      "Amendments",
+                      "Closures"
+                    ],
+                    "jurisdiction_level": "County",
+                    "jurisdiction_name": "Brazoria County",
+                    "notes": "",
+                    "official_url": "https://www.brazoriacountytx.gov/",
+                    "state": "TX"
+                  },
+                  {
+                    "authority": "Brazoria County Appraisal District",
+                    "confidence": "High",
+                    "domain": "brazoriacad.org",
+                    "filing_topics": [
+                      "Property Tax Notices",
+                      "Tax Assessor-Collector Information"
+                    ],
+                    "jurisdiction_level": "County",
+                    "jurisdiction_name": "Brazoria County Appraisal District",
+                    "notes": "",
+                    "official_url": "http://www.brazoriacad.org/",
+                    "state": "TX"
+                  },
+                  {
+                    "authority": "Texas Comptroller",
+                    "confidence": "High",
+                    "domain": "comptroller.texas.gov",
+                    "filing_topics": [
+                      "Tax Permit Application",
+                      "Sales and Use Tax",
+                      "Business Licenses",
+                      "Home Occupation Permits",
+                      "Zoning Clearance",
+                      "Renewal Filings",
+                      "Local Compliance Filings"
+                    ],
+                    "jurisdiction_level": "State",
+                    "jurisdiction_name": "Texas Comptroller of Public Accounts",
+                    "notes": "Official page for applying for tax permits and related business licenses.",
+                    "official_url": "https://comptroller.texas.gov/taxes/permit/",
+                    "state": "Texas"
+                  },
+                  {
+                    "authority": "Texas Comptroller of Public Accounts",
+                    "confidence": "high",
+                    "domain": "comptroller.texas.gov",
+                    "filing_topics": [
+                      "Sales and Use Tax",
+                      "911 Surcharge and Fees",
+                      "Sales Tax Surcharge on Diesel Equipment",
+                      "Business Licenses",
+                      "Home Occupation Permits",
+                      "Zoning Clearance",
+                      "Renewal Filings",
+                      "License Renewals",
+                      "Amendments",
+                      "Closures",
+                      "Late Fees"
+                    ],
+                    "jurisdiction_level": "State",
+                    "jurisdiction_name": "Texas Comptroller of Public Accounts",
+                    "notes": "Official page for applying for tax permits and related business licenses.",
+                    "official_url": "https://comptroller.texas.gov/taxes/permit/",
+                    "state": "Texas"
+                  },
+                  {
+                    "authority": "Texas Comptroller of Public Accounts",
+                    "confidence": "high",
+                    "domain": "comptroller.texas.gov",
+                    "filing_topics": [
+                      "Sales and Use Tax",
+                      "911 Surcharge and Fees",
+                      "Sales Tax Surcharge on Diesel Equipment"
+                    ],
+                    "jurisdiction_level": "State",
+                    "jurisdiction_name": "Texas Comptroller of Public Accounts",
+                    "notes": "Online application for tax permits, including sales tax.",
+                    "official_url": "https://comptroller.texas.gov/taxes/permit/",
+                    "state": "Texas"
+                  },
+                  {
+                    "authority": "Texas Comptroller of Public Accounts",
+                    "confidence": "high",
+                    "domain": "comptroller.texas.gov",
+                    "filing_topics": [
+                      "Sales and Use Tax",
+                      "911 Surcharge and Fees",
+                      "Sales Tax Surcharge on Diesel Equipment",
+                      "Tax Permit Application",
+                      "Business Licenses",
+                      "Home Occupation Permits"
+                    ],
+                    "jurisdiction_level": "State",
+                    "jurisdiction_name": "Texas Comptroller of Public Accounts",
+                    "notes": "Official page for applying for various tax permits and licenses in Texas.",
+                    "official_url": "https://comptroller.texas.gov/taxes/permit/",
+                    "state": "Texas"
+                  },
+                  {
+                    "authority": "Texas Comptroller of Public Accounts",
+                    "confidence": "high",
+                    "domain": "comptroller.texas.gov",
+                    "filing_topics": [
+                      "Sales and Use Tax",
+                      "911 Surcharge and Fees",
+                      "Sales Tax Surcharge on Diesel Equipment",
+                      "Business Licenses",
+                      "Home Occupation Permits",
+                      "Zoning Clearance",
+                      "Renewal Filings",
+                      "Local Compliance Filings"
+                    ],
+                    "jurisdiction_level": "State",
+                    "jurisdiction_name": "Texas Comptroller of Public Accounts",
+                    "notes": "Official page for applying for tax permits and related business licenses.",
+                    "official_url": "https://comptroller.texas.gov/taxes/permit/",
+                    "state": "TX"
+                  },
+                  {
+                    "authority": "Texas Comptroller of Public Accounts",
+                    "confidence": "high",
+                    "domain": "comptroller.texas.gov",
+                    "filing_topics": [
+                      "Franchise Tax Public Information Report",
+                      "Ownership Information Report",
+                      "DBA filings",
+                      "FBN filings",
+                      "Assumed-name filings"
+                    ],
+                    "jurisdiction_level": "State",
+                    "jurisdiction_name": "Texas Comptroller of Public Accounts",
+                    "notes": "Official page for filing requirements related to franchise tax and business entity information.",
+                    "official_url": "https://comptroller.texas.gov/taxes/franchise/pir-oir-filing-req.php",
+                    "state": "Texas"
+                  },
+                  {
+                    "authority": "Texas Comptroller",
+                    "confidence": "high",
+                    "domain": "comptroller.texas.gov",
+                    "filing_topics": [
+                      "Sales Tax Permit Application",
+                      "Franchise Tax",
+                      "Property Tax Assistance",
+                      "Business Tax Certificates",
+                      "Home Occupation Permits",
+                      "Zoning Clearance Dependencies"
+                    ],
+                    "jurisdiction_level": "State",
+                    "jurisdiction_name": "Texas Comptroller of Public Accounts",
+                    "notes": "",
+                    "official_url": "https://comptroller.texas.gov/taxes/permit/",
+                    "state": "TX"
+                  },
+                  {
+                    "authority": "Texas Comptroller",
+                    "confidence": "high",
+                    "domain": "comptroller.texas.gov",
+                    "filing_topics": [
+                      "Franchise Tax",
+                      "Terminate or Reinstate a Business",
+                      "Franchise Tax Notices"
+                    ],
+                    "jurisdiction_level": "State",
+                    "jurisdiction_name": "Texas Comptroller of Public Accounts",
+                    "notes": "",
+                    "official_url": "https://comptroller.texas.gov/taxes/franchise/",
+                    "state": "TX"
+                  },
+                  {
+                    "authority": "Texas Comptroller",
+                    "confidence": "high",
+                    "domain": "comptroller.texas.gov",
+                    "filing_topics": [
+                      "Property Tax Assistance",
+                      "Property Tax Exemptions",
+                      "Refund Information"
+                    ],
+                    "jurisdiction_level": "State",
+                    "jurisdiction_name": "Texas Comptroller of Public Accounts",
+                    "notes": "",
+                    "official_url": "https://comptroller.texas.gov/taxes/property-tax/",
+                    "state": "TX"
+                  },
+                  {
+                    "authority": "Texas Comptroller",
+                    "confidence": "high",
+                    "domain": "comptroller.texas.gov",
+                    "filing_topics": [
+                      "File and Pay",
+                      "Due Dates",
+                      "Penalty Waivers"
+                    ],
+                    "jurisdiction_level": "State",
+                    "jurisdiction_name": "Texas Comptroller of Public Accounts",
+                    "notes": "",
+                    "official_url": "https://comptroller.texas.gov/taxes/file-pay/",
+                    "state": "TX"
+                  },
+                  {
+                    "authority": "Texas Comptroller",
+                    "confidence": "high",
+                    "domain": "comptroller.texas.gov",
+                    "filing_topics": [
+                      "Forms for Taxes",
+                      "Application Portals"
+                    ],
+                    "jurisdiction_level": "State",
+                    "jurisdiction_name": "Texas Comptroller of Public Accounts",
+                    "notes": "",
+                    "official_url": "https://comptroller.texas.gov/taxes/forms/",
+                    "state": "TX"
+                  },
+                  {
+                    "authority": "Travis County Clerk",
+                    "confidence": "High",
+                    "domain": "countyclerk.traviscountytx.gov",
+                    "filing_topics": [
+                      "DBA",
+                      "FBN",
+                      "Assumed Name Filings",
+                      "Business Licenses",
+                      "Tax Certificates",
+                      "Home Occupation Permits",
+                      "Zoning Clearances",
+                      "Renewal Filings",
+                      "License Renewals",
+                      "Amendments",
+                      "Closures",
+                      "Late Fees"
+                    ],
+                    "jurisdiction_level": "County",
+                    "jurisdiction_name": "Travis County",
+                    "notes": "",
+                    "official_url": "https://countyclerk.traviscountytx.gov/departments/recording/dbas/",
+                    "state": "TX"
+                  },
+                  {
+                    "authority": "Travis County Clerk",
+                    "confidence": "high",
+                    "domain": "countyclerk.traviscountytx.gov",
+                    "filing_topics": [
+                      "DBA",
+                      "FBN",
+                      "assumed-name filings",
+                      "business licenses",
+                      "business tax certificates",
+                      "home occupation permits",
+                      "renewals",
+                      "amendments",
+                      "closures",
+                      "late fees"
+                    ],
+                    "jurisdiction_level": "County",
+                    "jurisdiction_name": "Travis County",
+                    "notes": "",
+                    "official_url": "https://countyclerk.traviscountytx.gov/departments/recording/",
+                    "state": "TX"
+                  },
+                  {
+                    "authority": "Travis County Clerk",
+                    "confidence": "High",
+                    "domain": "countyclerk.traviscountytx.gov",
+                    "filing_topics": [
+                      "DBA",
+                      "FBN",
+                      "Assumed Name Filings",
+                      "Business Licenses",
+                      "Business Tax Certificates",
+                      "Home Occupation Permits",
+                      "Zoning Clearances",
+                      "Renewal Filings",
+                      "License Renewals",
+                      "Amendments",
+                      "Closures",
+                      "Late Fees"
+                    ],
+                    "jurisdiction_level": "County",
+                    "jurisdiction_name": "Travis County",
+                    "notes": "",
+                    "official_url": "https://countyclerk.traviscountytx.gov/departments/recording/search-copies-of-records/",
+                    "state": "TX"
+                  },
+                  {
+                    "authority": "Travis County Clerk",
+                    "confidence": "High",
+                    "domain": "countyclerk.traviscountytx.gov",
+                    "filing_topics": [
+                      "DBA",
+                      "FBN",
+                      "Assumed Name Filings",
+                      "Business Licenses",
+                      "Business Tax Certificates",
+                      "Home Occupation Permits",
+                      "Zoning Clearances",
+                      "Renewal Filings",
+                      "License Renewals",
+                      "Amendments",
+                      "Closures",
+                      "Late Fees"
+                    ],
+                    "jurisdiction_level": "County",
+                    "jurisdiction_name": "Travis County",
+                    "notes": "",
+                    "official_url": "https://countyclerk.traviscountytx.gov/forms/",
+                    "state": "TX"
+                  },
+                  {
+                    "authority": "Travis County Clerk",
+                    "confidence": "high",
+                    "domain": "countyclerk.traviscountytx.gov",
+                    "filing_topics": [
+                      "DBA",
+                      "FBN",
+                      "Assumed Name Filings",
+                      "Business Licenses",
+                      "Business Tax Certificates",
+                      "Home Occupation Permits",
+                      "Zoning Clearances",
+                      "Renewal Filings",
+                      "License Renewals",
+                      "Amendments",
+                      "Closures",
+                      "Late Fees"
+                    ],
+                    "jurisdiction_level": "County",
+                    "jurisdiction_name": "Travis County",
+                    "notes": "",
+                    "official_url": "https://countyclerk.traviscountytx.gov/departments/recording/forms/",
+                    "state": "TX"
+                  },
+                  {
+                    "authority": "Travis County Clerk",
+                    "confidence": "high",
+                    "domain": "countyclerk.traviscountytx.gov",
+                    "filing_topics": [
+                      "DBA",
+                      "FBN",
+                      "assumed-name filings",
+                      "business licenses",
+                      "business tax certificates",
+                      "home occupation permits",
+                      "renewals",
+                      "amendments",
+                      "closures",
+                      "late fees"
+                    ],
+                    "jurisdiction_level": "County",
+                    "jurisdiction_name": "Travis County",
+                    "notes": "",
+                    "official_url": "https://countyclerk.traviscountytx.gov/departments/recording/fee-information/",
+                    "state": "TX"
+                  },
+                  {
+                    "authority": "Office of Procurement Services",
+                    "confidence": "high",
+                    "domain": "dallascityhall.com",
+                    "filing_topics": [
+                      "Amusement Center License",
+                      "Beer License",
+                      "Billiard Hall License",
+                      "Coin Operated Machines",
+                      "Dance Hall License",
+                      "Liquor License",
+                      "Precious Metal Vendor",
+                      "Sexually Oriented Business License"
+                    ],
+                    "jurisdiction_level": "City",
+                    "jurisdiction_name": "Dallas",
+                    "notes": "Includes various business licenses and permits with application details.",
+                    "official_url": "https://dallascityhall.com/departments/procurement/Pages/special_collections_licenses.aspx",
+                    "state": "TX"
+                  },
+                  {
+                    "authority": "Planning & Development",
+                    "confidence": "high",
+                    "domain": "dallascityhall.com",
+                    "filing_topics": [
+                      "Building Inspection Permit Application",
+                      "Certificate of Occupancy",
+                      "Home Occupation Declaration",
+                      "Permit Fee Estimate Worksheet",
+                      "Swimming Pool Permit Application"
+                    ],
+                    "jurisdiction_level": "City",
+                    "jurisdiction_name": "City of Dallas",
+                    "notes": "Contains various forms related to business permits and licenses.",
+                    "official_url": "https://dallascityhall.com/departments/sustainabledevelopment/Pages/formsdept.aspx",
+                    "state": "TX"
+                  },
+                  {
+                    "authority": "Dallas City Hall",
+                    "confidence": "high",
+                    "domain": "dallascityhall.com",
+                    "filing_topics": [
+                      "Zoning",
+                      "Home Occupation Permits",
+                      "Zoning Clearance",
+                      "Business Licenses",
+                      "Renewals",
+                      "Amendments",
+                      "Closures"
+                    ],
+                    "jurisdiction_level": "City",
+                    "jurisdiction_name": "Dallas",
+                    "notes": "This page provides resources for zoning and zoning changes, including links to zoning application intake logs and DallasNow for planning applications.",
+                    "official_url": "https://dallascityhall.com/departments/pnv/Pages/Zoning-Resources.aspx",
+                    "state": "TX"
+                  },
+                  {
+                    "authority": "Dallas City Hall",
+                    "confidence": "high",
+                    "domain": "dallascityhall.com",
+                    "filing_topics": [
+                      "Current Planning Applications",
+                      "Zoning Requests",
+                      "Consultations"
+                    ],
+                    "jurisdiction_level": "City",
+                    "jurisdiction_name": "Dallas",
+                    "notes": "DallasNow is used for submitting current planning applications and provides a referral system for rezoning.",
+                    "official_url": "https://dallascityhall.com/departments/sustainabledevelopment/Pages/DallasNow.aspx",
+                    "state": "TX"
+                  },
+                  {
+                    "authority": "Dallas City Hall",
+                    "confidence": "high",
+                    "domain": "dallascityhall.com",
+                    "filing_topics": [
+                      "City Plan Commission",
+                      "Public Meetings",
+                      "Zoning Regulations"
+                    ],
+                    "jurisdiction_level": "City",
+                    "jurisdiction_name": "Dallas",
+                    "notes": "The City Plan Commission acts as an advisory committee to the City Council and provides information on public meetings and zoning regulations.",
+                    "official_url": "https://dallascityhall.com/government/Boards-and-Commissions/City-Plan-and-Zoning-Commission/Pages/Meetings.aspx",
+                    "state": "TX"
+                  },
+                  {
+                    "authority": "Dallas City Hall",
+                    "confidence": "high",
+                    "domain": "dallascityhall.com",
+                    "filing_topics": [
+                      "Open Records Requests",
+                      "Public Records"
+                    ],
+                    "jurisdiction_level": "City",
+                    "jurisdiction_name": "Dallas",
+                    "notes": "The City Secretary's Office provides access to public records and open records requests.",
+                    "official_url": "https://dallascityhall.com/government/citysecretary/Pages/default.aspx",
+                    "state": "TX"
+                  },
+                  {
+                    "authority": "Dallas City Hall",
+                    "confidence": "high",
+                    "domain": "dallascityhall.com",
+                    "filing_topics": [
+                      "Public Meeting Schedule",
+                      "Agendas",
+                      "Minutes"
+                    ],
+                    "jurisdiction_level": "City",
+                    "jurisdiction_name": "Dallas",
+                    "notes": "Links to public meeting schedules, posted agendas, and minutes for transparency.",
+                    "official_url": "https://dallascityhall.com/government/citysecretary/Pages/Public-Meetings.aspx",
+                    "state": "TX"
+                  },
+                  {
+                    "authority": "Dallas Planning & Development",
+                    "confidence": "high",
+                    "domain": "dallascityhall.com",
+                    "filing_topics": [
+                      "Building Inspection Permit Application",
+                      "Certificate of Occupancy",
+                      "Home Occupation Permits",
+                      "Permit Fee Estimate Worksheet",
+                      "Zoning Applications"
+                    ],
+                    "jurisdiction_level": "City",
+                    "jurisdiction_name": "Dallas",
+                    "notes": "Includes various forms related to business permits, zoning, and inspections.",
+                    "official_url": "https://dallascityhall.com/departments/sustainabledevelopment/Pages/formsdept.aspx",
+                    "state": "TX"
+                  },
+                  {
+                    "authority": "Dallas Code Compliance",
+                    "confidence": "high",
+                    "domain": "dallascityhall.com",
+                    "filing_topics": [
+                      "Vacant Building Registration Application",
+                      "Graffiti Program Form"
+                    ],
+                    "jurisdiction_level": "City",
+                    "jurisdiction_name": "Dallas",
+                    "notes": "Forms related to compliance and permits.",
+                    "official_url": "https://dallascityhall.com/departments/codecompliance/DCH%20documents/downloads/vacant_building_application.pdf",
+                    "state": "TX"
+                  },
+                  {
+                    "authority": "Dallas Water Utilities Department",
+                    "confidence": "high",
+                    "domain": "dallascityhall.com",
+                    "filing_topics": [
+                      "Security Alarm Permit",
+                      "Swimming Pool Permit Application"
+                    ],
+                    "jurisdiction_level": "City",
+                    "jurisdiction_name": "Dallas",
+                    "notes": "Includes permits related to water utilities and special collections.",
+                    "official_url": "https://dallascityhall.com/departments/waterutilities/special_collections/DCH%20Documents/SecurityAlarmInformation.pdf",
+                    "state": "TX"
+                  },
+                  {
+                    "authority": "Sustainable Development and Construction Department",
+                    "confidence": "high",
+                    "domain": "dallascityhall.com",
+                    "filing_topics": [
+                      "Certificate of Occupancy Application",
+                      "Business Licenses",
+                      "Home Occupation Permits",
+                      "Zoning Clearance",
+                      "Renewal Filings",
+                      "Local Compliance Filings"
+                    ],
+                    "jurisdiction_level": "City",
+                    "jurisdiction_name": "City of Dallas",
+                    "notes": "",
+                    "official_url": "https://dallascityhall.com/departments/sustainabledevelopment/buildinginspection/DCH%20documents/pdf/BI_CO%20Application_05-30-2017.pdf",
+                    "state": "TX"
+                  },
+                  {
+                    "authority": "Office of Procurement Services",
+                    "confidence": "high",
+                    "domain": "dallascityhall.com",
+                    "filing_topics": [
+                      "Burglar/Security Alarm Permit",
+                      "Amusement Center License",
+                      "Beer License",
+                      "Billiard Hall License",
+                      "Coin Operated Machines",
+                      "Dance Hall License",
+                      "Liquor License",
+                      "Motor Vehicle Escort License",
+                      "Precious Metal Vendor",
+                      "Sexually Oriented Business License",
+                      "Fire Prevention Permits",
+                      "Swimming Pool Permit"
+                    ],
+                    "jurisdiction_level": "City",
+                    "jurisdiction_name": "Dallas",
+                    "notes": "",
+                    "official_url": "https://dallascityhall.com/departments/procurement/Pages/special_collections.aspx",
+                    "state": "TX"
+                  },
+                  {
+                    "authority": "Dallas City Hall",
+                    "confidence": "high",
+                    "domain": "dallascityhall.com",
+                    "filing_topics": [
+                      "Alcohol permits",
+                      "Business licenses",
+                      "Local fees",
+                      "Renewals",
+                      "Amendments",
+                      "Closures"
+                    ],
+                    "jurisdiction_level": "City",
+                    "jurisdiction_name": "City of Dallas",
+                    "notes": "Page provides information on alcohol permits and related fees.",
+                    "official_url": "https://dallascityhall.com/departments/waterutilities/special_collections/Pages/special_collections_licenses.aspx",
+                    "state": "TX"
+                  },
+                  {
+                    "authority": "Dallas City Hall",
+                    "confidence": "High",
+                    "domain": "dallascityhall.com",
+                    "filing_topics": [
+                      "Zoning Clearance",
+                      "Home Occupation Permits",
+                      "Business Licenses",
+                      "Business Tax Certificates",
+                      "Renewal Filings",
+                      "Amendments",
+                      "Closures"
+                    ],
+                    "jurisdiction_level": "City",
+                    "jurisdiction_name": "Dallas",
+                    "notes": "Official city page for zoning regulations and related permits.",
+                    "official_url": "https://dallascityhall.com/departments/sustainabledevelopment/Pages/zoning_use_regulations.aspx",
+                    "state": "TX"
+                  },
+                  {
+                    "authority": "Dallas City Hall",
+                    "confidence": "High",
+                    "domain": "dallascityhall.com",
+                    "filing_topics": [
+                      "Permitting",
+                      "Inspections",
+                      "Business Licenses",
+                      "Home Occupation Permits"
+                    ],
+                    "jurisdiction_level": "City",
+                    "jurisdiction_name": "Dallas",
+                    "notes": "Official page for permitting and inspections.",
+                    "official_url": "https://dallascityhall.com/departments/sustainabledevelopment/buildinginspection/Pages/default.aspx",
+                    "state": "TX"
+                  },
+                  {
+                    "authority": "Dallas City Hall",
+                    "confidence": "High",
+                    "domain": "dallascityhall.com",
+                    "filing_topics": [
+                      "Permit Applications",
+                      "Business Licenses",
+                      "Home Occupation Permits"
+                    ],
+                    "jurisdiction_level": "City",
+                    "jurisdiction_name": "Dallas",
+                    "notes": "Permit center for various applications.",
+                    "official_url": "https://dallascityhall.com/departments/sustainabledevelopment/Pages/PermitCenter2.aspx",
+                    "state": "TX"
+                  },
+                  {
+                    "authority": "Dallas City Hall",
+                    "confidence": "Medium",
+                    "domain": "dallascityhall.com",
+                    "filing_topics": [
+                      "Business Resources",
+                      "Zoning Information"
+                    ],
+                    "jurisdiction_level": "City",
+                    "jurisdiction_name": "Dallas",
+                    "notes": "Resources for businesses including zoning information.",
+                    "official_url": "https://dallascityhall.com/departments/sustainabledevelopment/Pages/resources.aspx",
+                    "state": "TX"
+                  },
+                  {
+                    "authority": "City of Dallas Planning & Development",
+                    "confidence": "high",
+                    "domain": "dallascityhall.com",
+                    "filing_topics": [
+                      "Zoning",
+                      "Home Occupation Permits",
+                      "Zoning Clearance",
+                      "Business Licenses",
+                      "Renewal Filings",
+                      "Amendments",
+                      "Closures"
+                    ],
+                    "jurisdiction_level": "City",
+                    "jurisdiction_name": "Dallas",
+                    "notes": "",
+                    "official_url": "https://dallascityhall.com/departments/pnv/Pages/Zoning-Resources.aspx",
+                    "state": "TX"
+                  },
+                  {
+                    "authority": "City of Dallas",
+                    "confidence": "high",
+                    "domain": "dallascityhall.com",
+                    "filing_topics": [
+                      "Current Planning Applications",
+                      "Zoning Requests",
+                      "Consultations"
+                    ],
+                    "jurisdiction_level": "City",
+                    "jurisdiction_name": "Dallas",
+                    "notes": "",
+                    "official_url": "https://dallascityhall.com/departments/sustainabledevelopment/Pages/DallasNow.aspx",
+                    "state": "TX"
+                  },
+                  {
+                    "authority": "City of Dallas",
+                    "confidence": "high",
+                    "domain": "dallascityhall.com",
+                    "filing_topics": [
+                      "City Plan Commission",
+                      "Public Meetings",
+                      "Zoning Ordinance"
+                    ],
+                    "jurisdiction_level": "City",
+                    "jurisdiction_name": "Dallas",
+                    "notes": "",
+                    "official_url": "https://dallascityhall.com/government/Boards-and-Commissions/City-Plan-and-Zoning-Commission/Pages/Meetings.aspx",
+                    "state": "TX"
+                  },
+                  {
+                    "authority": "City of Dallas",
+                    "confidence": "high",
+                    "domain": "dallascityhall.com",
+                    "filing_topics": [
+                      "Open Records Requests",
+                      "Public Records"
+                    ],
+                    "jurisdiction_level": "City",
+                    "jurisdiction_name": "Dallas",
+                    "notes": "",
+                    "official_url": "https://dallascityhall.com/government/citysecretary/Pages/default.aspx",
+                    "state": "TX"
+                  },
+                  {
+                    "authority": "City of Dallas",
+                    "confidence": "high",
+                    "domain": "dallascityhall.com",
+                    "filing_topics": [
+                      "Public Meeting Schedule",
+                      "Posted Agendas",
+                      "Minutes"
+                    ],
+                    "jurisdiction_level": "City",
+                    "jurisdiction_name": "Dallas",
+                    "notes": "",
+                    "official_url": "https://dallascityhall.com/government/citysecretary/Pages/Public-Meetings.aspx",
+                    "state": "TX"
+                  },
+                  {
+                    "authority": "Dallas City Hall",
+                    "confidence": "high",
+                    "domain": "dallascityhall.com",
+                    "filing_topics": [
+                      "zoning clearance",
+                      "home occupation permits",
+                      "business licenses",
+                      "business tax certificates",
+                      "renewals",
+                      "amendments",
+                      "closures"
+                    ],
+                    "jurisdiction_level": "City",
+                    "jurisdiction_name": "Dallas",
+                    "notes": "Official city page for zoning regulations and business permits.",
+                    "official_url": "https://dallascityhall.com/departments/sustainabledevelopment/Pages/zoning_use_regulations.aspx",
+                    "state": "TX"
+                  },
+                  {
+                    "authority": "Dallas City Hall",
+                    "confidence": "high",
+                    "domain": "dallascityhall.com",
+                    "filing_topics": [
+                      "permitting",
+                      "inspections",
+                      "business licenses",
+                      "home occupation permits"
+                    ],
+                    "jurisdiction_level": "City",
+                    "jurisdiction_name": "Dallas",
+                    "notes": "Official page for permitting and inspections.",
+                    "official_url": "https://dallascityhall.com/departments/sustainabledevelopment/buildinginspection/Pages/default.aspx",
+                    "state": "TX"
+                  },
+                  {
+                    "authority": "Dallas City Hall",
+                    "confidence": "high",
+                    "domain": "dallascityhall.com",
+                    "filing_topics": [
+                      "permit applications",
+                      "business licenses",
+                      "renewals"
+                    ],
+                    "jurisdiction_level": "City",
+                    "jurisdiction_name": "Dallas",
+                    "notes": "Permit center for business licenses and applications.",
+                    "official_url": "https://dallascityhall.com/departments/sustainabledevelopment/Pages/PermitCenter2.aspx",
+                    "state": "TX"
+                  },
+                  {
+                    "authority": "Dallas City Hall",
+                    "confidence": "high",
+                    "domain": "dallascityhall.com",
+                    "filing_topics": [
+                      "Alcohol permits",
+                      "Business licenses",
+                      "Local fees",
+                      "Renewals",
+                      "Amendments",
+                      "Closures"
+                    ],
+                    "jurisdiction_level": "City",
+                    "jurisdiction_name": "City of Dallas",
+                    "notes": "This page provides information on alcohol permits and related fees, which are part of local business licensing.",
+                    "official_url": "https://dallascityhall.com/departments/waterutilities/special_collections/Pages/special_collections_licenses.aspx",
+                    "state": "TX"
+                  },
+                  {
+                    "authority": "Dallas City Hall",
+                    "confidence": "high",
+                    "domain": "dallascityhall.com",
+                    "filing_topics": [
+                      "zoning clearance",
+                      "home occupation permits",
+                      "business licenses",
+                      "business tax certificates",
+                      "renewals",
+                      "amendments",
+                      "closures"
+                    ],
+                    "jurisdiction_level": "City",
+                    "jurisdiction_name": "Dallas",
+                    "notes": "",
+                    "official_url": "https://dallascityhall.com/departments/sustainabledevelopment/Pages/zoning_use_regulations.aspx",
+                    "state": "TX"
+                  },
+                  {
+                    "authority": "Dallas City Hall",
+                    "confidence": "high",
+                    "domain": "dallascityhall.com",
+                    "filing_topics": [
+                      "permitting",
+                      "inspections",
+                      "business licenses",
+                      "home occupation permits"
+                    ],
+                    "jurisdiction_level": "City",
+                    "jurisdiction_name": "Dallas",
+                    "notes": "",
+                    "official_url": "https://dallascityhall.com/departments/sustainabledevelopment/buildinginspection/Pages/default.aspx",
+                    "state": "TX"
+                  },
+                  {
+                    "authority": "Dallas City Hall",
+                    "confidence": "high",
+                    "domain": "dallascityhall.com",
+                    "filing_topics": [
+                      "permit applications",
+                      "business licenses",
+                      "renewals"
+                    ],
+                    "jurisdiction_level": "City",
+                    "jurisdiction_name": "Dallas",
+                    "notes": "",
+                    "official_url": "https://dallascityhall.com/departments/sustainabledevelopment/Pages/PermitCenter2.aspx",
+                    "state": "TX"
+                  },
+                  {
+                    "authority": "Dallas City Hall",
+                    "confidence": "high",
+                    "domain": "dallascityhall.com",
+                    "filing_topics": [
+                      "zoning clearance",
+                      "home occupation permits",
+                      "business licenses",
+                      "business tax certificates",
+                      "renewal filings",
+                      "local compliance filings"
+                    ],
+                    "jurisdiction_level": "City",
+                    "jurisdiction_name": "Dallas",
+                    "notes": "Official city page for zoning regulations and related permits.",
+                    "official_url": "https://dallascityhall.com/departments/sustainabledevelopment/Pages/zoning_use_regulations.aspx",
+                    "state": "TX"
+                  },
+                  {
+                    "authority": "Dallas City Hall",
+                    "confidence": "high",
+                    "domain": "dallascityhall.com",
+                    "filing_topics": [
+                      "Zoning",
+                      "Home Occupation Permits",
+                      "Zoning Clearance",
+                      "Business Licenses",
+                      "Business Tax Certificates",
+                      "Renewal Filings",
+                      "Amendments",
+                      "Closures"
+                    ],
+                    "jurisdiction_level": "City",
+                    "jurisdiction_name": "Dallas",
+                    "notes": "This page provides resources for zoning and related permits in Dallas.",
+                    "official_url": "https://dallascityhall.com/departments/pnv/Pages/Zoning-Resources.aspx",
+                    "state": "TX"
+                  },
+                  {
+                    "authority": "Dallas City Hall",
+                    "confidence": "high",
+                    "domain": "dallascityhall.com",
+                    "filing_topics": [
+                      "Current Planning Applications",
+                      "Zoning Requests",
+                      "Rezoning Process"
+                    ],
+                    "jurisdiction_level": "City",
+                    "jurisdiction_name": "Dallas",
+                    "notes": "DallasNow is used for submitting current planning applications including rezoning.",
+                    "official_url": "https://dallascityhall.com/departments/sustainabledevelopment/Pages/DallasNow.aspx",
+                    "state": "TX"
+                  },
+                  {
+                    "authority": "Dallas City Hall",
+                    "confidence": "high",
+                    "domain": "dallascityhall.com",
+                    "filing_topics": [
+                      "City Plan Commission",
+                      "Public Meetings",
+                      "Zoning Applications"
+                    ],
+                    "jurisdiction_level": "City",
+                    "jurisdiction_name": "Dallas",
+                    "notes": "Information on the City Plan Commission and public meeting schedules.",
+                    "official_url": "https://dallascityhall.com/government/Boards-and-Commissions/City-Plan-and-Zoning-Commission/Pages/Meetings.aspx",
+                    "state": "TX"
+                  },
+                  {
+                    "authority": "Dallas City Hall",
+                    "confidence": "high",
+                    "domain": "dallascityhall.com",
+                    "filing_topics": [
+                      "Open Records Requests",
+                      "Public Records"
+                    ],
+                    "jurisdiction_level": "City",
+                    "jurisdiction_name": "Dallas",
+                    "notes": "Access to public records and open records requests.",
+                    "official_url": "https://dallascityhall.com/government/citysecretary/Pages/default.aspx",
+                    "state": "TX"
+                  },
+                  {
+                    "authority": "Dallas City Hall",
+                    "confidence": "high",
+                    "domain": "dallascityhall.com",
+                    "filing_topics": [
+                      "Public Meeting Schedule",
+                      "Agendas",
+                      "Minutes"
+                    ],
+                    "jurisdiction_level": "City",
+                    "jurisdiction_name": "Dallas",
+                    "notes": "Links to public meeting schedules, agendas, and minutes.",
+                    "official_url": "https://dallascityhall.com/government/citysecretary/Pages/Public-Meetings.aspx",
+                    "state": "TX"
+                  },
+                  {
+                    "authority": "Texas Secretary of State",
+                    "confidence": "high",
+                    "domain": "sos.texas.gov",
+                    "filing_topics": [
+                      "DBA",
+                      "FBN",
+                      "Assumed Name Filings",
+                      "Business Licenses",
+                      "Business Tax Certificates",
+                      "Home Occupation Permits",
+                      "Zoning Clearances",
+                      "Renewal Filings",
+                      "License Renewals",
+                      "Amendments",
+                      "Closures",
+                      "Late Fees"
+                    ],
+                    "jurisdiction_level": "State",
+                    "jurisdiction_name": "Texas Secretary of State",
+                    "notes": "",
+                    "official_url": "https://www.sos.texas.gov/",
+                    "state": "TX"
+                  },
+                  {
+                    "authority": "Texas Secretary of State",
+                    "confidence": "high",
+                    "domain": "sos.texas.gov",
+                    "filing_topics": [
+                      "Business Filings",
+                      "DBA",
+                      "FBN",
+                      "Assumed Name Filings"
+                    ],
+                    "jurisdiction_level": "State",
+                    "jurisdiction_name": "SOSDirect - Business Filings",
+                    "notes": "",
+                    "official_url": "https://www.sos.texas.gov/corp/sosda/index.shtml",
+                    "state": "TX"
+                  },
+                  {
+                    "authority": "Texas Secretary of State",
+                    "confidence": "high",
+                    "domain": "sos.texas.gov",
+                    "filing_topics": [
+                      "Business Licenses",
+                      "Filing Fees",
+                      "Name Availability",
+                      "Certificate Verification"
+                    ],
+                    "jurisdiction_level": "State",
+                    "jurisdiction_name": "Business Organizations",
+                    "notes": "",
+                    "official_url": "https://direct.sos.state.tx.us/home/home-corp.asp",
+                    "state": "TX"
+                  },
+                  {
+                    "authority": "Texas Secretary of State",
+                    "confidence": "high",
+                    "domain": "sos.texas.gov",
+                    "filing_topics": [
+                      "UCC Filings",
+                      "Fees"
+                    ],
+                    "jurisdiction_level": "State",
+                    "jurisdiction_name": "UCC",
+                    "notes": "",
+                    "official_url": "https://www.sos.texas.gov/ucc/index.shtml",
+                    "state": "TX"
+                  },
+                  {
+                    "authority": "Ellis County Clerk",
+                    "confidence": "high",
+                    "domain": "elliscountytx.gov",
+                    "filing_topics": [
+                      "Assumed Names",
+                      "DBA Filings",
+                      "FBN Filings"
+                    ],
+                    "jurisdiction_level": "County",
+                    "jurisdiction_name": "Ellis County",
+                    "notes": "",
+                    "official_url": "https://www.elliscountytx.gov/819/Assumed-Names",
+                    "state": "TX"
+                  },
+                  {
+                    "authority": "County Clerk",
+                    "confidence": "High",
+                    "domain": "elliscountytx.gov",
+                    "filing_topics": [
+                      "Assumed Names",
+                      "DBA Filings",
+                      "FBN Filings"
+                    ],
+                    "jurisdiction_level": "County",
+                    "jurisdiction_name": "Ellis County",
+                    "notes": "",
+                    "official_url": "https://www.elliscountytx.gov/819/Assumed-Names",
+                    "state": "TX"
+                  }
+                ]
+              },
+              "expiresAt": "2026-05-08T06:41:55.000Z",
+              "replacement": "/v2/scrape",
+              "sources": {
+                "source_candidates[0]": [
+                  "https://comptroller.texas.gov/taxes/property-tax/county-directory/mclennan.php"
+                ],
+                "source_candidates[10]": [
+                  "https://comptroller.texas.gov/taxes/"
+                ],
+                "source_candidates[11]": [
+                  "https://comptroller.texas.gov/taxes/"
+                ],
+                "source_candidates[12]": [
+                  "https://comptroller.texas.gov/taxes/"
+                ],
+                "source_candidates[13]": [
+                  "https://comptroller.texas.gov/taxes/"
+                ],
+                "source_candidates[14]": [
+                  "https://comptroller.texas.gov/taxes/"
+                ],
+                "source_candidates[15]": [
+                  "https://countyclerk.traviscountytx.gov/departments/recording/dbas/"
+                ],
+                "source_candidates[16]": [
+                  "https://countyclerk.traviscountytx.gov/departments/recording/"
+                ],
+                "source_candidates[17]": [
+                  "https://countyclerk.traviscountytx.gov/departments/recording/search-copies-of-records/"
+                ],
+                "source_candidates[18]": [
+                  "https://countyclerk.traviscountytx.gov/forms/"
+                ],
+                "source_candidates[19]": [
+                  "https://countyclerk.traviscountytx.gov/departments/recording/forms/"
+                ],
+                "source_candidates[1]": [
+                  "https://comptroller.texas.gov/taxes/property-tax/county-directory/mclennan.php"
+                ],
+                "source_candidates[20]": [
+                  "https://countyclerk.traviscountytx.gov/departments/recording/fee-information/"
+                ],
+                "source_candidates[21]": [
+                  "https://dallascityhall.com/departments/procurement/Pages/special_collections_licenses.aspx"
+                ],
+                "source_candidates[22]": [
+                  "https://dallascityhall.com/departments/sustainabledevelopment/Pages/formsdept.aspx"
+                ],
+                "source_candidates[23]": [
+                  "https://dallascityhall.com/departments/pnv/Pages/Zoning-Resources.aspx"
+                ],
+                "source_candidates[24]": [
+                  "https://dallascityhall.com/departments/pnv/Pages/Zoning-Resources.aspx"
+                ],
+                "source_candidates[25]": [
+                  "https://dallascityhall.com/departments/pnv/Pages/Zoning-Resources.aspx"
+                ],
+                "source_candidates[26]": [
+                  "https://dallascityhall.com/departments/pnv/Pages/Zoning-Resources.aspx"
+                ],
+                "source_candidates[27]": [
+                  "https://dallascityhall.com/departments/pnv/Pages/Zoning-Resources.aspx"
+                ],
+                "source_candidates[28]": [
+                  "https://dallascityhall.com/departments/sustainabledevelopment/Pages/formsdept.aspx"
+                ],
+                "source_candidates[29]": [
+                  "https://dallascityhall.com/departments/sustainabledevelopment/Pages/formsdept.aspx"
+                ],
+                "source_candidates[2]": [
+                  "https://comptroller.texas.gov/taxes/property-tax/county-directory/brazoria.php"
+                ],
+                "source_candidates[30]": [
+                  "https://dallascityhall.com/departments/sustainabledevelopment/Pages/formsdept.aspx"
+                ],
+                "source_candidates[31]": [
+                  "https://dallascityhall.com/departments/sustainabledevelopment/buildinginspection/DCH%20documents/pdf/BI_CO%20Application_05-30-2017.pdf"
+                ],
+                "source_candidates[32]": [
+                  "https://dallascityhall.com/departments/procurement/Pages/special_collections.aspx"
+                ],
+                "source_candidates[33]": [
+                  "https://dallascityhall.com/departments/waterutilities/special_collections/Pages/Alcohol-Beverage-Commission.aspx"
+                ],
+                "source_candidates[34]": [
+                  "https://dallascityhall.com/departments/sustainabledevelopment/Pages/zoning_use_regulations.aspx"
+                ],
+                "source_candidates[35]": [
+                  "https://dallascityhall.com/departments/sustainabledevelopment/Pages/zoning_use_regulations.aspx"
+                ],
+                "source_candidates[36]": [
+                  "https://dallascityhall.com/departments/sustainabledevelopment/Pages/zoning_use_regulations.aspx"
+                ],
+                "source_candidates[37]": [
+                  "https://dallascityhall.com/departments/sustainabledevelopment/Pages/zoning_use_regulations.aspx"
+                ],
+                "source_candidates[38]": [
+                  "https://dallascityhall.com/departments/pnv/Pages/Zoning-Resources.aspx"
+                ],
+                "source_candidates[39]": [
+                  "https://dallascityhall.com/departments/pnv/Pages/Zoning-Resources.aspx"
+                ],
+                "source_candidates[3]": [
+                  "https://comptroller.texas.gov/taxes/property-tax/county-directory/brazoria.php"
+                ],
+                "source_candidates[40]": [
+                  "https://dallascityhall.com/departments/pnv/Pages/Zoning-Resources.aspx"
+                ],
+                "source_candidates[41]": [
+                  "https://dallascityhall.com/departments/pnv/Pages/Zoning-Resources.aspx"
+                ],
+                "source_candidates[42]": [
+                  "https://dallascityhall.com/departments/pnv/Pages/Zoning-Resources.aspx"
+                ],
+                "source_candidates[43]": [
+                  "https://dallascityhall.com/departments/sustainabledevelopment/Pages/zoning_use_regulations.aspx"
+                ],
+                "source_candidates[44]": [
+                  "https://dallascityhall.com/departments/sustainabledevelopment/Pages/zoning_use_regulations.aspx"
+                ],
+                "source_candidates[45]": [
+                  "https://dallascityhall.com/departments/sustainabledevelopment/Pages/zoning_use_regulations.aspx"
+                ],
+                "source_candidates[46]": [
+                  "https://dallascityhall.com/departments/waterutilities/special_collections/Pages/Alcohol-Beverage-Commission.aspx"
+                ],
+                "source_candidates[47]": [
+                  "https://dallascityhall.com/departments/sustainabledevelopment/Pages/zoning_use_regulations.aspx"
+                ],
+                "source_candidates[48]": [
+                  "https://dallascityhall.com/departments/sustainabledevelopment/Pages/zoning_use_regulations.aspx"
+                ],
+                "source_candidates[49]": [
+                  "https://dallascityhall.com/departments/sustainabledevelopment/Pages/zoning_use_regulations.aspx"
+                ],
+                "source_candidates[4]": [
+                  "https://comptroller.texas.gov/taxes/permit/"
+                ],
+                "source_candidates[50]": [
+                  "https://dallascityhall.com/departments/sustainabledevelopment/Pages/zoning_use_regulations.aspx"
+                ],
+                "source_candidates[51]": [
+                  "https://dallascityhall.com/departments/pnv/Pages/Zoning-Resources.aspx"
+                ],
+                "source_candidates[52]": [
+                  "https://dallascityhall.com/departments/pnv/Pages/Zoning-Resources.aspx"
+                ],
+                "source_candidates[53]": [
+                  "https://dallascityhall.com/departments/pnv/Pages/Zoning-Resources.aspx"
+                ],
+                "source_candidates[54]": [
+                  "https://dallascityhall.com/departments/pnv/Pages/Zoning-Resources.aspx"
+                ],
+                "source_candidates[55]": [
+                  "https://dallascityhall.com/departments/pnv/Pages/Zoning-Resources.aspx"
+                ],
+                "source_candidates[56]": [
+                  "https://direct.sos.state.tx.us/help/help-corp.asp"
+                ],
+                "source_candidates[57]": [
+                  "https://direct.sos.state.tx.us/help/help-corp.asp"
+                ],
+                "source_candidates[58]": [
+                  "https://direct.sos.state.tx.us/help/help-corp.asp"
+                ],
+                "source_candidates[59]": [
+                  "https://direct.sos.state.tx.us/help/help-corp.asp"
+                ],
+                "source_candidates[5]": [
+                  "https://comptroller.texas.gov/taxes/permit/"
+                ],
+                "source_candidates[60]": [
+                  "https://www.elliscountytx.gov/819/Assumed-Names"
+                ],
+                "source_candidates[61]": [
+                  "https://www.elliscountytx.gov/819/Assumed-Names"
+                ],
+                "source_candidates[6]": [
+                  "https://comptroller.texas.gov/taxes/permit/"
+                ],
+                "source_candidates[7]": [
+                  "https://comptroller.texas.gov/taxes/permit/"
+                ],
+                "source_candidates[8]": [
+                  "https://comptroller.texas.gov/taxes/permit/"
+                ],
+                "source_candidates[9]": [
+                  "https://comptroller.texas.gov/taxes/franchise/pir-oir-filing-req.php"
+                ]
+              },
+              "status": "completed",
+              "success": true,
+              "tokensUsed": 6996,
+              "warnings": [
+                "/v2/extract/:jobId is deprecated. Use /v2/scrape with formats including a 'json' format object."
+              ]
+            },
+            "sources": [],
+            "status": "completed",
+            "success": true
+          },
+          "source_urls": [
+            "https://comptroller.texas.gov/*",
+            "https://countyclerk.traviscountytx.gov/*",
+            "https://dallascityhall.com/departments/special-collections/*",
+            "https://direct.sos.state.tx.us/*",
+            "https://elliscountytx.gov/819/Assumed-Names/*"
+          ]
+        }
+      ],
+      "seeded_count": 20,
+      "total_candidate_count": 36
+    }
+  },
+  "updated_at": "2026-05-08T00:41:56+00:00",
+  "version": 1
+}

@@ -1,0 +1,925 @@
+{
+  "counts": {
+    "remaining_40_plus_dc": {
+      "active": 70,
+      "blocked": 1,
+      "complete": 11
+    },
+    "top_ten": {
+      "active": 18,
+      "blocked": 1,
+      "complete": 1
+    }
+  },
+  "next_active_batches": [
+    {
+      "batch_id": "tx_state_filings",
+      "created_at": "2026-05-07T22:41:03+00:00",
+      "discovery_queries": [
+        "site:sos.state.tx.us OR site:direct.sos.state.tx.us OR site:comptroller.texas.gov Texas state filing map LLC formation articles organization fee online filing",
+        "site:sos.state.tx.us OR site:direct.sos.state.tx.us OR site:comptroller.texas.gov Texas state filing map corporation incorporation articles incorporation fee online filing",
+        "site:sos.state.tx.us OR site:direct.sos.state.tx.us OR site:comptroller.texas.gov Texas state filing map nonprofit corporation articles incorporation fee",
+        "site:sos.state.tx.us OR site:direct.sos.state.tx.us OR site:comptroller.texas.gov Texas state filing map foreign LLC registration application authority fee",
+        "site:sos.state.tx.us OR site:direct.sos.state.tx.us OR site:comptroller.texas.gov Texas state filing map foreign corporation qualification application authority fee",
+        "site:sos.state.tx.us OR site:direct.sos.state.tx.us OR site:comptroller.texas.gov Texas state filing map LLP LP professional entity formation forms fees",
+        "site:sos.state.tx.us OR site:direct.sos.state.tx.us OR site:comptroller.texas.gov Texas state filing map annual report statement information franchise tax public information report",
+        "site:sos.state.tx.us OR site:direct.sos.state.tx.us OR site:comptroller.texas.gov Texas state filing map renewal recurring compliance due date reminder filing fee",
+        "site:sos.state.tx.us OR site:direct.sos.state.tx.us OR site:comptroller.texas.gov Texas state filing map beneficial ownership information report BOI filing update correction deadline FinCEN",
+        "site:sos.state.tx.us OR site:direct.sos.state.tx.us OR site:comptroller.texas.gov Texas state filing map USPTO trademark filing maintenance renewal assignment fee process",
+        "site:sos.state.tx.us OR site:direct.sos.state.tx.us OR site:comptroller.texas.gov Texas state filing map USPTO patent filing maintenance fee assignment process",
+        "site:sos.state.tx.us OR site:direct.sos.state.tx.us OR site:comptroller.texas.gov Texas state filing map amendment registered agent change address change reinstatement dissolution fees",
+        "site:sos.state.tx.us OR site:direct.sos.state.tx.us OR site:comptroller.texas.gov Texas state filing map certified copy certificate of status good standing fees"
+      ],
+      "jurisdiction_id": "tx_state",
+      "notes": [
+        "2026-05-07T21:27:04+00:00: All extracted records passed automatic verification gates.",
+        "Reprocess existing Firecrawl snapshot with stricter fee and category gates.",
+        "2026-05-07T21:29:21+00:00: Records extracted but at least one requires operator review.",
+        "Run Texas state batch with expanded renewal, BOI, USPTO, and reminder research requirements.",
+        "2026-05-08T00:00:19+00:00: Records extracted but at least one requires operator review."
+      ],
+      "official_domains": [
+        "sos.state.tx.us",
+        "direct.sos.state.tx.us",
+        "comptroller.texas.gov"
+      ],
+      "phase": "top_ten",
+      "priority": 10,
+      "required_filings": [
+        "LLC formation",
+        "corporation formation",
+        "nonprofit corporation formation",
+        "LP/LLP/professional entity filings where offered",
+        "foreign LLC authority",
+        "foreign corporation authority",
+        "foreign nonprofit authority",
+        "name reservation or assumed-name prerequisite",
+        "amendment/change filings",
+        "registered agent and address changes",
+        "annual or biennial statements/reports",
+        "renewal filings and recurring compliance filings",
+        "beneficial ownership information reports and update/correction filings where applicable",
+        "USPTO trademark filing, maintenance, renewal, and assignment workflows",
+        "USPTO patent filing, maintenance fee, and assignment workflows",
+        "dissolution/withdrawal",
+        "reinstatement",
+        "copies and certificates"
+      ],
+      "scope": "state",
+      "status": "active",
+      "title": "Texas state filing map"
+    },
+    {
+      "batch_id": "tx_local_filings",
+      "created_at": "2026-05-07T22:41:03+00:00",
+      "discovery_queries": [
+        "site:sos.state.tx.us OR site:direct.sos.state.tx.us OR site:comptroller.texas.gov Texas county and city local filing map county fictitious business name DBA assumed name fee",
+        "site:sos.state.tx.us OR site:direct.sos.state.tx.us OR site:comptroller.texas.gov Texas county and city local filing map county business license general license business tax certificate fee",
+        "site:sos.state.tx.us OR site:direct.sos.state.tx.us OR site:comptroller.texas.gov Texas county and city local filing map city business license business tax certificate home occupation permit fee",
+        "site:sos.state.tx.us OR site:direct.sos.state.tx.us OR site:comptroller.texas.gov Texas county and city local filing map business license renewal amendment closure fee",
+        "site:sos.state.tx.us OR site:direct.sos.state.tx.us OR site:comptroller.texas.gov Texas county and city local filing map business license renewal reminder due date late fee"
+      ],
+      "jurisdiction_id": "tx_state",
+      "notes": [
+        "2026-05-07T22:01:18+00:00: Firecrawl HTTP 400: {\"success\":false,\"code\":\"BAD_REQUEST\",\"error\":\"Bad Request\",\"details\":[{\"origin\":\"array\",\"code\":\"too_big\",\"maximum\":10,\"inclusive\":true,\"path\":[\"urls\"],\"message\":\"Maximum of 10 URLs allowed per request while in beta.\"}],\"warnings\":[\"/v2/extract is deprecated. Use /v2/scrape with formats including a 'json' format object.\"],\"replacement\":\"/v2/scrape\"}",
+        "Retry after adding Firecrawl extract URL chunking for local discovery.",
+        "2026-05-07T22:28:46+00:00: No filing records extracted.",
+        "Retry after prioritizing curated local source seeds before web-discovered candidates.",
+        "2026-05-07T22:35:49+00:00: Records extracted but at least one requires operator review.",
+        "Reprocess existing Texas local snapshot with stricter local DBA fee gate.",
+        "2026-05-07T22:36:44+00:00: Records extracted but at least one requires operator review.",
+        "2026-05-07T22:56:05+00:00: No filing records extracted.",
+        "Reset after broad city/local slice yielded no records; continuing Texas local research with narrower source slices.",
+        "2026-05-08T00:08:39+00:00: No filing records extracted.",
+        "2026-05-08T00:09:00+00:00: Reactivated after zero-record local slice; improving high-signal candidate ranking.",
+        "2026-05-08T00:13:04+00:00: No filing records extracted from this local slice; continue with narrower candidates.",
+        "2026-05-08T00:20:25+00:00: Records extracted but at least one requires operator review.",
+        "2026-05-08T00:24:13+00:00: Records extracted but at least one requires operator review.",
+        "2026-05-08T00:29:36+00:00: Records extracted but at least one requires operator review.",
+        "2026-05-08T00:36:23+00:00: Records extracted but at least one requires operator review.",
+        "2026-05-08T00:38:36+00:00: Records extracted but at least one requires operator review.",
+        "2026-05-08T00:42:12+00:00: Records extracted but at least one requires operator review.",
+        "2026-05-08T00:44:01+00:00: All extracted records passed automatic verification gates.",
+        "2026-05-08T00:45:00+00:00: Reactivated after targeted slice; Texas local coverage remains in progress.",
+        "2026-05-08T00:45:59+00:00: Local slice extracted records; keep local coverage active until explicitly closed.",
+        "2026-05-08T00:47:00+00:00: Local slice extracted records; keep local coverage active until explicitly closed.",
+        "2026-05-08T00:47:46+00:00: Local slice extracted records; keep local coverage active until explicitly closed.",
+        "2026-05-08T00:55:45+00:00: Local slice extracted records; keep local coverage active until explicitly closed.",
+        "2026-05-08T00:55:52+00:00: Local slice extracted records; keep local coverage active until explicitly closed.",
+        "2026-05-08T00:55:59+00:00: No filing records extracted from this local slice; continue with narrower candidates.",
+        "2026-05-08T00:56:48+00:00: Local slice extracted records; keep local coverage active until explicitly closed.",
+        "2026-05-08T00:56:57+00:00: No filing records extracted from this local slice; continue with narrower candidates.",
+        "2026-05-08T00:57:04+00:00: No filing records extracted from this local slice; continue with narrower candidates.",
+        "2026-05-08T00:57:11+00:00: No filing records extracted from this local slice; continue with narrower candidates.",
+        "2026-05-08T00:57:20+00:00: No filing records extracted from this local slice; continue with narrower candidates.",
+        "2026-05-08T01:13:42+00:00: Local slice extracted records; keep local coverage active until explicitly closed.",
+        "2026-05-08T01:14:21+00:00: Local slice extracted records; keep local coverage active until explicitly closed.",
+        "2026-05-08T01:14:39+00:00: Local slice extracted records; keep local coverage active until explicitly closed.",
+        "2026-05-08T01:15:22+00:00: Local slice extracted records; keep local coverage active until explicitly closed.",
+        "2026-05-08T01:18:10+00:00: Local slice extracted records; keep local coverage active until explicitly closed.",
+        "2026-05-08T01:20:59+00:00: No filing records extracted from this local slice; continue with narrower candidates.",
+        "2026-05-08T01:30:05+00:00: Local slice extracted records; keep local coverage active until explicitly closed.",
+        "2026-05-08T01:30:19+00:00: Local slice extracted records; keep local coverage active until explicitly closed.",
+        "2026-05-08T01:30:28+00:00: Local slice extracted records; keep local coverage active until explicitly closed.",
+        "2026-05-08T01:30:40+00:00: No filing records extracted from this local slice; continue with narrower candidates.",
+        "2026-05-08T01:31:09+00:00: Local slice extracted records; keep local coverage active until explicitly closed.",
+        "2026-05-08T01:31:19+00:00: Local slice extracted records; keep local coverage active until explicitly closed.",
+        "2026-05-08T01:31:39+00:00: Local slice extracted records; keep local coverage active until explicitly closed.",
+        "2026-05-08T01:31:46+00:00: Local slice extracted records; keep local coverage active until explicitly closed.",
+        "2026-05-08T01:32:23+00:00: Local slice extracted records; keep local coverage active until explicitly closed.",
+        "2026-05-08T01:33:15+00:00: Local slice extracted records; keep local coverage active until explicitly closed.",
+        "2026-05-08T01:33:32+00:00: No filing records extracted from this local slice; continue with narrower candidates.",
+        "2026-05-08T01:33:53+00:00: No filing records extracted from this local slice; continue with narrower candidates.",
+        "2026-05-08T01:37:55+00:00: Local slice extracted records; keep local coverage active until explicitly closed.",
+        "2026-05-08T01:38:47+00:00: Local slice extracted records; keep local coverage active until explicitly closed.",
+        "2026-05-08T01:39:28+00:00: Local slice extracted records; keep local coverage active until explicitly closed.",
+        "2026-05-08T01:39:59+00:00: Local slice extracted records; keep local coverage active until explicitly closed.",
+        "2026-05-08T01:42:53+00:00: Local slice extracted records; keep local coverage active until explicitly closed.",
+        "2026-05-08T01:44:21+00:00: Local slice extracted records; keep local coverage active until explicitly closed.",
+        "2026-05-08T01:45:27+00:00: No filing records extracted from this local slice; continue with narrower candidates.",
+        "2026-05-08T01:46:44+00:00: Local slice extracted records; keep local coverage active until explicitly closed.",
+        "2026-05-08T01:48:20+00:00: Local slice extracted records; keep local coverage active until explicitly closed."
+      ],
+      "official_domains": [
+        "sos.state.tx.us",
+        "direct.sos.state.tx.us",
+        "comptroller.texas.gov"
+      ],
+      "phase": "top_ten",
+      "priority": 11,
+      "required_filings": [
+        "county DBA/FBN/assumed-name filings",
+        "city and county general business licenses",
+        "business tax certificates or local business tax receipts",
+        "home occupation permits and zoning clearance dependencies",
+        "renewal filings and recurring local compliance filings",
+        "license renewals, amendments, closures, and late fees"
+      ],
+      "scope": "local",
+      "status": "active",
+      "title": "Texas county and city local filing map"
+    },
+    {
+      "batch_id": "ca_state_filings",
+      "created_at": "2026-05-07T22:41:03+00:00",
+      "discovery_queries": [
+        "site:bizfileonline.sos.ca.gov OR site:sos.ca.gov OR site:ftb.ca.gov California state filing map LLC formation articles organization fee online filing",
+        "site:bizfileonline.sos.ca.gov OR site:sos.ca.gov OR site:ftb.ca.gov California state filing map corporation incorporation articles incorporation fee online filing",
+        "site:bizfileonline.sos.ca.gov OR site:sos.ca.gov OR site:ftb.ca.gov California state filing map nonprofit corporation articles incorporation fee",
+        "site:bizfileonline.sos.ca.gov OR site:sos.ca.gov OR site:ftb.ca.gov California state filing map foreign LLC registration application authority fee",
+        "site:bizfileonline.sos.ca.gov OR site:sos.ca.gov OR site:ftb.ca.gov California state filing map foreign corporation qualification application authority fee",
+        "site:bizfileonline.sos.ca.gov OR site:sos.ca.gov OR site:ftb.ca.gov California state filing map LLP LP professional entity formation forms fees",
+        "site:bizfileonline.sos.ca.gov OR site:sos.ca.gov OR site:ftb.ca.gov California state filing map annual report statement information franchise tax public information report",
+        "site:bizfileonline.sos.ca.gov OR site:sos.ca.gov OR site:ftb.ca.gov California state filing map renewal recurring compliance due date reminder filing fee",
+        "site:bizfileonline.sos.ca.gov OR site:sos.ca.gov OR site:ftb.ca.gov California state filing map beneficial ownership information report BOI filing update correction deadline FinCEN",
+        "site:bizfileonline.sos.ca.gov OR site:sos.ca.gov OR site:ftb.ca.gov California state filing map USPTO trademark filing maintenance renewal assignment fee process",
+        "site:bizfileonline.sos.ca.gov OR site:sos.ca.gov OR site:ftb.ca.gov California state filing map USPTO patent filing maintenance fee assignment process",
+        "site:bizfileonline.sos.ca.gov OR site:sos.ca.gov OR site:ftb.ca.gov California state filing map amendment registered agent change address change reinstatement dissolution fees",
+        "site:bizfileonline.sos.ca.gov OR site:sos.ca.gov OR site:ftb.ca.gov California state filing map certified copy certificate of status good standing fees"
+      ],
+      "jurisdiction_id": "ca_state",
+      "notes": [
+        "2026-05-08T01:53:00+00:00: Records extracted but at least one requires operator review."
+      ],
+      "official_domains": [
+        "bizfileonline.sos.ca.gov",
+        "sos.ca.gov",
+        "ftb.ca.gov"
+      ],
+      "phase": "top_ten",
+      "priority": 20,
+      "required_filings": [
+        "LLC formation",
+        "corporation formation",
+        "nonprofit corporation formation",
+        "LP/LLP/professional entity filings where offered",
+        "foreign LLC authority",
+        "foreign corporation authority",
+        "foreign nonprofit authority",
+        "name reservation or assumed-name prerequisite",
+        "amendment/change filings",
+        "registered agent and address changes",
+        "annual or biennial statements/reports",
+        "renewal filings and recurring compliance filings",
+        "beneficial ownership information reports and update/correction filings where applicable",
+        "USPTO trademark filing, maintenance, renewal, and assignment workflows",
+        "USPTO patent filing, maintenance fee, and assignment workflows",
+        "dissolution/withdrawal",
+        "reinstatement",
+        "copies and certificates"
+      ],
+      "scope": "state",
+      "status": "active",
+      "title": "California state filing map"
+    },
+    {
+      "batch_id": "ca_local_filings",
+      "created_at": "2026-05-07T22:41:03+00:00",
+      "discovery_queries": [
+        "site:bizfileonline.sos.ca.gov OR site:sos.ca.gov OR site:ftb.ca.gov California county and city local filing map county fictitious business name DBA assumed name fee",
+        "site:bizfileonline.sos.ca.gov OR site:sos.ca.gov OR site:ftb.ca.gov California county and city local filing map county business license general license business tax certificate fee",
+        "site:bizfileonline.sos.ca.gov OR site:sos.ca.gov OR site:ftb.ca.gov California county and city local filing map city business license business tax certificate home occupation permit fee",
+        "site:bizfileonline.sos.ca.gov OR site:sos.ca.gov OR site:ftb.ca.gov California county and city local filing map business license renewal amendment closure fee",
+        "site:bizfileonline.sos.ca.gov OR site:sos.ca.gov OR site:ftb.ca.gov California county and city local filing map business license renewal reminder due date late fee"
+      ],
+      "jurisdiction_id": "ca_state",
+      "official_domains": [
+        "bizfileonline.sos.ca.gov",
+        "sos.ca.gov",
+        "ftb.ca.gov"
+      ],
+      "phase": "top_ten",
+      "priority": 21,
+      "required_filings": [
+        "county DBA/FBN/assumed-name filings",
+        "city and county general business licenses",
+        "business tax certificates or local business tax receipts",
+        "home occupation permits and zoning clearance dependencies",
+        "renewal filings and recurring local compliance filings",
+        "license renewals, amendments, closures, and late fees"
+      ],
+      "scope": "local",
+      "status": "active",
+      "title": "California county and city local filing map"
+    },
+    {
+      "batch_id": "fl_state_filings",
+      "created_at": "2026-05-07T22:41:03+00:00",
+      "discovery_queries": [
+        "site:dos.fl.gov OR site:sunbiz.org Florida state filing map LLC formation articles organization fee online filing",
+        "site:dos.fl.gov OR site:sunbiz.org Florida state filing map corporation incorporation articles incorporation fee online filing",
+        "site:dos.fl.gov OR site:sunbiz.org Florida state filing map nonprofit corporation articles incorporation fee",
+        "site:dos.fl.gov OR site:sunbiz.org Florida state filing map foreign LLC registration application authority fee",
+        "site:dos.fl.gov OR site:sunbiz.org Florida state filing map foreign corporation qualification application authority fee",
+        "site:dos.fl.gov OR site:sunbiz.org Florida state filing map LLP LP professional entity formation forms fees",
+        "site:dos.fl.gov OR site:sunbiz.org Florida state filing map annual report statement information franchise tax public information report",
+        "site:dos.fl.gov OR site:sunbiz.org Florida state filing map renewal recurring compliance due date reminder filing fee",
+        "site:dos.fl.gov OR site:sunbiz.org Florida state filing map beneficial ownership information report BOI filing update correction deadline FinCEN",
+        "site:dos.fl.gov OR site:sunbiz.org Florida state filing map USPTO trademark filing maintenance renewal assignment fee process",
+        "site:dos.fl.gov OR site:sunbiz.org Florida state filing map USPTO patent filing maintenance fee assignment process",
+        "site:dos.fl.gov OR site:sunbiz.org Florida state filing map amendment registered agent change address change reinstatement dissolution fees",
+        "site:dos.fl.gov OR site:sunbiz.org Florida state filing map certified copy certificate of status good standing fees"
+      ],
+      "jurisdiction_id": "fl_state",
+      "notes": [
+        "2026-05-08T02:24:38+00:00: Records extracted but at least one requires operator review."
+      ],
+      "official_domains": [
+        "dos.fl.gov",
+        "sunbiz.org"
+      ],
+      "phase": "top_ten",
+      "priority": 30,
+      "required_filings": [
+        "LLC formation",
+        "corporation formation",
+        "nonprofit corporation formation",
+        "LP/LLP/professional entity filings where offered",
+        "foreign LLC authority",
+        "foreign corporation authority",
+        "foreign nonprofit authority",
+        "name reservation or assumed-name prerequisite",
+        "amendment/change filings",
+        "registered agent and address changes",
+        "annual or biennial statements/reports",
+        "renewal filings and recurring compliance filings",
+        "beneficial ownership information reports and update/correction filings where applicable",
+        "USPTO trademark filing, maintenance, renewal, and assignment workflows",
+        "USPTO patent filing, maintenance fee, and assignment workflows",
+        "dissolution/withdrawal",
+        "reinstatement",
+        "copies and certificates"
+      ],
+      "scope": "state",
+      "status": "active",
+      "title": "Florida state filing map"
+    },
+    {
+      "batch_id": "fl_local_filings",
+      "created_at": "2026-05-07T22:41:03+00:00",
+      "discovery_queries": [
+        "site:dos.fl.gov OR site:sunbiz.org Florida county and city local filing map county fictitious business name DBA assumed name fee",
+        "site:dos.fl.gov OR site:sunbiz.org Florida county and city local filing map county business license general license business tax certificate fee",
+        "site:dos.fl.gov OR site:sunbiz.org Florida county and city local filing map city business license business tax certificate home occupation permit fee",
+        "site:dos.fl.gov OR site:sunbiz.org Florida county and city local filing map business license renewal amendment closure fee",
+        "site:dos.fl.gov OR site:sunbiz.org Florida county and city local filing map business license renewal reminder due date late fee"
+      ],
+      "jurisdiction_id": "fl_state",
+      "official_domains": [
+        "dos.fl.gov",
+        "sunbiz.org"
+      ],
+      "phase": "top_ten",
+      "priority": 31,
+      "required_filings": [
+        "county DBA/FBN/assumed-name filings",
+        "city and county general business licenses",
+        "business tax certificates or local business tax receipts",
+        "home occupation permits and zoning clearance dependencies",
+        "renewal filings and recurring local compliance filings",
+        "license renewals, amendments, closures, and late fees"
+      ],
+      "scope": "local",
+      "status": "active",
+      "title": "Florida county and city local filing map"
+    },
+    {
+      "batch_id": "de_state_filings",
+      "created_at": "2026-05-07T22:41:03+00:00",
+      "discovery_queries": [
+        "site:corp.delaware.gov Delaware state filing map LLC formation articles organization fee online filing",
+        "site:corp.delaware.gov Delaware state filing map corporation incorporation articles incorporation fee online filing",
+        "site:corp.delaware.gov Delaware state filing map nonprofit corporation articles incorporation fee",
+        "site:corp.delaware.gov Delaware state filing map foreign LLC registration application authority fee",
+        "site:corp.delaware.gov Delaware state filing map foreign corporation qualification application authority fee",
+        "site:corp.delaware.gov Delaware state filing map LLP LP professional entity formation forms fees",
+        "site:corp.delaware.gov Delaware state filing map annual report statement information franchise tax public information report",
+        "site:corp.delaware.gov Delaware state filing map renewal recurring compliance due date reminder filing fee",
+        "site:corp.delaware.gov Delaware state filing map beneficial ownership information report BOI filing update correction deadline FinCEN",
+        "site:corp.delaware.gov Delaware state filing map USPTO trademark filing maintenance renewal assignment fee process",
+        "site:corp.delaware.gov Delaware state filing map USPTO patent filing maintenance fee assignment process",
+        "site:corp.delaware.gov Delaware state filing map amendment registered agent change address change reinstatement dissolution fees",
+        "site:corp.delaware.gov Delaware state filing map certified copy certificate of status good standing fees"
+      ],
+      "jurisdiction_id": "de_state",
+      "notes": [
+        "2026-05-08T14:01:45+00:00: Records extracted but at least one requires operator review."
+      ],
+      "official_domains": [
+        "corp.delaware.gov"
+      ],
+      "phase": "top_ten",
+      "priority": 40,
+      "required_filings": [
+        "LLC formation",
+        "corporation formation",
+        "nonprofit corporation formation",
+        "LP/LLP/professional entity filings where offered",
+        "foreign LLC authority",
+        "foreign corporation authority",
+        "foreign nonprofit authority",
+        "name reservation or assumed-name prerequisite",
+        "amendment/change filings",
+        "registered agent and address changes",
+        "annual or biennial statements/reports",
+        "renewal filings and recurring compliance filings",
+        "beneficial ownership information reports and update/correction filings where applicable",
+        "USPTO trademark filing, maintenance, renewal, and assignment workflows",
+        "USPTO patent filing, maintenance fee, and assignment workflows",
+        "dissolution/withdrawal",
+        "reinstatement",
+        "copies and certificates"
+      ],
+      "scope": "state",
+      "status": "active",
+      "title": "Delaware state filing map"
+    },
+    {
+      "batch_id": "de_local_filings",
+      "created_at": "2026-05-07T22:41:03+00:00",
+      "discovery_queries": [
+        "site:corp.delaware.gov Delaware county and city local filing map county fictitious business name DBA assumed name fee",
+        "site:corp.delaware.gov Delaware county and city local filing map county business license general license business tax certificate fee",
+        "site:corp.delaware.gov Delaware county and city local filing map city business license business tax certificate home occupation permit fee",
+        "site:corp.delaware.gov Delaware county and city local filing map business license renewal amendment closure fee",
+        "site:corp.delaware.gov Delaware county and city local filing map business license renewal reminder due date late fee"
+      ],
+      "jurisdiction_id": "de_state",
+      "official_domains": [
+        "corp.delaware.gov"
+      ],
+      "phase": "top_ten",
+      "priority": 41,
+      "required_filings": [
+        "county DBA/FBN/assumed-name filings",
+        "city and county general business licenses",
+        "business tax certificates or local business tax receipts",
+        "home occupation permits and zoning clearance dependencies",
+        "renewal filings and recurring local compliance filings",
+        "license renewals, amendments, closures, and late fees"
+      ],
+      "scope": "local",
+      "status": "active",
+      "title": "Delaware county and city local filing map"
+    },
+    {
+      "batch_id": "nv_local_filings",
+      "created_at": "2026-05-07T22:41:03+00:00",
+      "discovery_queries": [
+        "site:nvsilverflume.gov OR site:sos.nv.gov Nevada county and city local filing map county fictitious business name DBA assumed name fee",
+        "site:nvsilverflume.gov OR site:sos.nv.gov Nevada county and city local filing map county business license general license business tax certificate fee",
+        "site:nvsilverflume.gov OR site:sos.nv.gov Nevada county and city local filing map city business license business tax certificate home occupation permit fee",
+        "site:nvsilverflume.gov OR site:sos.nv.gov Nevada county and city local filing map business license renewal amendment closure fee",
+        "site:nvsilverflume.gov OR site:sos.nv.gov Nevada county and city local filing map business license renewal reminder due date late fee"
+      ],
+      "jurisdiction_id": "nv_state",
+      "official_domains": [
+        "nvsilverflume.gov",
+        "sos.nv.gov"
+      ],
+      "phase": "top_ten",
+      "priority": 51,
+      "required_filings": [
+        "county DBA/FBN/assumed-name filings",
+        "city and county general business licenses",
+        "business tax certificates or local business tax receipts",
+        "home occupation permits and zoning clearance dependencies",
+        "renewal filings and recurring local compliance filings",
+        "license renewals, amendments, closures, and late fees"
+      ],
+      "scope": "local",
+      "status": "active",
+      "title": "Nevada county and city local filing map"
+    },
+    {
+      "batch_id": "az_state_filings",
+      "created_at": "2026-05-07T22:41:03+00:00",
+      "discovery_queries": [
+        "site:azcc.gov OR site:azleg.gov Arizona state filing map LLC formation articles organization fee online filing",
+        "site:azcc.gov OR site:azleg.gov Arizona state filing map corporation incorporation articles incorporation fee online filing",
+        "site:azcc.gov OR site:azleg.gov Arizona state filing map nonprofit corporation articles incorporation fee",
+        "site:azcc.gov OR site:azleg.gov Arizona state filing map foreign LLC registration application authority fee",
+        "site:azcc.gov OR site:azleg.gov Arizona state filing map foreign corporation qualification application authority fee",
+        "site:azcc.gov OR site:azleg.gov Arizona state filing map LLP LP professional entity formation forms fees",
+        "site:azcc.gov OR site:azleg.gov Arizona state filing map annual report statement information franchise tax public information report",
+        "site:azcc.gov OR site:azleg.gov Arizona state filing map renewal recurring compliance due date reminder filing fee",
+        "site:azcc.gov OR site:azleg.gov Arizona state filing map beneficial ownership information report BOI filing update correction deadline FinCEN",
+        "site:azcc.gov OR site:azleg.gov Arizona state filing map USPTO trademark filing maintenance renewal assignment fee process",
+        "site:azcc.gov OR site:azleg.gov Arizona state filing map USPTO patent filing maintenance fee assignment process",
+        "site:azcc.gov OR site:azleg.gov Arizona state filing map amendment registered agent change address change reinstatement dissolution fees",
+        "site:azcc.gov OR site:azleg.gov Arizona state filing map certified copy certificate of status good standing fees"
+      ],
+      "jurisdiction_id": "az_state",
+      "notes": [
+        "2026-05-08T15:33:23+00:00: Records extracted but at least one requires operator review."
+      ],
+      "official_domains": [
+        "azcc.gov",
+        "azleg.gov"
+      ],
+      "phase": "top_ten",
+      "priority": 60,
+      "required_filings": [
+        "LLC formation",
+        "corporation formation",
+        "nonprofit corporation formation",
+        "LP/LLP/professional entity filings where offered",
+        "foreign LLC authority",
+        "foreign corporation authority",
+        "foreign nonprofit authority",
+        "name reservation or assumed-name prerequisite",
+        "amendment/change filings",
+        "registered agent and address changes",
+        "annual or biennial statements/reports",
+        "renewal filings and recurring compliance filings",
+        "beneficial ownership information reports and update/correction filings where applicable",
+        "USPTO trademark filing, maintenance, renewal, and assignment workflows",
+        "USPTO patent filing, maintenance fee, and assignment workflows",
+        "dissolution/withdrawal",
+        "reinstatement",
+        "copies and certificates"
+      ],
+      "scope": "state",
+      "status": "active",
+      "title": "Arizona state filing map"
+    },
+    {
+      "batch_id": "az_local_filings",
+      "created_at": "2026-05-07T22:41:03+00:00",
+      "discovery_queries": [
+        "site:azcc.gov OR site:azleg.gov Arizona county and city local filing map county fictitious business name DBA assumed name fee",
+        "site:azcc.gov OR site:azleg.gov Arizona county and city local filing map county business license general license business tax certificate fee",
+        "site:azcc.gov OR site:azleg.gov Arizona county and city local filing map city business license business tax certificate home occupation permit fee",
+        "site:azcc.gov OR site:azleg.gov Arizona county and city local filing map business license renewal amendment closure fee",
+        "site:azcc.gov OR site:azleg.gov Arizona county and city local filing map business license renewal reminder due date late fee"
+      ],
+      "jurisdiction_id": "az_state",
+      "official_domains": [
+        "azcc.gov",
+        "azleg.gov"
+      ],
+      "phase": "top_ten",
+      "priority": 61,
+      "required_filings": [
+        "county DBA/FBN/assumed-name filings",
+        "city and county general business licenses",
+        "business tax certificates or local business tax receipts",
+        "home occupation permits and zoning clearance dependencies",
+        "renewal filings and recurring local compliance filings",
+        "license renewals, amendments, closures, and late fees"
+      ],
+      "scope": "local",
+      "status": "active",
+      "title": "Arizona county and city local filing map"
+    },
+    {
+      "batch_id": "ny_state_filings",
+      "created_at": "2026-05-07T22:41:03+00:00",
+      "discovery_queries": [
+        "site:dos.ny.gov OR site:businessexpress.ny.gov New York state filing map LLC formation articles organization fee online filing",
+        "site:dos.ny.gov OR site:businessexpress.ny.gov New York state filing map corporation incorporation articles incorporation fee online filing",
+        "site:dos.ny.gov OR site:businessexpress.ny.gov New York state filing map nonprofit corporation articles incorporation fee",
+        "site:dos.ny.gov OR site:businessexpress.ny.gov New York state filing map foreign LLC registration application authority fee",
+        "site:dos.ny.gov OR site:businessexpress.ny.gov New York state filing map foreign corporation qualification application authority fee",
+        "site:dos.ny.gov OR site:businessexpress.ny.gov New York state filing map LLP LP professional entity formation forms fees",
+        "site:dos.ny.gov OR site:businessexpress.ny.gov New York state filing map annual report statement information franchise tax public information report",
+        "site:dos.ny.gov OR site:businessexpress.ny.gov New York state filing map renewal recurring compliance due date reminder filing fee",
+        "site:dos.ny.gov OR site:businessexpress.ny.gov New York state filing map beneficial ownership information report BOI filing update correction deadline FinCEN",
+        "site:dos.ny.gov OR site:businessexpress.ny.gov New York state filing map USPTO trademark filing maintenance renewal assignment fee process",
+        "site:dos.ny.gov OR site:businessexpress.ny.gov New York state filing map USPTO patent filing maintenance fee assignment process",
+        "site:dos.ny.gov OR site:businessexpress.ny.gov New York state filing map amendment registered agent change address change reinstatement dissolution fees",
+        "site:dos.ny.gov OR site:businessexpress.ny.gov New York state filing map certified copy certificate of status good standing fees"
+      ],
+      "jurisdiction_id": "ny_state",
+      "notes": [
+        "2026-05-08T15:40:12+00:00: Records extracted but at least one requires operator review."
+      ],
+      "official_domains": [
+        "dos.ny.gov",
+        "businessexpress.ny.gov"
+      ],
+      "phase": "top_ten",
+      "priority": 70,
+      "required_filings": [
+        "LLC formation",
+        "corporation formation",
+        "nonprofit corporation formation",
+        "LP/LLP/professional entity filings where offered",
+        "foreign LLC authority",
+        "foreign corporation authority",
+        "foreign nonprofit authority",
+        "name reservation or assumed-name prerequisite",
+        "amendment/change filings",
+        "registered agent and address changes",
+        "annual or biennial statements/reports",
+        "renewal filings and recurring compliance filings",
+        "beneficial ownership information reports and update/correction filings where applicable",
+        "USPTO trademark filing, maintenance, renewal, and assignment workflows",
+        "USPTO patent filing, maintenance fee, and assignment workflows",
+        "dissolution/withdrawal",
+        "reinstatement",
+        "copies and certificates"
+      ],
+      "scope": "state",
+      "status": "active",
+      "title": "New York state filing map"
+    },
+    {
+      "batch_id": "ny_local_filings",
+      "created_at": "2026-05-07T22:41:03+00:00",
+      "discovery_queries": [
+        "site:dos.ny.gov OR site:businessexpress.ny.gov New York county and city local filing map county fictitious business name DBA assumed name fee",
+        "site:dos.ny.gov OR site:businessexpress.ny.gov New York county and city local filing map county business license general license business tax certificate fee",
+        "site:dos.ny.gov OR site:businessexpress.ny.gov New York county and city local filing map city business license business tax certificate home occupation permit fee",
+        "site:dos.ny.gov OR site:businessexpress.ny.gov New York county and city local filing map business license renewal amendment closure fee",
+        "site:dos.ny.gov OR site:businessexpress.ny.gov New York county and city local filing map business license renewal reminder due date late fee"
+      ],
+      "jurisdiction_id": "ny_state",
+      "official_domains": [
+        "dos.ny.gov",
+        "businessexpress.ny.gov"
+      ],
+      "phase": "top_ten",
+      "priority": 71,
+      "required_filings": [
+        "county DBA/FBN/assumed-name filings",
+        "city and county general business licenses",
+        "business tax certificates or local business tax receipts",
+        "home occupation permits and zoning clearance dependencies",
+        "renewal filings and recurring local compliance filings",
+        "license renewals, amendments, closures, and late fees"
+      ],
+      "scope": "local",
+      "status": "active",
+      "title": "New York county and city local filing map"
+    },
+    {
+      "batch_id": "wy_local_filings",
+      "created_at": "2026-05-07T22:41:03+00:00",
+      "discovery_queries": [
+        "site:wyobiz.wyo.gov OR site:sos.wyo.gov Wyoming county and city local filing map county fictitious business name DBA assumed name fee",
+        "site:wyobiz.wyo.gov OR site:sos.wyo.gov Wyoming county and city local filing map county business license general license business tax certificate fee",
+        "site:wyobiz.wyo.gov OR site:sos.wyo.gov Wyoming county and city local filing map city business license business tax certificate home occupation permit fee",
+        "site:wyobiz.wyo.gov OR site:sos.wyo.gov Wyoming county and city local filing map business license renewal amendment closure fee",
+        "site:wyobiz.wyo.gov OR site:sos.wyo.gov Wyoming county and city local filing map business license renewal reminder due date late fee"
+      ],
+      "jurisdiction_id": "wy_state",
+      "official_domains": [
+        "wyobiz.wyo.gov",
+        "sos.wyo.gov"
+      ],
+      "phase": "top_ten",
+      "priority": 81,
+      "required_filings": [
+        "county DBA/FBN/assumed-name filings",
+        "city and county general business licenses",
+        "business tax certificates or local business tax receipts",
+        "home occupation permits and zoning clearance dependencies",
+        "renewal filings and recurring local compliance filings",
+        "license renewals, amendments, closures, and late fees"
+      ],
+      "scope": "local",
+      "status": "active",
+      "title": "Wyoming county and city local filing map"
+    },
+    {
+      "batch_id": "ga_state_filings",
+      "created_at": "2026-05-07T22:41:03+00:00",
+      "discovery_queries": [
+        "site:sos.ga.gov Georgia state filing map LLC formation articles organization fee online filing",
+        "site:sos.ga.gov Georgia state filing map corporation incorporation articles incorporation fee online filing",
+        "site:sos.ga.gov Georgia state filing map nonprofit corporation articles incorporation fee",
+        "site:sos.ga.gov Georgia state filing map foreign LLC registration application authority fee",
+        "site:sos.ga.gov Georgia state filing map foreign corporation qualification application authority fee",
+        "site:sos.ga.gov Georgia state filing map LLP LP professional entity formation forms fees",
+        "site:sos.ga.gov Georgia state filing map annual report statement information franchise tax public information report",
+        "site:sos.ga.gov Georgia state filing map renewal recurring compliance due date reminder filing fee",
+        "site:sos.ga.gov Georgia state filing map beneficial ownership information report BOI filing update correction deadline FinCEN",
+        "site:sos.ga.gov Georgia state filing map USPTO trademark filing maintenance renewal assignment fee process",
+        "site:sos.ga.gov Georgia state filing map USPTO patent filing maintenance fee assignment process",
+        "site:sos.ga.gov Georgia state filing map amendment registered agent change address change reinstatement dissolution fees",
+        "site:sos.ga.gov Georgia state filing map certified copy certificate of status good standing fees"
+      ],
+      "jurisdiction_id": "ga_state",
+      "notes": [
+        "2026-05-08T15:57:11+00:00: Records extracted but at least one requires operator review."
+      ],
+      "official_domains": [
+        "sos.ga.gov"
+      ],
+      "phase": "top_ten",
+      "priority": 90,
+      "required_filings": [
+        "LLC formation",
+        "corporation formation",
+        "nonprofit corporation formation",
+        "LP/LLP/professional entity filings where offered",
+        "foreign LLC authority",
+        "foreign corporation authority",
+        "foreign nonprofit authority",
+        "name reservation or assumed-name prerequisite",
+        "amendment/change filings",
+        "registered agent and address changes",
+        "annual or biennial statements/reports",
+        "renewal filings and recurring compliance filings",
+        "beneficial ownership information reports and update/correction filings where applicable",
+        "USPTO trademark filing, maintenance, renewal, and assignment workflows",
+        "USPTO patent filing, maintenance fee, and assignment workflows",
+        "dissolution/withdrawal",
+        "reinstatement",
+        "copies and certificates"
+      ],
+      "scope": "state",
+      "status": "active",
+      "title": "Georgia state filing map"
+    },
+    {
+      "batch_id": "ga_local_filings",
+      "created_at": "2026-05-07T22:41:03+00:00",
+      "discovery_queries": [
+        "site:sos.ga.gov Georgia county and city local filing map county fictitious business name DBA assumed name fee",
+        "site:sos.ga.gov Georgia county and city local filing map county business license general license business tax certificate fee",
+        "site:sos.ga.gov Georgia county and city local filing map city business license business tax certificate home occupation permit fee",
+        "site:sos.ga.gov Georgia county and city local filing map business license renewal amendment closure fee",
+        "site:sos.ga.gov Georgia county and city local filing map business license renewal reminder due date late fee"
+      ],
+      "jurisdiction_id": "ga_state",
+      "official_domains": [
+        "sos.ga.gov"
+      ],
+      "phase": "top_ten",
+      "priority": 91,
+      "required_filings": [
+        "county DBA/FBN/assumed-name filings",
+        "city and county general business licenses",
+        "business tax certificates or local business tax receipts",
+        "home occupation permits and zoning clearance dependencies",
+        "renewal filings and recurring local compliance filings",
+        "license renewals, amendments, closures, and late fees"
+      ],
+      "scope": "local",
+      "status": "active",
+      "title": "Georgia county and city local filing map"
+    },
+    {
+      "batch_id": "il_state_filings",
+      "created_at": "2026-05-07T22:41:03+00:00",
+      "discovery_queries": [
+        "site:ilsos.gov Illinois state filing map LLC formation articles organization fee online filing",
+        "site:ilsos.gov Illinois state filing map corporation incorporation articles incorporation fee online filing",
+        "site:ilsos.gov Illinois state filing map nonprofit corporation articles incorporation fee",
+        "site:ilsos.gov Illinois state filing map foreign LLC registration application authority fee",
+        "site:ilsos.gov Illinois state filing map foreign corporation qualification application authority fee",
+        "site:ilsos.gov Illinois state filing map LLP LP professional entity formation forms fees",
+        "site:ilsos.gov Illinois state filing map annual report statement information franchise tax public information report",
+        "site:ilsos.gov Illinois state filing map renewal recurring compliance due date reminder filing fee",
+        "site:ilsos.gov Illinois state filing map beneficial ownership information report BOI filing update correction deadline FinCEN",
+        "site:ilsos.gov Illinois state filing map USPTO trademark filing maintenance renewal assignment fee process",
+        "site:ilsos.gov Illinois state filing map USPTO patent filing maintenance fee assignment process",
+        "site:ilsos.gov Illinois state filing map amendment registered agent change address change reinstatement dissolution fees",
+        "site:ilsos.gov Illinois state filing map certified copy certificate of status good standing fees"
+      ],
+      "jurisdiction_id": "il_state",
+      "notes": [
+        "2026-05-08T16:01:38+00:00: Records extracted but at least one requires operator review."
+      ],
+      "official_domains": [
+        "ilsos.gov"
+      ],
+      "phase": "top_ten",
+      "priority": 100,
+      "required_filings": [
+        "LLC formation",
+        "corporation formation",
+        "nonprofit corporation formation",
+        "LP/LLP/professional entity filings where offered",
+        "foreign LLC authority",
+        "foreign corporation authority",
+        "foreign nonprofit authority",
+        "name reservation or assumed-name prerequisite",
+        "amendment/change filings",
+        "registered agent and address changes",
+        "annual or biennial statements/reports",
+        "renewal filings and recurring compliance filings",
+        "beneficial ownership information reports and update/correction filings where applicable",
+        "USPTO trademark filing, maintenance, renewal, and assignment workflows",
+        "USPTO patent filing, maintenance fee, and assignment workflows",
+        "dissolution/withdrawal",
+        "reinstatement",
+        "copies and certificates"
+      ],
+      "scope": "state",
+      "status": "active",
+      "title": "Illinois state filing map"
+    },
+    {
+      "batch_id": "il_local_filings",
+      "created_at": "2026-05-07T22:41:03+00:00",
+      "discovery_queries": [
+        "site:ilsos.gov Illinois county and city local filing map county fictitious business name DBA assumed name fee",
+        "site:ilsos.gov Illinois county and city local filing map county business license general license business tax certificate fee",
+        "site:ilsos.gov Illinois county and city local filing map city business license business tax certificate home occupation permit fee",
+        "site:ilsos.gov Illinois county and city local filing map business license renewal amendment closure fee",
+        "site:ilsos.gov Illinois county and city local filing map business license renewal reminder due date late fee"
+      ],
+      "jurisdiction_id": "il_state",
+      "official_domains": [
+        "ilsos.gov"
+      ],
+      "phase": "top_ten",
+      "priority": 101,
+      "required_filings": [
+        "county DBA/FBN/assumed-name filings",
+        "city and county general business licenses",
+        "business tax certificates or local business tax receipts",
+        "home occupation permits and zoning clearance dependencies",
+        "renewal filings and recurring local compliance filings",
+        "license renewals, amendments, closures, and late fees"
+      ],
+      "scope": "local",
+      "status": "active",
+      "title": "Illinois county and city local filing map"
+    },
+    {
+      "batch_id": "al_state_filings",
+      "created_at": "2026-05-07T22:41:03+00:00",
+      "discovery_queries": [
+        "site:sos.alabama.gov Alabama state filing map LLC formation articles organization fee online filing",
+        "site:sos.alabama.gov Alabama state filing map corporation incorporation articles incorporation fee online filing",
+        "site:sos.alabama.gov Alabama state filing map nonprofit corporation articles incorporation fee",
+        "site:sos.alabama.gov Alabama state filing map foreign LLC registration application authority fee",
+        "site:sos.alabama.gov Alabama state filing map foreign corporation qualification application authority fee",
+        "site:sos.alabama.gov Alabama state filing map LLP LP professional entity formation forms fees",
+        "site:sos.alabama.gov Alabama state filing map annual report statement information franchise tax public information report",
+        "site:sos.alabama.gov Alabama state filing map renewal recurring compliance due date reminder filing fee",
+        "site:sos.alabama.gov Alabama state filing map beneficial ownership information report BOI filing update correction deadline FinCEN",
+        "site:sos.alabama.gov Alabama state filing map USPTO trademark filing maintenance renewal assignment fee process",
+        "site:sos.alabama.gov Alabama state filing map USPTO patent filing maintenance fee assignment process",
+        "site:sos.alabama.gov Alabama state filing map amendment registered agent change address change reinstatement dissolution fees",
+        "site:sos.alabama.gov Alabama state filing map certified copy certificate of status good standing fees"
+      ],
+      "jurisdiction_id": "al_state",
+      "notes": [
+        "2026-05-08T16:07:42+00:00: Records extracted but at least one requires operator review."
+      ],
+      "official_domains": [
+        "sos.alabama.gov"
+      ],
+      "phase": "remaining_40_plus_dc",
+      "priority": 1010,
+      "required_filings": [
+        "LLC formation",
+        "corporation formation",
+        "nonprofit corporation formation",
+        "LP/LLP/professional entity filings where offered",
+        "foreign LLC authority",
+        "foreign corporation authority",
+        "foreign nonprofit authority",
+        "name reservation or assumed-name prerequisite",
+        "amendment/change filings",
+        "registered agent and address changes",
+        "annual or biennial statements/reports",
+        "renewal filings and recurring compliance filings",
+        "beneficial ownership information reports and update/correction filings where applicable",
+        "USPTO trademark filing, maintenance, renewal, and assignment workflows",
+        "USPTO patent filing, maintenance fee, and assignment workflows",
+        "dissolution/withdrawal",
+        "reinstatement",
+        "copies and certificates"
+      ],
+      "scope": "state",
+      "status": "active",
+      "title": "Alabama state filing map"
+    },
+    {
+      "batch_id": "al_local_filings",
+      "created_at": "2026-05-07T22:41:03+00:00",
+      "discovery_queries": [
+        "site:sos.alabama.gov Alabama county and city local filing map county fictitious business name DBA assumed name fee",
+        "site:sos.alabama.gov Alabama county and city local filing map county business license general license business tax certificate fee",
+        "site:sos.alabama.gov Alabama county and city local filing map city business license business tax certificate home occupation permit fee",
+        "site:sos.alabama.gov Alabama county and city local filing map business license renewal amendment closure fee",
+        "site:sos.alabama.gov Alabama county and city local filing map business license renewal reminder due date late fee"
+      ],
+      "jurisdiction_id": "al_state",
+      "official_domains": [
+        "sos.alabama.gov"
+      ],
+      "phase": "remaining_40_plus_dc",
+      "priority": 1011,
+      "required_filings": [
+        "county DBA/FBN/assumed-name filings",
+        "city and county general business licenses",
+        "business tax certificates or local business tax receipts",
+        "home occupation permits and zoning clearance dependencies",
+        "renewal filings and recurring local compliance filings",
+        "license renewals, amendments, closures, and late fees"
+      ],
+      "scope": "local",
+      "status": "active",
+      "title": "Alabama county and city local filing map"
+    }
+  ],
+  "next_queued_batches": [],
+  "phase_order": [
+    "top_ten",
+    "remaining_40_plus_dc"
+  ],
+  "remaining_states": [
+    "AK",
+    "AL",
+    "AR",
+    "CO",
+    "CT",
+    "DC",
+    "HI",
+    "IA",
+    "ID",
+    "IN",
+    "KS",
+    "KY",
+    "LA",
+    "MA",
+    "MD",
+    "ME",
+    "MI",
+    "MN",
+    "MO",
+    "MS",
+    "MT",
+    "NC",
+    "ND",
+    "NE",
+    "NH",
+    "NJ",
+    "NM",
+    "OH",
+    "OK",
+    "OR",
+    "PA",
+    "RI",
+    "SC",
+    "SD",
+    "TN",
+    "UT",
+    "VA",
+    "VT",
+    "WA",
+    "WI",
+    "WV"
+  ],
+  "rule": "Run and verify top_ten before remaining_40_plus_dc. Override only with explicit operator decision.",
+  "top_ten_states": [
+    "TX",
+    "CA",
+    "FL",
+    "DE",
+    "NV",
+    "AZ",
+    "NY",
+    "WY",
+    "GA",
+    "IL"
+  ],
+  "version": 1
+}
