@@ -10,11 +10,15 @@
       "entity_type_code": "llc",
       "lifecycle_stage": "start",
       "description": "Prepare and submit domestic LLC formation, collect state documents, and populate customer portal.",
-      "price": {"price_type": "flat", "amount_cents": 4900},
+      "price": {"price_type": "flat", "amount_cents": 2900},
       "competitor_benchmarks": [
         {"competitor_code": "legalzoom", "competitor_price_text": "$0 + state fees basic LLC formation", "source_url": "https://www.legalzoom.com/business/business-formation/llc-pricing.html"},
         {"competitor_code": "northwest_registered_agent", "competitor_price_cents": 3900, "competitor_price_text": "$39 + state fees", "source_url": "https://www.northwestregisteredagent.com/llc"},
-        {"competitor_code": "zenbusiness", "competitor_price_text": "$0 + state fees Starter", "source_url": "https://www.zenbusiness.com/pricing-formation-plans/"}
+        {"competitor_code": "zenbusiness", "competitor_price_text": "$0 + state fees Starter; $199/year Pro; $399/year Premium", "source_url": "https://www.zenbusiness.com/pricing-formation-plans/"},
+        {"competitor_code": "bizee", "competitor_price_text": "$0 Basic + state fees; $199 Standard; $299 Premium", "source_url": "https://bizee.com/articles/bizee-basic-package/"},
+        {"competitor_code": "tailor_brands", "competitor_price_text": "$0 Lite + state fees; $199/year Essential; $249/year Elite", "source_url": "https://www.tailorbrands.com/product-pricing"},
+        {"competitor_code": "rocket_lawyer", "competitor_price_text": "$99.99 business registration or Legal+ membership", "source_url": "https://www.rocketlawyer.com/pricing"},
+        {"competitor_code": "corpnet", "competitor_price_cents": 9900, "competitor_price_text": "$99 Basic + state fees; $219 Deluxe; $269 Complete", "source_url": "https://www.corpnet.com/about/pricing/"}
       ]
     },
     {
@@ -25,7 +29,7 @@
       "entity_type_code": "corporation",
       "lifecycle_stage": "start",
       "description": "Prepare and submit domestic for-profit corporation formation.",
-      "price": {"price_type": "flat", "amount_cents": 9900},
+      "price": {"price_type": "flat", "amount_cents": 2900},
       "competitor_benchmarks": [
         {"competitor_code": "legalzoom", "competitor_price_text": "$149+ + state fees for S corp/C corp per NerdWallet", "source_url": "https://www.nerdwallet.com/business/legal/learn/legalzoom-review"},
         {"competitor_code": "bizee", "competitor_price_text": "Formation packages vary by entity and state", "source_url": "https://bizee.com/bizee-business-services"}
@@ -39,7 +43,7 @@
       "entity_type_code": "nonprofit_corporation",
       "lifecycle_stage": "start",
       "description": "Prepare and submit domestic nonprofit corporation formation.",
-      "price": {"price_type": "flat", "amount_cents": 9900},
+      "price": {"price_type": "flat", "amount_cents": 2900},
       "competitor_benchmarks": [
         {"competitor_code": "legalzoom", "competitor_price_text": "$99+ + state fees for nonprofit per NerdWallet", "source_url": "https://www.nerdwallet.com/business/legal/learn/legalzoom-review"},
         {"competitor_code": "bizee", "competitor_price_text": "Nonprofit formation offered", "source_url": "https://bizee.com/bizee-business-services"}
@@ -68,9 +72,12 @@
       "price": {"price_type": "flat", "amount_cents": 12500, "billing_interval": "year"},
       "competitor_benchmarks": [
         {"competitor_code": "northwest_registered_agent", "competitor_price_cents": 12500, "competitor_price_text": "$125/year", "source_url": "https://www.northwestregisteredagent.com/registered-agent/"},
-        {"competitor_code": "legalzoom", "competitor_price_cents": 24900, "competitor_price_text": "$249/year", "source_url": "https://www.legalzoom.com/business/business-operations/certified-copies-pricing.html"},
+        {"competitor_code": "legalzoom", "competitor_price_cents": 24900, "competitor_price_text": "$249/year", "source_url": "https://www.legalzoom.com/business/business-operations/registered-agent-pricing.html"},
         {"competitor_code": "harbor_compliance", "competitor_price_cents": 9900, "competitor_price_text": "$99 first year; renews at $149/year", "source_url": "https://www.harborcompliance.com/registered-agent-service?affiliate=1"},
-        {"competitor_code": "zenbusiness", "competitor_price_cents": 19900, "competitor_price_text": "$199/year renewal", "source_url": "https://help.zenbusiness.com/registered-agent-service/pricing"}
+        {"competitor_code": "zenbusiness", "competitor_price_cents": 19900, "competitor_price_text": "$199/year renewal", "source_url": "https://help.zenbusiness.com/registered-agent-service/pricing"},
+        {"competitor_code": "bizee", "competitor_price_cents": 11900, "competitor_price_text": "Free first year, then $119/year", "source_url": "https://bizee.com/articles/bizee-basic-package/"},
+        {"competitor_code": "rocket_lawyer", "competitor_price_cents": 24999, "competitor_price_text": "$249.99/year, or $124.99/year with Legal+", "source_url": "https://www.rocketlawyer.com/pricing"},
+        {"competitor_code": "corpnet", "competitor_price_cents": 14900, "competitor_price_text": "$149/year", "source_url": "https://www.corpnet.com/about/pricing/"}
       ]
     },
     {
@@ -92,11 +99,14 @@
       "filing_category": "annual_obligation",
       "lifecycle_stage": "ongoing",
       "description": "Prepare and submit state annual, biennial, statement of information, or periodic report.",
-      "price": {"price_type": "flat", "amount_cents": 9900},
+      "price": {"price_type": "flat", "amount_cents": 2900},
       "competitor_benchmarks": [
-        {"competitor_code": "legalzoom", "competitor_price_cents": 9900, "competitor_price_text": "$99 + state filing fees", "source_url": "https://www.legalzoom.com/business/business-operations/certified-copies-pricing.html"},
+        {"competitor_code": "legalzoom", "competitor_price_cents": 9900, "competitor_price_text": "$99 to $199/year annual report or compliance service", "source_url": "https://www.legalzoom.com/business/business-operations/certified-copies-pricing.html"},
+        {"competitor_code": "zenbusiness", "competitor_price_cents": 9900, "competitor_price_text": "Worry-Free Compliance starts at $99/year; formation-plan renewals can be $199/year", "source_url": "https://www.zenbusiness.com/pricing-formation-plans/"},
+        {"competitor_code": "bizee", "competitor_price_cents": 9900, "competitor_price_text": "$99 + state filing fees annual report service per public pricing reviews", "source_url": "https://www.forbes.com/advisor/business/incfile-review/"},
         {"competitor_code": "corpnet", "competitor_price_cents": 9900, "competitor_price_text": "$99 standard", "source_url": "https://www.corpnet.com/about/pricing/"},
-        {"competitor_code": "northwest_registered_agent", "competitor_price_cents": 10000, "competitor_price_text": "$100 + state fee per third-party review", "source_url": "https://www.llc.org/review/northwest-registered-agent/"}
+        {"competitor_code": "northwest_registered_agent", "competitor_price_cents": 10000, "competitor_price_text": "$100 + state fee per public pricing reviews", "source_url": "https://www.forbes.com/advisor/business/services/northwest-registered-agent-review/"},
+        {"competitor_code": "harbor_compliance", "competitor_price_cents": 19900, "competitor_price_text": "$199 + state filing fee per public pricing reviews", "source_url": "https://www.forbes.com/advisor/business/harbor-compliance-review/"}
       ]
     },
     {
@@ -107,8 +117,9 @@
       "description": "Ongoing compliance calendar, reminders, annual report coverage, and customer dashboard alerts.",
       "price": {"price_type": "flat", "amount_cents": 14900, "billing_interval": "year"},
       "competitor_benchmarks": [
-        {"competitor_code": "legalzoom", "competitor_price_cents": 19900, "competitor_price_text": "$199/year business compliance", "source_url": "https://www.legalzoom.com/business/business-operations/certified-copies-pricing.html"},
-        {"competitor_code": "zenbusiness", "competitor_price_text": "Worry-Free Compliance renews at $199/year in many plans", "source_url": "https://www.zenbusiness.com/pricing-formation-plans/"}
+        {"competitor_code": "legalzoom", "competitor_price_cents": 19900, "competitor_price_text": "$199/year business compliance", "source_url": "https://www.legalzoom.com/business/business-operations/business-compliance-pricing.html"},
+        {"competitor_code": "zenbusiness", "competitor_price_text": "Worry-Free Compliance starts at $99/year; Pro renews at $199/year", "source_url": "https://www.zenbusiness.com/pricing-formation-plans/"},
+        {"competitor_code": "tailor_brands", "competitor_price_cents": 19900, "competitor_price_text": "$199/year Essential plan includes annual compliance", "source_url": "https://www.tailorbrands.com/product-pricing"}
       ]
     },
     {

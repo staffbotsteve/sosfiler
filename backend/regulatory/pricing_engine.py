@@ -5,9 +5,10 @@ from __future__ import annotations
 from .schemas import FeeComponent, FilingRecord, PriceConfidence
 
 
-DEFAULT_SERVICE_FEE_CENTS = 4900
+DEFAULT_SERVICE_FEE_CENTS = 2900
 LOCAL_OPERATOR_ASSISTED_FEE_CENTS = 7900
 CHANGE_FILING_SERVICE_FEE_CENTS = 4900
+ANNUAL_REPORT_SERVICE_FEE_CENTS = 2900
 
 
 def required_government_total_cents(record: FilingRecord) -> int | None:
@@ -33,11 +34,12 @@ def recommended_service_fee_cents(record: FilingRecord) -> int:
         "registered_agent_change",
         "address_change",
         "governing_person_change",
-        "annual_obligation",
         "dissolution",
         "reinstatement",
     }:
         return CHANGE_FILING_SERVICE_FEE_CENTS
+    if record.filing_category.value == "annual_obligation":
+        return ANNUAL_REPORT_SERVICE_FEE_CENTS
     return DEFAULT_SERVICE_FEE_CENTS
 
 
@@ -63,4 +65,3 @@ def price_readiness(record: FilingRecord) -> dict[str, object]:
         and record.price_confidence in {PriceConfidence.VERIFIED, PriceConfidence.FORMULA_VERIFIED},
         "issues": sorted(set(issues)),
     }
-

@@ -33,6 +33,10 @@ venv/
 _*probe*.py
 _sg_check.py
 
+# Local design snapshots / manual backups
+frontend/.design-backup-*/
+frontend/*.bak-*
+
 # Generated research/runtime outputs
 automations/
 data/research_jobs.json

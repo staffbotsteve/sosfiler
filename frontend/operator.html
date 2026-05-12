@@ -6,20 +6,26 @@
   <title>SOSFiler Operator Cockpit</title>
   <style>
     :root {
-      --bg: #f4f6f8;
-      --surface: #ffffff;
-      --surface-soft: #f8fafc;
-      --ink: #182230;
-      --muted: #667085;
-      --line: #d0d5dd;
-      --line-soft: #eaecf0;
-      --accent: #0f766e;
-      --accent-strong: #115e59;
-      --blue: #175cd3;
-      --amber: #b54708;
-      --red: #b42318;
-      --green: #067647;
-      --shadow: 0 12px 30px rgba(16, 24, 40, 0.08);
+      --bg: #0A0A0A;
+      --bg-tint: #0E0E0E;
+      --surface: #141414;
+      --surface-soft: #1A1A1A;
+      --ink: #FFFFFF;
+      --body: #D0D0D0;
+      --muted: #9A9A9A;
+      --muted-2: #6B6B6B;
+      --line: #2A2A2A;
+      --line-soft: #1F1F1F;
+      --accent: #CCFF00;
+      --accent-strong: #DBFF33;
+      --blue: #00FFE5;
+      --amber: #FFB23F;
+      --red: #FF3366;
+      --green: #39FF14;
+      --shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+      --font-display: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Inter Display', system-ui, sans-serif;
+      --font-body:    -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Inter', system-ui, sans-serif;
+      --font-mono:    'JetBrains Mono', 'IBM Plex Mono', ui-monospace, Menlo, monospace;
     }
 
     * { box-sizing: border-box; }
@@ -28,8 +34,16 @@
       min-height: 100vh;
       background: var(--bg);
       color: var(--ink);
-      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-family: var(--font-body);
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
     }
+    h1, h2, h3 { font-family: var(--font-display); font-weight: 900; letter-spacing: -0.02em; color: var(--ink); }
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: #2A2A2A; border-radius: 2px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+    ::selection { background: var(--accent); color: #000; }
 
     button, input, select, textarea {
       font: inherit;
@@ -39,31 +53,38 @@
       border: 1px solid var(--line);
       background: var(--surface);
       color: var(--ink);
-      border-radius: 8px;
-      padding: 9px 12px;
+      border-radius: 6px;
+      padding: 9px 14px;
       cursor: pointer;
-      font-weight: 700;
+      font-weight: 600;
+      font-family: var(--font-body);
+      transition: border-color .15s ease, background .15s ease, color .15s ease;
     }
 
-    button:hover { border-color: var(--accent); }
+    button:hover { border-color: var(--accent); color: var(--accent); }
     button.primary {
       background: var(--accent);
-      color: #fff;
+      color: #000;
       border-color: var(--accent);
+      font-weight: 700;
     }
-    button.primary:hover { background: var(--accent-strong); }
-    button.danger { color: var(--red); border-color: #fda29b; }
-    button:disabled { opacity: 0.55; cursor: not-allowed; }
+    button.primary:hover { background: var(--accent-strong); color: #000; }
+    button.danger { color: var(--red); border-color: rgba(255,51,102,0.4); }
+    button.danger:hover { color: var(--red); border-color: var(--red); }
+    button:disabled { opacity: 0.45; cursor: not-allowed; }
 
     input, select, textarea {
       width: 100%;
       border: 1px solid var(--line);
-      border-radius: 8px;
-      background: #fff;
+      border-radius: 6px;
+      background: var(--bg);
       color: var(--ink);
-      padding: 9px 10px;
+      padding: 9px 12px;
       min-height: 38px;
+      font-family: var(--font-body);
+      transition: border-color .15s ease, box-shadow .15s ease;
     }
+    input:focus, select:focus, textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 2px rgba(204,255,0,0.12); }
 
     textarea {
       min-height: 74px;
@@ -84,43 +105,51 @@
       align-items: center;
       justify-content: space-between;
       gap: 16px;
-      padding: 14px 20px;
-      background: rgba(255, 255, 255, 0.94);
-      border-bottom: 1px solid var(--line-soft);
-      backdrop-filter: blur(12px);
+      padding: 14px 24px;
+      background: rgba(10, 10, 10, 0.85);
+      border-bottom: 1px solid var(--line);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
     }
 
     .brand {
       display: flex;
       align-items: center;
-      gap: 10px;
-      min-width: 210px;
+      gap: 12px;
+      min-width: 280px;
     }
 
     .mark {
       width: 34px;
       height: 34px;
-      border-radius: 8px;
+      border-radius: 6px;
       display: grid;
       place-items: center;
       background: var(--accent);
-      color: #fff;
+      color: #000;
       font-weight: 900;
+      font-family: var(--font-display);
       letter-spacing: 0;
     }
 
     .brand h1 {
       margin: 0;
-      font-size: 16px;
+      font-size: 15px;
       line-height: 1.1;
+      font-family: var(--font-display);
+      font-weight: 900;
+      letter-spacing: -0.02em;
     }
 
     .brand span {
       display: block;
-      color: var(--muted);
-      font-size: 12px;
+      color: var(--muted-2);
+      font-family: var(--font-mono);
+      font-size: 10px;
       font-weight: 600;
-      margin-top: 2px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin-top: 4px;
     }
 
     .auth {
@@ -140,25 +169,30 @@
 
     .panel {
       background: var(--surface);
-      border: 1px solid var(--line-soft);
-      border-radius: 8px;
-      box-shadow: var(--shadow);
+      border: 1px solid var(--line);
+      border-radius: 10px;
       min-height: 0;
       overflow: hidden;
     }
 
     .panel-head {
-      padding: 14px;
-      border-bottom: 1px solid var(--line-soft);
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--line);
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 12px;
+      background: var(--bg-tint);
     }
 
     .panel-head h2 {
       margin: 0;
-      font-size: 15px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--muted);
     }
 
     .filters {
@@ -166,8 +200,8 @@
       grid-template-columns: 82px 1fr 1fr;
       gap: 8px;
       padding: 12px 14px;
-      background: var(--surface-soft);
-      border-bottom: 1px solid var(--line-soft);
+      background: var(--bg-tint);
+      border-bottom: 1px solid var(--line);
     }
 
     .queue {
@@ -181,15 +215,19 @@
       border: 0;
       border-bottom: 1px solid var(--line-soft);
       border-radius: 0;
-      padding: 13px 14px;
+      padding: 14px 16px;
       display: grid;
       gap: 8px;
-      background: #fff;
+      background: var(--surface);
+      color: var(--ink);
+      font-family: var(--font-body);
+      transition: background .15s ease;
     }
+    .job:hover { background: var(--surface-soft); border-color: var(--line-soft); }
 
     .job.active {
-      background: #ecfdf3;
-      box-shadow: inset 4px 0 0 var(--accent);
+      background: var(--surface-soft);
+      box-shadow: inset 3px 0 0 var(--accent);
     }
 
     .job-title {
@@ -200,14 +238,19 @@
     }
 
     .job-name {
+      font-family: var(--font-display);
       font-weight: 800;
+      letter-spacing: -0.01em;
       line-height: 1.25;
+      color: var(--ink);
     }
 
     .job-sub {
       color: var(--muted);
-      font-size: 12px;
-      margin-top: 2px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      margin-top: 4px;
     }
 
     .chips {
@@ -220,19 +263,22 @@
       display: inline-flex;
       align-items: center;
       border: 1px solid var(--line);
-      border-radius: 999px;
+      border-radius: 4px;
       padding: 4px 8px;
-      background: #fff;
+      background: var(--bg);
       color: var(--muted);
-      font-size: 12px;
+      font-family: var(--font-mono);
+      font-size: 10px;
       font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
       max-width: 100%;
     }
 
-    .chip.green { color: var(--green); border-color: #abefc6; background: #ecfdf3; }
-    .chip.amber { color: var(--amber); border-color: #fedf89; background: #fffaeb; }
-    .chip.red { color: var(--red); border-color: #fecdca; background: #fef3f2; }
-    .chip.blue { color: var(--blue); border-color: #b2ddff; background: #eff8ff; }
+    .chip.green { color: var(--green); border-color: rgba(57,255,20,0.3); background: rgba(57,255,20,0.06); }
+    .chip.amber { color: var(--amber); border-color: rgba(255,178,63,0.3); background: rgba(255,178,63,0.06); }
+    .chip.red { color: var(--red); border-color: rgba(255,51,102,0.3); background: rgba(255,51,102,0.06); }
+    .chip.blue { color: var(--blue); border-color: rgba(0,255,229,0.3); background: rgba(0,255,229,0.06); }
 
     .detail {
       max-height: calc(100vh - 91px);
@@ -245,47 +291,61 @@
       padding: 20px;
       border: 1px dashed var(--line);
       border-radius: 8px;
-      background: var(--surface-soft);
+      background: var(--bg-tint);
     }
 
     .summary {
       display: grid;
       grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 10px;
-      margin-bottom: 12px;
+      gap: 0;
+      margin-bottom: 16px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow: hidden;
     }
 
     .metric {
-      border: 1px solid var(--line-soft);
-      border-radius: 8px;
-      padding: 10px;
-      background: var(--surface-soft);
+      padding: 14px 16px;
+      background: var(--surface);
+      border-right: 1px solid var(--line);
       min-width: 0;
     }
+    .metric:last-child { border-right: none; }
 
     .metric .label {
-      color: var(--muted);
-      font-size: 11px;
+      color: var(--muted-2);
+      font-family: var(--font-mono);
+      font-size: 10px;
       font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: 0.02em;
-      margin-bottom: 6px;
+      letter-spacing: 0.15em;
+      margin-bottom: 8px;
     }
 
     .metric .value {
-      font-weight: 800;
+      font-family: var(--font-display);
+      font-weight: 900;
+      font-size: 20px;
+      letter-spacing: -0.02em;
+      color: var(--ink);
+      font-variant-numeric: tabular-nums;
       overflow-wrap: anywhere;
     }
 
     .section {
-      border-top: 1px solid var(--line-soft);
-      padding-top: 14px;
-      margin-top: 14px;
+      border-top: 1px solid var(--line);
+      padding-top: 16px;
+      margin-top: 18px;
     }
 
     .section h3 {
-      margin: 0 0 10px;
-      font-size: 14px;
+      margin: 0 0 12px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--muted);
     }
 
     .actions {
@@ -307,10 +367,13 @@
 
     label {
       display: grid;
-      gap: 5px;
+      gap: 6px;
       color: var(--muted);
-      font-size: 12px;
+      font-family: var(--font-mono);
+      font-size: 10px;
       font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
     }
 
     .feed {
@@ -320,19 +383,21 @@
 
     .entry {
       border: 1px solid var(--line-soft);
-      border-radius: 8px;
-      padding: 10px;
-      background: #fff;
+      border-radius: 6px;
+      padding: 12px;
+      background: var(--surface-soft);
     }
 
     .entry-head {
       display: flex;
       justify-content: space-between;
       gap: 10px;
-      margin-bottom: 5px;
-      font-size: 12px;
+      margin-bottom: 6px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: 0.08em;
       color: var(--muted);
-      font-weight: 700;
+      font-weight: 600;
     }
 
     .entry-body {
@@ -359,13 +424,16 @@
       right: 16px;
       bottom: 16px;
       max-width: 420px;
-      background: #101828;
-      color: #fff;
-      border-radius: 8px;
-      padding: 12px 14px;
-      box-shadow: var(--shadow);
+      background: var(--accent);
+      color: #000;
+      border-radius: 6px;
+      padding: 14px 18px;
+      box-shadow: 0 8px 30px rgba(204,255,0,0.25);
       display: none;
       z-index: 10;
+      font-family: var(--font-body);
+      font-weight: 600;
+      font-size: 14px;
     }
 
     @media (max-width: 980px) {
@@ -388,10 +456,10 @@
   <div class="shell">
     <header class="topbar">
       <div class="brand">
-        <div class="mark">S</div>
+        <a href="index.html" style="text-decoration:none;"><img src="logo.png" alt="SOSFiler" style="height:56px;width:auto;display:block;" onerror="this.outerHTML='<div class=\'mark\'>S</div>';"></a>
         <div>
-          <h1>SOSFiler Operator Cockpit</h1>
-          <span>Queue, tickets, automation, evidence</span>
+          <h1>Operator Cockpit</h1>
+          <span>/ Queue · Tickets · Automation · Evidence</span>
         </div>
       </div>
       <div class="auth">
@@ -415,6 +483,31 @@
         </div>
         <div id="systemHealthStatus" class="status"></div>
         <div id="systemHealthSummary" style="margin-bottom:14px;"></div>
+
+        <div class="panel-head" style="border-top:1px solid var(--line-soft);">
+          <h2>Launch Readiness</h2>
+          <span id="launchReadinessCount" class="chip">0 states</span>
+        </div>
+        <div class="filters" style="grid-template-columns: 1fr 1fr auto;">
+          <select id="launchCategoryFilter" aria-label="Launch readiness category">
+            <option value="">All categories</option>
+            <option value="fully_automated_sellable">Fully automated</option>
+            <option value="operator_assisted_sellable">Operator assisted</option>
+            <option value="customer_data_intake_sellable">Customer data intake</option>
+            <option value="trusted_access_operator_sellable">Trusted access operator</option>
+            <option value="partner_intermediary_sellable">Partner/intermediary</option>
+            <option value="unavailable_pending_official_access">Unavailable</option>
+          </select>
+          <select id="launchOfferFilter" aria-label="Customer offer status">
+            <option value="">All offers</option>
+            <option value="available_automated">Available automated</option>
+            <option value="available_operator_assisted">Available operator assisted</option>
+            <option value="not_available">Not available</option>
+          </select>
+          <button id="launchReadinessBtn" type="button">Load</button>
+        </div>
+        <div id="launchReadinessStatus" class="status"></div>
+        <div id="launchReadinessList" class="queue" style="max-height: 360px;"></div>
 
         <div class="panel-head" style="border-top:1px solid var(--line-soft);">
           <h2>State Metadata</h2>
@@ -579,6 +672,8 @@
       jobs: [],
       tickets: [],
       engineeringJobs: [],
+      launchReadiness: [],
+      launchReadinessSummary: null,
       stateMetadata: [],
       stateMetadataSummary: null,
       adapterMatrix: [],
@@ -659,10 +754,10 @@
     }
 
     function chipClass(value) {
-      if (["approved", "complete", "state_approved", "documents_collected", "dry_run_complete", "deployed", "ready_to_deploy", "ready", "payment_captured", "ein_received", "ready_for_browser_submission"].includes(value)) return "green";
-      if (["operator_required", "pending_payment", "rejected_or_needs_correction", "tests_failed", "needs_review", "pending", "metadata_incomplete", "blocked_outside_irs_hours", "needs_reconciliation", "needs_filing_prep"].includes(value)) return "amber";
-      if (["hard", "operator_assisted_browser_provider", "stop_requested", "blocked"].includes(value)) return "red";
-      if (["automation_started", "browser_automation", "browser_profile_automation", "submitted", "submitted_to_state", "in_progress", "ein_pending", "dry_run_ready"].includes(value)) return "blue";
+      if (["approved", "complete", "state_approved", "documents_collected", "dry_run_complete", "deployed", "ready_to_deploy", "ready", "payment_captured", "ein_received", "ready_for_browser_submission", "available_automated", "fully_automated_sellable", "published"].includes(value)) return "green";
+      if (["operator_required", "pending_payment", "rejected_or_needs_correction", "tests_failed", "needs_review", "pending", "metadata_incomplete", "blocked_outside_irs_hours", "needs_reconciliation", "needs_filing_prep", "available_operator_assisted", "operator_assisted_sellable", "customer_data_intake_sellable", "partner_intermediary_sellable"].includes(value)) return "amber";
+      if (["hard", "operator_assisted_browser_provider", "stop_requested", "blocked", "not_available", "unavailable_pending_official_access"].includes(value)) return "red";
+      if (["automation_started", "browser_automation", "browser_profile_automation", "submitted", "submitted_to_state", "in_progress", "ein_pending", "dry_run_ready", "trusted_access_operator_sellable"].includes(value)) return "blue";
       return "";
     }
 
@@ -692,6 +787,70 @@
           `).join("") || `<div class="entry"><div class="entry-body">No health components returned.</div></div>`}
         </div>
       `;
+    }
+
+    function filteredLaunchReadiness() {
+      const category = $("launchCategoryFilter").value;
+      const offer = $("launchOfferFilter").value;
+      return state.launchReadiness.filter((item) => {
+        if (category && item.launch_category !== category) return false;
+        if (offer && item.customer_offer_status !== offer) return false;
+        return true;
+      });
+    }
+
+    function renderLaunchReadiness() {
+      const list = $("launchReadinessList");
+      const summary = state.launchReadinessSummary || {};
+      const records = filteredLaunchReadiness();
+      $("launchReadinessCount").textContent = `${records.length || 0} states`;
+      const categorySummary = Object.entries(summary.by_launch_category || {})
+        .map(([key, value]) => `${label(key)}: ${value}`)
+        .join(" · ");
+      $("launchReadinessStatus").textContent = state.launchReadiness.length
+        ? `${summary.sellable_now || 0}/${summary.total_jurisdictions || 0} sellable now${categorySummary ? ` · ${categorySummary}` : ""}`
+        : "Load the launch plan to inspect sellable coverage, SLA, pricing, and next operator actions.";
+      list.innerHTML = records.map((item) => {
+        const pricing = item.pricing || {};
+        const lifecycle = item.lifecycle_support || {};
+        const appSteps = item.application_handled_steps || [];
+        const operatorSteps = item.operator_exception_steps || [];
+        const supportedLifecycle = Object.entries(lifecycle)
+          .filter(([, value]) => value !== "operator_research_required")
+          .slice(0, 5);
+        return `
+          <div class="job" style="cursor:default;">
+            <div class="job-title">
+              <div>
+                <div class="job-name">${h(item.state)} · ${h(item.state_name)}</div>
+                <div class="job-sub">${h((item.next_actions || [])[0] || "No next action recorded.")}</div>
+              </div>
+              <span class="chip ${chipClass(item.launch_category)}">${h(label(item.launch_category))}</span>
+            </div>
+            <div class="chips">
+              <span class="chip ${chipClass(item.customer_offer_status)}">${h(label(item.customer_offer_status))}</span>
+              <span class="chip">${h(item.operator_sla_hours ? `${item.operator_sla_hours}h SLA` : "No SLA")}</span>
+              <span class="chip ${chipClass(item.pricing?.pricing_status)}">${h(label(item.pricing?.pricing_status))}</span>
+              <span class="chip">${h(money(pricing.estimated_total_cents))} est.</span>
+              <span class="chip ${chipClass(item.automation_lane)}">${h(label(item.automation_lane))}</span>
+              <span class="chip blue">${h(item.operator_touch_target_minutes ?? 0)}m operator target</span>
+            </div>
+            <div class="entry-body">
+              Official fee: ${h(money(pricing.official_government_fee_cents))} · SOSFiler fee: ${h(money(pricing.sosfiler_fee_cents))}
+            </div>
+            <div class="entry-body">
+              <strong>App handles:</strong> ${h(appSteps.slice(0, 3).join(" · ") || "No application steps recorded.")}
+            </div>
+            <div class="entry-body">
+              <strong>Operator only:</strong> ${h(operatorSteps.slice(0, 2).join(" · ") || "No operator exception steps recorded.")}
+            </div>
+            <div class="chips">
+              ${supportedLifecycle.map(([key, value]) => `<span class="chip ${value === "supported" ? "green" : "blue"}">${h(label(key))}</span>`).join("")}
+              ${supportedLifecycle.length ? "" : `<span class="chip amber">Lifecycle research required</span>`}
+            </div>
+          </div>
+        `;
+      }).join("");
     }
 
     function renderStateMetadata() {
@@ -829,6 +988,22 @@
         renderStateMetadata();
       } catch (error) {
         $("stateMetadataStatus").textContent = error.message;
+      }
+    }
+
+    async function loadLaunchReadiness() {
+      if (!hasAdminAccess()) {
+        $("launchReadinessStatus").textContent = "Start an operator session to load launch readiness.";
+        return;
+      }
+      $("launchReadinessStatus").textContent = "Loading launch readiness...";
+      try {
+        const payload = await api("/api/admin/launch-readiness");
+        state.launchReadiness = payload.states || [];
+        state.launchReadinessSummary = payload.summary || {};
+        renderLaunchReadiness();
+      } catch (error) {
+        $("launchReadinessStatus").textContent = error.message;
       }
     }
 
@@ -1195,6 +1370,107 @@
       renderEngineeringDetail(job);
     }
 
+    function renderOperatorFulfillmentPacket(packet) {
+      if (!packet) return "";
+      const summary = packet.summary || {};
+      const customer = packet.customer_filing_data || {};
+      const business = customer.business || {};
+      const ra = customer.registered_agent || {};
+      const people = customer.people || [];
+      const route = packet.official_route || {};
+      const pricing = packet.pricing || {};
+      const evidence = packet.required_evidence || {};
+      const actions = packet.operator_actions || [];
+      const portalSteps = packet.portal_steps || [];
+      const safeStops = packet.safe_stop_conditions || [];
+      const completion = packet.completion_criteria || [];
+      return `
+        <div class="section">
+          <h3>Operator Fulfillment Packet</h3>
+          <div class="summary">
+            <div class="metric"><div class="label">Goal</div><div class="value">${h(packet.operator_goal || "Complete filing with evidence.")}</div></div>
+            <div class="metric"><div class="label">Launch Lane</div><div class="value"><span class="chip ${chipClass(packet.launch_category)}">${h(label(packet.launch_category || summary.automation_lane))}</span></div></div>
+            <div class="metric"><div class="label">Operator Rule</div><div class="value">${h(summary.operator_touch_target || "Operator by exception")}</div></div>
+            <div class="metric"><div class="label">Gov Total</div><div class="value">${money(pricing.official_total_government_cents)}</div></div>
+          </div>
+
+          <div class="section" style="margin-top:12px;">
+            <h3>Customer Filing Data</h3>
+            <div class="summary">
+              <div class="metric"><div class="label">Legal Name</div><div class="value">${h(business.legal_name || summary.business_name)}</div></div>
+              <div class="metric"><div class="label">Entity</div><div class="value">${h(business.entity_type || summary.entity_type)} · ${h(business.formation_state || summary.state)}</div></div>
+              <div class="metric"><div class="label">Purpose</div><div class="value">${h(business.purpose || "")}</div></div>
+              <div class="metric"><div class="label">Management</div><div class="value">${h(label(business.management_type || ""))}</div></div>
+              <div class="metric"><div class="label">Principal</div><div class="value">${h(business.principal_address || "")}</div></div>
+              <div class="metric"><div class="label">Mailing</div><div class="value">${h(business.mailing_address || "")}</div></div>
+              <div class="metric"><div class="label">Registered Agent</div><div class="value">${h(ra.name || ra.choice || "")}</div></div>
+              <div class="metric"><div class="label">RA Address</div><div class="value">${h(ra.address || "")}</div></div>
+            </div>
+            <div class="feed" style="margin-top:10px;">
+              ${people.length ? people.map((person) => `
+                <div class="entry">
+                  <div class="entry-head"><span>${h(person.name || "Unnamed person")}</span><span>${h(person.role || "Person")}</span></div>
+                  <div class="entry-body">${h(person.address || "")}${person.ownership_pct !== undefined && person.ownership_pct !== null ? `\nOwnership: ${h(person.ownership_pct)}%` : ""}${person.ssn_last4 ? `\nSSN last4: ${h(person.ssn_last4)}` : ""}</div>
+                </div>
+              `).join("") : `<div class="entry"><div class="entry-body">No member, owner, or manager data was supplied.</div></div>`}
+            </div>
+            <details style="margin-top:10px;">
+              <summary>All sanitized customer intake</summary>
+              <pre style="white-space:pre-wrap;">${h(JSON.stringify(customer.all_customer_intake || {}, null, 2))}</pre>
+            </details>
+          </div>
+
+          <div class="section" style="margin-top:12px;">
+            <h3>Operator Steps</h3>
+            <div class="feed">
+              ${actions.map((action, index) => `
+                <div class="entry">
+                  <div class="entry-head"><span>${index + 1}. ${h(action.title || "Operator action")}</span><span>Required</span></div>
+                  <div class="entry-body">${h(action.detail || "")}</div>
+                </div>
+              `).join("")}
+            </div>
+          </div>
+
+          <div class="section" style="margin-top:12px;">
+            <h3>Official Route & Portal Pages</h3>
+            <div class="summary">
+              <div class="metric"><div class="label">Office</div><div class="value">${h(route.office || "")}</div></div>
+              <div class="metric"><div class="label">Form</div><div class="value">${h([route.form_name, route.form_number].filter(Boolean).join(" · "))}</div></div>
+              <div class="metric"><div class="label">Portal</div><div class="value">${h(route.portal_name || "")}</div></div>
+              <div class="metric"><div class="label">Timing</div><div class="value">${h(route.expected_processing_time || "")}</div></div>
+            </div>
+            <div class="feed" style="margin-top:10px;">
+              ${portalSteps.map((step) => `
+                <div class="entry">
+                  <div class="entry-head"><span>${h(step.step ? `${step.step}. ` : "")}${h(step.title || "Portal step")}</span><span>${h(step.actor || "")}</span></div>
+                  <div class="entry-body">${h(step.instruction || "")}${(step.required_inputs || []).length ? `\nInputs: ${h((step.required_inputs || []).join(", "))}` : ""}${step.portal_page ? `\nPage: ${h(step.portal_page)}` : ""}${(step.evidence_output || []).length ? `\nEvidence output: ${h((step.evidence_output || []).join(", "))}` : ""}</div>
+                </div>
+              `).join("") || `<div class="entry"><div class="entry-body">No state-specific portal steps are mapped; use the official route and customer filing data above.</div></div>`}
+            </div>
+          </div>
+
+          <div class="section" style="margin-top:12px;">
+            <h3>Evidence, Stops & Completion</h3>
+            <div class="entry">
+              <div class="entry-head"><span>Required evidence</span><span>Before status changes</span></div>
+              <div class="entry-body">Submitted: ${h((evidence.submitted || []).join(", "))}\nApproved: ${h((evidence.approved || []).join(", "))}${(evidence.outputs || []).length ? `\nOutputs: ${h((evidence.outputs || []).join(", "))}` : ""}</div>
+            </div>
+            <div class="feed" style="margin-top:10px;">
+              <div class="entry">
+                <div class="entry-head"><span>Safe-stop conditions</span><span>${safeStops.length}</span></div>
+                <div class="entry-body">${h(safeStops.map((item) => `- ${item}`).join("\n"))}</div>
+              </div>
+              <div class="entry">
+                <div class="entry-head"><span>Completion criteria</span><span>${completion.length}</span></div>
+                <div class="entry-body">${h(completion.map((item) => `- ${item}`).join("\n"))}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
     async function loadDetail(jobId) {
       const detail = $("detail");
       detail.innerHTML = `<div class="empty">Loading job detail...</div>`;
@@ -1450,6 +1726,7 @@
       const paymentReadiness = data.payment_readiness || null;
       const metadata = data.state_metadata || {};
       const contract = job.adapter_contract || {};
+      const fulfillmentPacket = job.operator_fulfillment_packet || null;
       const automationReadiness = metadata.automation_readiness || {};
       const portalArg = encodeURIComponent(job.portal_url || "");
       $("detail").innerHTML = `
@@ -1459,6 +1736,8 @@
           <div class="metric"><div class="label">Lane</div><div class="value">${h(label(job.automation_lane))}</div></div>
           <div class="metric"><div class="label">Government Total</div><div class="value">${money(job.total_government_cents)}</div></div>
         </div>
+
+        ${renderOperatorFulfillmentPacket(fulfillmentPacket)}
 
         ${paymentReadiness ? `
         <div class="section">
@@ -2080,7 +2359,7 @@
     }
 
     async function refreshAll() {
-      await Promise.all([loadSystemHealth(), loadStateMetadata(), loadEinQueue(), loadPaymentReadiness(), loadJobs(), loadTickets(), loadEngineeringJobs()]);
+      await Promise.all([loadSystemHealth(), loadLaunchReadiness(), loadStateMetadata(), loadEinQueue(), loadPaymentReadiness(), loadJobs(), loadTickets(), loadEngineeringJobs()]);
     }
 
     async function startAdminSession() {
@@ -2129,10 +2408,13 @@
       $("jobCount").textContent = "0 jobs";
       $("ticketCount").textContent = "0 tickets";
       $("engineeringCount").textContent = "0 jobs";
+      $("launchReadinessCount").textContent = "0 states";
       $("stateMetadataCount").textContent = "0 states";
       $("adapterMatrixCount").textContent = "0 states";
       $("einQueueCount").textContent = "0 items";
       $("paymentReadinessCount").textContent = "0 orders";
+      state.launchReadiness = [];
+      state.launchReadinessSummary = null;
       state.stateMetadata = [];
       state.stateMetadataSummary = null;
       state.adapterMatrix = [];
@@ -2142,6 +2424,7 @@
       state.paymentReadinessSummary = null;
       state.systemHealth = null;
       renderSystemHealth();
+      renderLaunchReadiness();
       renderStateMetadata();
       renderAdapterMatrix();
       renderEinQueue();
@@ -2150,6 +2433,7 @@
       $("paymentReadinessStatus").textContent = "Start an operator session to load payment readiness.";
       $("ticketStatus").textContent = "Start an operator session to load Slack tickets.";
       $("engineeringStatus").textContent = "Start an operator session to load engineering jobs.";
+      $("launchReadinessStatus").textContent = "Start an operator session to load launch readiness.";
       $("stateMetadataStatus").textContent = "Start an operator session to load state metadata.";
       $("adapterMatrixStatus").textContent = "Start an operator session to run the adapter matrix.";
       $("einQueueStatus").textContent = "Start an operator session to load EIN queue.";
@@ -2195,6 +2479,9 @@
     });
     $("statusFilter").addEventListener("change", loadJobs);
     $("laneFilter").addEventListener("change", loadJobs);
+    $("launchReadinessBtn").addEventListener("click", loadLaunchReadiness);
+    $("launchCategoryFilter").addEventListener("change", renderLaunchReadiness);
+    $("launchOfferFilter").addEventListener("change", renderLaunchReadiness);
     $("stateMetadataBtn").addEventListener("click", loadStateMetadata);
     $("metadataEntityType").addEventListener("change", loadStateMetadata);
     $("metadataActionType").addEventListener("change", loadStateMetadata);

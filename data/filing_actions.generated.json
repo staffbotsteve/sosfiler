@@ -728,7 +728,7 @@
           "https://bizfile.sos.ca.gov"
         ],
         "state": "CA",
-        "state_fee_cents": 7000,
+        "state_fee_cents": 9000,
         "verification_status": "verified_official"
       }
     },

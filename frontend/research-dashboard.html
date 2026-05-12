@@ -3,213 +3,216 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>SOSFiler Research Completion Dashboard</title>
+  <title>State Research Completion — SOSFiler</title>
   <style>
     :root {
-      --bg: #f3f5f7;
-      --panel: #ffffff;
-      --ink: #1e2430;
-      --muted: #667085;
-      --line: #d8dee8;
-      --green: #1f8a4c;
-      --green-bg: #dff8e8;
-      --red: #b42318;
-      --amber: #b54708;
-      --blue: #175cd3;
-      --gray: #98a2b3;
+      --bg: #0A0A0A;
+      --bg-tint: #0E0E0E;
+      --surface: #141414;
+      --surface-2: #1A1A1A;
+      --panel: #141414;
+      --ink: #FFFFFF;
+      --body: #D0D0D0;
+      --muted: #9A9A9A;
+      --muted-2: #6B6B6B;
+      --line: #1F1F1F;
+      --line-strong: #2A2A2A;
+      --accent: #CCFF00;
+      --green: #39FF14;
+      --green-bg: rgba(57,255,20,0.06);
+      --red: #FF3366;
+      --amber: #FFB23F;
+      --blue: #00FFE5;
+      --gray: #6B6B6B;
+      --font-display: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Inter Display', system-ui, sans-serif;
+      --font-body:    -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Inter', system-ui, sans-serif;
+      --font-mono:    'JetBrains Mono', 'IBM Plex Mono', ui-monospace, Menlo, monospace;
     }
 
     * { box-sizing: border-box; }
     body {
       margin: 0;
-      font-family: "Avenir Next", "Segoe UI", sans-serif;
+      font-family: var(--font-body);
       color: var(--ink);
-      background: radial-gradient(circle at top right, #e7eef8 0%, var(--bg) 48%, #edf4ec 100%);
+      background: var(--bg);
       min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
     }
+    body::before {
+      content: ''; position: fixed; inset: -40% 30% auto auto;
+      width: 800px; height: 800px;
+      background: radial-gradient(circle at center, rgba(204,255,0,0.06), transparent 60%);
+      pointer-events: none; filter: blur(20px); z-index: 0;
+    }
+    h1, h2, h3 { font-family: var(--font-display); font-weight: 900; letter-spacing: -0.02em; color: var(--ink); }
+    ::selection { background: var(--accent); color: #000; }
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: #2A2A2A; border-radius: 2px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+
+    .nav {
+      position: sticky; top: 0; z-index: 5;
+      background: rgba(10,10,10,0.85);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--line);
+      padding: 14px 24px;
+      display: flex; justify-content: space-between; align-items: center; gap: 24px;
+    }
+    .nav .brand { display: flex; align-items: center; gap: 12px; }
+    .nav .brand img { height: 56px; width: auto; }
+    .nav .brand-text { font-family: var(--font-display); font-weight: 900; font-size: 14px; letter-spacing: -0.02em; }
+    .nav .brand-text span { display: block; color: var(--muted-2); font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.12em; font-weight: 600; margin-top: 2px; text-transform: uppercase; }
+    .nav .links { display: flex; gap: 22px; }
+    .nav .links a { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); text-decoration: none; }
+    .nav .links a:hover { color: var(--accent); }
 
     .wrap {
-      max-width: 1200px;
+      max-width: 1240px;
       margin: 0 auto;
-      padding: 24px;
+      padding: 32px 24px;
+      position: relative;
+      z-index: 1;
     }
 
-    .hero {
-      background: var(--panel);
-      border: 1px solid var(--line);
-      border-radius: 20px;
-      padding: 20px;
-      box-shadow: 0 12px 36px rgba(16, 24, 40, 0.06);
-      margin-bottom: 20px;
+    .header { margin-bottom: 28px; }
+    .eyebrow {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--accent);
+      font-weight: 600;
+      margin-bottom: 12px;
+      display: inline-flex; align-items: center; gap: 10px;
     }
-
-    h1 {
-      margin: 0 0 8px;
-      font-size: 28px;
-      letter-spacing: -0.02em;
-    }
-
-    .meta {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      color: var(--muted);
-      font-size: 14px;
-      margin-top: 8px;
-    }
+    .eyebrow::before { content: ''; width: 18px; height: 1px; background: var(--accent); display: inline-block; }
+    h1 { font-size: clamp(28px, 4vw, 44px); margin: 0 0 12px; line-height: 1.05; }
+    .meta { display: flex; flex-wrap: wrap; gap: 20px; color: var(--muted); font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; margin-top: 16px; }
+    .meta span { display: inline-flex; align-items: center; gap: 8px; }
+    .meta .dot { width: 6px; height: 6px; background: var(--accent); border-radius: 50%; display: inline-block; }
 
     .stats {
-      margin-top: 16px;
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 12px;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      overflow: hidden;
+      margin: 24px 0 32px;
     }
+    @media (max-width: 760px) { .stats { grid-template-columns: 1fr; } }
 
     .stat {
-      background: #f8fafc;
-      border: 1px solid var(--line);
-      border-radius: 14px;
-      padding: 12px;
+      padding: 22px 24px;
+      background: var(--surface);
+      border-right: 1px solid var(--line);
     }
-
-    .stat .label { font-size: 12px; color: var(--muted); }
-    .stat .value { font-size: 24px; font-weight: 700; margin-top: 4px; }
+    .stat:last-child { border-right: none; }
+    @media (max-width: 760px) { .stat { border-right: none; border-bottom: 1px solid var(--line); } .stat:last-child { border-bottom: none; } }
+    .stat .label { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted-2); margin-bottom: 10px; }
+    .stat .value { font-family: var(--font-display); font-size: 36px; font-weight: 900; letter-spacing: -0.03em; color: var(--ink); font-variant-numeric: tabular-nums; line-height: 1; }
+    .stat .value.accent { color: var(--accent); }
 
     .grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: 12px;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 14px;
     }
 
     .state {
-      background: var(--panel);
-      border: 2px solid var(--line);
-      border-radius: 16px;
-      padding: 14px;
-    }
-
-    .state.ready {
-      border-color: var(--green);
-      background: linear-gradient(180deg, #ffffff, var(--green-bg));
-    }
-
-    .state-head {
-      display: flex;
-      justify-content: space-between;
-      align-items: baseline;
-      margin-bottom: 8px;
-    }
-
-    .state-code {
-      font-size: 24px;
-      font-weight: 800;
-      letter-spacing: 0.02em;
-    }
-
-    .pill {
-      border-radius: 999px;
-      padding: 4px 10px;
-      font-size: 12px;
-      font-weight: 700;
-      border: 1px solid;
-    }
-
-    .pill.ready {
-      background: var(--green-bg);
-      color: var(--green);
-      border-color: var(--green);
-    }
-
-    .pill.not-ready {
-      background: #fff4ed;
-      color: var(--amber);
-      border-color: #f9dbaf;
-    }
-
-    .progress-row {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 10px;
-      font-size: 13px;
-      color: var(--muted);
-    }
-
-    .bar {
-      width: 100%;
-      height: 8px;
-      border-radius: 999px;
-      background: #e6ecf3;
-      overflow: hidden;
-      margin-bottom: 12px;
-    }
-
-    .bar > span {
-      display: block;
-      height: 100%;
-      background: linear-gradient(90deg, #59a6ff, #1f8a4c);
-    }
-
-    .tasks {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 6px;
-    }
-
-    .task {
+      background: var(--surface);
       border: 1px solid var(--line);
       border-radius: 10px;
-      padding: 6px 8px;
-      font-size: 12px;
-      background: #fafcff;
+      padding: 18px 20px;
+      position: relative;
+      transition: border-color .15s ease;
     }
+    .state:hover { border-color: var(--line-strong); }
+    .state.ready { border-color: rgba(57,255,20,0.35); background: linear-gradient(180deg, var(--surface), rgba(57,255,20,0.03)); }
 
-    .task strong { display: block; margin-bottom: 2px; }
+    .state-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+    .state-code { font-family: var(--font-display); font-size: 28px; font-weight: 900; letter-spacing: 0.02em; color: var(--ink); }
+
+    .pill { font-family: var(--font-mono); font-size: 10px; font-weight: 700; letter-spacing: 0.15em; padding: 4px 10px; border-radius: 4px; border: 1px solid; }
+    .pill.ready { background: rgba(57,255,20,0.08); color: var(--green); border-color: rgba(57,255,20,0.35); }
+    .pill.not-ready { background: rgba(255,178,63,0.06); color: var(--amber); border-color: rgba(255,178,63,0.3); }
+
+    .progress-row { font-family: var(--font-mono); font-size: 11px; color: var(--muted); letter-spacing: 0.05em; margin-bottom: 8px; font-variant-numeric: tabular-nums; }
+
+    .bar { width: 100%; height: 4px; border-radius: 0; background: var(--line); overflow: hidden; margin-bottom: 16px; }
+    .bar > span { display: block; height: 100%; background: var(--accent); transition: width .4s ease; }
+    .state.ready .bar > span { background: var(--green); }
+
+    .tasks { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+    .task { border: 1px solid var(--line); border-radius: 6px; padding: 8px 10px; background: var(--bg); }
+    .task strong { display: block; font-family: var(--font-body); font-size: 11px; color: var(--body); margin-bottom: 4px; font-weight: 600; }
+    .task span { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 700; }
 
     .status-ready_for_review, .status-verified { color: var(--green); }
     .status-in_progress { color: var(--blue); }
     .status-blocked { color: var(--red); }
-    .status-pending, .status-missing { color: var(--gray); }
+    .status-pending, .status-missing { color: var(--muted-2); }
 
     .error {
-      border: 1px solid #fda29b;
-      background: #fef3f2;
-      color: #912018;
-      border-radius: 12px;
-      padding: 12px;
-      margin-top: 12px;
+      border: 1px solid rgba(255,51,102,0.3);
+      background: rgba(255,51,102,0.05);
+      color: var(--red);
+      border-radius: 8px;
+      padding: 14px 16px;
+      margin-top: 16px;
       display: none;
+      font-size: 13px;
+      font-family: var(--font-mono);
     }
 
     @media (max-width: 640px) {
       .tasks { grid-template-columns: 1fr; }
+      .wrap { padding: 24px 16px; }
     }
   </style>
 </head>
 <body>
+  <header class="nav">
+    <div class="brand">
+      <img src="logo.png" alt="SOSFiler" onerror="this.style.display='none';">
+      <div class="brand-text">SOSFiler<span>/ INTERNAL · RESEARCH OPS</span></div>
+    </div>
+    <div class="links">
+      <a href="index.html">Home</a>
+      <a href="operator.html">Operator</a>
+      <a href="dashboard.html">Dashboard</a>
+    </div>
+  </header>
+
   <div class="wrap">
-    <section class="hero">
-      <h1>State Research Completion Dashboard</h1>
+    <section class="header">
+      <span class="eyebrow">Internal · Research operations</span>
+      <h1>State research completion.</h1>
       <div class="meta">
-        <span>Auto-refresh: every 20 seconds</span>
-        <span id="updatedAt">Updated: --</span>
+        <span><span class="dot"></span>Auto-refresh · 20 seconds</span>
+        <span id="updatedAt">Updated · --</span>
       </div>
-      <div class="stats">
-        <div class="stat">
-          <div class="label">States ready (green)</div>
-          <div id="readyStates" class="value">--</div>
-        </div>
-        <div class="stat">
-          <div class="label">Total states tracked</div>
-          <div id="totalStates" class="value">--</div>
-        </div>
-        <div class="stat">
-          <div class="label">Overall completion</div>
-          <div id="overallPct" class="value">--%</div>
-        </div>
-      </div>
-      <div id="errorBox" class="error"></div>
     </section>
+
+    <section class="stats">
+      <div class="stat">
+        <div class="label">/ States ready</div>
+        <div id="readyStates" class="value accent">--</div>
+      </div>
+      <div class="stat">
+        <div class="label">/ Total tracked</div>
+        <div id="totalStates" class="value">--</div>
+      </div>
+      <div class="stat">
+        <div class="label">/ Overall completion</div>
+        <div id="overallPct" class="value">--%</div>
+      </div>
+    </section>
+
+    <div id="errorBox" class="error"></div>
 
     <section id="stateGrid" class="grid"></section>
   </div>
@@ -254,7 +257,7 @@
             <div class="state-code">${state.state}</div>
             <div class="pill ${pillClass}">${pillText}</div>
           </div>
-          <div class="progress-row">${state.complete_tasks}/${state.total_tasks} required tasks complete</div>
+          <div class="progress-row">${state.complete_tasks}/${state.total_tasks} TASKS COMPLETE</div>
           <div class="bar"><span style="width:${state.progress_pct}%"></span></div>
           <div class="tasks">${taskRows}</div>
         </article>
@@ -269,7 +272,7 @@
           throw new Error(`HTTP ${res.status}`);
         }
         const data = await res.json();
-        document.getElementById("updatedAt").textContent = `Updated: ${fmtDate(data.updated_at)}`;
+        document.getElementById("updatedAt").textContent = `Updated · ${fmtDate(data.updated_at)}`;
         document.getElementById("readyStates").textContent = String(data.ready_states);
         document.getElementById("totalStates").textContent = String(data.total_states);
         const pct = data.total_states ? ((data.ready_states / data.total_states) * 100).toFixed(1) : "0.0";

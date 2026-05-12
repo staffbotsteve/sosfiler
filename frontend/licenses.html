@@ -2,253 +2,382 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<link rel="icon" type="image/png" href="/favicon.png">
+<link rel="icon" type="image/png" href="favicon.png">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Business Licenses & Permits — SOSFiler</title>
-<meta name="description" content="DBA filings, business licenses, and specialty permits — all 50 states. AI-powered license assistant tells you exactly what you need.">
+<title>Business Licenses & Permits — SOSFiler · From $29</title>
+<meta name="description" content="DBA filings from $29. Business licenses from $49. Specialty permits from $99. AI license assistant tells you exactly what you need — for free. All 50 states.">
 <link rel="manifest" href="/manifest.json">
-<meta name="theme-color" content="#0A0A0A">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/chat-widget.css">
+<meta name="theme-color" content="#CCFF00">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="stylesheet" href="chat-widget.css">
 <style>
 :root {
   --bg: #0A0A0A;
+  --bg-tint: #0E0E0E;
   --surface: #141414;
-  --card: #141414;
-  --border: #1E1E1E;
+  --surface-2: #1A1A1A;
+  --border: #1F1F1F;
+  --border-strong: #2A2A2A;
   --text: #FFFFFF;
-  --text-secondary: #999999;
-  --muted: #999999;
+  --muted: #9A9A9A;
+  --muted-2: #6B6B6B;
+  --body: #D0D0D0;
   --accent: #CCFF00;
-  --accent2: #39FF14;
+  --accent-dim: rgba(204,255,0,0.55);
   --cyan: #00FFE5;
   --green: #39FF14;
   --red: #FF3366;
-  --yellow: #FF6B00;
-  --purple: #a78bfa;
-  --glow: rgba(204,255,0,0.4);
-  --glow-sm: rgba(204,255,0,0.15);
-  --gradient: linear-gradient(135deg, #CCFF00, #39FF14);
+  --amber: #FFB23F;
+  --glow: rgba(204,255,0,0.35);
+  --glow-sm: rgba(204,255,0,0.12);
+
+  --font-display: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Inter Display', system-ui, sans-serif;
+  --font-body:    -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Inter', system-ui, sans-serif;
+  --font-mono:    'JetBrains Mono', 'IBM Plex Mono', ui-monospace, Menlo, monospace;
 }
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { scroll-behavior: smooth; }
 body {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family: var(--font-body);
   background: var(--bg);
   color: var(--text);
-  line-height: 1.6;
+  line-height: 1.55;
   -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
-a { color: var(--cyan); text-decoration: none; transition: color 0.2s ease; }
-a:hover { color: var(--accent); text-decoration: none; }
-
-/* Scrollbar */
-::-webkit-scrollbar { width: 6px; }
+a { color: inherit; text-decoration: none; transition: color .15s ease; }
+::selection { background: var(--accent); color: #000; }
+::-webkit-scrollbar { width: 8px; }
 ::-webkit-scrollbar-track { background: var(--bg); }
-::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
+::-webkit-scrollbar-thumb { background: #2A2A2A; border-radius: 2px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+img { max-width: 100%; display: block; }
 
-.container { max-width: 1100px; margin: 0 auto; padding: 0 20px; }
-section { padding: 60px 0; }
+.container { max-width: 1240px; margin: 0 auto; padding: 0 24px; }
+.container-narrow { max-width: 980px; margin: 0 auto; padding: 0 24px; }
+section { padding: 96px 0; position: relative; }
+@media (max-width: 760px) { section { padding: 64px 0; } }
 
-/* Nav */
+/* type */
+h1, h2, h3, h4, h5 { font-family: var(--font-display); font-weight: 900; letter-spacing: -0.03em; line-height: 1.02; color: #fff; }
+h2 { font-size: clamp(34px, 5.4vw, 64px); }
+h3 { font-size: clamp(24px, 3vw, 36px); }
+h4 { font-size: 18px; letter-spacing: -0.01em; line-height: 1.3; }
+p { color: var(--body); }
+.lede { font-size: clamp(17px, 1.6vw, 20px); color: var(--muted); max-width: 64ch; line-height: 1.55; }
+.mono { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+.eyebrow::before { content: ''; width: 18px; height: 1px; background: var(--accent); display: inline-block; }
+.kicker {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--accent);
+  padding: 5px 10px;
+  border: 1px solid rgba(204,255,0,0.3);
+  border-radius: 999px;
+  margin-bottom: 18px;
+  font-weight: 600;
+}
+
+/* buttons */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+  padding: 16px 28px;
+  background: var(--accent);
+  color: #000;
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 15px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  min-height: 48px;
+  letter-spacing: -0.005em;
+  transition: transform .12s ease, box-shadow .15s ease, background .15s ease;
+}
+.btn:hover { background: #DBFF33; box-shadow: 0 0 0 6px var(--glow-sm), 0 14px 40px rgba(204,255,0,0.18); transform: translateY(-1px); color: #000; }
+.btn:active { transform: translateY(0); }
+.btn-lg { padding: 20px 36px; font-size: 17px; min-height: 56px; }
+.btn-ghost { background: transparent; color: var(--text); border: 1px solid var(--border-strong); }
+.btn-ghost:hover { background: var(--surface); border-color: var(--accent); color: var(--accent); box-shadow: none; transform: none; }
+.btn .arrow { transition: transform .15s ease; }
+.btn:hover .arrow { transform: translateX(3px); }
+
+/* nav */
 nav {
   position: sticky; top: 0; z-index: 100;
-  background: rgba(10,10,10,0.92);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
+  background: rgba(10,10,10,0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   border-bottom: 1px solid var(--border);
-  padding: 16px 0;
+  padding: 14px 0;
 }
-nav .container { display: flex; justify-content: space-between; align-items: center; }
-nav .logo { font-size: 22px; font-weight: 800; color: #fff; }
-nav .logo span { color: var(--accent); }
-nav .nav-links { display: flex; gap: 24px; align-items: center; }
-nav .nav-links a { color: var(--muted); font-size: 14px; font-weight: 500; transition: color 0.2s ease; }
-nav .nav-links a:hover { color: #fff; text-decoration: none; }
-.btn {
-  display: inline-block; padding: 12px 28px;
-  background: var(--accent);
-  color: #000; font-weight: 700; border-radius: 8px;
-  border: none; cursor: pointer; font-size: 15px;
-  transition: all 0.2s ease;
-  font-family: 'Inter', sans-serif;
+nav .container { display: flex; justify-content: space-between; align-items: center; gap: 24px; }
+nav .brand { display: flex; align-items: center; gap: 12px; }
+nav .brand img { height: 56px; width: auto; }
+nav .brand-mark { font-family: var(--font-display); font-size: 20px; font-weight: 900; letter-spacing: -0.02em; }
+nav .brand-mark .dot { color: var(--accent); }
+nav .nav-links { display: flex; gap: 28px; align-items: center; }
+nav .nav-links a { color: var(--muted); font-size: 14px; font-weight: 500; }
+nav .nav-links a:hover { color: #fff; }
+nav .nav-cta { padding: 10px 18px; font-size: 13px; min-height: 40px; border-radius: 6px; }
+.hamburger { display: none; background: none; border: 1px solid var(--border-strong); color: #fff; cursor: pointer; min-width: 44px; min-height: 44px; border-radius: 6px; font-size: 18px; }
+@media (max-width: 880px) {
+  .hamburger { display: flex; align-items: center; justify-content: center; }
+  nav .nav-links { display: none; position: absolute; top: 60px; left: 0; right: 0; background: rgba(10,10,10,0.98); backdrop-filter: blur(20px); border-bottom: 1px solid var(--border); flex-direction: column; padding: 24px; gap: 18px; }
+  nav .nav-links.open { display: flex; align-items: stretch; }
+  nav .nav-links a { padding: 10px 0; font-size: 16px; border-bottom: 1px solid var(--border); }
 }
-.btn:hover { box-shadow: 0 0 20px var(--glow), 0 8px 30px rgba(204,255,0,0.2); transform: translateY(-1px); text-decoration: none; color: #000; }
 
-.section-title { text-align: center; margin-bottom: 16px; }
-.section-title h2 { font-size: clamp(24px, 4vw, 36px); font-weight: 800; letter-spacing: -0.01em; }
-.section-title p { color: var(--muted); font-size: 16px; margin-top: 8px; max-width: 600px; margin-left: auto; margin-right: auto; }
-
-/* Hero */
+/* HERO */
 .hero {
-  padding: 80px 0 40px;
-  text-align: center;
-  background: radial-gradient(ellipse at top center, rgba(204,255,0,0.06) 0%, transparent 55%);
+  padding: 88px 0 64px;
+  border-bottom: 1px solid var(--border);
+  position: relative;
+  overflow: hidden;
+}
+.hero::before {
+  content: ''; position: absolute; inset: -40% 30% auto auto;
+  width: 800px; height: 800px;
+  background: radial-gradient(circle at center, rgba(204,255,0,0.10), transparent 60%);
+  pointer-events: none;
+  filter: blur(20px);
+}
+.hero .container { position: relative; z-index: 1; }
+.hero-headline {
+  font-size: clamp(40px, 6.2vw, 84px);
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  line-height: 0.98;
+  margin: 24px 0 22px;
+  max-width: 18ch;
+}
+.hero-headline .accent-block {
+  display: inline-block;
+  background: var(--accent);
+  color: #000;
+  padding: 0 12px;
+  transform: skew(-4deg);
+}
+.hero-sub { font-size: clamp(16px, 1.7vw, 19px); color: var(--body); max-width: 60ch; margin-bottom: 28px; }
+.hero-cta-row { display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 18px; }
+.hero-trust { display: flex; gap: 28px; flex-wrap: wrap; align-items: center; font-size: 13px; color: var(--muted); margin-top: 8px; }
+.hero-trust span { display: inline-flex; align-items: center; gap: 8px; }
+.hero-trust .dot { width: 6px; height: 6px; background: var(--accent); border-radius: 50%; }
+
+/* pricing strip */
+.pricing-strip { padding: 80px 0; background: var(--bg-tint); border-bottom: 1px solid var(--border); }
+.pricing-head { display: flex; justify-content: space-between; align-items: end; margin-bottom: 36px; gap: 24px; flex-wrap: wrap; }
+.pricing-head p { color: var(--muted); font-size: 14px; max-width: 42ch; }
+.pricing-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+@media (max-width: 880px) { .pricing-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 540px) { .pricing-grid { grid-template-columns: 1fr; } }
+.pricing-cell {
+  padding: 32px 24px;
+  border-right: 1px solid var(--border);
+  background: var(--surface);
+  display: flex; flex-direction: column; gap: 10px;
   position: relative;
 }
-.hero::after {
-  content: '';
-  position: absolute; bottom: 0; left: 0; right: 0; height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(204,255,0,0.2), transparent);
+.pricing-cell:last-child { border-right: none; }
+@media (max-width: 880px) {
+  .pricing-cell:nth-child(2n) { border-right: none; }
+  .pricing-cell:nth-child(-n+2) { border-bottom: 1px solid var(--border); }
 }
-.hero h1 { font-size: clamp(28px, 5vw, 48px); font-weight: 900; margin-bottom: 16px; letter-spacing: -0.02em; }
-.hero .subtitle { font-size: 18px; color: var(--muted); max-width: 600px; margin: 0 auto 32px; }
-
-/* License grid */
-.license-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin-top: 30px; }
-.license-card {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-top: 2px solid var(--accent);
-  border-radius: 12px;
-  padding: 24px;
-  cursor: pointer;
-  transition: all 0.2s ease;
+@media (max-width: 540px) {
+  .pricing-cell { border-right: none; border-bottom: 1px solid var(--border); }
+  .pricing-cell:last-child { border-bottom: none; }
 }
-.license-card:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: 0 0 20px rgba(204,255,0,0.06); }
-.license-card .icon { font-size: 32px; margin-bottom: 12px; }
-.license-card h4 { font-size: 16px; color: #fff; margin-bottom: 6px; font-weight: 700; }
-.license-card .fee { font-size: 14px; color: var(--accent); font-weight: 600; margin-bottom: 6px; }
-.license-card p { font-size: 13px; color: var(--muted); }
-.license-card .authority { font-size: 12px; color: var(--muted); margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border); }
+.pricing-cell .num { font-family: var(--font-mono); font-size: 11px; color: var(--muted-2); letter-spacing: 0.15em; }
+.pricing-cell .price { font-family: var(--font-display); font-size: 48px; font-weight: 900; letter-spacing: -0.04em; line-height: 1; color: #fff; }
+.pricing-cell .price.free { color: var(--accent); }
+.pricing-cell .gov { font-family: var(--font-mono); font-size: 11px; color: var(--muted); letter-spacing: 0.08em; }
+.pricing-cell h4 { margin-top: 8px; color: #fff; }
+.pricing-cell p { font-size: 13px; color: var(--muted); }
 
-/* Wizard */
+/* wizard cards */
 .wizard {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-top: 2px solid var(--accent);
-  border-radius: 16px;
-  padding: 32px;
-  max-width: 560px;
-  margin: 40px auto 0;
-  transition: box-shadow 0.2s ease;
-}
-.wizard:hover { box-shadow: 0 0 30px rgba(204,255,0,0.05); }
-.wizard h3 { font-size: 20px; margin-bottom: 16px; text-align: center; font-weight: 700; }
-.wizard input, .wizard select {
-  width: 100%; padding: 14px;
-  background: #1A1A1A;
-  color: var(--text);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  font-size: 16px;
-  font-family: 'Inter', sans-serif;
-  margin-bottom: 12px;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
-}
-.wizard input:focus, .wizard select:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 2px rgba(204,255,0,0.15); }
-
-/* Results */
-.result-card {
-  background: #1A1A1A;
+  background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 12px;
+  padding: 32px;
+  max-width: 620px;
+  margin: 32px auto 0;
+}
+.wizard h3 { font-size: 22px; margin-bottom: 6px; font-weight: 900; }
+.wizard .wiz-sub { font-family: var(--font-mono); font-size: 11px; color: var(--muted-2); letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 22px; }
+.wizard label { display: block; font-family: var(--font-mono); font-size: 11px; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 6px; }
+.wizard input, .wizard select {
+  width: 100%; padding: 14px 16px;
+  background: var(--bg);
+  color: var(--text);
+  border: 1px solid var(--border-strong);
+  border-radius: 6px;
+  font-size: 15px;
+  font-family: var(--font-body);
+  margin-bottom: 14px;
+  transition: border-color .15s ease, box-shadow .15s ease;
+}
+.wizard input:focus, .wizard select:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(204,255,0,0.12); }
+.wizard select { appearance: none; background-image: linear-gradient(45deg, transparent 50%, var(--muted) 50%), linear-gradient(135deg, var(--muted) 50%, transparent 50%); background-position: calc(100% - 16px) 50%, calc(100% - 12px) 50%; background-size: 4px 4px; background-repeat: no-repeat; padding-right: 32px; }
+
+.section-head { max-width: 780px; margin-bottom: 40px; }
+.section-head h2 { margin-top: 14px; margin-bottom: 14px; }
+.section-head.center { text-align: center; margin-left: auto; margin-right: auto; }
+.section-head.center .eyebrow { justify-content: center; }
+.section-head p { color: var(--muted); }
+
+/* license grid */
+.license-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; }
+.license-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 22px;
+  cursor: pointer;
+  transition: border-color .15s ease, transform .15s ease, background .15s ease;
+  position: relative;
+}
+.license-card::before {
+  content: counter(licidx, decimal-leading-zero);
+  counter-increment: licidx;
+  position: absolute; top: 14px; right: 16px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--muted-2);
+  letter-spacing: 0.1em;
+}
+.license-grid { counter-reset: licidx; }
+.license-card:hover { border-color: var(--accent); background: var(--surface-2); transform: translateY(-2px); }
+.license-card h4 { margin-bottom: 8px; padding-right: 36px; }
+.license-card .fee { font-family: var(--font-mono); font-size: 13px; color: var(--accent); font-weight: 600; margin-bottom: 6px; }
+.license-card .fee.free { color: var(--green); }
+.license-card p { font-size: 13px; color: var(--muted); }
+.license-card .authority { font-family: var(--font-mono); font-size: 10px; color: var(--muted-2); letter-spacing: 0.12em; margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--border); text-transform: uppercase; }
+
+/* results */
+.result-card {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
   padding: 20px;
   margin-top: 12px;
 }
-.result-card .badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; margin-bottom: 8px; }
-.badge-online { background: rgba(57,255,20,0.15); color: var(--green); }
-.badge-mail { background: rgba(255,107,0,0.15); color: var(--yellow); }
-.badge-guidance { background: rgba(0,255,229,0.15); color: var(--cyan); }
+.result-card .badge { display: inline-block; padding: 4px 10px; border-radius: 4px; font-family: var(--font-mono); font-size: 10px; font-weight: 700; letter-spacing: 0.12em; margin-bottom: 10px; text-transform: uppercase; }
+.badge-online { background: rgba(57,255,20,0.12); color: var(--green); border: 1px solid rgba(57,255,20,0.25); }
+.badge-mail { background: rgba(255,178,63,0.12); color: var(--amber); border: 1px solid rgba(255,178,63,0.25); }
+.badge-guidance { background: rgba(0,255,229,0.10); color: var(--cyan); border: 1px solid rgba(0,255,229,0.25); }
 
-.spinner { width: 32px; height: 32px; border: 3px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 12px; }
+.spinner { width: 28px; height: 28px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin .8s linear infinite; margin: 0 auto 10px; }
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* Pricing cards */
-.pricing-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-top: 30px; }
-.pricing-card {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 24px;
-  text-align: center;
-  transition: all 0.2s ease;
-}
-.pricing-card:hover { border-color: var(--accent); box-shadow: 0 0 20px rgba(204,255,0,0.06); }
-.pricing-card .price { font-size: 32px; font-weight: 900; color: var(--accent); text-shadow: 0 0 20px var(--glow-sm); }
-.pricing-card .price-label { font-size: 13px; color: var(--muted); }
-.pricing-card h4 { margin: 12px 0 8px; font-weight: 700; }
-.pricing-card p { font-size: 13px; color: var(--muted); }
-.pricing-card.free .price { color: var(--green); text-shadow: 0 0 20px rgba(57,255,20,0.3); }
+.section-alt { background: var(--bg-tint); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
 
-/* Footer */
-footer {
-  border-top: 1px solid var(--border);
-  padding: 40px 0;
-  text-align: center;
-  color: var(--muted);
-  font-size: 13px;
-}
-footer a { color: var(--cyan); }
-
-/* Mobile */
-.hamburger { display: none; background: none; border: none; color: #fff; font-size: 24px; cursor: pointer; min-width: 44px; min-height: 44px; }
-@media (max-width: 768px) {
-  .hamburger { display: flex; align-items: center; justify-content: center; }
-  nav .nav-links { display: none; position: absolute; top: 60px; left: 0; right: 0; background: rgba(10,10,10,0.98); backdrop-filter: blur(24px); border-bottom: 1px solid var(--border); flex-direction: column; padding: 20px; gap: 16px; }
-  nav .nav-links.open { display: flex; }
-  nav .nav-links a { min-height: 44px; display: flex; align-items: center; }
-}
+/* footer */
+footer { border-top: 1px solid var(--border); padding: 56px 0 32px; color: var(--muted); font-size: 13px; }
+.footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 48px; margin-bottom: 40px; }
+.footer-brand h5 { font-size: 22px; }
+.footer-brand h5 span { color: var(--accent); }
+.footer-brand p { font-size: 13px; color: var(--muted); max-width: 36ch; line-height: 1.6; margin-top: 12px; }
+.footer-col h6 { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted-2); margin-bottom: 18px; font-weight: 600; }
+.footer-col ul { list-style: none; }
+.footer-col li { margin-bottom: 10px; }
+.footer-col a { color: var(--body); font-size: 14px; }
+.footer-col a:hover { color: var(--accent); }
+.footer-bottom { border-top: 1px solid var(--border); padding-top: 24px; display: flex; justify-content: space-between; align-items: center; font-family: var(--font-mono); font-size: 11px; color: var(--muted-2); letter-spacing: 0.04em; flex-wrap: wrap; gap: 12px; }
+@media (max-width: 760px) { .footer-grid { grid-template-columns: 1fr 1fr; gap: 32px; } .footer-bottom { flex-direction: column; align-items: flex-start; } }
 </style>
 </head>
 <body>
 
 <nav>
   <div class="container">
-    <a href="/" class="logo"><img src="/logo.png" alt="SOSFiler" style="height:36px;vertical-align:middle;"></a>
-    <button class="hamburger" onclick="document.querySelector('.nav-links').classList.toggle('open')" aria-label="Menu">☰</button>
+    <a href="index.html" class="brand">
+      <img src="logo.png" alt="SOSFiler" onerror="this.style.display='none';this.nextElementSibling.style.display='inline-flex';">
+      <span class="brand-mark" style="display:none;">SOS<span class="dot">Filer</span></span>
+    </a>
+    <button class="hamburger" onclick="document.querySelector('.nav-links').classList.toggle('open')" aria-label="Menu">≡</button>
     <div class="nav-links">
-      <a href="/">Home</a>
-      <a href="/dashboard.html">Dashboard</a>
-      <a href="#licenses">Licenses</a>
+      <a href="index.html#pricing">Pricing</a>
+      <a href="index.html#compare">Compare</a>
       <a href="#wizard">License Wizard</a>
-      <a href="/app.html" class="btn" style="padding: 10px 24px; font-size: 14px;">Start Your LLC →</a>
+      <a href="#licenses">License Types</a>
+      <a href="app.html" class="btn nav-cta">Start for $29 <span class="arrow">→</span></a>
     </div>
   </div>
 </nav>
 
-<!-- Hero -->
+<!-- HERO -->
 <section class="hero">
   <div class="container">
-    <h1>Business Licenses & Permits<br>Made Simple.</h1>
-    <p class="subtitle">DBA filings, business licenses, specialty permits — all 50 states. Our AI assistant tells you exactly what you need and helps you file.</p>
+    <span class="kicker">Licenses & permits · All 50 states</span>
+    <h1 class="hero-headline">
+      Licenses for <span class="accent-block">honest</span> money.
+    </h1>
+    <p class="hero-sub">DBA filing $29. Business licenses $49. Specialty permits $99. The "What do I need?" report is free — and it's better than what the $300 services give you.</p>
+    <div class="hero-cta-row">
+      <a href="#wizard" class="btn btn-lg">Run the free license check <span class="arrow">→</span></a>
+      <a href="#pricing" class="btn btn-ghost btn-lg">See pricing</a>
+    </div>
+    <div class="hero-trust">
+      <span><span class="dot"></span>50 states · DC</span>
+      <span><span class="dot"></span>No subscription</span>
+      <span><span class="dot"></span>No marked-up gov fees</span>
+    </div>
   </div>
 </section>
 
-<!-- Pricing -->
-<section style="background: rgba(204,255,0,0.015);">
+<!-- Pricing strip -->
+<section class="pricing-strip" id="pricing">
   <div class="container">
-    <div class="section-title">
-      <h2>Simple Pricing</h2>
-      <p>Government fees are additional and vary by jurisdiction.</p>
+    <div class="pricing-head">
+      <div>
+        <span class="eyebrow">Pricing</span>
+        <h2 style="margin-top:14px;">One price. State fees passed through at cost.</h2>
+      </div>
+      <p>Government fees vary by state and county. We don't mark them up. Ever.</p>
     </div>
     <div class="pricing-grid">
-      <div class="pricing-card free">
-        <div class="price">Free</div>
-        <div class="price-label">always</div>
+      <div class="pricing-cell">
+        <span class="num">/ 01</span>
+        <div class="price free">$0</div>
+        <span class="gov">FREE · NO ACCOUNT</span>
         <h4>"What Licenses Do I Need?"</h4>
-        <p>AI-powered report listing every license and permit your business needs.</p>
+        <p>AI report listing every license and permit your business needs, by city and state.</p>
       </div>
-      <div class="pricing-card">
+      <div class="pricing-cell">
+        <span class="num">/ 02</span>
         <div class="price">$29</div>
-        <div class="price-label">+ gov fees</div>
+        <span class="gov">+ STATE FEE ($10–$100)</span>
         <h4>DBA Filing</h4>
-        <p>Fictitious business name filing in any state. Publication handled where required.</p>
+        <p>Fictitious business name. Publication handled where the state requires it.</p>
       </div>
-      <div class="pricing-card">
+      <div class="pricing-cell">
+        <span class="num">/ 03</span>
         <div class="price">$49</div>
-        <div class="price-label">+ gov fees</div>
+        <span class="gov">+ CITY/COUNTY FEE</span>
         <h4>Business License</h4>
-        <p>General business license filing — we handle the paperwork or guide you through it.</p>
+        <p>General business license. We file or we walk you through the local portal.</p>
       </div>
-      <div class="pricing-card">
+      <div class="pricing-cell">
+        <span class="num">/ 04</span>
         <div class="price">$99</div>
-        <div class="price-label">+ gov fees</div>
-        <h4>Specialty License</h4>
-        <p>Liquor, food, STR, cannabis, professional, childcare, auto dealer — the complex stuff.</p>
+        <span class="gov">+ GOV FEE</span>
+        <h4>Specialty Permit</h4>
+        <p>Liquor, food, STR, cannabis, professional, childcare, auto dealer.</p>
       </div>
     </div>
   </div>
@@ -257,28 +386,32 @@ footer a { color: var(--cyan); }
 <!-- License Wizard -->
 <section id="wizard">
   <div class="container">
-    <div class="section-title">
-      <h2>🤖 What Licenses Do I Need?</h2>
-      <p>Enter your business details — our AI returns a complete list of required licenses with costs and next steps. Free.</p>
+    <div class="section-head center">
+      <span class="eyebrow">Free · 30 seconds</span>
+      <h2>What licenses do I need?</h2>
+      <p>Tell us where and what — get every license you need, with costs and next steps. No email required.</p>
     </div>
     <div class="wizard">
       <h3>License Requirements Wizard</h3>
-      <input type="text" id="wizCity" placeholder="City (e.g., Austin)">
-      <select id="wizState">
-        <option value="">Select State...</option>
-      </select>
-      <input type="text" id="wizBizType" placeholder="Business type (e.g., restaurant, consulting, retail store)">
-      <button class="btn" style="width: 100%; font-size: 16px; padding: 16px;">Find My Licenses →</button>
+      <p class="wiz-sub">/ STEP 1 · LOCATION + BUSINESS</p>
+      <label for="wizCity">City</label>
+      <input type="text" id="wizCity" placeholder="e.g. Austin">
+      <label for="wizState">State</label>
+      <select id="wizState"><option value="">Select state…</option></select>
+      <label for="wizBizType">Business type</label>
+      <input type="text" id="wizBizType" placeholder="e.g. restaurant, consulting, retail store">
+      <button class="btn" style="width: 100%; margin-top: 8px;">Find my licenses <span class="arrow">→</span></button>
       <div id="wizardResult"></div>
     </div>
   </div>
 </section>
 
 <!-- All License Types -->
-<section id="licenses" style="background: rgba(204,255,0,0.015);">
+<section id="licenses" class="section-alt">
   <div class="container">
-    <div class="section-title">
-      <h2>All License Types</h2>
+    <div class="section-head">
+      <span class="eyebrow">License catalog</span>
+      <h2>Every license type, every state.</h2>
       <p>Click any license to check requirements for your location.</p>
     </div>
     <div class="license-grid" id="licenseGrid"></div>
@@ -288,44 +421,52 @@ footer a { color: var(--cyan); }
 <!-- DBA Section -->
 <section id="dba">
   <div class="container">
-    <div class="section-title">
-      <h2>📝 DBA / Fictitious Business Name</h2>
-      <p>Operating under a different name? File your DBA in minutes. We handle all 50 states.</p>
+    <div class="section-head center">
+      <span class="eyebrow">$29 · Most popular</span>
+      <h2>File a DBA in any state.</h2>
+      <p>Operating under a different name? File your "doing business as" in minutes. We handle publication where the state requires it.</p>
     </div>
     <div class="wizard">
-      <h3>File a DBA — $29</h3>
-      <input type="text" id="dbaName" placeholder="DBA Name (e.g., Joe's Pizza)">
-      <input type="text" id="dbaBizName" placeholder="Legal Business Name (your LLC name)">
-      <select id="dbaState">
-        <option value="">Select State...</option>
-      </select>
-      <input type="text" id="dbaCounty" placeholder="County (if applicable)">
-      <input type="text" id="dbaCity" placeholder="City">
-      <button class="btn" style="width: 100%;" onclick="checkDBA()">Check Requirements & Cost →</button>
+      <h3>DBA Filing — $29</h3>
+      <p class="wiz-sub">/ FICTITIOUS BUSINESS NAME</p>
+      <label for="dbaName">DBA name</label>
+      <input type="text" id="dbaName" placeholder="e.g. Joe's Pizza">
+      <label for="dbaBizName">Legal business name</label>
+      <input type="text" id="dbaBizName" placeholder="Your LLC's legal name">
+      <label for="dbaState">State</label>
+      <select id="dbaState"><option value="">Select state…</option></select>
+      <label for="dbaCounty">County (if applicable)</label>
+      <input type="text" id="dbaCounty" placeholder="e.g. Travis County">
+      <label for="dbaCity">City</label>
+      <input type="text" id="dbaCity" placeholder="e.g. Austin">
+      <button class="btn" style="width: 100%; margin-top: 8px;" onclick="checkDBA()">Check requirements & cost <span class="arrow">→</span></button>
       <div id="dbaResult"></div>
     </div>
   </div>
 </section>
 
 <!-- Specific License Check -->
-<section id="check" style="background: rgba(204,255,0,0.015);">
+<section id="check" class="section-alt">
   <div class="container">
-    <div class="section-title">
-      <h2>Check a Specific License</h2>
-      <p>Know which license you need? Check requirements for your exact location.</p>
+    <div class="section-head center">
+      <span class="eyebrow">Lookup tool</span>
+      <h2>Check a specific license.</h2>
+      <p>Already know what you need? Pull exact requirements for your city + state.</p>
     </div>
     <div class="wizard">
       <h3>License Lookup</h3>
-      <select id="checkType">
-        <option value="">Select License Type...</option>
-      </select>
+      <p class="wiz-sub">/ EXACT REQUIREMENTS BY LOCATION</p>
+      <label for="checkType">License type</label>
+      <select id="checkType"><option value="">Select license type…</option></select>
+      <label for="checkCity">City</label>
       <input type="text" id="checkCity" placeholder="City">
+      <label for="checkCounty">County</label>
       <input type="text" id="checkCounty" placeholder="County">
-      <select id="checkState">
-        <option value="">Select State...</option>
-      </select>
-      <input type="text" id="checkBiz" placeholder="Business type">
-      <button class="btn" style="width: 100%;" onclick="checkLicense()">Check Requirements →</button>
+      <label for="checkState">State</label>
+      <select id="checkState"><option value="">Select state…</option></select>
+      <label for="checkBiz">Business type</label>
+      <input type="text" id="checkBiz" placeholder="e.g. restaurant">
+      <button class="btn" style="width: 100%; margin-top: 8px;" onclick="checkLicense()">Check requirements <span class="arrow">→</span></button>
       <div id="checkResult"></div>
     </div>
   </div>
@@ -333,28 +474,48 @@ footer a { color: var(--cyan); }
 
 <footer>
   <div class="container">
-    <p style="margin-bottom: 8px;">SOSFiler — Honest business formation & licensing.</p>
-    <p>
-      <a href="/">Home</a> · 
-      <a href="/app.html">Start Your LLC</a> · 
-      <a href="/dashboard.html">Dashboard</a> · 
-      <a href="mailto:support@sosfiler.com">Contact</a>
-    </p>
-    <p style="margin-top: 16px;">© 2026 SOSFiler. Not a law firm. We provide self-service business formation and licensing filing services.</p>
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <h5>SOS<span>Filer</span></h5>
+        <p>The honest LLC. Flat fees plus state pass-through. Same paperwork the $300 services file — without the upsells.</p>
+      </div>
+      <div class="footer-col">
+        <h6>Product</h6>
+        <ul>
+          <li><a href="app.html">Start a filing</a></li>
+          <li><a href="dashboard.html">Dashboard</a></li>
+          <li><a href="licenses.html">Licenses</a></li>
+          <li><a href="index.html#compare">Compare</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h6>Company</h6>
+        <ul>
+          <li><a href="index.html#faq">FAQ</a></li>
+          <li><a href="terms.html">Terms</a></li>
+          <li><a href="privacy.html">Privacy</a></li>
+          <li><a href="mailto:support@sosfiler.com">Contact</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h6>Disclosure</h6>
+        <ul>
+          <li><span style="color: var(--muted-2);">Not a law firm</span></li>
+          <li><span style="color: var(--muted-2);">Document prep service</span></li>
+          <li><span style="color: var(--muted-2);">No legal advice</span></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 SOSFILER · ALL RIGHTS RESERVED</span>
+      <span>PRICES REVIEWED 2026-05-11</span>
+    </div>
   </div>
 </footer>
 
 <script>
 const stateNames = {"AL":"Alabama","AK":"Alaska","AZ":"Arizona","AR":"Arkansas","CA":"California","CO":"Colorado","CT":"Connecticut","DE":"Delaware","DC":"District of Columbia","FL":"Florida","GA":"Georgia","HI":"Hawaii","ID":"Idaho","IL":"Illinois","IN":"Indiana","IA":"Iowa","KS":"Kansas","KY":"Kentucky","LA":"Louisiana","ME":"Maine","MD":"Maryland","MA":"Massachusetts","MI":"Michigan","MN":"Minnesota","MS":"Mississippi","MO":"Missouri","MT":"Montana","NE":"Nebraska","NV":"Nevada","NH":"New Hampshire","NJ":"New Jersey","NM":"New Mexico","NY":"New York","NC":"North Carolina","ND":"North Dakota","OH":"Ohio","OK":"Oklahoma","OR":"Oregon","PA":"Pennsylvania","RI":"Rhode Island","SC":"South Carolina","SD":"South Dakota","TN":"Tennessee","TX":"Texas","UT":"Utah","VT":"Vermont","VA":"Virginia","WA":"Washington","WV":"West Virginia","WI":"Wisconsin","WY":"Wyoming"};
 
-const licenseIcons = {
-  dba: '📝', general_business_license: '🏛️', liquor_license: '🍸', food_beverage: '🍕',
-  str_license: '🏠', professional_license: '💼', home_occupation: '🏡', sales_tax_permit: '📋',
-  health_department: '🏥', building_zoning: '🏗️', signage_permit: '🪧', special_event: '🎪',
-  cannabis_license: '🌿', childcare_license: '👶', auto_dealer: '🚗'
-};
-
-// Populate state dropdowns
 function populateStates() {
   const sorted = Object.entries(stateNames).sort((a,b) => a[1].localeCompare(b[1]));
   document.querySelectorAll('select[id$="State"]').forEach(sel => {
@@ -367,18 +528,12 @@ function populateStates() {
   });
 }
 
-// Load license types
 async function loadLicenseTypes() {
   let types = [];
   try {
     const res = await fetch('/api/license-types');
-    if (res.ok) {
-      const data = await res.json();
-      types = data.license_types || [];
-    }
+    if (res.ok) { const data = await res.json(); types = data.license_types || []; }
   } catch(e) {}
-
-  // Fallback
   if (!types.length) {
     types = [
       {id:'dba',name:'DBA / Fictitious Business Name',authority_level:'state_or_county',typical_fee_range:[10,100],our_service_fee:29},
@@ -398,23 +553,17 @@ async function loadLicenseTypes() {
       {id:'auto_dealer',name:'Auto Dealer License',authority_level:'state',typical_fee_range:[100,2500],our_service_fee:99},
     ];
   }
-
-  // Render grid
   const grid = document.getElementById('licenseGrid');
   grid.innerHTML = types.map(t => {
-    const icon = licenseIcons[t.id] || '📄';
     const fee = t.our_service_fee || t.our_fee || 0;
     const range = t.typical_fee_range || [0,0];
     return `<div class="license-card" onclick="scrollToCheck('${t.id}','${t.name.replace(/'/g,"\\'")}')">
-      <div class="icon">${icon}</div>
       <h4>${t.name}</h4>
-      <div class="fee">${fee > 0 ? 'Our fee: $'+fee : 'Free guidance'}</div>
-      <p>Gov fees typically $${range[0]}–$${range[1]}</p>
-      <div class="authority">${(t.authority_level||'').replace(/_/g,' ').replace(/\b\w/g,l=>l.toUpperCase())}</div>
+      <div class="fee ${fee > 0 ? '' : 'free'}">${fee > 0 ? '$'+fee+' service' : 'Free guidance'}</div>
+      <p>Gov fee ~$${range[0]}–$${range[1]}</p>
+      <div class="authority">${(t.authority_level||'').replace(/_/g,' ')}</div>
     </div>`;
   }).join('');
-
-  // Populate type dropdown
   const sel = document.getElementById('checkType');
   types.forEach(t => {
     const opt = document.createElement('option');
@@ -429,85 +578,76 @@ function scrollToCheck(typeId, typeName) {
   document.getElementById('check').scrollIntoView({behavior:'smooth'});
 }
 
-// Wizard
 async function runWizard() {
   const city = document.getElementById('wizCity').value;
   const state = document.getElementById('wizState').value;
   const biz = document.getElementById('wizBizType').value;
   const el = document.getElementById('wizardResult');
-  if (!city || !state || !biz) { el.innerHTML = '<p style="color:var(--red);margin-top:12px;">Please fill in all fields.</p>'; return; }
-  el.innerHTML = '<div style="text-align:center;padding:20px;"><div class="spinner"></div>Checking licenses for '+biz+' in '+city+', '+stateNames[state]+'...</div>';
+  if (!city || !state || !biz) { el.innerHTML = '<p style="color:var(--red);margin-top:12px;font-size:13px;">Fill in all fields.</p>'; return; }
+  el.innerHTML = '<div style="text-align:center;padding:20px;"><div class="spinner"></div>Checking licenses for '+biz+' in '+city+', '+stateNames[state]+'…</div>';
   try {
-    const res = await fetch('/api/license-needs', {
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({city, state, business_type: biz})
-    });
+    const res = await fetch('/api/license-needs', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({city, state, business_type: biz})});
     const data = await res.json();
     const lics = data.licenses || [];
-    let html = '<div style="margin-top:16px;"><div style="font-weight:700;font-size:18px;margin-bottom:12px;">📋 '+lics.length+' License(s) Found</div>';
+    let html = '<div style="margin-top:16px;"><div style="font-family:var(--font-mono);font-size:11px;letter-spacing:0.15em;color:var(--muted-2);margin-bottom:12px;">/ '+lics.length+' LICENSE(S) FOUND</div>';
     lics.forEach(l => {
-      const pc = l.priority==='high'?'var(--red)':l.priority==='medium'?'var(--yellow)':'var(--green)';
+      const pc = l.priority==='high'?'var(--red)':l.priority==='medium'?'var(--amber)':'var(--green)';
       html += `<div class="result-card">
-        <div style="display:flex;justify-content:space-between;align-items:center;">
-          <strong>${l.license_name}</strong>
-          <span style="font-size:12px;color:${pc};font-weight:700;text-transform:uppercase;">${l.priority}</span>
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;">
+          <strong style="font-family:var(--font-display);font-size:16px;">${l.license_name}</strong>
+          <span style="font-family:var(--font-mono);font-size:10px;color:${pc};font-weight:700;text-transform:uppercase;letter-spacing:0.12em;">${l.priority}</span>
         </div>
-        <div style="font-size:13px;color:var(--muted);margin-top:4px;">${l.issuing_authority||''}</div>
-        <div style="font-size:14px;margin-top:6px;">Gov fee: ~$${l.estimated_fee||'?'} · Our fee: $${l.our_fee||0}</div>
-        ${l.notes?'<div style="font-size:12px;color:var(--muted);margin-top:4px;">'+l.notes+'</div>':''}
-        ${l.our_fee>0?'<button onclick="scrollToCheck(\''+l.license_type_id+'\',\''+l.license_name.replace(/'/g,"\\'")+'\')" style="margin-top:8px;padding:8px 16px;background:rgba(204,255,0,0.1);color:var(--accent);border:1px solid rgba(204,255,0,0.2);border-radius:6px;cursor:pointer;font-size:13px;font-weight:600;font-family:\'Inter\',sans-serif;">Get Started →</button>':''}
+        <div style="font-family:var(--font-mono);font-size:11px;color:var(--muted-2);margin-top:6px;letter-spacing:0.1em;">${l.issuing_authority||''}</div>
+        <div style="font-size:13px;margin-top:8px;color:var(--body);">Gov fee ~$${l.estimated_fee||'?'} · Service $${l.our_fee||0}</div>
+        ${l.notes?'<div style="font-size:12px;color:var(--muted);margin-top:6px;">'+l.notes+'</div>':''}
+        ${l.our_fee>0?'<button onclick="scrollToCheck(\''+l.license_type_id+'\',\''+l.license_name.replace(/'/g,"\\'")+'\')" style="margin-top:12px;padding:8px 14px;background:transparent;color:var(--accent);border:1px solid rgba(204,255,0,0.3);border-radius:6px;cursor:pointer;font-size:12px;font-weight:600;font-family:var(--font-body);">Get started →</button>':''}
       </div>`;
     });
     if (data.total_estimated_government_fees) {
-      html += '<div style="text-align:center;padding:16px;font-weight:700;font-size:18px;color:var(--accent);">Estimated total gov fees: ~$'+data.total_estimated_government_fees+'</div>';
+      html += '<div style="text-align:center;padding:18px;margin-top:8px;font-family:var(--font-mono);font-size:14px;letter-spacing:0.05em;color:var(--accent);">TOTAL EST. GOV FEES ~$'+data.total_estimated_government_fees+'</div>';
     }
     html += '</div>';
     el.innerHTML = html;
   } catch(e) {
-    el.innerHTML = '<p style="color:var(--red);margin-top:12px;">Error running wizard. Please try again.</p>';
+    el.innerHTML = '<p style="color:var(--red);margin-top:12px;font-size:13px;">Error running wizard. Try again.</p>';
   }
 }
 
-// DBA check
 async function checkDBA() {
   const name = document.getElementById('dbaName').value;
   const state = document.getElementById('dbaState').value;
   const county = document.getElementById('dbaCounty').value;
   const city = document.getElementById('dbaCity').value;
   const el = document.getElementById('dbaResult');
-  if (!name || !state) { el.innerHTML = '<p style="color:var(--red);margin-top:12px;">Please enter DBA name and state.</p>'; return; }
-  el.innerHTML = '<div style="text-align:center;padding:16px;"><div class="spinner"></div>Checking '+stateNames[state]+' DBA requirements...</div>';
+  if (!name || !state) { el.innerHTML = '<p style="color:var(--red);margin-top:12px;font-size:13px;">Enter DBA name and state.</p>'; return; }
+  el.innerHTML = '<div style="text-align:center;padding:16px;"><div class="spinner"></div>Checking '+stateNames[state]+' DBA requirements…</div>';
   try {
-    const res = await fetch('/api/license-check', {
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({state, county, city, business_type:'', license_type:'dba'})
-    });
+    const res = await fetch('/api/license-check', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({state, county, city, business_type:'', license_type:'dba'})});
     const data = await res.json();
     const d = data.data || {};
     const type = data.response_type;
     let html = '<div class="result-card">';
-    html += '<span class="badge '+(type==='ONLINE_FILING'?'badge-online':type==='MAIL_FILING'?'badge-mail':'badge-guidance')+'">'+(type==='ONLINE_FILING'?'🟢 Online Filing':type==='MAIL_FILING'?'📬 Mail Filing':'📋 Guidance')+'</span>';
-    html += '<h4 style="margin-top:8px;">'+d.state_name+' DBA Filing</h4>';
-    html += '<div style="font-size:14px;margin-top:8px;">';
+    html += '<span class="badge '+(type==='ONLINE_FILING'?'badge-online':type==='MAIL_FILING'?'badge-mail':'badge-guidance')+'">'+(type==='ONLINE_FILING'?'Online Filing':type==='MAIL_FILING'?'Mail Filing':'Guidance')+'</span>';
+    html += '<h4 style="margin-top:4px;">'+d.state_name+' DBA Filing</h4>';
+    html += '<div style="font-size:14px;margin-top:12px;color:var(--body);">';
     if (d.filed_at) html += '<div>Filed at: <strong>'+d.filed_at+' level</strong></div>';
-    if (d.filing_fee !== undefined) html += '<div>Government fee: <strong>$'+d.filing_fee+'</strong></div>';
-    html += '<div>Our service fee: <strong>$'+d.our_fee+'</strong></div>';
-    if (d.total_estimated) html += '<div style="font-size:18px;color:var(--accent);font-weight:700;margin-top:8px;">Total: $'+d.total_estimated+'</div>';
-    if (d.portal_url) html += '<div style="margin-top:8px;"><a href="'+d.portal_url+'" target="_blank">Filing Portal →</a></div>';
-    if (d.publication_required) html += '<div style="margin-top:8px;color:var(--yellow);">⚠ Publication required: '+(d.publication_details||'Check with county clerk')+'</div>';
-    if (d.renewal_period) html += '<div style="margin-top:4px;color:var(--muted);">Renewal: '+d.renewal_period+'</div>';
-    if (d.message) html += '<div style="margin-top:8px;">'+d.message+'</div>';
+    if (d.filing_fee !== undefined) html += '<div>Government fee: <strong class="mono">$'+d.filing_fee+'</strong></div>';
+    html += '<div>Service fee: <strong class="mono">$'+d.our_fee+'</strong></div>';
+    if (d.total_estimated) html += '<div style="font-size:20px;color:var(--accent);font-weight:900;margin-top:10px;" class="mono">Total: $'+d.total_estimated+'</div>';
+    if (d.portal_url) html += '<div style="margin-top:10px;"><a href="'+d.portal_url+'" target="_blank" style="color:var(--cyan);">Filing Portal →</a></div>';
+    if (d.publication_required) html += '<div style="margin-top:10px;color:var(--amber);font-size:13px;">Publication required: '+(d.publication_details||'Check with county clerk')+'</div>';
+    if (d.renewal_period) html += '<div style="margin-top:6px;color:var(--muted);font-size:13px;">Renewal: '+d.renewal_period+'</div>';
+    if (d.message) html += '<div style="margin-top:10px;font-size:13px;">'+d.message+'</div>';
     html += '</div></div>';
     if (type !== 'GUIDANCE') {
-      html += '<button onclick="alert(\'DBA filing coming soon! Email support@sosfiler.com for immediate assistance.\')" class="btn" style="width:100%;margin-top:12px;">File My DBA — $'+(d.total_estimated||29)+' →</button>';
+      html += '<button onclick="alert(\'DBA filing coming soon. Email support@sosfiler.com.\')" class="btn" style="width:100%;margin-top:14px;">File my DBA · $'+(d.total_estimated||29)+' <span class="arrow">→</span></button>';
     }
     el.innerHTML = html;
   } catch(e) {
-    el.innerHTML = '<p style="color:var(--red);margin-top:12px;">Error. Please try again.</p>';
+    el.innerHTML = '<p style="color:var(--red);margin-top:12px;font-size:13px;">Error. Try again.</p>';
   }
 }
 
-// Specific license check
 async function checkLicense() {
   const type = document.getElementById('checkType').value;
   const city = document.getElementById('checkCity').value;
@@ -515,67 +655,56 @@ async function checkLicense() {
   const state = document.getElementById('checkState').value;
   const biz = document.getElementById('checkBiz').value;
   const el = document.getElementById('checkResult');
-  if (!type || !state) { el.innerHTML = '<p style="color:var(--red);margin-top:12px;">Please select license type and state.</p>'; return; }
-  el.innerHTML = '<div style="text-align:center;padding:16px;"><div class="spinner"></div>Checking requirements...</div>';
+  if (!type || !state) { el.innerHTML = '<p style="color:var(--red);margin-top:12px;font-size:13px;">Select license type and state.</p>'; return; }
+  el.innerHTML = '<div style="text-align:center;padding:16px;"><div class="spinner"></div>Checking requirements…</div>';
   try {
-    const res = await fetch('/api/license-check', {
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({city, county, state, business_type: biz, license_type: type})
-    });
+    const res = await fetch('/api/license-check', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({city, county, state, business_type: biz, license_type: type})});
     const data = await res.json();
     const d = data.data || {};
     const rt = data.response_type;
     let html = '<div class="result-card">';
-    html += '<span class="badge '+(rt==='ONLINE_FILING'?'badge-online':rt==='MAIL_FILING'?'badge-mail':'badge-guidance')+'">'+(rt==='ONLINE_FILING'?'🟢 Online Filing Available':rt==='MAIL_FILING'?'📬 Mail/In-Person Filing':'📋 Guidance')+'</span>';
-    if (d.license_name) html += '<h4 style="margin-top:8px;">'+d.license_name+'</h4>';
-    if (d.issuing_authority) html += '<div style="font-size:13px;color:var(--muted);">'+d.issuing_authority+'</div>';
-    html += '<div style="font-size:14px;margin-top:12px;">';
-    if (d.filing_fee !== undefined) html += '<div>Government fee: <strong>$'+d.filing_fee+'</strong></div>';
+    html += '<span class="badge '+(rt==='ONLINE_FILING'?'badge-online':rt==='MAIL_FILING'?'badge-mail':'badge-guidance')+'">'+(rt==='ONLINE_FILING'?'Online Filing Available':rt==='MAIL_FILING'?'Mail/In-Person':'Guidance')+'</span>';
+    if (d.license_name) html += '<h4 style="margin-top:4px;">'+d.license_name+'</h4>';
+    if (d.issuing_authority) html += '<div style="font-family:var(--font-mono);font-size:11px;color:var(--muted-2);letter-spacing:0.1em;margin-top:4px;">'+d.issuing_authority+'</div>';
+    html += '<div style="font-size:14px;margin-top:14px;color:var(--body);">';
+    if (d.filing_fee !== undefined) html += '<div>Government fee: <strong class="mono">$'+d.filing_fee+'</strong></div>';
     if (d.processing_time) html += '<div>Processing time: '+d.processing_time+'</div>';
-    if (d.our_fee > 0) html += '<div>Our service fee: <strong>$'+d.our_fee+'</strong></div>';
-    if (d.total_estimated) html += '<div style="font-size:18px;color:var(--accent);font-weight:700;margin-top:8px;">Estimated total: $'+d.total_estimated+'</div>';
+    if (d.our_fee > 0) html += '<div>Service fee: <strong class="mono">$'+d.our_fee+'</strong></div>';
+    if (d.total_estimated) html += '<div style="font-size:20px;color:var(--accent);font-weight:900;margin-top:10px;" class="mono">Estimated total: $'+d.total_estimated+'</div>';
     html += '</div>';
     if (d.requirements && d.requirements.length) {
-      html += '<div style="margin-top:12px;"><strong>Requirements:</strong><ul style="font-size:13px;color:var(--muted);padding-left:20px;margin-top:4px;">';
-      d.requirements.forEach(r => html += '<li>'+r+'</li>');
+      html += '<div style="margin-top:14px;"><strong style="font-family:var(--font-mono);font-size:11px;letter-spacing:0.12em;color:var(--muted);text-transform:uppercase;">Requirements</strong><ul style="font-size:13px;color:var(--body);padding-left:18px;margin-top:8px;">';
+      d.requirements.forEach(r => html += '<li style="margin-bottom:4px;">'+r+'</li>');
       html += '</ul></div>';
     }
     if (d.documents_needed && d.documents_needed.length) {
-      html += '<div style="margin-top:8px;"><strong>Documents needed:</strong><ul style="font-size:13px;color:var(--muted);padding-left:20px;margin-top:4px;">';
-      d.documents_needed.forEach(r => html += '<li>'+r+'</li>');
+      html += '<div style="margin-top:10px;"><strong style="font-family:var(--font-mono);font-size:11px;letter-spacing:0.12em;color:var(--muted);text-transform:uppercase;">Documents Needed</strong><ul style="font-size:13px;color:var(--body);padding-left:18px;margin-top:8px;">';
+      d.documents_needed.forEach(r => html += '<li style="margin-bottom:4px;">'+r+'</li>');
       html += '</ul></div>';
     }
-    if (d.portal_url) html += '<div style="margin-top:12px;"><a href="'+d.portal_url+'" target="_blank">Filing Portal →</a></div>';
-    if (d.office_address) html += '<div style="font-size:13px;color:var(--muted);margin-top:8px;">📍 '+d.office_address+'</div>';
-    if (d.phone) html += '<div style="font-size:13px;color:var(--muted);">📞 '+d.phone+'</div>';
-    if (d.hours) html += '<div style="font-size:13px;color:var(--muted);">🕐 '+d.hours+'</div>';
-    if (d.additional_notes) html += '<div style="margin-top:12px;padding:12px;background:rgba(255,107,0,0.08);border:1px solid rgba(255,107,0,0.2);border-radius:8px;font-size:13px;color:var(--yellow);">'+d.additional_notes+'</div>';
+    if (d.portal_url) html += '<div style="margin-top:12px;"><a href="'+d.portal_url+'" target="_blank" style="color:var(--cyan);">Filing Portal →</a></div>';
+    if (d.office_address) html += '<div style="font-size:13px;color:var(--muted);margin-top:10px;">Office: '+d.office_address+'</div>';
+    if (d.phone) html += '<div style="font-size:13px;color:var(--muted);">Phone: '+d.phone+'</div>';
+    if (d.hours) html += '<div style="font-size:13px;color:var(--muted);">Hours: '+d.hours+'</div>';
+    if (d.additional_notes) html += '<div style="margin-top:12px;padding:12px;background:rgba(255,178,63,0.06);border:1px solid rgba(255,178,63,0.2);border-radius:6px;font-size:13px;color:var(--amber);">'+d.additional_notes+'</div>';
     html += '</div>';
     if (rt !== 'GUIDANCE' && d.our_fee > 0) {
-      html += '<button onclick="alert(\'Filing service coming soon! Email support@sosfiler.com.\')" class="btn" style="width:100%;margin-top:12px;">File Now — $'+(d.total_estimated||d.our_fee)+' →</button>';
+      html += '<button onclick="alert(\'Filing service coming soon. Email support@sosfiler.com.\')" class="btn" style="width:100%;margin-top:14px;">File now · $'+(d.total_estimated||d.our_fee)+' <span class="arrow">→</span></button>';
     }
     el.innerHTML = html;
   } catch(e) {
-    el.innerHTML = '<p style="color:var(--red);margin-top:12px;">Error checking license. Please try again.</p>';
+    el.innerHTML = '<p style="color:var(--red);margin-top:12px;font-size:13px;">Error checking license. Try again.</p>';
   }
 }
 
-// Attach wizard button handler
 document.querySelector('#wizard .btn').addEventListener('click', runWizard);
-
-// Init
 populateStates();
 loadLicenseTypes();
 
-// Handle hash navigation
-if (window.location.hash === '#dba') {
-  setTimeout(() => document.getElementById('dba').scrollIntoView({behavior:'smooth'}), 300);
-} else if (window.location.hash === '#specialty') {
-  setTimeout(() => document.getElementById('licenses').scrollIntoView({behavior:'smooth'}), 300);
-} else if (window.location.hash === '#wizard') {
-  setTimeout(() => document.getElementById('wizard').scrollIntoView({behavior:'smooth'}), 300);
-}
+if (window.location.hash === '#dba') setTimeout(() => document.getElementById('dba').scrollIntoView({behavior:'smooth'}), 300);
+else if (window.location.hash === '#specialty') setTimeout(() => document.getElementById('licenses').scrollIntoView({behavior:'smooth'}), 300);
+else if (window.location.hash === '#wizard') setTimeout(() => document.getElementById('wizard').scrollIntoView({behavior:'smooth'}), 300);
 </script>
-<script src="/chat-widget.js"></script>
+<script src="chat-widget.js"></script>
 </body>
 </html>

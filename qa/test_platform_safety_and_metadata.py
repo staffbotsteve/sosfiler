@@ -313,7 +313,7 @@ class PlatformSafetyAndMetadataTests(unittest.TestCase):
         self.assertGreaterEqual(payload["summary"]["states"], 51)
         self.assertEqual(len(payload["records"]), payload["summary"]["states"])
         tx = next(record for record in payload["records"] if record["state"] == "TX")
-        self.assertIn(tx["dry_run_status"], {"ready", "operator_required", "blocked"})
+        self.assertIn(tx["dry_run_status"], {"ready", "operator_required", "blocked", "automation_started"})
         self.assertIn("preflight_passed", tx)
 
     def test_payment_readiness_surfaces_authorized_order_filing_prep_blockers(self):

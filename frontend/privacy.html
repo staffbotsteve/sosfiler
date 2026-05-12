@@ -7,104 +7,255 @@
 <title>Privacy Policy — SOSFiler</title>
 <meta name="description" content="SOSFiler Privacy Policy — how we collect, use, and protect your personal information.">
 <link rel="manifest" href="/manifest.json">
-<meta name="theme-color" content="#CCFF00">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<meta name="theme-color" content="#0A0A0A">
+<link rel="apple-touch-icon" href="/icon-192.png">
 <link rel="stylesheet" href="/chat-widget.css">
 <style>
 :root {
   --bg: #0A0A0A;
+  --bg-tint: #0E0E0E;
   --surface: #141414;
-  --border: #1E1E1E;
+  --surface-2: #1A1A1A;
+  --border: #1F1F1F;
+  --border-strong: #2A2A2A;
   --text: #FFFFFF;
-  --text-secondary: #999999;
-  --text-body: #CCCCCC;
+  --muted: #9A9A9A;
+  --muted-2: #6B6B6B;
+  --body: #D0D0D0;
   --accent: #CCFF00;
-  --accent2: #39FF14;
   --cyan: #00FFE5;
   --green: #39FF14;
   --red: #FF3366;
-  --yellow: #FF6B00;
-  --glow-sm: rgba(204,255,0,0.15);
+  --yellow: #FFB23F;
+  --glow-sm: rgba(204,255,0,0.12);
+
+  --font-display: -apple-system, BlinkMacSystemFont, 'SF Pro Display', system-ui, sans-serif;
+  --font-body:    -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif;
+  --font-mono:    'JetBrains Mono', 'IBM Plex Mono', ui-monospace, Menlo, monospace;
 }
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; -webkit-font-smoothing: antialiased; }
-a { color: var(--cyan); text-decoration: none; transition: color 0.2s ease; }
-a:hover { color: var(--accent); text-decoration: underline; }
-
-::-webkit-scrollbar { width: 6px; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--font-body);
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+a { color: var(--accent); text-decoration: none; border-bottom: 1px solid rgba(204,255,0,0.3); transition: border-color .15s ease, color .15s ease; }
+a:hover { border-bottom-color: var(--accent); color: #DBFF33; }
+::selection { background: var(--accent); color: #000; }
+::-webkit-scrollbar { width: 8px; }
 ::-webkit-scrollbar-track { background: var(--bg); }
-::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
+::-webkit-scrollbar-thumb { background: #2A2A2A; border-radius: 2px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
 
-.topbar { background: rgba(10,10,10,0.92); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); border-bottom: 1px solid var(--border); padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
-.topbar .logo { font-size: 20px; font-weight: 800; color: #fff; }
-.topbar .logo span { color: var(--accent); }
-.container { max-width: 800px; margin: 0 auto; padding: 40px 20px 80px; }
-h1 { font-size: 32px; margin-bottom: 8px; font-weight: 800; }
-.last-updated { color: var(--text-secondary); font-size: 14px; margin-bottom: 40px; }
-h2 { font-size: 20px; margin-top: 40px; margin-bottom: 12px; color: var(--accent); font-weight: 700; }
-h3 { font-size: 16px; margin-top: 24px; margin-bottom: 8px; color: var(--accent); font-weight: 600; }
-p, li { font-size: 15px; color: var(--text-body); margin-bottom: 12px; }
+/* nav */
+nav {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(10,10,10,0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  padding: 14px 0;
+}
+.container { max-width: 800px; margin: 0 auto; padding: 0 24px; }
+.nav-inner { display: flex; justify-content: space-between; align-items: center; gap: 24px; }
+.brand { display: flex; align-items: center; gap: 12px; }
+.brand img { height: 56px; width: auto; }
+.brand-mark { font-family: var(--font-display); font-size: 18px; font-weight: 900; letter-spacing: -0.02em; }
+.brand-mark .dot { color: var(--accent); }
+.back-link { font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); border: none; }
+.back-link:hover { color: var(--accent); }
+.back-link::before { content: '← '; }
+
+/* page */
+.page { padding: 80px 0 96px; }
+@media (max-width: 760px) { .page { padding: 56px 0 72px; } }
+
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 600;
+  margin-bottom: 16px;
+  display: inline-flex; align-items: center; gap: 10px;
+}
+.eyebrow::before { content: ''; width: 18px; height: 1px; background: var(--accent); display: inline-block; }
+
+h1 {
+  font-family: var(--font-display);
+  font-size: clamp(40px, 6vw, 64px);
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  line-height: 1.02;
+  margin-bottom: 12px;
+}
+.last-updated {
+  font-family: var(--font-mono);
+  color: var(--muted-2);
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-bottom: 40px;
+}
+
+.tldr {
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  border-radius: 8px;
+  padding: 24px 28px;
+  margin: 32px 0 48px;
+  font-size: 16px;
+  color: var(--body);
+  position: relative;
+}
+.tldr::before {
+  content: 'TL;DR';
+  position: absolute;
+  top: -10px; left: 20px;
+  background: var(--accent);
+  color: #000;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  padding: 3px 10px;
+}
+.tldr strong { color: #fff; font-weight: 600; }
+
+h2 {
+  font-family: var(--font-display);
+  font-size: 26px;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  margin: 56px 0 16px;
+  color: #fff;
+}
+h2::before {
+  content: attr(data-num);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--accent);
+  font-weight: 600;
+  display: block;
+  margin-bottom: 6px;
+  letter-spacing: 0.08em;
+}
+h3 {
+  font-family: var(--font-display);
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin: 28px 0 10px;
+  color: #fff;
+}
+p, li { font-size: 15.5px; color: var(--body); margin-bottom: 14px; }
 ul, ol { padding-left: 24px; margin-bottom: 16px; }
 li { margin-bottom: 6px; }
-.highlight { background: rgba(204,255,0,0.03); border: 1px solid rgba(204,255,0,0.1); border-radius: 8px; padding: 16px 20px; margin: 20px 0; font-size: 15px; }
+strong { color: #fff; font-weight: 600; }
+
+.highlight {
+  background: rgba(204,255,0,0.05);
+  border-left: 3px solid var(--accent);
+  padding: 16px 20px;
+  margin: 24px 0;
+  font-size: 15.5px;
+  color: var(--body);
+}
 .highlight strong { color: #fff; }
-table { width: 100%; border-collapse: collapse; margin: 16px 0 24px; }
-th, td { text-align: left; padding: 12px 16px; border-bottom: 1px solid var(--border); font-size: 14px; }
-th { color: var(--accent); font-weight: 600; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; }
-td { color: var(--text-body); }
-footer { border-top: 1px solid var(--border); padding: 40px 20px; text-align: center; color: var(--text-secondary); font-size: 13px; }
-footer a { color: var(--cyan); }
+
+table { width: 100%; border-collapse: collapse; margin: 20px 0 32px; font-size: 14px; }
+th, td { text-align: left; padding: 14px 16px; border-bottom: 1px solid var(--border); vertical-align: top; }
+th {
+  font-family: var(--font-mono);
+  color: var(--accent);
+  font-weight: 600;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  border-bottom: 1px solid var(--border-strong);
+}
+td { color: var(--body); }
+td strong { color: #fff; }
+
+/* footer */
+footer {
+  border-top: 1px solid var(--border);
+  padding: 40px 0 56px;
+}
+footer .container { display: flex; justify-content: space-between; align-items: center; gap: 24px; flex-wrap: wrap; }
+footer .copyright {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted-2);
+}
+footer .footer-links { display: flex; gap: 20px; flex-wrap: wrap; }
+footer .footer-links a { color: var(--muted); font-size: 13px; border: none; }
+footer .footer-links a:hover { color: var(--accent); }
+@media (max-width: 600px) {
+  footer .container { flex-direction: column; align-items: flex-start; }
+}
 </style>
 </head>
 <body>
 
-<div class="topbar">
-  <a href="/" class="logo">📋 SOS<span>Filer</span></a>
-  <a href="/" style="color: var(--text-secondary); font-size: 14px; min-height: 44px; display: flex; align-items: center;">← Back to Home</a>
-</div>
+<nav>
+  <div class="container nav-inner">
+    <a class="brand" href="/" style="border:none;">
+      <img src="logo.png" alt="SOSFiler">
+      <span class="brand-mark">SOS<span class="dot">F</span>iler</span>
+    </a>
+    <a href="/" class="back-link">Back to home</a>
+  </div>
+</nav>
 
+<div class="page">
 <div class="container">
 
-<h1>Privacy Policy</h1>
-<p class="last-updated">Last Updated: March 19, 2026</p>
+<div class="eyebrow">Legal · Privacy</div>
+<h1>Privacy Policy.</h1>
+<div class="last-updated">Last updated · March 19, 2026</div>
 
-<div class="highlight">
-  <strong>The short version:</strong> We collect only what we need to file your documents. Your data is encrypted. We never sell it. You can request deletion at any time.
+<div class="tldr">
+  <strong>The short version.</strong> We collect only what we need to file your documents. Your data is encrypted. We never sell it. You can request deletion at any time.
 </div>
 
-<h2>1. Who We Are</h2>
+<h2 data-num="01">Who we are</h2>
 <p>SOSFiler ("Company," "we," "us," or "our") is a document preparation and business formation filing service. This Privacy Policy explains how we collect, use, store, and protect your personal information when you use our website and services.</p>
 
-<h2>2. Information We Collect</h2>
+<h2 data-num="02">Information we collect</h2>
 
-<h3>2.1 Information You Provide</h3>
+<h3>2.1 Information you provide</h3>
 <table>
   <thead>
-    <tr><th>Data Type</th><th>Purpose</th><th>Retention</th></tr>
+    <tr><th>Data type</th><th>Purpose</th><th>Retention</th></tr>
   </thead>
   <tbody>
     <tr><td><strong>Full legal name</strong></td><td>Formation documents, Operating Agreement</td><td>Duration of account</td></tr>
     <tr><td><strong>Email address</strong></td><td>Account, order updates, compliance reminders</td><td>Duration of account</td></tr>
     <tr><td><strong>Mailing address</strong></td><td>Formation documents, Registered Agent service</td><td>Duration of account</td></tr>
-    <tr><td><strong>Social Security Number (SSN) or ITIN</strong></td><td>EIN application with the IRS (required by IRS)</td><td>Deleted within 90 days of EIN receipt</td></tr>
+    <tr><td><strong>SSN or ITIN</strong></td><td>EIN application with the IRS (required by IRS)</td><td>Deleted within 90 days of EIN receipt</td></tr>
     <tr><td><strong>Business information</strong></td><td>Formation documents, filings</td><td>Duration of account</td></tr>
     <tr><td><strong>Payment information</strong></td><td>Process payment via Stripe</td><td>We do NOT store card numbers</td></tr>
   </tbody>
 </table>
 
-<h3>2.2 Information Collected Automatically</h3>
+<h3>2.2 Information collected automatically</h3>
 <p>We collect minimal technical data to keep our service running:</p>
 <ul>
-  <li><strong>IP address:</strong> For security and fraud prevention</li>
-  <li><strong>Browser type and device:</strong> For compatibility and debugging</li>
-  <li><strong>Pages visited:</strong> Basic analytics to improve our service</li>
+  <li><strong>IP address:</strong> for security and fraud prevention</li>
+  <li><strong>Browser type and device:</strong> for compatibility and debugging</li>
+  <li><strong>Pages visited:</strong> basic analytics to improve our service</li>
 </ul>
 <p>We do <strong>not</strong> use third-party tracking cookies, advertising pixels, or behavioral tracking tools.</p>
 
-<h2>3. How We Use Your Information</h2>
+<h2 data-num="03">How we use your information</h2>
 <p>We use your personal information solely for the following purposes:</p>
 <ul>
   <li><strong>Filing formation documents</strong> with state authorities</li>
@@ -117,7 +268,7 @@ footer a { color: var(--cyan); }
 </ul>
 <p>We do not use your information for marketing to third parties, and we do not build behavioral profiles.</p>
 
-<h2>4. How We Protect Your Information</h2>
+<h2 data-num="04">How we protect your information</h2>
 
 <h3>4.1 Encryption</h3>
 <ul>
@@ -126,21 +277,21 @@ footer a { color: var(--cyan); }
   <li><strong>Database:</strong> Our database is encrypted at rest with access controls limiting visibility to authorized processes only</li>
 </ul>
 
-<h3>4.2 Access Controls</h3>
+<h3>4.2 Access controls</h3>
 <ul>
   <li>SSN/ITIN data is accessible only to the automated EIN filing process and authorized personnel who handle manual IRS filings</li>
   <li>Employee access to personal data is role-based and logged</li>
   <li>We use unique access tokens (not passwords) for dashboard access — no account credentials to steal</li>
 </ul>
 
-<h3>4.3 Payment Security</h3>
-<p>All payment processing is handled by <a href="https://stripe.com" target="_blank">Stripe</a>, a PCI DSS Level 1 certified payment processor. We never see, store, or have access to your full credit card number.</p>
+<h3>4.3 Payment security</h3>
+<p>All payment processing is handled by <a href="https://stripe.com" target="_blank" rel="noopener">Stripe</a>, a PCI DSS Level 1 certified payment processor. We never see, store, or have access to your full credit card number.</p>
 
-<h2>5. Who We Share Your Information With</h2>
+<h2 data-num="05">Who we share your information with</h2>
 <p>We share your information only when necessary to provide our services:</p>
 <table>
   <thead>
-    <tr><th>Recipient</th><th>Data Shared</th><th>Purpose</th></tr>
+    <tr><th>Recipient</th><th>Data shared</th><th>Purpose</th></tr>
   </thead>
   <tbody>
     <tr><td><strong>State Secretary of State</strong></td><td>Formation documents (name, address, entity details)</td><td>Filing your business entity</td></tr>
@@ -154,9 +305,9 @@ footer a { color: var(--cyan); }
   <strong>We never sell, rent, trade, or share your personal information with third parties for their marketing purposes.</strong> This is a core principle — not a legal formality.
 </div>
 
-<h2>6. Data Retention and Deletion</h2>
+<h2 data-num="06">Data retention and deletion</h2>
 
-<h3>6.1 Retention Periods</h3>
+<h3>6.1 Retention periods</h3>
 <ul>
   <li><strong>SSN/ITIN:</strong> Encrypted upon receipt. Permanently deleted within 90 days of successful EIN issuance.</li>
   <li><strong>Formation documents:</strong> Retained in your Document Vault for as long as your account is active.</li>
@@ -164,8 +315,8 @@ footer a { color: var(--cyan); }
   <li><strong>Payment records:</strong> Transaction records retained for 7 years as required by financial regulations.</li>
 </ul>
 
-<h3>6.2 Your Right to Deletion</h3>
-<p>You may request deletion of your personal data at any time by emailing <a href="mailto:support@sosfiler.com">Contact</a> with the subject line "Data Deletion Request." We will:</p>
+<h3>6.2 Your right to deletion</h3>
+<p>You may request deletion of your personal data at any time by emailing <a href="mailto:support@sosfiler.com">support@sosfiler.com</a> with the subject line "Data Deletion Request." We will:</p>
 <ul>
   <li>Acknowledge your request within 48 hours</li>
   <li>Complete deletion within 30 days</li>
@@ -173,18 +324,18 @@ footer a { color: var(--cyan); }
   <li>Retain only what is required by law (e.g., financial transaction records)</li>
 </ul>
 
-<h2>7. Your Rights (Including CCPA)</h2>
+<h2 data-num="07">Your rights (including CCPA)</h2>
 <p>If you are a California resident or reside in a state with similar privacy laws, you have the following rights:</p>
 <ul>
-  <li><strong>Right to Know:</strong> Request a copy of the personal information we have collected about you</li>
-  <li><strong>Right to Delete:</strong> Request deletion of your personal information</li>
-  <li><strong>Right to Opt-Out of Sale:</strong> We do not sell personal information, but you may submit a request to confirm this at any time</li>
-  <li><strong>Right to Non-Discrimination:</strong> We will not discriminate against you for exercising your privacy rights</li>
-  <li><strong>Right to Correct:</strong> Request correction of inaccurate personal information</li>
+  <li><strong>Right to know:</strong> Request a copy of the personal information we have collected about you</li>
+  <li><strong>Right to delete:</strong> Request deletion of your personal information</li>
+  <li><strong>Right to opt-out of sale:</strong> We do not sell personal information, but you may submit a request to confirm this at any time</li>
+  <li><strong>Right to non-discrimination:</strong> We will not discriminate against you for exercising your privacy rights</li>
+  <li><strong>Right to correct:</strong> Request correction of inaccurate personal information</li>
 </ul>
-<p>To exercise any of these rights, email <a href="mailto:support@sosfiler.com">Contact</a>. We will verify your identity before processing any request.</p>
+<p>To exercise any of these rights, email <a href="mailto:support@sosfiler.com">support@sosfiler.com</a>. We will verify your identity before processing any request.</p>
 
-<h2>8. Cookies</h2>
+<h2 data-num="08">Cookies</h2>
 <p>We use minimal cookies:</p>
 <ul>
   <li><strong>Local storage:</strong> Used to save your form progress in the wizard (stays on your device, never sent to our servers)</li>
@@ -198,31 +349,34 @@ footer a { color: var(--cyan); }
   <li>Cross-site tracking of any kind</li>
 </ul>
 
-<h2>9. Children's Privacy</h2>
+<h2 data-num="09">Children's privacy</h2>
 <p>Our services are not directed to individuals under the age of 18. We do not knowingly collect personal information from children. If you believe we have collected information from a child, please contact us immediately.</p>
 
-<h2>10. Changes to This Policy</h2>
+<h2 data-num="10">Changes to this policy</h2>
 <p>We may update this Privacy Policy from time to time. When we do, we will update the "Last Updated" date and, for material changes, notify you by email. Your continued use of our services after changes take effect constitutes acceptance of the updated policy.</p>
 
-<h2>11. Contact Us</h2>
+<h2 data-num="11">Contact us</h2>
 <p>For privacy-related inquiries, data requests, or concerns:</p>
 <ul>
-  <li><strong>Email:</strong> <a href="mailto:support@sosfiler.com">Contact</a></li>
+  <li><strong>Email:</strong> <a href="mailto:support@sosfiler.com">support@sosfiler.com</a></li>
   <li><strong>Subject line:</strong> "Privacy Inquiry" or "Data Request"</li>
   <li><strong>Response time:</strong> Within 48 hours</li>
 </ul>
 
 </div>
+</div>
 
 <footer>
-  <p>SOSFiler — Honest business formation.</p>
-  <p style="margin-top: 8px;">
-    <a href="/">Home</a> · 
-    <a href="/terms.html">Terms of Service</a> · 
-    <a href="/privacy.html">Privacy Policy</a> · 
-    <a href="mailto:support@sosfiler.com">Contact</a>
-  </p>
-  <p style="margin-top: 12px;">© 2026 SOSFiler. Not a law firm. We provide document preparation and filing services.</p>
+  <div class="container">
+    <div class="copyright">© 2026 SOSFiler · Not a law firm</div>
+    <div class="footer-links">
+      <a href="/">Home</a>
+      <a href="/app.html">Start your LLC</a>
+      <a href="/terms.html">Terms</a>
+      <a href="/privacy.html">Privacy</a>
+      <a href="mailto:support@sosfiler.com">Contact</a>
+    </div>
+  </div>
 </footer>
 
 <script src="/chat-widget.js"></script>
