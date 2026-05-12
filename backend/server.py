@@ -55,6 +55,12 @@ from filing_adapters import (
     run_adapter_operation,
     validate_filing_preflight,
 )
+from launch_readiness import (
+    build_launch_readiness_report,
+    build_public_launch_readiness_report,
+    public_launch_readiness_for_state,
+    write_launch_readiness_report,
+)
 from state_automation_profiles import (
     all_state_adapter_manifests,
     certification_worklist,
@@ -81,15 +87,17 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 DATA_DIR = BASE_DIR / "data"
 DB_PATH = BASE_DIR / "sosfiler.db"
 DOCS_DIR = BASE_DIR / "generated_docs"
+EMAIL_LIVE_VERIFICATION_PATH = DATA_DIR / "runtime" / "email_live_verification.json"
 RESEARCH_JOB_QUEUE_PATH = DATA_DIR / "research_jobs.json"
 DOCS_DIR.mkdir(exist_ok=True)
 
-PLATFORM_FEE = 4900  # $49.00 in cents
+PLATFORM_FEE = 2900  # $29.00 in cents
 DBA_PLATFORM_FEE = 2900  # $29.00 in cents
 LICENSE_PLATFORM_FEE = 4900  # $49.00 in cents
 SPECIALTY_LICENSE_FEE = 9900  # $99.00 in cents
 RA_RENEWAL_FEE = 4900  # $49/yr
-ANNUAL_REPORT_FEE = 2500  # $25/yr
+ANNUAL_REPORT_FEE = 2900  # $29 per annual filing, plus state fees
+PARTNER_SETUP_FEE_CENTS = int(os.getenv("PARTNER_SETUP_FEE_CENTS", "29700"))
 
 RESEARCH_COMPLETE_STATUSES = {"ready_for_review", "verified"}
 RESEARCH_REQUIRED_TASKS = [
@@ -211,7 +219,7 @@ def init_db():
             stripe_payment_intent TEXT,
             state_fee_cents INTEGER NOT NULL,
             gov_processing_fee_cents INTEGER NOT NULL DEFAULT 0,
-            platform_fee_cents INTEGER NOT NULL DEFAULT 4900,
+            platform_fee_cents INTEGER NOT NULL DEFAULT 2900,
             total_cents INTEGER NOT NULL,
             filing_confirmation TEXT,
             ein TEXT,
@@ -475,6 +483,91 @@ def init_db():
             created_at TEXT NOT NULL DEFAULT (datetime('now'))
         );
 
+        CREATE TABLE IF NOT EXISTS partners (
+            id TEXT PRIMARY KEY,
+            name TEXT NOT NULL,
+            slug TEXT UNIQUE NOT NULL,
+            status TEXT NOT NULL DEFAULT 'active',
+            support_email TEXT,
+            branding TEXT NOT NULL DEFAULT '{}',
+            metadata TEXT NOT NULL DEFAULT '{}',
+            created_at TEXT NOT NULL DEFAULT (datetime('now')),
+            updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+        );
+
+        CREATE TABLE IF NOT EXISTS partner_api_keys (
+            id TEXT PRIMARY KEY,
+            partner_id TEXT NOT NULL REFERENCES partners(id),
+            key_hash TEXT UNIQUE NOT NULL,
+            key_prefix TEXT NOT NULL,
+            name TEXT NOT NULL DEFAULT 'default',
+            scopes TEXT NOT NULL DEFAULT '["quotes:write","orders:write","orders:read","webhooks:write"]',
+            status TEXT NOT NULL DEFAULT 'active',
+            last_used_at TEXT,
+            created_at TEXT NOT NULL DEFAULT (datetime('now')),
+            revoked_at TEXT
+        );
+
+        CREATE TABLE IF NOT EXISTS partner_orders (
+            id TEXT PRIMARY KEY,
+            partner_id TEXT NOT NULL REFERENCES partners(id),
+            order_id TEXT NOT NULL REFERENCES orders(id),
+            external_order_id TEXT NOT NULL,
+            external_customer_id TEXT,
+            metadata TEXT NOT NULL DEFAULT '{}',
+            created_at TEXT NOT NULL DEFAULT (datetime('now')),
+            updated_at TEXT NOT NULL DEFAULT (datetime('now')),
+            UNIQUE(partner_id, external_order_id),
+            UNIQUE(partner_id, order_id)
+        );
+
+        CREATE TABLE IF NOT EXISTS partner_webhook_endpoints (
+            id TEXT PRIMARY KEY,
+            partner_id TEXT NOT NULL REFERENCES partners(id),
+            url TEXT NOT NULL,
+            event_types TEXT NOT NULL DEFAULT '[]',
+            signing_secret_hash TEXT NOT NULL,
+            secret_prefix TEXT NOT NULL,
+            status TEXT NOT NULL DEFAULT 'active',
+            created_at TEXT NOT NULL DEFAULT (datetime('now')),
+            updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+        );
+
+        CREATE TABLE IF NOT EXISTS partner_webhook_events (
+            id TEXT PRIMARY KEY,
+            partner_id TEXT NOT NULL REFERENCES partners(id),
+            order_id TEXT,
+            endpoint_id TEXT,
+            event_type TEXT NOT NULL,
+            payload TEXT NOT NULL DEFAULT '{}',
+            status TEXT NOT NULL DEFAULT 'queued',
+            attempts INTEGER NOT NULL DEFAULT 0,
+            last_error TEXT,
+            created_at TEXT NOT NULL DEFAULT (datetime('now')),
+            delivered_at TEXT
+        );
+
+        CREATE TABLE IF NOT EXISTS partner_applications (
+            id TEXT PRIMARY KEY,
+            company_name TEXT NOT NULL,
+            contact_name TEXT NOT NULL,
+            contact_email TEXT NOT NULL,
+            website TEXT,
+            use_case TEXT NOT NULL,
+            expected_monthly_volume TEXT,
+            plan TEXT NOT NULL DEFAULT 'starter',
+            status TEXT NOT NULL DEFAULT 'submitted',
+            payment_status TEXT NOT NULL DEFAULT 'not_started',
+            stripe_session_id TEXT,
+            stripe_payment_intent TEXT,
+            partner_id TEXT REFERENCES partners(id),
+            notes TEXT,
+            metadata TEXT NOT NULL DEFAULT '{}',
+            created_at TEXT NOT NULL DEFAULT (datetime('now')),
+            updated_at TEXT NOT NULL DEFAULT (datetime('now')),
+            approved_at TEXT
+        );
+
         CREATE INDEX IF NOT EXISTS idx_orders_email ON orders(email);
         CREATE INDEX IF NOT EXISTS idx_orders_token ON orders(token);
         CREATE INDEX IF NOT EXISTS idx_orders_status ON orders(status);
@@ -499,8 +592,18 @@ def init_db():
         CREATE INDEX IF NOT EXISTS idx_admin_audit_events_created ON admin_audit_events(created_at);
         CREATE INDEX IF NOT EXISTS idx_admin_audit_events_operator ON admin_audit_events(operator, action);
         CREATE INDEX IF NOT EXISTS idx_health_check_markers_created ON health_check_markers(created_at);
+        CREATE INDEX IF NOT EXISTS idx_partner_api_keys_hash ON partner_api_keys(key_hash);
+        CREATE INDEX IF NOT EXISTS idx_partner_orders_partner ON partner_orders(partner_id, created_at);
+        CREATE INDEX IF NOT EXISTS idx_partner_orders_order ON partner_orders(order_id);
+        CREATE INDEX IF NOT EXISTS idx_partner_webhooks_partner ON partner_webhook_endpoints(partner_id, status);
+        CREATE INDEX IF NOT EXISTS idx_partner_webhook_events_partner ON partner_webhook_events(partner_id, status);
+        CREATE INDEX IF NOT EXISTS idx_partner_applications_status ON partner_applications(status, created_at);
+        CREATE INDEX IF NOT EXISTS idx_partner_applications_email ON partner_applications(contact_email);
     """)
     _ensure_column(conn, "orders", "gov_processing_fee_cents", "INTEGER NOT NULL DEFAULT 0")
+    _ensure_column(conn, "orders", "product_type", "TEXT NOT NULL DEFAULT 'formation'")
+    _ensure_column(conn, "orders", "service_code", "TEXT")
+    _ensure_column(conn, "orders", "parent_order_id", "TEXT")
     _ensure_column(conn, "documents", "category", "TEXT NOT NULL DEFAULT 'customer_document'")
     _ensure_column(conn, "documents", "visibility", "TEXT NOT NULL DEFAULT 'customer'")
     _ensure_column(conn, "filing_jobs", "automation_lane", "TEXT NOT NULL DEFAULT 'operator_assisted'")
@@ -512,6 +615,16 @@ def init_db():
     _ensure_column(conn, "stripe_webhook_events", "order_id", "TEXT")
     _ensure_column(conn, "stripe_webhook_events", "stripe_object_id", "TEXT")
     _ensure_column(conn, "stripe_webhook_events", "error", "TEXT")
+    _ensure_column(conn, "partners", "support_email", "TEXT")
+    _ensure_column(conn, "partners", "branding", "TEXT NOT NULL DEFAULT '{}'")
+    _ensure_column(conn, "partners", "metadata", "TEXT NOT NULL DEFAULT '{}'")
+    _ensure_column(conn, "partner_orders", "external_customer_id", "TEXT")
+    _ensure_column(conn, "partner_orders", "metadata", "TEXT NOT NULL DEFAULT '{}'")
+    _ensure_column(conn, "partner_applications", "payment_status", "TEXT NOT NULL DEFAULT 'not_started'")
+    _ensure_column(conn, "partner_applications", "stripe_session_id", "TEXT")
+    _ensure_column(conn, "partner_applications", "stripe_payment_intent", "TEXT")
+    _ensure_column(conn, "partner_applications", "partner_id", "TEXT")
+    _ensure_column(conn, "partner_applications", "metadata", "TEXT NOT NULL DEFAULT '{}'")
     conn.commit()
     conn.close()
 
@@ -552,6 +665,12 @@ except Exception:
 
 with open(DATA_DIR / "state_requirements.json") as f:
     STATE_REQUIREMENTS = json.load(f)
+
+try:
+    with open(DATA_DIR / "regulatory" / "sosfiler_service_catalog.json") as f:
+        SERVICE_CATALOG = json.load(f)
+except Exception:
+    SERVICE_CATALOG = {"services": []}
 
 
 # --- Models ---
@@ -659,16 +778,35 @@ class CheckoutRequest(BaseModel):
     cancel_url: str
 
 class QuoteRequest(BaseModel):
-    product_type: str = Field(default="formation", pattern="^(formation|dba|license|annual_report|registered_agent|ein)$")
+    product_type: str = Field(default="formation", max_length=80)
+    service_code: Optional[str] = None
     entity_type: str = "LLC"
     state: str = Field(..., min_length=2, max_length=2)
     include_registered_agent: bool = False
     expedite_fee_cents: int = 0
 
 class OrderRequest(BaseModel):
-    product_type: str = Field(default="formation", pattern="^(formation|dba|license|annual_report|registered_agent|ein)$")
+    product_type: str = Field(default="formation", max_length=80)
     formation: Optional[FormationRequest] = None
     quote_id: Optional[str] = None
+
+class ServiceOrderRequest(BaseModel):
+    service_code: str = Field(..., min_length=1, max_length=120)
+    email: Optional[EmailStr] = None
+    business_name: Optional[str] = Field(default=None, max_length=200)
+    entity_type: str = "LLC"
+    state: str = Field(..., min_length=2, max_length=2)
+    parent_order_id: Optional[str] = None
+    parent_token: Optional[str] = None
+    service_data: dict = Field(default_factory=dict)
+    quote_id: Optional[str] = None
+
+    @field_validator("business_name")
+    @classmethod
+    def sanitize_service_business_name(cls, v: Optional[str]) -> Optional[str]:
+        if not v:
+            return v
+        return _validate_no_sql_injection(v.strip(), "business_name")
 
 class AuthorizeRequest(BaseModel):
     success_url: str
@@ -833,6 +971,87 @@ class CorpNetRAReconcileRequest(BaseModel):
     limit: int = Field(default=50, ge=1, le=250)
     order_id: str = ""
 
+class AdminPartnerCreateRequest(BaseModel):
+    name: str = Field(..., min_length=1, max_length=160)
+    slug: str = Field(..., min_length=2, max_length=80)
+    support_email: Optional[EmailStr] = None
+    api_key_name: str = Field(default="default", max_length=80)
+    branding: Optional[dict] = None
+    metadata: Optional[dict] = None
+
+    @field_validator("slug")
+    @classmethod
+    def validate_slug(cls, value: str) -> str:
+        slug = value.strip().lower()
+        if not _re.fullmatch(r"[a-z0-9][a-z0-9-]{1,78}[a-z0-9]", slug):
+            raise ValueError("slug must use lowercase letters, numbers, and hyphens")
+        return slug
+
+class PartnerApplicationRequest(BaseModel):
+    company_name: str = Field(..., min_length=1, max_length=160)
+    contact_name: str = Field(..., min_length=1, max_length=120)
+    contact_email: EmailStr
+    website: str = Field(default="", max_length=240)
+    use_case: str = Field(..., min_length=10, max_length=2000)
+    expected_monthly_volume: str = Field(default="", max_length=80)
+    plan: str = Field(default="starter", pattern="^(starter|growth|platform)$")
+    metadata: Optional[dict] = None
+
+    @field_validator("company_name", "contact_name", "website", "expected_monthly_volume")
+    @classmethod
+    def sanitize_short_text(cls, value: str) -> str:
+        return _validate_no_sql_injection((value or "").strip(), "partner_application")
+
+class PartnerApplicationCheckoutRequest(BaseModel):
+    success_url: str = Field(..., min_length=8, max_length=500)
+    cancel_url: str = Field(..., min_length=8, max_length=500)
+
+class AdminPartnerApplicationDecisionRequest(BaseModel):
+    notes: str = Field(default="", max_length=1000)
+    api_key_name: str = Field(default="default", max_length=80)
+    require_payment: bool = True
+
+class PartnerQuoteRequest(BaseModel):
+    product_type: str = Field(default="formation", pattern="^(formation|dba|license|annual_report|registered_agent|ein)$")
+    entity_type: str = "LLC"
+    state: str = Field(..., min_length=2, max_length=2)
+    include_registered_agent: bool = False
+    expedite_fee_cents: int = Field(default=0, ge=0)
+    external_quote_id: str = Field(default="", max_length=120)
+    metadata: Optional[dict] = None
+
+class PartnerFormationCreateRequest(BaseModel):
+    external_order_id: str = Field(..., min_length=1, max_length=120)
+    external_customer_id: str = Field(default="", max_length=120)
+    quote_id: Optional[str] = None
+    formation: FormationRequest
+    success_url: str = Field(default="", max_length=500)
+    cancel_url: str = Field(default="", max_length=500)
+    metadata: Optional[dict] = None
+
+    @field_validator("external_order_id", "external_customer_id")
+    @classmethod
+    def sanitize_external_ids(cls, value: str) -> str:
+        return _validate_no_sql_injection((value or "").strip(), "external_id")
+
+class PartnerWebhookEndpointRequest(BaseModel):
+    url: str = Field(..., min_length=8, max_length=500)
+    event_types: list[str] = Field(default_factory=lambda: [
+        "formation.created",
+        "formation.status_changed",
+        "documents.ready",
+        "ein.received",
+        "action.required",
+    ])
+
+    @field_validator("url")
+    @classmethod
+    def validate_webhook_url(cls, value: str) -> str:
+        parsed = urllib.parse.urlparse(value.strip())
+        if parsed.scheme != "https" or not parsed.netloc:
+            raise ValueError("webhook URL must be HTTPS")
+        return value.strip()
+
 
 # --- Auth helpers ---
 def parse_json_field(value, fallback):
@@ -894,6 +1113,10 @@ def request_client_ip(request: Request) -> str:
 
 def hash_admin_session_token(token: str) -> str:
     return hashlib.sha256(token.encode("utf-8")).hexdigest()
+
+
+def hash_partner_secret(secret: str) -> str:
+    return hashlib.sha256(secret.encode("utf-8")).hexdigest()
 
 
 def normalize_operator(value: str) -> str:
@@ -1017,6 +1240,142 @@ def verify_admin_access(request: Request):
         raise HTTPException(status_code=403, detail="Invalid admin token")
     record_admin_audit_event(request, "legacy_admin_token", "allowed", detail="Legacy x-admin-token access")
     return {"operator": "legacy_admin_token", "session_id": "", "auth_mode": "legacy_token"}
+
+
+def partner_bearer_token(request: Request) -> str:
+    auth = request.headers.get("authorization", "")
+    if auth.lower().startswith("bearer "):
+        return auth.split(" ", 1)[1].strip()
+    return request.headers.get("x-sosfiler-api-key", "").strip()
+
+
+def create_partner_api_key(conn, partner_id: str, name: str = "default") -> dict:
+    raw_key = f"sos_live_{secrets.token_urlsafe(32)}"
+    key_id = f"PAK-{uuid.uuid4().hex[:12].upper()}"
+    conn.execute(
+        """
+        INSERT INTO partner_api_keys (id, partner_id, key_hash, key_prefix, name)
+        VALUES (?, ?, ?, ?, ?)
+        """,
+        (key_id, partner_id, hash_partner_secret(raw_key), raw_key[:16], name[:80] or "default"),
+    )
+    return {"id": key_id, "api_key": raw_key, "key_prefix": raw_key[:16]}
+
+
+def slugify_partner_name(value: str) -> str:
+    slug = _re.sub(r"[^a-z0-9]+", "-", (value or "").lower()).strip("-")
+    return (slug or f"partner-{uuid.uuid4().hex[:6]}")[:70]
+
+
+def unique_partner_slug(conn, base_value: str) -> str:
+    base = slugify_partner_name(base_value)
+    candidate = base
+    suffix = 2
+    while conn.execute("SELECT 1 FROM partners WHERE slug = ?", (candidate,)).fetchone():
+        candidate = f"{base[:64]}-{suffix}"
+        suffix += 1
+    return candidate
+
+
+def public_base_url(request: Request) -> str:
+    configured = os.getenv("SOSFILER_PUBLIC_BASE_URL", "").strip().rstrip("/")
+    if configured:
+        return configured
+    return str(request.base_url).rstrip("/")
+
+
+def partner_application_payload(row) -> dict:
+    item = dict(row)
+    item["metadata"] = parse_json_field(item.get("metadata"), {})
+    return item
+
+
+def verify_partner_access(request: Request, required_scope: str = "") -> dict:
+    token = partner_bearer_token(request)
+    if not token:
+        raise HTTPException(status_code=401, detail="Partner API key required")
+    conn = get_db()
+    row = conn.execute(
+        """
+        SELECT k.*, p.name AS partner_name, p.slug AS partner_slug, p.status AS partner_status
+        FROM partner_api_keys k
+        JOIN partners p ON p.id = k.partner_id
+        WHERE k.key_hash = ?
+          AND k.status = 'active'
+          AND k.revoked_at IS NULL
+          AND p.status = 'active'
+        """,
+        (hash_partner_secret(token),),
+    ).fetchone()
+    if not row:
+        conn.close()
+        raise HTTPException(status_code=401, detail="Invalid partner API key")
+    scopes = parse_json_field(row["scopes"], [])
+    if required_scope and required_scope not in scopes:
+        conn.close()
+        raise HTTPException(status_code=403, detail="Partner API key is missing the required scope")
+    conn.execute("UPDATE partner_api_keys SET last_used_at = datetime('now') WHERE id = ?", (row["id"],))
+    conn.commit()
+    conn.close()
+    return {
+        "partner_id": row["partner_id"],
+        "partner_name": row["partner_name"],
+        "partner_slug": row["partner_slug"],
+        "api_key_id": row["id"],
+        "scopes": scopes,
+    }
+
+
+def ensure_partner_order_access(conn, partner_id: str, order_id: str):
+    row = conn.execute(
+        """
+        SELECT po.*, o.status, o.business_name, o.state, o.entity_type
+        FROM partner_orders po
+        JOIN orders o ON o.id = po.order_id
+        WHERE po.partner_id = ? AND po.order_id = ?
+        """,
+        (partner_id, order_id),
+    ).fetchone()
+    if not row:
+        raise HTTPException(status_code=404, detail="Formation order not found")
+    return row
+
+
+def partner_order_summary(conn, partner_id: str, order_id: str) -> dict:
+    partner_order = ensure_partner_order_access(conn, partner_id, order_id)
+    order = conn.execute("SELECT * FROM orders WHERE id = ?", (order_id,)).fetchone()
+    if not order:
+        raise HTTPException(status_code=404, detail="Formation order not found")
+    status_rows = conn.execute(
+        "SELECT status, message, created_at FROM status_updates WHERE order_id = ? ORDER BY created_at",
+        (order_id,),
+    ).fetchall()
+    filing_rows = conn.execute(
+        "SELECT event_type, message, actor, created_at FROM filing_events WHERE order_id = ? ORDER BY created_at",
+        (order_id,),
+    ).fetchall()
+    docs = conn.execute(
+        "SELECT doc_type, filename, format, category, visibility, created_at FROM documents WHERE order_id = ? ORDER BY created_at",
+        (order_id,),
+    ).fetchall()
+    order = dict(order)
+    formation_data = parse_json_field(order.get("formation_data"), {})
+    return {
+        "id": order["id"],
+        "external_order_id": partner_order["external_order_id"],
+        "external_customer_id": partner_order["external_customer_id"] or "",
+        "status": order["status"],
+        "state": order["state"],
+        "entity_type": order["entity_type"],
+        "business_name": order["business_name"],
+        "email": order["email"],
+        "ein_requires_ssn": order.get("product_type", "formation") == "formation" and not order.get("ein") and formation_data_needs_ssn(formation_data),
+        "created_at": order["created_at"],
+        "updated_at": order["updated_at"],
+        "timeline": customer_timeline(status_rows, filing_rows, order),
+        "documents": customer_visible_documents(docs),
+        "metadata": parse_json_field(partner_order["metadata"], {}),
+    }
 
 
 def revoke_admin_session(request: Request) -> dict:
@@ -1461,6 +1820,67 @@ def build_fee_breakdown(state: str, entity_type: str, include_ra: bool = False) 
         "processing_fee_rule": (action or {}).get("processing_fee"),
         "automation_route": route,
     }
+
+def service_catalog_items() -> list[dict]:
+    return [dict(service) for service in SERVICE_CATALOG.get("services", [])]
+
+def service_by_code(service_code: str) -> Optional[dict]:
+    code = (service_code or "").strip()
+    for service in service_catalog_items():
+        if service.get("service_code") == code:
+            return service
+    return None
+
+def service_price_cents(service: dict) -> int:
+    price = service.get("price") or {}
+    if "amount_cents" in price:
+        return int(price.get("amount_cents") or 0)
+    if "minimum_amount_cents" in price:
+        return int(price.get("minimum_amount_cents") or 0)
+    return 0
+
+def service_action_type(service: dict) -> str:
+    filing_category = service.get("filing_category") or ""
+    code = service.get("service_code") or ""
+    category = service.get("service_category") or ""
+    if filing_category == "annual_obligation":
+        return "annual_report"
+    if filing_category:
+        return filing_category
+    if code == "ein_online":
+        return "ein"
+    if category == "registered_agent":
+        return "registered_agent"
+    return code or category or "service"
+
+def build_service_quote(
+    service: dict,
+    state: str,
+    entity_type: str = "LLC",
+    expedite_fee_cents: int = 0,
+) -> dict:
+    state = state.upper()
+    platform_fee = service_price_cents(service)
+    action_type = service_action_type(service)
+    government_fee = 0
+    processing_fee = 0
+    route = get_state_filing_route(state, entity_type, action_type)
+    if service.get("requires_official_filing_record") is not False and action_type not in {"ein", "service"} and route.get("has_deep_action"):
+        government_fee = int(route.get("state_fee_cents") or 0)
+        processing_fee = calculate_processing_fee_cents(route, government_fee)
+    quote = build_quote(
+        product_type=service.get("service_code") or action_type,
+        entity_type=entity_type,
+        state=state,
+        platform_fee_cents=platform_fee,
+        government_fee_cents=government_fee,
+        processing_fee_cents=processing_fee,
+        expedite_fee_cents=expedite_fee_cents,
+    )
+    quote["service_code"] = service.get("service_code")
+    quote["service_name"] = service.get("service_name")
+    quote["automation_route"] = route
+    return quote
 
 def persist_quote(quote: dict, order_id: str = "") -> dict:
     conn = get_db()
@@ -2054,7 +2474,15 @@ def update_payment_authorization_from_session(session: dict) -> dict:
         "payment_authorized",
         "Additional payment authorization received." if additional else "Payment authorized. Preparing workflow before final capture.",
     )
-    return {"updated": True, "order_id": order_id, "quote_id": quote_id, "amount_cents": amount, "additional": additional}
+    return {
+        "updated": True,
+        "order_id": order_id,
+        "quote_id": quote_id,
+        "amount_cents": amount,
+        "additional": additional,
+        "product_type": dict(order).get("product_type", "formation"),
+        "service_code": dict(order).get("service_code", ""),
+    }
 
 
 def update_payment_intent_snapshot(intent: dict) -> dict:
@@ -2743,6 +3171,98 @@ def email_delivery_health_component() -> dict:
         delivery_status=status.get("status", "unknown"),
         **metadata,
     )
+
+
+def _redact_email_address(value: str) -> str:
+    if not value or "@" not in value:
+        return ""
+    local, domain = value.split("@", 1)
+    if not local:
+        return f"***@{domain}"
+    visible = local[:1]
+    return f"{visible}***@{domain}"
+
+
+def read_email_live_verification() -> dict:
+    default = {
+        "verified": False,
+        "status": "not_verified",
+        "message": "No successful live SendGrid test has been recorded.",
+        "checked_at": None,
+        "live_send": False,
+    }
+    try:
+        if not EMAIL_LIVE_VERIFICATION_PATH.exists():
+            return default
+        payload = json.loads(EMAIL_LIVE_VERIFICATION_PATH.read_text())
+    except Exception as exc:
+        return {
+            **default,
+            "status": "verification_status_unreadable",
+            "message": f"Email verification status could not be read: {exc}",
+        }
+
+    verified = bool(payload.get("ok")) and payload.get("status") == "sent" and bool(payload.get("live_send"))
+    return {
+        **payload,
+        "verified": verified,
+    }
+
+
+def record_email_live_verification(result: dict) -> dict:
+    payload = {
+        "checked_at": utc_now(),
+        "ok": bool(result.get("ok")),
+        "status": result.get("status") or "unknown",
+        "message": result.get("message") or "",
+        "provider": result.get("provider") or "sendgrid",
+        "status_code": result.get("status_code"),
+        "to_email": _redact_email_address(str(result.get("to_email") or "")),
+        "subject": result.get("subject") or "",
+        "live_send": bool(result.get("live_send")),
+    }
+    payload["verified"] = bool(payload["ok"] and payload["status"] == "sent" and payload["live_send"])
+    payload["verification_recorded"] = False
+    try:
+        EMAIL_LIVE_VERIFICATION_PATH.parent.mkdir(parents=True, exist_ok=True)
+        tmp_path = EMAIL_LIVE_VERIFICATION_PATH.with_suffix(".tmp")
+        payload["verification_recorded"] = True
+        tmp_path.write_text(json.dumps(payload, indent=2, sort_keys=True))
+        tmp_path.replace(EMAIL_LIVE_VERIFICATION_PATH)
+    except OSError as exc:
+        payload["verified"] = False
+        payload["verification_recorded"] = False
+        payload["status"] = "verification_record_failed"
+        payload["message"] = f"Live email sent, but verification status could not be persisted: {exc}"
+        payload["record_error"] = str(exc)
+    return payload
+
+
+def email_launch_gate_status(config_status: dict | None = None) -> dict:
+    if config_status is None:
+        from notifier import Notifier
+
+        config_status = Notifier().config_status()
+    verification = read_email_live_verification()
+    launch_ready = bool(config_status.get("ok")) and bool(verification.get("verified"))
+    if launch_ready:
+        status = "ready"
+        message = "Live SendGrid delivery has been verified."
+    elif not config_status.get("ok"):
+        status = "misconfigured"
+        message = config_status.get("message") or "Email delivery is not configured."
+    elif verification.get("status") in {"not_verified", "verification_status_unreadable"}:
+        status = verification.get("status")
+        message = verification.get("message")
+    else:
+        status = "live_send_failed"
+        message = verification.get("message") or "The most recent live SendGrid test did not succeed."
+    return {
+        "launch_ready": launch_ready,
+        "status": status,
+        "message": message,
+        "last_live_verification": verification,
+    }
 
 
 def public_operator_base_url() -> str:
@@ -3641,6 +4161,269 @@ def build_filing_readiness_checklist(job: dict) -> list[dict]:
     return checklist
 
 
+SENSITIVE_OPERATOR_FIELDS = {
+    "responsible_party_ssn",
+    "responsible_party_ssn_vault_id",
+    "ssn_itin",
+    "tax_id",
+    "ein",
+    "token",
+}
+
+
+def _redact_operator_value(key: str, value):
+    key_lower = str(key).lower()
+    if any(marker in key_lower for marker in ("ssn", "itin", "tax_id", "vault_id", "token", "secret", "password")):
+        if key_lower.endswith("last4") or key_lower == "ssn_last4":
+            return value
+        return "[restricted - use audited PII workflow if required]"
+    if isinstance(value, dict):
+        return {k: _redact_operator_value(k, v) for k, v in value.items()}
+    if isinstance(value, list):
+        return [_redact_operator_value(key, item) for item in value]
+    return value
+
+
+def sanitize_customer_intake_for_operator(formation: dict) -> dict:
+    return {
+        key: _redact_operator_value(key, value)
+        for key, value in (formation or {}).items()
+        if key not in SENSITIVE_OPERATOR_FIELDS
+    }
+
+
+def address_line(*parts: str) -> str:
+    return ", ".join(str(part).strip() for part in parts if str(part or "").strip())
+
+
+def named_customer_people(formation: dict) -> list[dict]:
+    people = []
+    for member in formation.get("members") or []:
+        people.append({
+            "role": "Responsible party" if member.get("is_responsible_party") else "Member/owner",
+            "name": member.get("name", ""),
+            "ownership_pct": member.get("ownership_pct"),
+            "address": address_line(member.get("address"), member.get("city"), member.get("state"), member.get("zip_code")),
+            "ssn_last4": member.get("ssn_last4") or "",
+        })
+    for manager in formation.get("managers") or []:
+        people.append({
+            "role": "Manager",
+            "name": manager.get("name", ""),
+            "address": address_line(manager.get("address"), manager.get("city"), manager.get("state"), manager.get("zip_code")),
+        })
+    return people
+
+
+def operator_launch_category_for_state(state: str) -> str:
+    try:
+        report = build_launch_readiness_report()
+        for item in report.get("states", []):
+            if item.get("state") == state:
+                return item.get("launch_category") or ""
+    except Exception:
+        return ""
+    return ""
+
+
+def route_step_title(step: dict, index: int) -> str:
+    return str(step.get("title") or step.get("page") or step.get("portal_page") or f"Portal step {index}")
+
+
+def route_step_inputs(step: dict) -> list[str]:
+    values = step.get("required_inputs") or step.get("fields") or []
+    return [str(value) for value in values if str(value or "").strip()]
+
+
+def build_operator_route_steps(route: dict, formation: dict) -> list[dict]:
+    raw_steps = route.get("portal_field_sequence") or []
+    if not raw_steps:
+        return [{
+            "title": "Complete state filing in official portal",
+            "actor": "SOSFiler operator",
+            "instruction": "Use the customer filing data in this packet to complete the official formation or lifecycle filing through the mapped state route.",
+            "portal_page": route.get("portal_url") or "",
+            "required_inputs": [
+                "Business name",
+                "Entity type",
+                "Principal office address",
+                "Registered agent name and in-state address",
+                "Organizer/member or manager details",
+            ],
+            "customer_data_keys": ["business", "registered_agent", "people"],
+            "evidence_output": route.get("evidence_outputs") or [],
+        }]
+    steps = []
+    for index, step in enumerate(raw_steps, start=1):
+        inputs = route_step_inputs(step)
+        steps.append({
+            "step": step.get("step") or index,
+            "title": route_step_title(step, index),
+            "actor": step.get("actor") or "SOSFiler operator",
+            "instruction": step.get("description") or "Complete this portal page using the customer filing data in this packet.",
+            "portal_page": step.get("portal_page") or route.get("portal_url") or "",
+            "required_inputs": inputs,
+            "customer_data_hint": "Use the Customer Filing Data section; if a portal field is absent from intake, stop and request customer clarification.",
+            "evidence_output": step.get("evidence_output") or [],
+            "status_after_step": step.get("status_after_step") or "",
+        })
+    return steps
+
+
+def build_operator_fulfillment_packet(job: dict, order: dict | None = None, artifacts: list[dict] | None = None) -> dict:
+    formation = job.get("formation_data") or parse_json_field((order or {}).get("formation_data"), {})
+    route = job.get("route_metadata") or get_state_filing_route(job.get("state", ""), job.get("entity_type", "LLC"), job.get("action_type", "formation"))
+    evidence = job.get("required_evidence") or route.get("required_evidence") or {}
+    blockers = job.get("portal_blockers") or route.get("blockers") or []
+    launch_category = operator_launch_category_for_state(job.get("state", ""))
+    portal_url = job.get("portal_url") or route.get("portal_url") or ""
+    portal_name = job.get("portal_name") or route.get("portal_name") or ""
+    state_name = (STATE_FEES.get("state_names") or {}).get(job.get("state"), job.get("state"))
+    customer_data = {
+        "business": {
+            "legal_name": formation.get("business_name") or job.get("business_name") or (order or {}).get("business_name") or "",
+            "entity_type": formation.get("entity_type") or job.get("entity_type") or "",
+            "formation_state": formation.get("state") or job.get("state") or "",
+            "purpose": formation.get("purpose") or "Any lawful purpose",
+            "management_type": formation.get("management_type") or "",
+            "principal_address": address_line(
+                formation.get("principal_address"),
+                formation.get("principal_city"),
+                formation.get("principal_state"),
+                formation.get("principal_zip"),
+            ),
+            "mailing_address": formation.get("mailing_address") or address_line(
+                formation.get("principal_address"),
+                formation.get("principal_city"),
+                formation.get("principal_state"),
+                formation.get("principal_zip"),
+            ),
+        },
+        "registered_agent": {
+            "choice": formation.get("ra_choice") or "",
+            "name": formation.get("ra_name") or "",
+            "address": address_line(
+                formation.get("ra_address"),
+                formation.get("ra_city"),
+                formation.get("ra_state"),
+                formation.get("ra_zip"),
+            ),
+        },
+        "people": named_customer_people(formation),
+        "ein": {
+            "responsible_party_last4": formation.get("responsible_party_ssn_last4") or next(
+                (member.get("ssn_last4") for member in formation.get("members") or [] if member.get("is_responsible_party")),
+                "",
+            ),
+            "pii_access": "Full SSN/ITIN is restricted. Use the audited EIN queue PII workflow only when IRS submission requires it.",
+            "fiscal_year_end": formation.get("fiscal_year_end") or "December",
+        },
+        "all_customer_intake": sanitize_customer_intake_for_operator(formation),
+    }
+    state_payment_instruction = (
+        "Use the approved SOSFiler payment method only when the official portal permits operator payment. "
+        "If the portal total differs from the authorized government total, stop and reconcile before paying."
+    )
+    operator_actions = [
+        {
+            "title": "Confirm order and payment authorization",
+            "detail": "Verify the order is paid or payment-authorized, the filing authorization exists, and no duplicate submission is already recorded.",
+        },
+        {
+            "title": f"Open the official {state_name} route",
+            "detail": f"Use {portal_name or 'the mapped official portal'}{f' at {portal_url}' if portal_url else ''}. Do not use unofficial filing sites.",
+        },
+        {
+            "title": "Complete portal fields from customer data",
+            "detail": "Enter the exact business, registered-agent, address, member/manager, and purpose data from this packet. Stop for customer clarification if a required state field is missing.",
+        },
+        {
+            "title": "Resolve protected checkpoints only as an authorized operator",
+            "detail": "Complete login, CAPTCHA, identity, terms, attestation, or payment checkpoints only through official access. Do not outsource CAPTCHA solving or bypass access controls.",
+        },
+        {
+            "title": "Pay or reconcile state charges",
+            "detail": state_payment_instruction,
+        },
+        {
+            "title": "Capture evidence before status changes",
+            "detail": "Download receipts, confirmation pages, file-stamped documents, certificates, and correspondence before marking submitted, approved, complete, or customer-notified.",
+        },
+    ]
+    if launch_category == "partner_intermediary_sellable":
+        operator_actions.insert(2, {
+            "title": "Confirm partner/intermediary route",
+            "detail": "Prepare the partner-ready package, verify partner authority and quote, and do not capture final customer payment beyond authorization until the partner filing path is confirmed.",
+        })
+    return {
+        "version": "operator_fulfillment_packet_v1",
+        "launch_category": launch_category,
+        "operator_goal": "Complete the filing with the minimum authorized operator touch while preserving official evidence and customer-visible accuracy.",
+        "summary": {
+            "order_id": job.get("order_id"),
+            "filing_job_id": job.get("id"),
+            "action_type": job.get("action_type"),
+            "state": job.get("state"),
+            "state_name": state_name,
+            "entity_type": job.get("entity_type"),
+            "business_name": customer_data["business"]["legal_name"],
+            "customer_email": job.get("email") or (order or {}).get("email") or "",
+            "status": job.get("status"),
+            "automation_lane": job.get("automation_lane") or route.get("automation_lane"),
+            "operator_touch_target": "Operator by exception; complete only protected or state-required human checkpoints.",
+        },
+        "customer_filing_data": customer_data,
+        "pricing": {
+            "official_state_fee_cents": int(job.get("state_fee_cents") or 0),
+            "official_processing_fee_cents": int(job.get("processing_fee_cents") or 0),
+            "official_total_government_cents": int(job.get("total_government_cents") or 0),
+            "sosfiler_fee_cents": int((order or {}).get("platform_fee_cents") or job.get("platform_fee_cents") or PLATFORM_FEE),
+            "customer_total_cents": int((order or {}).get("total_cents") or job.get("total_cents") or 0),
+        },
+        "official_route": {
+            "office": job.get("office") or route.get("office"),
+            "form_name": job.get("form_name") or route.get("form_name"),
+            "form_number": route.get("form_number") or "",
+            "filing_method": job.get("filing_method") or route.get("filing_method"),
+            "portal_name": portal_name,
+            "portal_url": portal_url,
+            "expected_processing_time": route.get("expected_processing_time") or "",
+            "source_urls": route.get("source_urls") or [],
+        },
+        "operator_actions": operator_actions,
+        "portal_steps": build_operator_route_steps(route, formation),
+        "safe_stop_conditions": [
+            "Payment is not paid or authorized.",
+            "Portal fee, entity type, or business name does not match the order.",
+            "Customer data needed by the portal is missing or ambiguous.",
+            "The state requires an attestation the operator is not authorized to make.",
+            "Login, identity, CAPTCHA, rate-limit, terms, or payment controls cannot be completed through authorized SOSFiler access.",
+            "The portal returns a rejection, validation error, or warning that could change the filing substance.",
+        ],
+        "required_evidence": {
+            "submitted": evidence.get("submitted") or ["Official portal receipt, confirmation, or submission evidence"],
+            "approved": evidence.get("approved") or ["Official approval, file-stamped document, certificate, or government correspondence"],
+            "outputs": route.get("evidence_outputs") or [],
+        },
+        "available_artifacts": [
+            {
+                "artifact_type": artifact.get("artifact_type"),
+                "filename": artifact.get("filename"),
+                "is_evidence": bool(artifact.get("is_evidence")),
+                "created_at": artifact.get("created_at"),
+            }
+            for artifact in (artifacts or [])
+        ],
+        "blockers": blockers,
+        "completion_criteria": [
+            "Official submitted evidence is attached before the job is marked submitted.",
+            "Official approval or government correspondence is attached before the customer is told the filing is approved or complete.",
+            "Confirmation numbers, receipts, documents, timestamps, and operator actions are recorded in the audit trail.",
+            "Customer dashboard status and next-action copy match the evidence-backed filing state.",
+        ],
+    }
+
+
 def annual_report_packet_path(job_id: str) -> Path:
     safe_job_id = _re.sub(r"[^A-Za-z0-9_.-]", "-", job_id)
     return DOCS_DIR / "annual_report_packets" / safe_job_id / "annual_report_packet.md"
@@ -4397,6 +5180,532 @@ async def auth_me(request: Request):
 
 # --- Routes ---
 
+@app.post("/api/admin/partners")
+async def create_admin_partner(payload: AdminPartnerCreateRequest, request: Request):
+    """Provision a partner account and return a one-time API key."""
+    verify_admin_access(request)
+    partner_id = f"PTR-{uuid.uuid4().hex[:12].upper()}"
+    conn = get_db()
+    existing = conn.execute("SELECT id FROM partners WHERE slug = ?", (payload.slug,)).fetchone()
+    if existing:
+        conn.close()
+        raise HTTPException(status_code=409, detail="Partner slug already exists")
+    conn.execute(
+        """
+        INSERT INTO partners (id, name, slug, support_email, branding, metadata)
+        VALUES (?, ?, ?, ?, ?, ?)
+        """,
+        (
+            partner_id,
+            payload.name.strip(),
+            payload.slug,
+            str(payload.support_email or ""),
+            json.dumps(payload.branding or {}),
+            json.dumps(payload.metadata or {}),
+        ),
+    )
+    key = create_partner_api_key(conn, partner_id, payload.api_key_name)
+    conn.commit()
+    conn.close()
+    return {
+        "partner": {
+            "id": partner_id,
+            "name": payload.name.strip(),
+            "slug": payload.slug,
+            "status": "active",
+        },
+        "api_key": key["api_key"],
+        "key_id": key["id"],
+        "key_prefix": key["key_prefix"],
+        "message": "Store this API key now; SOSFiler only returns it once.",
+    }
+
+
+@app.get("/api/admin/partner-applications")
+async def list_admin_partner_applications(request: Request, status: str = "", limit: int = 100):
+    verify_admin_access(request)
+    capped_limit = max(1, min(int(limit or 100), 250))
+    conn = get_db()
+    if status:
+        rows = conn.execute(
+            "SELECT * FROM partner_applications WHERE status = ? ORDER BY created_at DESC LIMIT ?",
+            (status, capped_limit),
+        ).fetchall()
+    else:
+        rows = conn.execute(
+            "SELECT * FROM partner_applications ORDER BY created_at DESC LIMIT ?",
+            (capped_limit,),
+        ).fetchall()
+    conn.close()
+    return {"applications": [partner_application_payload(row) for row in rows]}
+
+
+@app.post("/api/admin/partner-applications/{application_id}/approve")
+async def approve_admin_partner_application(application_id: str, payload: AdminPartnerApplicationDecisionRequest, request: Request):
+    verify_admin_access(request)
+    conn = get_db()
+    row = conn.execute("SELECT * FROM partner_applications WHERE id = ?", (application_id,)).fetchone()
+    if not row:
+        conn.close()
+        raise HTTPException(status_code=404, detail="Partner application not found")
+    application = dict(row)
+    if payload.require_payment and application.get("payment_status") not in {"paid", "waived"}:
+        conn.close()
+        raise HTTPException(status_code=402, detail="Partner setup payment is required before approval")
+    if application.get("partner_id"):
+        partner_id = application["partner_id"]
+        partner = conn.execute("SELECT * FROM partners WHERE id = ?", (partner_id,)).fetchone()
+        key = create_partner_api_key(conn, partner_id, payload.api_key_name)
+    else:
+        partner_id = f"PTR-{uuid.uuid4().hex[:12].upper()}"
+        slug = unique_partner_slug(conn, application["company_name"])
+        conn.execute(
+            """
+            INSERT INTO partners (id, name, slug, support_email, metadata)
+            VALUES (?, ?, ?, ?, ?)
+            """,
+            (
+                partner_id,
+                application["company_name"],
+                slug,
+                application["contact_email"],
+                json.dumps({"application_id": application_id, "plan": application.get("plan", "starter")}),
+            ),
+        )
+        key = create_partner_api_key(conn, partner_id, payload.api_key_name)
+        partner = conn.execute("SELECT * FROM partners WHERE id = ?", (partner_id,)).fetchone()
+    conn.execute(
+        """
+        UPDATE partner_applications
+        SET status = 'approved', partner_id = ?, notes = ?, approved_at = datetime('now'), updated_at = datetime('now')
+        WHERE id = ?
+        """,
+        (partner_id, payload.notes, application_id),
+    )
+    conn.commit()
+    partner = dict(partner) if partner else dict(conn.execute("SELECT * FROM partners WHERE id = ?", (partner_id,)).fetchone())
+    conn.close()
+    return {
+        "application_id": application_id,
+        "partner": {
+            "id": partner_id,
+            "name": partner["name"],
+            "slug": partner["slug"],
+            "status": partner["status"],
+        },
+        "api_key": key["api_key"],
+        "key_id": key["id"],
+        "key_prefix": key["key_prefix"],
+        "message": "Store this API key now; SOSFiler only returns it once.",
+    }
+
+
+@app.post("/api/admin/partner-applications/{application_id}/reject")
+async def reject_admin_partner_application(application_id: str, payload: AdminPartnerApplicationDecisionRequest, request: Request):
+    verify_admin_access(request)
+    conn = get_db()
+    row = conn.execute("SELECT id FROM partner_applications WHERE id = ?", (application_id,)).fetchone()
+    if not row:
+        conn.close()
+        raise HTTPException(status_code=404, detail="Partner application not found")
+    conn.execute(
+        "UPDATE partner_applications SET status = 'rejected', notes = ?, updated_at = datetime('now') WHERE id = ?",
+        (payload.notes, application_id),
+    )
+    conn.commit()
+    conn.close()
+    return {"status": "rejected", "application_id": application_id}
+
+
+@app.post("/api/partners/applications")
+async def submit_partner_application(payload: PartnerApplicationRequest, request: Request):
+    application_id = f"PAPP-{uuid.uuid4().hex[:12].upper()}"
+    conn = get_db()
+    conn.execute(
+        """
+        INSERT INTO partner_applications (
+            id, company_name, contact_name, contact_email, website, use_case,
+            expected_monthly_volume, plan, metadata
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """,
+        (
+            application_id,
+            payload.company_name,
+            payload.contact_name,
+            str(payload.contact_email),
+            payload.website,
+            payload.use_case,
+            payload.expected_monthly_volume,
+            payload.plan,
+            json.dumps(payload.metadata or {}),
+        ),
+    )
+    conn.commit()
+    conn.close()
+    base = public_base_url(request)
+    return {
+        "application_id": application_id,
+        "status": "submitted",
+        "payment_status": "not_started",
+        "setup_fee_cents": PARTNER_SETUP_FEE_CENTS,
+        "checkout_endpoint": f"{base}/api/partners/applications/{application_id}/checkout",
+        "message": "Application received. Complete setup payment, then SOSFiler will review and issue the API key after approval.",
+    }
+
+
+@app.post("/api/partners/applications/{application_id}/checkout")
+async def create_partner_application_checkout(application_id: str, payload: PartnerApplicationCheckoutRequest):
+    conn = get_db()
+    application = conn.execute("SELECT * FROM partner_applications WHERE id = ?", (application_id,)).fetchone()
+    if not application:
+        conn.close()
+        raise HTTPException(status_code=404, detail="Partner application not found")
+    application = dict(application)
+    if application["payment_status"] == "paid":
+        conn.close()
+        return {"status": "paid", "message": "Partner setup payment is already complete."}
+    if PARTNER_SETUP_FEE_CENTS <= 0:
+        conn.execute(
+            "UPDATE partner_applications SET payment_status = 'waived', updated_at = datetime('now') WHERE id = ?",
+            (application_id,),
+        )
+        conn.commit()
+        conn.close()
+        return {"status": "waived", "message": "Partner setup payment is waived for this environment."}
+    if not STRIPE_SECRET_KEY:
+        conn.close()
+        return {
+            "status": "manual_payment_required",
+            "setup_fee_cents": PARTNER_SETUP_FEE_CENTS,
+            "message": "Stripe is not configured. SOSFiler will collect partner setup payment manually before issuing an API key.",
+        }
+    try:
+        session = stripe.checkout.Session.create(
+            payment_method_types=["card"],
+            line_items=[{
+                "price_data": {
+                    "currency": "usd",
+                    "unit_amount": PARTNER_SETUP_FEE_CENTS,
+                    "product_data": {
+                        "name": "SOSFiler Partner API Setup",
+                        "description": "Partner onboarding, sandbox/API access review, and API key provisioning.",
+                    },
+                },
+                "quantity": 1,
+            }],
+            mode="payment",
+            success_url=payload.success_url + f"?application_id={application_id}",
+            cancel_url=payload.cancel_url + f"?application_id={application_id}",
+            customer_email=application["contact_email"],
+            metadata={
+                "type": "partner_application",
+                "partner_application_id": application_id,
+                "plan": application.get("plan", "starter"),
+            },
+        )
+    except stripe.error.StripeError as exc:
+        conn.close()
+        raise HTTPException(status_code=400, detail=str(exc))
+    conn.execute(
+        """
+        UPDATE partner_applications
+        SET payment_status = 'checkout_started', stripe_session_id = ?, updated_at = datetime('now')
+        WHERE id = ?
+        """,
+        (session.id, application_id),
+    )
+    conn.commit()
+    conn.close()
+    return {
+        "status": "checkout_started",
+        "checkout_url": session.url,
+        "session_id": session.id,
+        "setup_fee_cents": PARTNER_SETUP_FEE_CENTS,
+    }
+
+
+@app.get("/api/partners/applications/{application_id}")
+async def get_partner_application_status(application_id: str):
+    conn = get_db()
+    row = conn.execute(
+        """
+        SELECT id, company_name, contact_email, plan, status, payment_status, partner_id, created_at, updated_at, approved_at
+        FROM partner_applications
+        WHERE id = ?
+        """,
+        (application_id,),
+    ).fetchone()
+    conn.close()
+    if not row:
+        raise HTTPException(status_code=404, detail="Partner application not found")
+    return {"application": dict(row)}
+
+
+@app.get("/api/v1/partners/me")
+async def get_partner_me(request: Request):
+    partner = verify_partner_access(request)
+    return {
+        "partner": {
+            "id": partner["partner_id"],
+            "name": partner["partner_name"],
+            "slug": partner["partner_slug"],
+        },
+        "scopes": partner["scopes"],
+    }
+
+
+@app.get("/api/v1/partners/products")
+async def list_partner_products(request: Request):
+    verify_partner_access(request, "orders:read")
+    return {
+        "products": [
+            {"product_type": "formation", "entity_types": ["LLC", "C-Corp", "S-Corp", "Nonprofit"]},
+            {"product_type": "ein", "availability": "included_with_formation"},
+            {"product_type": "registered_agent", "availability": "formation_add_on"},
+            {"product_type": "annual_report", "availability": "operator_assisted"},
+        ]
+    }
+
+
+@app.get("/api/v1/partners/states")
+async def list_partner_states(request: Request, entity_type: str = "LLC"):
+    verify_partner_access(request, "orders:read")
+    entity_key = "LLC" if entity_type.upper() == "LLC" else "Corp"
+    return {
+        "entity_type": entity_type,
+        "states": [
+            {
+                "state": state,
+                "state_name": STATE_FEES["state_names"].get(state, state),
+                "fee_breakdown": build_fee_breakdown(state, entity_key),
+                "automation_route": get_state_filing_route(state, entity_type, "formation"),
+            }
+            for state in sorted(STATE_FEES.get(entity_key, {}).keys())
+        ],
+    }
+
+
+@app.post("/api/v1/partners/quotes")
+async def create_partner_quote(payload: PartnerQuoteRequest, request: Request):
+    partner = verify_partner_access(request, "quotes:write")
+    quote = await create_quote(QuoteRequest(
+        product_type=payload.product_type,
+        entity_type=payload.entity_type,
+        state=payload.state,
+        include_registered_agent=payload.include_registered_agent,
+        expedite_fee_cents=payload.expedite_fee_cents,
+    ))
+    quote["partner_id"] = partner["partner_id"]
+    quote["external_quote_id"] = payload.external_quote_id
+    quote["metadata"] = payload.metadata or {}
+    return quote
+
+
+@app.post("/api/v1/partners/formations")
+async def create_partner_formation(payload: PartnerFormationCreateRequest, request: Request):
+    partner = verify_partner_access(request, "orders:write")
+    conn = get_db()
+    existing = conn.execute(
+        "SELECT order_id FROM partner_orders WHERE partner_id = ? AND external_order_id = ?",
+        (partner["partner_id"], payload.external_order_id),
+    ).fetchone()
+    if existing:
+        summary = partner_order_summary(conn, partner["partner_id"], existing["order_id"])
+        conn.close()
+        return {"formation": summary, "idempotent_replay": True}
+    if payload.quote_id:
+        quote = conn.execute("SELECT * FROM execution_quotes WHERE id = ?", (payload.quote_id,)).fetchone()
+        if not quote:
+            conn.close()
+            raise HTTPException(status_code=404, detail="Quote not found")
+        quote = dict(quote)
+        if quote.get("order_id"):
+            conn.close()
+            raise HTTPException(status_code=409, detail="Quote is already bound to an order")
+        if quote.get("product_type") != "formation":
+            conn.close()
+            raise HTTPException(status_code=400, detail="Quote must be for a formation")
+        if (quote.get("state") or "").upper() != payload.formation.state.upper():
+            conn.close()
+            raise HTTPException(status_code=400, detail="Quote state does not match formation state")
+        if (quote.get("entity_type") or "") != payload.formation.entity_type:
+            conn.close()
+            raise HTTPException(status_code=400, detail="Quote entity_type does not match formation entity_type")
+    conn.close()
+
+    result = await create_order(OrderRequest(
+        product_type="formation",
+        formation=payload.formation,
+        quote_id=payload.quote_id,
+    ))
+    order_id = result["order_id"]
+    conn = get_db()
+    conn.execute(
+        """
+        INSERT INTO partner_orders (
+            id, partner_id, order_id, external_order_id, external_customer_id, metadata
+        ) VALUES (?, ?, ?, ?, ?, ?)
+        """,
+        (
+            f"PORD-{uuid.uuid4().hex[:12].upper()}",
+            partner["partner_id"],
+            order_id,
+            payload.external_order_id,
+            payload.external_customer_id,
+            json.dumps(payload.metadata or {}),
+        ),
+    )
+    conn.execute(
+        """
+        INSERT INTO partner_webhook_events (id, partner_id, order_id, event_type, payload)
+        VALUES (?, ?, ?, 'formation.created', ?)
+        """,
+        (
+            f"PWE-{uuid.uuid4().hex[:12].upper()}",
+            partner["partner_id"],
+            order_id,
+            json.dumps({"order_id": order_id, "external_order_id": payload.external_order_id, "status": "pending_payment"}),
+        ),
+    )
+    conn.commit()
+    summary = partner_order_summary(conn, partner["partner_id"], order_id)
+    conn.close()
+    response = {"formation": summary, "checkout_required": True}
+    if payload.success_url and payload.cancel_url:
+        try:
+            checkout = await authorize_order(order_id, AuthorizeRequest(
+                success_url=payload.success_url,
+                cancel_url=payload.cancel_url,
+                quote_id=payload.quote_id,
+            ))
+            response["checkout"] = checkout
+        except HTTPException as exc:
+            response["checkout"] = {
+                "status": "unavailable",
+                "detail": exc.detail,
+            }
+    return response
+
+
+@app.get("/api/v1/partners/formations")
+async def list_partner_formations(request: Request, limit: int = 50):
+    partner = verify_partner_access(request, "orders:read")
+    capped_limit = max(1, min(int(limit or 50), 250))
+    conn = get_db()
+    rows = conn.execute(
+        """
+        SELECT po.order_id
+        FROM partner_orders po
+        JOIN orders o ON o.id = po.order_id
+        WHERE po.partner_id = ?
+        ORDER BY po.created_at DESC
+        LIMIT ?
+        """,
+        (partner["partner_id"], capped_limit),
+    ).fetchall()
+    formations = [partner_order_summary(conn, partner["partner_id"], row["order_id"]) for row in rows]
+    conn.close()
+    return {"formations": formations}
+
+
+@app.get("/api/v1/partners/formations/{order_id}")
+async def get_partner_formation(order_id: str, request: Request):
+    partner = verify_partner_access(request, "orders:read")
+    conn = get_db()
+    summary = partner_order_summary(conn, partner["partner_id"], order_id)
+    conn.close()
+    return {"formation": summary}
+
+
+@app.get("/api/v1/partners/formations/{order_id}/documents")
+async def list_partner_formation_documents(order_id: str, request: Request):
+    partner = verify_partner_access(request, "orders:read")
+    conn = get_db()
+    ensure_partner_order_access(conn, partner["partner_id"], order_id)
+    docs = conn.execute(
+        "SELECT doc_type, filename, format, category, visibility, created_at FROM documents WHERE order_id = ? ORDER BY created_at",
+        (order_id,),
+    ).fetchall()
+    conn.close()
+    return {"order_id": order_id, "documents": customer_visible_documents(docs)}
+
+
+@app.get("/api/v1/partners/formations/{order_id}/documents/{filename}")
+async def download_partner_formation_document(order_id: str, filename: str, request: Request):
+    partner = verify_partner_access(request, "orders:read")
+    conn = get_db()
+    ensure_partner_order_access(conn, partner["partner_id"], order_id)
+    doc = conn.execute(
+        """
+        SELECT file_path, filename, visibility
+        FROM documents
+        WHERE order_id = ? AND filename = ?
+        """,
+        (order_id, filename),
+    ).fetchone()
+    conn.close()
+    if not doc or (doc["visibility"] or "customer") != "customer":
+        raise HTTPException(status_code=404, detail="Document not found")
+    path = resolve_document_path(doc["file_path"])
+    if not path.exists():
+        raise HTTPException(status_code=404, detail="Document file not found")
+    record_document_access(order_id, doc["filename"], actor=partner["partner_id"], auth_context="partner_api")
+    return FileResponse(path, filename=doc["filename"])
+
+
+@app.post("/api/v1/partners/webhook-endpoints")
+async def create_partner_webhook_endpoint(payload: PartnerWebhookEndpointRequest, request: Request):
+    partner = verify_partner_access(request, "webhooks:write")
+    secret = f"sos_whsec_{secrets.token_urlsafe(32)}"
+    endpoint_id = f"PWH-{uuid.uuid4().hex[:12].upper()}"
+    conn = get_db()
+    conn.execute(
+        """
+        INSERT INTO partner_webhook_endpoints (
+            id, partner_id, url, event_types, signing_secret_hash, secret_prefix
+        ) VALUES (?, ?, ?, ?, ?, ?)
+        """,
+        (
+            endpoint_id,
+            partner["partner_id"],
+            payload.url,
+            json.dumps(payload.event_types),
+            hash_partner_secret(secret),
+            secret[:18],
+        ),
+    )
+    conn.commit()
+    conn.close()
+    return {
+        "endpoint": {
+            "id": endpoint_id,
+            "url": payload.url,
+            "event_types": payload.event_types,
+            "status": "active",
+        },
+        "signing_secret": secret,
+        "message": "Store this webhook signing secret now; SOSFiler only returns it once.",
+    }
+
+
+@app.get("/api/v1/partners/webhook-events")
+async def list_partner_webhook_events(request: Request, limit: int = 50):
+    partner = verify_partner_access(request, "orders:read")
+    capped_limit = max(1, min(int(limit or 50), 250))
+    conn = get_db()
+    rows = conn.execute(
+        """
+        SELECT id, order_id, endpoint_id, event_type, status, attempts, last_error, created_at, delivered_at
+        FROM partner_webhook_events
+        WHERE partner_id = ?
+        ORDER BY created_at DESC
+        LIMIT ?
+        """,
+        (partner["partner_id"], capped_limit),
+    ).fetchall()
+    conn.close()
+    return {"events": [dict(row) for row in rows]}
+
 @app.get("/api/state-fees")
 async def get_state_fees():
     """Return filing fees for all states."""
@@ -4425,6 +5734,32 @@ async def get_state_fee(state: str, entity_type: str = "LLC"):
         "automation_route": breakdown.get("automation_route"),
     }
 
+
+def _validated_state_code(state: str) -> str:
+    code = (state or "").strip().upper()
+    if not _re.fullmatch(r"[A-Z]{2}", code):
+        raise HTTPException(status_code=400, detail="State must be a two-letter code")
+    if code not in STATE_FEES.get("LLC", {}):
+        raise HTTPException(status_code=404, detail=f"State {code} not found")
+    return code
+
+
+@app.get("/api/formation-availability")
+async def get_formation_availability():
+    """Customer-safe formation availability and fulfillment timing by state."""
+    return build_public_launch_readiness_report()
+
+
+@app.get("/api/formation-availability/{state}")
+async def get_formation_availability_state(state: str):
+    """Customer-safe formation availability for a state."""
+    state_code = _validated_state_code(state)
+    payload = public_launch_readiness_for_state(state_code)
+    if not payload:
+        raise HTTPException(status_code=404, detail=f"State {state_code} not found")
+    return payload
+
+
 @app.get("/api/state-routes/{state}/{entity_type}")
 async def get_state_route(state: str, entity_type: str, action_type: str = "formation"):
     """Return data-driven automation and operator route metadata for a state filing."""
@@ -4447,6 +5782,27 @@ async def list_state_routes(entity_type: str = "LLC", action_type: str = "format
         ],
     }
 
+@app.get("/api/services")
+async def list_services(category: str = "", lifecycle_stage: str = ""):
+    """Return customer-orderable SOSFiler services from the catalog."""
+    services = service_catalog_items()
+    if category:
+        services = [s for s in services if s.get("service_category") == category]
+    if lifecycle_stage:
+        services = [s for s in services if s.get("lifecycle_stage") == lifecycle_stage]
+    return {
+        "status": SERVICE_CATALOG.get("status", "loaded"),
+        "pricing_rule": SERVICE_CATALOG.get("pricing_rule", ""),
+        "services": services,
+    }
+
+@app.get("/api/services/{service_code}")
+async def get_service(service_code: str):
+    service = service_by_code(service_code)
+    if not service:
+        raise HTTPException(status_code=404, detail="Service not found")
+    return service
+
 @app.post("/api/quote")
 async def create_quote(data: QuoteRequest):
     """Create an authorize-then-capture quote for any SOSFiler product."""
@@ -4454,6 +5810,17 @@ async def create_quote(data: QuoteRequest):
     entity_key = "LLC" if data.entity_type.upper() == "LLC" else "Corp"
     if state not in STATE_FEES.get(entity_key, {}):
         raise HTTPException(status_code=400, detail=f"Invalid state: {state}")
+
+    service = service_by_code(data.service_code or data.product_type)
+    if service and (data.product_type != "formation" or data.service_code):
+        quote = build_service_quote(
+            service,
+            state,
+            data.entity_type,
+            expedite_fee_cents=data.expedite_fee_cents,
+        )
+        persist_quote(quote)
+        return quote
 
     if data.product_type == "formation":
         fees = build_fee_breakdown(state, "LLC" if entity_key == "LLC" else "Corp", include_ra=data.include_registered_agent)
@@ -4502,7 +5869,7 @@ async def create_quote(data: QuoteRequest):
 async def create_order(data: OrderRequest):
     """Create a product order through the shared execution-platform API."""
     if data.product_type != "formation":
-        raise HTTPException(status_code=400, detail="Only formation orders are currently supported by the shared order API.")
+        raise HTTPException(status_code=400, detail="Use /api/service-orders for non-formation service orders.")
     if not data.formation:
         raise HTTPException(status_code=400, detail="formation payload is required")
     result = await create_formation(data.formation)
@@ -4540,6 +5907,118 @@ async def create_order(data: OrderRequest):
             quote["line_items"] = parse_json_field(quote.get("line_items"), [])
             execution_dual_write("upsert_quote", quote, result["order_id"])
     return result
+
+
+@app.post("/api/service-orders")
+async def create_service_order(data: ServiceOrderRequest, request: Request):
+    """Create a non-formation service order and operator filing job."""
+    service = service_by_code(data.service_code)
+    if not service:
+        raise HTTPException(status_code=404, detail="Service not found")
+
+    state = data.state.upper()
+    entity_key = "LLC" if data.entity_type.upper() == "LLC" else "Corp"
+    if state not in STATE_FEES.get(entity_key, {}):
+        raise HTTPException(status_code=400, detail=f"Invalid state: {state}")
+
+    user = get_current_user(request)
+    parent_order = None
+    conn = get_db()
+    if data.parent_order_id:
+        if user:
+            link_orders_to_user_by_email(conn, user["id"], user["email"])
+            parent_order = conn.execute(
+                """
+                SELECT * FROM orders
+                WHERE id = ?
+                  AND (user_id = ? OR lower(email) = lower(?))
+                """,
+                (data.parent_order_id, user["id"], user["email"]),
+            ).fetchone()
+        elif data.parent_token:
+            parent_order = conn.execute(
+                "SELECT * FROM orders WHERE id = ? AND token = ?",
+                (data.parent_order_id, data.parent_token),
+            ).fetchone()
+        if not parent_order:
+            conn.close()
+            raise HTTPException(status_code=403, detail="Invalid parent order access")
+
+    parent = dict(parent_order) if parent_order else {}
+    email = str(data.email or parent.get("email") or (user or {}).get("email") or "")
+    if not email:
+        conn.close()
+        raise HTTPException(status_code=400, detail="Email is required")
+    business_name = data.business_name or parent.get("business_name") or data.service_data.get("business_name") or "Service Order"
+    entity_type = data.entity_type or parent.get("entity_type") or "LLC"
+    quote = build_service_quote(service, state, entity_type)
+    line_items = quote.get("line_items", [])
+    platform_fee = sum(int(item.get("amount_cents") or 0) for item in line_items if item.get("code") == "platform_fee")
+    government_fee = sum(int(item.get("amount_cents") or 0) for item in line_items if item.get("code") == "government_fee")
+    processing_fee = sum(int(item.get("amount_cents") or 0) for item in line_items if item.get("code") == "processing_fee")
+    if not platform_fee:
+        platform_fee = service_price_cents(service)
+    total_cents = int(quote.get("estimated_total_cents") or platform_fee + government_fee + processing_fee)
+    order_id = f"{state}-{uuid.uuid4().hex[:12].upper()}"
+    token = secrets.token_urlsafe(32)
+    service_payload = {
+        "service_code": service["service_code"],
+        "service_name": service.get("service_name"),
+        "service_category": service.get("service_category"),
+        "filing_category": service.get("filing_category"),
+        "parent_order_id": data.parent_order_id or "",
+        "service_data": data.service_data,
+    }
+
+    conn.execute("""
+        INSERT INTO orders (
+            id, user_id, email, token, status, entity_type, state, business_name,
+            formation_data, state_fee_cents, gov_processing_fee_cents,
+            platform_fee_cents, total_cents, product_type, service_code, parent_order_id
+        )
+        VALUES (?, ?, ?, ?, 'pending_payment', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    """, (
+        order_id,
+        (user or {}).get("id") or parent.get("user_id"),
+        email,
+        token,
+        entity_type,
+        state,
+        business_name,
+        json.dumps(service_payload),
+        government_fee,
+        processing_fee,
+        platform_fee,
+        total_cents,
+        service["service_code"],
+        service["service_code"],
+        data.parent_order_id or None,
+    ))
+    conn.commit()
+    conn.close()
+
+    persist_quote(quote, order_id)
+    create_or_update_filing_job(
+        {
+            "id": order_id,
+            "state": state,
+            "entity_type": entity_type,
+            "state_fee_cents": government_fee,
+            "gov_processing_fee_cents": processing_fee,
+            "status": "pending_payment",
+        },
+        action_type=service_action_type(service),
+        status="pending_payment",
+    )
+    add_status_update(order_id, "pending_payment", f"{service.get('service_name', 'Service')} order created. Awaiting payment.")
+    return {
+        "order_id": order_id,
+        "token": token,
+        "service": service,
+        "fee_breakdown": quote,
+        "total_cents": total_cents,
+        "status": "pending_payment",
+    }
 
 
 @app.post("/api/orders/{order_id}/authorize")
@@ -4854,7 +6333,7 @@ async def chat_expert(data: ChatRequest, request: Request):
     import httpx
 
     # Simple Rate Limiting Logic
-    ip = request.client.host
+    ip = request_client_ip(request)
     session_id = data.session_id
 
     conn = get_db()
@@ -5271,7 +6750,7 @@ async def create_checkout_session(data: CheckoutRequest):
                     "currency": "usd",
                     "unit_amount": RA_RENEWAL_FEE,
                     "product_data": {
-                        "name": "SOSFiler Registered Agent (1st Year)",
+                        "name": "Partner-Assisted Registered Agent",
                         "description": f"Professional registered agent in {state_name}. Annual renewal."
                     }
                 },
@@ -5331,13 +6810,45 @@ async def stripe_webhook(request: Request, background_tasks: BackgroundTasks):
         obj = stripe_object_to_dict((event.get("data") or {}).get("object") or {})
 
         if event_type == "checkout.session.completed":
-            order_id = (obj.get("metadata") or {}).get("order_id")
-            capture_strategy = (obj.get("metadata") or {}).get("capture_strategy", "")
+            metadata = obj.get("metadata") or {}
+            if metadata.get("type") == "partner_application":
+                application_id = metadata.get("partner_application_id") or ""
+                if application_id:
+                    conn = get_db()
+                    conn.execute(
+                        """
+                        UPDATE partner_applications
+                        SET payment_status = 'paid', stripe_payment_intent = ?, updated_at = datetime('now')
+                        WHERE id = ?
+                        """,
+                        (obj.get("payment_intent"), application_id),
+                    )
+                    conn.commit()
+                    conn.close()
+                finish_stripe_webhook_event(event_id)
+                return {"status": "ok", "event_id": event_id, "partner_application_id": application_id}
+
+            order_id = metadata.get("order_id")
+            capture_strategy = metadata.get("capture_strategy", "")
 
             if order_id and capture_strategy == "authorize_then_capture":
                 result = update_payment_authorization_from_session(obj)
                 if result.get("updated") and not (obj.get("metadata") or {}).get("additional_authorization"):
-                    background_tasks.add_task(run_formation_pipeline, order_id)
+                    if result.get("product_type", "formation") == "formation":
+                        background_tasks.add_task(run_formation_pipeline, order_id)
+                    else:
+                        conn = get_db()
+                        order_row = conn.execute("SELECT * FROM orders WHERE id = ?", (order_id,)).fetchone()
+                        conn.close()
+                        if order_row:
+                            order_dict = dict(order_row)
+                            service = service_by_code(order_dict.get("service_code", ""))
+                            create_or_update_filing_job(
+                                order_dict,
+                                action_type=service_action_type(service or {"service_code": order_dict.get("service_code", "service")}),
+                                status="ready_to_file",
+                            )
+                            add_status_update(order_id, "ready_to_file", "Payment authorized. SOSFiler is preparing this service order for operator filing.")
                 finish_stripe_webhook_event(event_id)
                 return {"status": "ok", "event_id": event_id, "result": result}
 
@@ -5529,8 +7040,11 @@ async def get_order_status(order_id: str, token: str = ""):
         "state": order["state"],
         "business_name": order["business_name"],
         "email": order["email"],
+        "product_type": order.get("product_type", "formation"),
+        "service_code": order.get("service_code"),
+        "parent_order_id": order.get("parent_order_id"),
         "ein": order.get("ein"),
-        "ein_requires_ssn": not order.get("ein") and formation_data_needs_ssn(formation_data),
+        "ein_requires_ssn": order.get("product_type", "formation") == "formation" and not order.get("ein") and formation_data_needs_ssn(formation_data),
         "filing_confirmation": json.loads(order["filing_confirmation"]) if order.get("filing_confirmation") else None,
         "timeline": customer_timeline(updates, filing_events, dict(order)),
         "compliance_deadlines": [dict(d) for d in deadlines],
@@ -5702,6 +7216,22 @@ async def get_admin_state_certification_worklist(request: Request):
     return certification_worklist(all_state_adapter_manifests())
 
 
+@app.get("/api/admin/launch-readiness")
+async def get_admin_launch_readiness(request: Request, refresh: bool = False):
+    """Market-readiness rollout plan for all state formation and lifecycle lanes."""
+    verify_admin_access(request)
+    if refresh:
+        report = write_launch_readiness_report()
+    else:
+        report = build_launch_readiness_report()
+    gates = {
+        "email_delivery": email_launch_gate_status(),
+    }
+    report["platform_launch_gates"] = gates
+    report["summary"]["ready_for_paid_traffic"] = all(gate.get("launch_ready") for gate in gates.values())
+    return report
+
+
 @app.get("/api/admin/filing-jobs/{job_id}")
 async def get_admin_filing_job_detail(job_id: str, request: Request):
     """Operator cockpit detail view for one filing job."""
@@ -5752,6 +7282,13 @@ async def get_admin_filing_job_detail(job_id: str, request: Request):
     job_payload = enrich_filing_job_for_adapter(conn, serialize_filing_job(row))
     job_payload["adapter_contract"] = build_adapter_contract(job_payload)
     job_payload["readiness_checklist"] = build_filing_readiness_checklist(job_payload)
+    artifact_payload = [dict(artifact) for artifact in artifacts]
+    order_payload = dict(order_for_readiness) if order_for_readiness else {}
+    job_payload["operator_fulfillment_packet"] = build_operator_fulfillment_packet(
+        job_payload,
+        order_payload,
+        artifact_payload,
+    )
     payment_readiness = payment_execution_readiness(conn, dict(order_for_readiness), dict(row)) if order_for_readiness else None
     conn.close()
     return {
@@ -5759,7 +7296,7 @@ async def get_admin_filing_job_detail(job_id: str, request: Request):
         "payment_readiness": payment_readiness,
         "state_metadata": state_metadata_summary(job_payload["state"], job_payload["entity_type"], job_payload["action_type"]),
         "events": [dict(event) for event in events],
-        "artifacts": [dict(artifact) for artifact in artifacts],
+        "artifacts": artifact_payload,
         "automation_runs": run_payload,
     }
 
@@ -6344,7 +7881,9 @@ async def get_admin_email_config_status(request: Request):
     verify_admin_access(request)
     from notifier import Notifier
 
-    return Notifier().config_status()
+    status = Notifier().config_status()
+    status["launch_gate"] = email_launch_gate_status(status)
+    return status
 
 
 @app.post("/api/admin/email/test")
@@ -6353,10 +7892,14 @@ async def send_admin_email_test(request: Request, payload: EmailTestRequest = Em
     from notifier import Notifier
 
     notifier = Notifier()
-    return await notifier.send_test_email(
+    result = await notifier.send_test_email(
         str(payload.to_email) if payload.to_email else "",
         payload.subject or "SOSFiler SendGrid diagnostic",
     )
+    verification = record_email_live_verification(result)
+    result["launch_gate"] = email_launch_gate_status()
+    result["recorded_live_verification"] = verification
+    return result
 
 
 @app.get("/api/admin/persistence-sync-status")
@@ -7883,6 +9426,9 @@ async def get_user_orders(request: Request):
             o.entity_type,
             o.state,
             o.business_name,
+            o.product_type,
+            o.service_code,
+            o.parent_order_id,
             o.status,
             o.created_at,
             o.paid_at,
@@ -7951,7 +9497,7 @@ async def get_user_order_detail(order_id: str, request: Request):
 
     payload = dict(order)
     payload["formation_data"] = parse_json_field(payload.get("formation_data"), {})
-    payload["ein_requires_ssn"] = not payload.get("ein") and formation_data_needs_ssn(payload["formation_data"])
+    payload["ein_requires_ssn"] = payload.get("product_type", "formation") == "formation" and not payload.get("ein") and formation_data_needs_ssn(payload["formation_data"])
     payload["documents"] = customer_visible_documents(docs)
     payload["timeline"] = customer_timeline(updates, filing_events, payload)
     payload["compliance_deadlines"] = [dict(d) for d in deadlines]

@@ -7,38 +7,48 @@
 <title>Dashboard — SOSFiler</title>
 <link rel="manifest" href="/manifest.json">
 <meta name="theme-color" content="#0A0A0A">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/chat-widget.css">
 <style>
 :root {
   --bg: #0A0A0A;
+  --bg-tint: #0E0E0E;
   --surface: #141414;
+  --surface-2: #1A1A1A;
   --card: #141414;
-  --border: #1E1E1E;
+  --border: #1F1F1F;
+  --border-strong: #2A2A2A;
   --text: #FFFFFF;
-  --text-secondary: #999999;
-  --muted: #999999;
+  --text-secondary: #9A9A9A;
+  --muted: #9A9A9A;
+  --muted-2: #6B6B6B;
+  --body: #D0D0D0;
   --accent: #CCFF00;
   --accent2: #39FF14;
   --cyan: #00FFE5;
   --green: #39FF14;
   --red: #FF3366;
   --yellow: #FF6B00;
+  --amber: #FFB23F;
   --purple: #a78bfa;
-  --glow: rgba(204,255,0,0.4);
-  --glow-sm: rgba(204,255,0,0.15);
+  --glow: rgba(204,255,0,0.35);
+  --glow-sm: rgba(204,255,0,0.12);
   --gradient: linear-gradient(135deg, #CCFF00, #39FF14);
+
+  --font-display: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Inter Display', system-ui, sans-serif;
+  --font-body:    -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Inter', system-ui, sans-serif;
+  --font-mono:    'JetBrains Mono', 'IBM Plex Mono', ui-monospace, Menlo, monospace;
 }
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 body {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family: var(--font-body);
   background: var(--bg);
   color: var(--text);
-  line-height: 1.6;
+  line-height: 1.55;
   -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
+h1, h2, h3, h4 { font-family: var(--font-display); font-weight: 900; letter-spacing: -0.03em; line-height: 1.1; color: #fff; }
+.mono { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
 a { color: var(--cyan); text-decoration: none; transition: color 0.2s ease; }
 a:hover { color: var(--accent); text-decoration: none; }
 
@@ -49,20 +59,26 @@ a:hover { color: var(--accent); text-decoration: none; }
 ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
 
 .topbar {
-  background: rgba(10,10,10,0.92);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
+  background: rgba(10,10,10,0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   border-bottom: 1px solid var(--border);
-  padding: 16px 20px;
+  padding: 14px 24px;
   display: flex;
   justify-content: space-between;
   align-items: center;
   position: sticky;
   top: 0;
   z-index: 100;
+  gap: 24px;
 }
-.topbar .logo { font-size: 20px; font-weight: 800; color: #fff; }
+.topbar .logo { display: flex; align-items: center; gap: 12px; font-family: var(--font-display); font-size: 20px; font-weight: 900; letter-spacing: -0.02em; color: #fff; }
 .topbar .logo span { color: var(--accent); }
+.topbar .logo img { height: 56px; width: auto; }
+.topbar nav { display: flex; gap: 22px; align-items: center; }
+.topbar nav a { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
+.topbar nav a:hover { color: var(--accent); }
+.topbar nav a.active { color: #fff; }
 
 .container { max-width: 900px; margin: 0 auto; padding: 20px; }
 
@@ -88,13 +104,13 @@ a:hover { color: var(--accent); text-decoration: none; }
   border: 1px solid var(--border);
   border-radius: 8px;
   font-size: 16px;
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-body);
   margin-bottom: 12px;
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
-.login-card input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 2px rgba(204,255,0,0.15); }
+.login-card input:focus { outline: 2px solid transparent; border-color: var(--accent); box-shadow: 0 0 0 2px rgba(204,255,0,0.15); }
 .auth-providers { display: flex; flex-direction: column; gap: 10px; margin: 18px 0; }
-.auth-btn { display: flex; align-items: center; justify-content: center; gap: 10px; padding: 14px 20px; border: none; color: #fff; font-weight: 600; font-size: 15px; border-radius: 8px; cursor: pointer; transition: all 0.2s; font-family: 'Inter', sans-serif; min-height: 48px; }
+.auth-btn { display: flex; align-items: center; justify-content: center; gap: 10px; padding: 14px 20px; border: none; color: #fff; font-weight: 600; font-size: 15px; border-radius: 8px; cursor: pointer; transition: background 0.2s ease, box-shadow 0.2s ease, color 0.2s ease; font-family: var(--font-body); min-height: 48px; }
 .google-btn { background: #fff; color: #333; border: 1px solid #ddd; }
 .google-btn:hover { background: #f7f7f7; box-shadow: 0 2px 8px rgba(0,0,0,0.15); }
 .apple-btn { background: #000; color: #fff; border: 1px solid #333; }
@@ -114,8 +130,8 @@ a:hover { color: var(--accent); text-decoration: none; }
   background: var(--accent);
   color: #000;
   width: 100%;
-  transition: all 0.2s ease;
-  font-family: 'Inter', sans-serif;
+  transition: box-shadow 0.2s ease, transform 0.2s ease, background 0.2s ease, color 0.2s ease;
+  font-family: var(--font-body);
 }
 .btn:hover { box-shadow: 0 0 20px var(--glow), 0 8px 30px rgba(204,255,0,0.2); transform: translateY(-1px); }
 
@@ -175,8 +191,8 @@ a:hover { color: var(--accent); text-decoration: none; }
   padding: 24px;
   transition: box-shadow 0.2s ease;
 }
-.card:hover { box-shadow: 0 0 20px rgba(204,255,0,0.04); }
-.card h3 { font-size: 16px; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; font-weight: 700; }
+.card:hover { border-color: var(--border-strong); box-shadow: 0 0 20px rgba(204,255,0,0.04); }
+.card h3 { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted-2); margin-bottom: 18px; display: flex; align-items: center; gap: 8px; font-weight: 700; }
 .card.full { grid-column: 1 / -1; }
 
 /* Timeline */
@@ -207,7 +223,7 @@ a:hover { color: var(--accent); text-decoration: none; }
   cursor: pointer;
   text-decoration: none;
   font-weight: 600;
-  transition: all 0.2s ease;
+  transition: background 0.2s ease, box-shadow 0.2s ease;
 }
 .doc-list .download-btn:hover { background: rgba(204,255,0,0.2); box-shadow: 0 0 10px rgba(204,255,0,0.15); }
 
@@ -288,7 +304,7 @@ a:hover { color: var(--accent); text-decoration: none; }
   cursor: pointer;
   text-align: left;
   color: var(--text);
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-body);
 }
 .company-card:hover { border-color: rgba(204,255,0,0.35); box-shadow: 0 0 18px rgba(204,255,0,0.08); }
 .company-card .name { font-weight: 800; font-size: 16px; margin-bottom: 6px; }
@@ -310,33 +326,38 @@ a:hover { color: var(--accent); text-decoration: none; }
 <body>
 
 <div class="topbar">
-  <a href="/" class="logo"><img src="/logo.png" alt="SOSFiler" style="height:36px;vertical-align:middle;"></a>
-  <a href="/" style="color: var(--muted); font-size: 14px;">Home</a>
+  <a href="index.html" class="logo">
+    <img src="logo.png" alt="SOSFiler" onerror="this.style.display='none';this.nextElementSibling.style.display='inline';">
+    <span style="display:none;">SOS<span>Filer</span></span>
+  </a>
+  <nav>
+    <a href="index.html">Home</a>
+    <a href="#" class="active">Dashboard</a>
+    <a href="app.html">New filing</a>
+    <a href="licenses.html">Licenses</a>
+  </nav>
 </div>
 
 <!-- Login Gate -->
 <div id="loginGate">
   <div class="login-card">
-    <h2>📊 Dashboard</h2>
+    <h2>Dashboard</h2>
     <p>Sign in to see all companies linked to your account.</p>
     <div class="auth-providers">
       <button class="auth-btn google-btn" onclick="triggerGoogleAuth()">
-        <svg width="20" height="20" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
         Continue with Google
       </button>
       <button class="auth-btn apple-btn" onclick="triggerAppleAuth()">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="#fff"><path d="M17.05 20.28c-.98.95-2.05.88-3.08.4-1.09-.5-2.08-.48-3.24 0-1.44.62-2.2.44-3.06-.4C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/></svg>
         Continue with Apple
       </button>
       <button class="auth-btn facebook-btn" onclick="triggerFacebookAuth()">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="#fff"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
         Continue with Facebook
       </button>
     </div>
     <div class="divider"><span>OR</span></div>
     <input type="email" id="accountEmail" placeholder="Email address">
     <input type="password" id="accountPassword" placeholder="Password">
-    <button class="btn" onclick="accountLogin()">Sign In →</button>
+    <button class="btn" onclick="accountLogin()">Sign In</button>
     <p style="color: var(--muted); font-size: 12px; margin: 12px 0 20px;">
       <a href="#" onclick="showRecovery('password');return false;">Forgot password?</a> ·
       <a href="#" onclick="showRecovery('token');return false;">Recover order token</a>
@@ -345,7 +366,7 @@ a:hover { color: var(--accent); text-decoration: none; }
     <p>Or enter an order ID and token to view one company.</p>
     <input type="text" id="loginOrderId" placeholder="Order ID (e.g., TX-ABC123DEF456)">
     <input type="text" id="loginToken" placeholder="Order token (from your email)">
-    <button class="btn" onclick="login()">View Dashboard →</button>
+    <button class="btn" onclick="login()">View Dashboard</button>
     <p style="color: var(--muted); font-size: 12px; margin-top: 16px;">Check your email for your order ID and token.</p>
   </div>
 </div>
@@ -355,7 +376,7 @@ a:hover { color: var(--accent); text-decoration: none; }
     <h2>Reset Password</h2>
     <p>Enter a new password for your SOSFiler account.</p>
     <input type="password" id="newPassword" placeholder="New password">
-    <button class="btn" onclick="confirmPasswordReset()">Save Password →</button>
+    <button class="btn" onclick="confirmPasswordReset()">Save Password</button>
     <p style="color: var(--muted); font-size: 12px; margin-top: 16px;"><a href="/dashboard.html">Back to sign in</a></p>
   </div>
 </div>
@@ -365,7 +386,7 @@ a:hover { color: var(--accent); text-decoration: none; }
     <h2 id="recoveryTitle">Recover Access</h2>
     <p id="recoveryCopy">Enter your email and we'll send recovery instructions.</p>
     <input type="email" id="recoveryEmail" placeholder="Email address">
-    <button class="btn" id="recoveryButton" onclick="submitRecovery()">Send Recovery Email →</button>
+    <button class="btn" id="recoveryButton" onclick="submitRecovery()">Send Recovery Email</button>
     <p id="recoveryResult" style="color: var(--muted); font-size: 13px; margin-top: 14px;"></p>
     <p style="color: var(--muted); font-size: 12px; margin-top: 16px;"><a href="#" onclick="hideRecovery();return false;">Back to sign in</a></p>
   </div>
@@ -409,7 +430,7 @@ a:hover { color: var(--accent); text-decoration: none; }
 
       <!-- Filing Status Timeline -->
       <div class="card full">
-        <h3>📋 Filing Status</h3>
+        <h3>Filing Status</h3>
         <div class="timeline" id="timeline">
           <div class="loading"><div class="spinner"></div></div>
         </div>
@@ -429,7 +450,7 @@ a:hover { color: var(--accent); text-decoration: none; }
 
       <!-- EIN -->
       <div class="card" id="einCard">
-        <h3>🔢 EIN (Tax ID)</h3>
+        <h3>EIN (Tax ID)</h3>
         <div id="einContent">
           <p style="color: var(--muted); font-size: 14px;">Pending — we'll apply with the IRS once your LLC is filed.</p>
         </div>
@@ -437,19 +458,19 @@ a:hover { color: var(--accent); text-decoration: none; }
 
       <!-- Business Info -->
       <div class="card">
-        <h3>🏢 Business Info</h3>
+        <h3>Business Info</h3>
         <div id="bizInfo"></div>
       </div>
 
       <!-- Fee Receipt -->
       <div class="card" id="feeReceiptCard">
-        <h3>🧾 Fee Receipt</h3>
+        <h3>Fee Receipt</h3>
         <div id="feeReceipt"></div>
       </div>
 
       <!-- Documents -->
       <div class="card full">
-        <h3>📄 Document Vault</h3>
+        <h3>Document Vault</h3>
         <div id="docsContent">
           <div class="empty">Documents will appear here once generated.</div>
         </div>
@@ -457,7 +478,7 @@ a:hover { color: var(--accent); text-decoration: none; }
 
       <!-- Compliance Calendar -->
       <div class="card full">
-        <h3>📅 Compliance Calendar</h3>
+        <h3>Compliance Calendar</h3>
         <div id="complianceStatus"></div>
         <div id="complianceContent">
           <div class="empty">Compliance calendar will be set up after filing.</div>
@@ -466,7 +487,7 @@ a:hover { color: var(--accent); text-decoration: none; }
 
       <!-- What To Do Next -->
       <div class="card full">
-        <h3>✅ What To Do Next</h3>
+        <h3>What To Do Next</h3>
         <ul class="checklist" id="checklist"></ul>
       </div>
 
@@ -474,20 +495,33 @@ a:hover { color: var(--accent); text-decoration: none; }
 
     <!-- Additional Services -->
     <div class="card full" style="margin-top: 20px;">
-      <h3>🚀 Additional Services</h3>
+      <h3>Additional Services</h3>
       <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-top: 12px;">
-        <button onclick="openDBAWizard()" style="padding: 20px; background: rgba(204,255,0,0.06); border: 1px solid rgba(204,255,0,0.15); border-radius: 12px; color: var(--text); cursor: pointer; text-align: left; font-family: 'Inter', sans-serif; transition: all 0.2s ease;">
-          <div style="font-size: 24px; margin-bottom: 8px;">📝</div>
+        <button onclick="openComplianceService('annual_report')" style="padding: 20px; background: rgba(204,255,0,0.06); border: 1px solid rgba(204,255,0,0.15); border-radius: 12px; color: var(--text); cursor: pointer; text-align: left; font-family: var(--font-body); transition: border-color 0.2s ease, box-shadow 0.2s ease;">
+          <div style="font-weight: 700; font-size: 15px;">File an Annual Report</div>
+          <div style="font-size: 13px; color: var(--muted); margin-top: 4px;">Order and track from dashboard</div>
+        </button>
+        <button onclick="openComplianceService('foreign_qualification')" style="padding: 20px; background: rgba(57,255,20,0.06); border: 1px solid rgba(57,255,20,0.15); border-radius: 12px; color: var(--text); cursor: pointer; text-align: left; font-family: var(--font-body); transition: border-color 0.2s ease, box-shadow 0.2s ease;">
+          <div style="font-weight: 700; font-size: 15px;">Foreign Qualification</div>
+          <div style="font-size: 13px; color: var(--muted); margin-top: 4px;">Register in another state</div>
+        </button>
+        <button onclick="openComplianceService('registered_agent_change')" style="padding: 20px; background: rgba(167,139,250,0.06); border: 1px solid rgba(167,139,250,0.15); border-radius: 12px; color: var(--text); cursor: pointer; text-align: left; font-family: var(--font-body); transition: border-color 0.2s ease, box-shadow 0.2s ease;">
+          <div style="font-weight: 700; font-size: 15px;">Change Registered Agent</div>
+          <div style="font-size: 13px; color: var(--muted); margin-top: 4px;">Switch or update agent</div>
+        </button>
+        <button onclick="openComplianceService('certificate_good_standing')" style="padding: 20px; background: rgba(255,107,0,0.06); border: 1px solid rgba(255,107,0,0.15); border-radius: 12px; color: var(--text); cursor: pointer; text-align: left; font-family: var(--font-body); transition: border-color 0.2s ease, box-shadow 0.2s ease;">
+          <div style="font-weight: 700; font-size: 15px;">Good Standing Certificate</div>
+          <div style="font-size: 13px; color: var(--muted); margin-top: 4px;">Order official evidence</div>
+        </button>
+        <button onclick="openDBAWizard()" style="padding: 20px; background: rgba(204,255,0,0.06); border: 1px solid rgba(204,255,0,0.15); border-radius: 12px; color: var(--text); cursor: pointer; text-align: left; font-family: var(--font-body); transition: border-color 0.2s ease, box-shadow 0.2s ease;">
           <div style="font-weight: 700; font-size: 15px;">File a DBA</div>
           <div style="font-size: 13px; color: var(--muted); margin-top: 4px;">$29 + gov fees</div>
         </button>
-        <button onclick="openLicenseAssistant()" style="padding: 20px; background: rgba(57,255,20,0.06); border: 1px solid rgba(57,255,20,0.15); border-radius: 12px; color: var(--text); cursor: pointer; text-align: left; font-family: 'Inter', sans-serif; transition: all 0.2s ease;">
-          <div style="font-size: 24px; margin-bottom: 8px;">🏛️</div>
+        <button onclick="openLicenseAssistant()" style="padding: 20px; background: rgba(57,255,20,0.06); border: 1px solid rgba(57,255,20,0.15); border-radius: 12px; color: var(--text); cursor: pointer; text-align: left; font-family: var(--font-body); transition: border-color 0.2s ease, box-shadow 0.2s ease;">
           <div style="font-weight: 700; font-size: 15px;">Get a Business License</div>
           <div style="font-size: 13px; color: var(--muted); margin-top: 4px;">From $49 or Free guidance</div>
         </button>
-        <button onclick="openSpecialtyLicenses()" style="padding: 20px; background: rgba(167,139,250,0.06); border: 1px solid rgba(167,139,250,0.15); border-radius: 12px; color: var(--text); cursor: pointer; text-align: left; font-family: 'Inter', sans-serif; transition: all 0.2s ease;">
-          <div style="font-size: 24px; margin-bottom: 8px;">🔑</div>
+        <button onclick="openSpecialtyLicenses()" style="padding: 20px; background: rgba(167,139,250,0.06); border: 1px solid rgba(167,139,250,0.15); border-radius: 12px; color: var(--text); cursor: pointer; text-align: left; font-family: var(--font-body); transition: border-color 0.2s ease, box-shadow 0.2s ease;">
           <div style="font-weight: 700; font-size: 15px;">Specialty Licenses</div>
           <div style="font-size: 13px; color: var(--muted); margin-top: 4px;">Liquor, Food, STR, etc. — $99</div>
         </button>
@@ -497,7 +531,7 @@ a:hover { color: var(--accent); text-decoration: none; }
     <!-- Service Modal -->
     <div id="serviceModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:1000; overflow-y:auto;">
       <div style="max-width: 560px; margin: 60px auto; background: var(--card); border: 1px solid var(--border); border-top: 2px solid var(--accent); border-radius: 16px; padding: 32px; position: relative;">
-        <button onclick="closeServiceModal()" style="position:absolute; top:16px; right:16px; background:none; border:none; color:var(--muted); font-size:24px; cursor:pointer;">✕</button>
+        <button onclick="closeServiceModal()" style="position:absolute; top:16px; right:16px; background:none; border:none; color:var(--muted); cursor:pointer;">Close</button>
         <div id="serviceModalContent"></div>
       </div>
     </div>
@@ -798,11 +832,11 @@ function showRecovery(mode) {
   if (mode === 'token') {
     document.getElementById('recoveryTitle').textContent = 'Recover Order Tokens';
     document.getElementById('recoveryCopy').textContent = 'We will email dashboard links for every company tied to this email.';
-    document.getElementById('recoveryButton').textContent = 'Send Dashboard Links →';
+    document.getElementById('recoveryButton').textContent = 'Send Dashboard Links';
   } else {
     document.getElementById('recoveryTitle').textContent = 'Reset Password';
     document.getElementById('recoveryCopy').textContent = 'We will email password reset instructions if this account uses password sign-in.';
-    document.getElementById('recoveryButton').textContent = 'Send Reset Email →';
+    document.getElementById('recoveryButton').textContent = 'Send Reset Email';
   }
 }
 
@@ -946,10 +980,15 @@ function renderCompanyList(orders) {
   el.innerHTML = `<div class="company-list">${orders.map(order => `
     <button class="company-card" onclick="openCompany('${order.id}')">
       <div class="name">${order.business_name}</div>
-      <div class="meta">${order.entity_type} · ${stateNames[order.state] || order.state}</div>
+      <div class="meta">${serviceOrderLabel(order)} · ${stateNames[order.state] || order.state}</div>
       <div class="meta">${statusLabels[order.status] || order.status} · ${order.document_count || 0} document${Number(order.document_count || 0) === 1 ? '' : 's'}</div>
       <div class="meta">Order ${order.id}</div>
     </button>`).join('')}</div>`;
+}
+
+function serviceOrderLabel(order) {
+  if (!order.service_code || order.product_type === 'formation') return order.entity_type || 'Company';
+  return order.service_code.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
 }
 
 function openCompany(id) {
@@ -967,29 +1006,29 @@ function renderDashboard(data) {
 
   const statusEl = document.getElementById('dashStatus');
   const statusLabels = {
-    'pending_payment': '⏳ Awaiting Payment',
+    'pending_payment': 'Awaiting Payment',
     'payment_authorized': 'Payment Authorized',
-    'paid': '✅ Paid',
+    'paid': 'Paid',
     'preparing': 'Preparing Filing Packet',
-    'generating_documents': '📄 Generating Documents',
+    'generating_documents': 'Generating Documents',
     'ready_to_file': 'Ready for State Filing',
     'operator_required': 'Operator Verification Required',
     'registered_agent_processing': 'Registered Agent Assignment In Progress',
     'registered_agent_assigned': 'Registered Agent Assigned',
     'annual_report_packet_prepared': 'Annual Report Packet Ready',
-    'filing': '📋 Filing with State',
-    'processing': '⏳ Processing',
+    'filing': 'Filing with State',
+    'processing': 'Processing',
     'submitted': 'Submitted with Evidence',
     'submitted_to_state': 'Submitted to State',
     'awaiting_state': 'Awaiting State Review',
     'pending_state_review': 'Pending State Review',
     'received_needs_sosdirect_check': 'Received by State',
-    'approved': '✅ Approved',
+    'approved': 'Approved',
     'state_approved': 'State Approved',
-    'ein_pending': '🔢 EIN Pending',
+    'ein_pending': 'EIN Pending',
     'ein_ready_for_submission': 'EIN Ready for IRS Submission',
-    'ein_received': '🔢 EIN Received',
-    'complete': '🎉 Complete',
+    'ein_received': 'EIN Received',
+    'complete': 'Complete',
     'error': '❌ Error',
     'human_review': '👤 Under Review'
   };
@@ -1200,7 +1239,39 @@ function renderOrderItems(data) {
   const isCorp = ['C-Corp', 'S-Corp'].includes(data.entity_type);
   const isNonprofit = data.entity_type === 'Nonprofit';
   const isAnnual = data.filing_job?.action_type === 'annual_report';
+  const isServiceOrder = data.product_type && data.product_type !== 'formation';
   const formationDocName = data.filing_job?.form_name || `${stateNames[data.state] || data.state} ${isAnnual ? 'annual report' : 'formation filing'}`;
+  if (isServiceOrder && !isAnnual) {
+    const label = serviceOrderLabel(data);
+    const serviceItems = [
+      orderItem(
+        label,
+        filedStatuses.includes(data.status) ? 'Submitted' : (data.status === 'ready_to_file' ? 'Queued' : 'In progress'),
+        filedStatuses.includes(data.status) ? 'progress' : (data.status === 'ready_to_file' ? 'action' : 'pending'),
+        `${label} will be prepared, reconciled against official fees, and tracked with operator evidence.`
+      ),
+      orderItem(
+        'State receipt or proof',
+        hasDoc(docs, 'submitted_receipt') ? 'Ready' : 'Pending',
+        hasDoc(docs, 'submitted_receipt') ? 'complete' : 'pending',
+        'Appears after SOSFiler submits the request and captures official evidence.'
+      ),
+      orderItem(
+        'Completion evidence',
+        approvedStatuses.includes(data.status) || hasDoc(docs, 'approved_certificate') ? 'Ready' : 'Pending',
+        approvedStatuses.includes(data.status) || hasDoc(docs, 'approved_certificate') ? 'complete' : 'pending',
+        'Official completion evidence appears here after state or agency acceptance.'
+      ),
+      orderItem(
+        'Filing authorization',
+        hasDoc(docs, 'filing_authorization') ? 'Ready' : 'Included',
+        hasDoc(docs, 'filing_authorization') ? 'complete' : 'progress',
+        'Customer authorization for SOSFiler to prepare and submit this service.'
+      )
+    ];
+    el.innerHTML = `<div class="order-items">${serviceItems.join('')}</div>`;
+    return;
+  }
   const items = [
     orderItem(
       isAnnual ? 'Annual report filing' : 'Formation filing',
@@ -1285,11 +1356,11 @@ function renderDocuments(docs) {
 
   const docNames = {
     'filing_authorization': 'Filing Authorization',
-    'articles_of_organization': '📄 Articles of Organization',
-    'operating_agreement': '📋 Operating Agreement',
-    'initial_resolutions': '📝 Initial Resolutions',
-    'meeting_minutes': '📝 Meeting Minutes',
-    'member_certificate': '🏆 Membership Certificate',
+    'articles_of_organization': 'Articles of Organization',
+    'operating_agreement': 'Operating Agreement',
+    'initial_resolutions': 'Initial Resolutions',
+    'meeting_minutes': 'Meeting Minutes',
+    'member_certificate': 'Membership Certificate',
     'corporate_bylaws': 'Corporate Bylaws',
     'corporate_initial_resolutions': 'Initial Board Resolutions',
     'incorporator_statement': 'Incorporator Statement',
@@ -1297,9 +1368,9 @@ function renderDocuments(docs) {
     'nonprofit_bylaws': 'Nonprofit Bylaws',
     'nonprofit_initial_resolutions': 'Initial Board Resolutions',
     'conflict_of_interest_policy': 'Conflict of Interest Policy',
-    'ein_ss4_data': '🔢 EIN Application Data',
-    'ein_confirmation_letter': '🔢 EIN Confirmation Letter',
-    'statement_of_organizer': '🔏 Statement of Organizer',
+    'ein_ss4_data': 'EIN Application Data',
+    'ein_confirmation_letter': 'EIN Confirmation Letter',
+    'statement_of_organizer': 'Statement of Organizer',
     'submitted_receipt': 'State Filing Receipt',
     'approved_certificate': 'State Approval Certificate'
     , 'annual_report_packet': 'Annual Report Filing Packet'
@@ -1374,32 +1445,49 @@ function renderCompliance(deadlines) {
 function renderChecklist(data) {
   const el = document.getElementById('checklist');
   const state = data.state;
+  if (data.product_type && data.product_type !== 'formation') {
+    const filedStatuses = ['submitted','submitted_to_state','awaiting_state','pending_government_review','pending_state_review','received_needs_sosdirect_check','approved','state_approved','complete'];
+    const approvedStatuses = ['approved','state_approved','complete'];
+    const label = serviceOrderLabel(data);
+    const items = [
+      { done: ['payment_authorized','paid','ready_to_file',...filedStatuses].includes(data.status), text: `Pay for ${label}` },
+      { done: ['ready_to_file',...filedStatuses].includes(data.status), text: 'SOSFiler prepares operator filing packet' },
+      { done: filedStatuses.includes(data.status), text: `Submit ${label} with ${stateNames[state] || state}` },
+      { done: approvedStatuses.includes(data.status), text: 'Receive official completion evidence' },
+    ];
+    el.innerHTML = items.map(item => `
+      <li>
+        <span class="check">${item.done ? 'Done' : 'Pending'}</span>
+        <span style="${item.done ? 'text-decoration: line-through; color: var(--muted);' : ''}">${item.text}</span>
+      </li>`).join('');
+    return;
+  }
   const paidStatuses = ['payment_authorized','paid','preparing','generating_documents','ready_to_file','submitted_to_state','awaiting_state','pending_state_review','received_needs_sosdirect_check','state_approved','ein_pending','ein_received','complete','approved'];
   const docsStatuses = ['ready_to_file','submitted','submitted_to_state','awaiting_state','pending_government_review','pending_state_review','received_needs_sosdirect_check','approved','state_approved','ein_pending','ein_received','complete'];
   const filedStatuses = ['submitted','submitted_to_state','awaiting_state','pending_government_review','pending_state_review','received_needs_sosdirect_check','approved','state_approved','ein_pending','ein_received','complete'];
   const approvedStatuses = ['approved','state_approved','ein_pending','ein_received','complete'];
 
   const items = [
-    { done: paidStatuses.includes(data.status), text: '💳 Pay for formation' },
-    { done: !!data.documents_ready_at || docsStatuses.includes(data.status), text: '📄 Internal company documents generated' },
-    { done: filedStatuses.includes(data.status), text: `📋 Filed with ${stateNames[state] || state} Secretary of State` },
-    { done: approvedStatuses.includes(data.status), text: '✅ Receive state approval documents' },
-    { done: !!data.ein, text: '🔢 Receive EIN from IRS' },
-    { done: false, text: '🏦 Open a business bank account (bring Articles + EIN letter)' },
-    { done: false, text: '📊 Set up business accounting (Wave, QuickBooks, etc.)' },
-    { done: false, text: `💼 Get business insurance (if applicable)` },
-    { done: false, text: `📋 Register for state/local business licenses` },
-    { done: false, text: '📝 Review federal reporting requirements that apply to your company' },
+    { done: paidStatuses.includes(data.status), text: 'Pay for formation' },
+    { done: !!data.documents_ready_at || docsStatuses.includes(data.status), text: 'Internal company documents generated' },
+    { done: filedStatuses.includes(data.status), text: `Filed with ${stateNames[state] || state} Secretary of State` },
+    { done: approvedStatuses.includes(data.status), text: 'Receive state approval documents' },
+    { done: !!data.ein, text: 'Receive EIN from IRS' },
+    { done: false, text: 'Open a business bank account with Articles and EIN letter' },
+    { done: false, text: 'Set up business accounting' },
+    { done: false, text: `Get business insurance if applicable` },
+    { done: false, text: `Register for state/local business licenses` },
+    { done: false, text: 'Review federal reporting requirements that apply to your company' },
   ];
 
   // Add state-specific items
-  if (state === 'NY') items.push({ done: false, text: '📰 Complete NY publication requirement (2 newspapers, 6 weeks, within 120 days)' });
-  if (state === 'CA') items.push({ done: false, text: '📋 File Statement of Information (LLC-12) within 90 days' });
-  if (state === 'GA') items.push({ done: false, text: '📰 Publish notice of formation in county legal organ' });
+  if (state === 'NY') items.push({ done: false, text: 'Complete NY publication requirement: 2 newspapers, 6 weeks, within 120 days' });
+  if (state === 'CA') items.push({ done: false, text: 'SOSFiler files the initial Statement of Information (LLC-12) within 90 days' });
+  if (state === 'GA') items.push({ done: false, text: 'Publish notice of formation in county legal organ' });
 
   el.innerHTML = items.map(item => `
     <li>
-      <span class="check">${item.done ? '✅' : '⬜'}</span>
+      <span class="check">${item.done ? 'Done' : 'Pending'}</span>
       <span style="${item.done ? 'text-decoration: line-through; color: var(--muted);' : ''}">${item.text}</span>
     </li>`).join('');
 }
@@ -1425,18 +1513,101 @@ function closeServiceModal() {
   document.getElementById('serviceModal').style.display = 'none';
 }
 
+const quickServiceLabels = {
+  annual_report: {
+    title: 'File an Annual Report',
+    copy: 'SOSFiler will prepare the filing packet, reconcile official state fees, and track evidence through completion.',
+    stateLabel: 'Filing state'
+  },
+  foreign_qualification: {
+    title: 'Foreign Qualification',
+    copy: 'Register this company to do business in another state. Pick the destination state below.',
+    stateLabel: 'Destination state'
+  },
+  registered_agent_change: {
+    title: 'Change Registered Agent',
+    copy: 'Order a registered agent change filing and track state acceptance from this dashboard.',
+    stateLabel: 'State'
+  },
+  certificate_good_standing: {
+    title: 'Certificate of Good Standing',
+    copy: 'Order an official certificate/status document from the state.',
+    stateLabel: 'Certificate state'
+  }
+};
+
+function openComplianceService(serviceCode) {
+  const data = currentOrderData || {};
+  const config = quickServiceLabels[serviceCode] || { title: 'Order Service', copy: 'Order this service from SOSFiler.', stateLabel: 'State' };
+  const selectedState = data.state || '';
+  openServiceModal(`
+    <h2 style="margin-bottom:16px;">${config.title}</h2>
+    <p style="color:var(--muted); margin-bottom:20px;">${config.copy}</p>
+    <label style="display:block;font-size:12px;color:var(--muted);margin-bottom:6px;">${config.stateLabel}</label>
+    <select id="quickServiceState" style="width:100%;padding:12px;background:#1A1A1A;color:var(--text);border:1px solid var(--border);border-radius:8px;margin-bottom:12px;font-size:15px;font-family:var(--font-body);">
+      ${Object.entries(stateNames).sort((a,b)=>a[1].localeCompare(b[1])).map(([c,n])=>'<option value="'+c+'" '+(c===selectedState?'selected':'')+'>'+n+'</option>').join('')}
+    </select>
+    <textarea id="quickServiceNotes" placeholder="Anything we should know? Optional." style="width:100%;min-height:90px;padding:12px;background:#1A1A1A;color:var(--text);border:1px solid var(--border);border-radius:8px;margin-bottom:16px;font-size:15px;font-family:var(--font-body);resize:vertical;"></textarea>
+    <button onclick="orderComplianceService('${serviceCode}')" class="btn" style="width:100%;">Continue to Checkout</button>
+    <div id="quickServiceResult" style="margin-top:16px;"></div>
+  `);
+}
+
+async function orderComplianceService(serviceCode) {
+  const el = document.getElementById('quickServiceResult');
+  const selectedState = document.getElementById('quickServiceState').value;
+  const notes = document.getElementById('quickServiceNotes').value;
+  const base = currentOrderData || {};
+  el.innerHTML = '<div style="text-align:center;padding:16px;"><div class="spinner"></div>Creating service order...</div>';
+  try {
+    const serviceRes = await fetch('/api/service-orders', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', ...authHeaders() },
+      body: JSON.stringify({
+        service_code: serviceCode,
+        email: base.email,
+        business_name: base.business_name,
+        entity_type: base.entity_type || 'LLC',
+        state: selectedState,
+        parent_order_id: orderId,
+        parent_token: accountMode ? '' : token,
+        service_data: {
+          source_order_id: orderId,
+          source_state: base.state,
+          notes
+        }
+      })
+    });
+    const serviceOrder = await serviceRes.json();
+    if (!serviceRes.ok) throw new Error(serviceOrder.detail || 'Could not create service order.');
+    const checkoutRes = await fetch(`/api/orders/${encodeURIComponent(serviceOrder.order_id)}/authorize`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        success_url: window.location.origin + '/dashboard.html',
+        cancel_url: window.location.href
+      })
+    });
+    const checkout = await checkoutRes.json();
+    if (!checkoutRes.ok) throw new Error(checkout.detail || 'Could not start checkout.');
+    window.location.href = checkout.checkout_url;
+  } catch (e) {
+    el.innerHTML = '<p style="color:var(--red)">' + e.message + '</p>';
+  }
+}
+
 function openDBAWizard() {
   openServiceModal(`
-    <h2 style="margin-bottom:16px;">📝 File a DBA</h2>
+    <h2 style="margin-bottom:16px;">File a DBA</h2>
     <p style="color:var(--muted); margin-bottom:20px;">Operating under a different name? We'll handle the filing for you. $29 + government fees.</p>
-    <input type="text" id="dbaName" placeholder="DBA Name (e.g., Joe's Pizza)" style="width:100%;padding:12px;background:#1A1A1A;color:var(--text);border:1px solid var(--border);border-radius:8px;margin-bottom:12px;font-size:15px;font-family:'Inter',sans-serif;">
-    <select id="dbaState" style="width:100%;padding:12px;background:#1A1A1A;color:var(--text);border:1px solid var(--border);border-radius:8px;margin-bottom:12px;font-size:15px;font-family:'Inter',sans-serif;">
+    <input type="text" id="dbaName" placeholder="DBA Name (e.g., Joe's Pizza)" style="width:100%;padding:12px;background:#1A1A1A;color:var(--text);border:1px solid var(--border);border-radius:8px;margin-bottom:12px;font-size:15px;font-family:var(--font-body);">
+    <select id="dbaState" style="width:100%;padding:12px;background:#1A1A1A;color:var(--text);border:1px solid var(--border);border-radius:8px;margin-bottom:12px;font-size:15px;font-family:var(--font-body);">
       <option value="">Select State...</option>
       ${Object.entries(stateNames).sort((a,b)=>a[1].localeCompare(b[1])).map(([c,n])=>'<option value="'+c+'">'+n+'</option>').join('')}
     </select>
-    <input type="text" id="dbaCounty" placeholder="County (if applicable)" style="width:100%;padding:12px;background:#1A1A1A;color:var(--text);border:1px solid var(--border);border-radius:8px;margin-bottom:12px;font-size:15px;font-family:'Inter',sans-serif;">
-    <input type="text" id="dbaCity" placeholder="City" style="width:100%;padding:12px;background:#1A1A1A;color:var(--text);border:1px solid var(--border);border-radius:8px;margin-bottom:16px;font-size:15px;font-family:'Inter',sans-serif;">
-    <button onclick="checkDBA()" class="btn" style="width:100%;">Check Requirements →</button>
+    <input type="text" id="dbaCounty" placeholder="County (if applicable)" style="width:100%;padding:12px;background:#1A1A1A;color:var(--text);border:1px solid var(--border);border-radius:8px;margin-bottom:12px;font-size:15px;font-family:var(--font-body);">
+    <input type="text" id="dbaCity" placeholder="City" style="width:100%;padding:12px;background:#1A1A1A;color:var(--text);border:1px solid var(--border);border-radius:8px;margin-bottom:16px;font-size:15px;font-family:var(--font-body);">
+    <button onclick="checkDBA()" class="btn" style="width:100%;">Check Requirements</button>
     <div id="dbaResult" style="margin-top:16px;"></div>
   `);
 }
@@ -1458,17 +1629,17 @@ async function checkDBA() {
     const d = data.data || {};
     const type = data.response_type;
     let html = '<div style="background:#1A1A1A;border:1px solid var(--border);border-radius:12px;padding:20px;margin-top:12px;">';
-    html += '<div style="font-weight:700;font-size:16px;margin-bottom:8px;">' + (type === 'ONLINE_FILING' ? '🟢 Online Filing Available' : type === 'MAIL_FILING' ? '📬 Mail Filing' : '📋 Guidance') + '</div>';
+    html += '<div style="font-weight:700;font-size:16px;margin-bottom:8px;">' + (type === 'ONLINE_FILING' ? 'Online Filing Available' : type === 'MAIL_FILING' ? 'Mail Filing' : 'Guidance') + '</div>';
     html += '<div style="font-size:14px;color:var(--muted);">';
     if (d.filing_fee !== undefined) html += '<div>Government fee: <strong>$' + d.filing_fee + '</strong></div>';
     if (d.our_fee !== undefined) html += '<div>Our service fee: <strong>$' + d.our_fee + '</strong></div>';
     if (d.total_estimated !== undefined) html += '<div style="font-size:16px;color:var(--accent);font-weight:700;margin-top:8px;">Total: $' + d.total_estimated + '</div>';
-    if (d.portal_url) html += '<div style="margin-top:8px;"><a href="'+d.portal_url+'" target="_blank">Filing Portal →</a></div>';
-    if (d.publication_required) html += '<div style="margin-top:8px;color:var(--yellow);">⚠ Newspaper publication required: ' + (d.publication_details || '') + '</div>';
+    if (d.portal_url) html += '<div style="margin-top:8px;"><a href="'+d.portal_url+'" target="_blank">Filing Portal</a></div>';
+    if (d.publication_required) html += '<div style="margin-top:8px;color:var(--yellow);">Newspaper publication required: ' + (d.publication_details || '') + '</div>';
     if (d.message) html += '<div style="margin-top:8px;">' + d.message + '</div>';
     html += '</div></div>';
     if (type === 'ONLINE_FILING' || type === 'MAIL_FILING') {
-      html += '<button onclick="alert(\'Filing flow coming soon! Contact support@sosfiler.com for immediate assistance.\')" class="btn" style="width:100%;margin-top:12px;">File Now — $' + (d.total_estimated||29) + ' →</button>';
+      html += '<button onclick="alert(\'Filing flow coming soon! Contact support@sosfiler.com for immediate assistance.\')" class="btn" style="width:100%;margin-top:12px;">File Now - $' + (d.total_estimated||29) + '</button>';
     }
     el.innerHTML = html;
   } catch(e) {
@@ -1478,15 +1649,15 @@ async function checkDBA() {
 
 function openLicenseAssistant() {
   openServiceModal(`
-    <h2 style="margin-bottom:16px;">🏛️ Business License Assistant</h2>
+    <h2 style="margin-bottom:16px;">Business License Assistant</h2>
     <p style="color:var(--muted); margin-bottom:20px;">Tell us about your business and we'll find the licenses you need.</p>
-    <input type="text" id="licCity" placeholder="City" style="width:100%;padding:12px;background:#1A1A1A;color:var(--text);border:1px solid var(--border);border-radius:8px;margin-bottom:12px;font-size:15px;font-family:'Inter',sans-serif;">
-    <select id="licState" style="width:100%;padding:12px;background:#1A1A1A;color:var(--text);border:1px solid var(--border);border-radius:8px;margin-bottom:12px;font-size:15px;font-family:'Inter',sans-serif;">
+    <input type="text" id="licCity" placeholder="City" style="width:100%;padding:12px;background:#1A1A1A;color:var(--text);border:1px solid var(--border);border-radius:8px;margin-bottom:12px;font-size:15px;font-family:var(--font-body);">
+    <select id="licState" style="width:100%;padding:12px;background:#1A1A1A;color:var(--text);border:1px solid var(--border);border-radius:8px;margin-bottom:12px;font-size:15px;font-family:var(--font-body);">
       <option value="">Select State...</option>
       ${Object.entries(stateNames).sort((a,b)=>a[1].localeCompare(b[1])).map(([c,n])=>'<option value="'+c+'">'+n+'</option>').join('')}
     </select>
-    <input type="text" id="licBizType" placeholder="Business type (e.g., restaurant, consulting, retail)" style="width:100%;padding:12px;background:#1A1A1A;color:var(--text);border:1px solid var(--border);border-radius:8px;margin-bottom:16px;font-size:15px;font-family:'Inter',sans-serif;">
-    <button onclick="checkLicenseNeeds()" class="btn" style="width:100%;">What Licenses Do I Need? →</button>
+    <input type="text" id="licBizType" placeholder="Business type (e.g., restaurant, consulting, retail)" style="width:100%;padding:12px;background:#1A1A1A;color:var(--text);border:1px solid var(--border);border-radius:8px;margin-bottom:16px;font-size:15px;font-family:var(--font-body);">
+    <button onclick="checkLicenseNeeds()" class="btn" style="width:100%;">What Licenses Do I Need?</button>
     <div id="licResult" style="margin-top:16px;"></div>
   `);
 }
@@ -1531,25 +1702,24 @@ async function checkLicenseNeeds() {
 
 function openSpecialtyLicenses() {
   const categories = [
-    {icon:'🍸', name:'Liquor License', id:'liquor_license', fee:'$99'},
-    {icon:'🍕', name:'Food & Beverage', id:'food_beverage', fee:'$99'},
-    {icon:'🏠', name:'Short-Term Rental', id:'str_license', fee:'$99'},
-    {icon:'💼', name:'Professional License', id:'professional_license', fee:'$99'},
-    {icon:'🌿', name:'Cannabis License', id:'cannabis_license', fee:'$99'},
-    {icon:'👶', name:'Childcare License', id:'childcare_license', fee:'$99'},
-    {icon:'🚗', name:'Auto Dealer License', id:'auto_dealer', fee:'$99'},
-    {icon:'🏗️', name:'Building/Zoning', id:'building_zoning', fee:'$99'},
-    {icon:'🏥', name:'Health Permit', id:'health_department', fee:'$99'},
-    {icon:'📋', name:'Sales Tax Permit', id:'sales_tax_permit', fee:'$49'},
-    {icon:'🏡', name:'Home Occupation', id:'home_occupation', fee:'$49'},
-    {icon:'🪧', name:'Signage Permit', id:'signage_permit', fee:'$49'},
+    {name:'Liquor License', id:'liquor_license', fee:'$99'},
+    {name:'Food & Beverage', id:'food_beverage', fee:'$99'},
+    {name:'Short-Term Rental', id:'str_license', fee:'$99'},
+    {name:'Professional License', id:'professional_license', fee:'$99'},
+    {name:'Cannabis License', id:'cannabis_license', fee:'$99'},
+    {name:'Childcare License', id:'childcare_license', fee:'$99'},
+    {name:'Auto Dealer License', id:'auto_dealer', fee:'$99'},
+    {name:'Building/Zoning', id:'building_zoning', fee:'$99'},
+    {name:'Health Permit', id:'health_department', fee:'$99'},
+    {name:'Sales Tax Permit', id:'sales_tax_permit', fee:'$49'},
+    {name:'Home Occupation', id:'home_occupation', fee:'$49'},
+    {name:'Signage Permit', id:'signage_permit', fee:'$49'},
   ];
-  let html = '<h2 style="margin-bottom:16px;">🔑 Specialty Licenses</h2>';
+  let html = '<h2 style="margin-bottom:16px;">Specialty Licenses</h2>';
   html += '<p style="color:var(--muted);margin-bottom:20px;">Select a license type to check requirements for your location.</p>';
   html += '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;">';
   categories.forEach(c => {
     html += '<button onclick="openSpecificLicense(\''+c.id+'\',\''+c.name+'\')" style="padding:16px 12px;background:#1A1A1A;border:1px solid var(--border);border-radius:10px;color:var(--text);cursor:pointer;text-align:center;font-family:\'Inter\',sans-serif;transition:border-color 0.2s;">';
-    html += '<div style="font-size:24px;">'+c.icon+'</div>';
     html += '<div style="font-size:13px;font-weight:600;margin-top:4px;">'+c.name+'</div>';
     html += '<div style="font-size:11px;color:var(--muted);">'+c.fee+'</div>';
     html += '</button>';
@@ -1562,14 +1732,14 @@ function openSpecificLicense(typeId, typeName) {
   openServiceModal(`
     <h2 style="margin-bottom:16px;">${typeName}</h2>
     <p style="color:var(--muted);margin-bottom:20px;">Enter your location to check specific requirements.</p>
-    <input type="text" id="specCity" placeholder="City" style="width:100%;padding:12px;background:#1A1A1A;color:var(--text);border:1px solid var(--border);border-radius:8px;margin-bottom:12px;font-size:15px;font-family:'Inter',sans-serif;">
-    <input type="text" id="specCounty" placeholder="County" style="width:100%;padding:12px;background:#1A1A1A;color:var(--text);border:1px solid var(--border);border-radius:8px;margin-bottom:12px;font-size:15px;font-family:'Inter',sans-serif;">
-    <select id="specState" style="width:100%;padding:12px;background:#1A1A1A;color:var(--text);border:1px solid var(--border);border-radius:8px;margin-bottom:12px;font-size:15px;font-family:'Inter',sans-serif;">
+    <input type="text" id="specCity" placeholder="City" style="width:100%;padding:12px;background:#1A1A1A;color:var(--text);border:1px solid var(--border);border-radius:8px;margin-bottom:12px;font-size:15px;font-family:var(--font-body);">
+    <input type="text" id="specCounty" placeholder="County" style="width:100%;padding:12px;background:#1A1A1A;color:var(--text);border:1px solid var(--border);border-radius:8px;margin-bottom:12px;font-size:15px;font-family:var(--font-body);">
+    <select id="specState" style="width:100%;padding:12px;background:#1A1A1A;color:var(--text);border:1px solid var(--border);border-radius:8px;margin-bottom:12px;font-size:15px;font-family:var(--font-body);">
       <option value="">Select State...</option>
       ${Object.entries(stateNames).sort((a,b)=>a[1].localeCompare(b[1])).map(([c,n])=>'<option value="'+c+'">'+n+'</option>').join('')}
     </select>
-    <input type="text" id="specBizType" placeholder="Business type" style="width:100%;padding:12px;background:#1A1A1A;color:var(--text);border:1px solid var(--border);border-radius:8px;margin-bottom:16px;font-size:15px;font-family:'Inter',sans-serif;">
-    <button onclick="checkSpecificLicense('${typeId}')" class="btn" style="width:100%;">Check Requirements →</button>
+    <input type="text" id="specBizType" placeholder="Business type" style="width:100%;padding:12px;background:#1A1A1A;color:var(--text);border:1px solid var(--border);border-radius:8px;margin-bottom:16px;font-size:15px;font-family:var(--font-body);">
+    <button onclick="checkSpecificLicense('${typeId}')" class="btn" style="width:100%;">Check Requirements</button>
     <div id="specResult" style="margin-top:16px;"></div>
   `);
 }
@@ -1591,7 +1761,7 @@ async function checkSpecificLicense(typeId) {
     const d = data.data || {};
     const type = data.response_type;
     let html = '<div style="background:#1A1A1A;border:1px solid var(--border);border-radius:12px;padding:20px;">';
-    html += '<div style="font-weight:700;margin-bottom:8px;">' + (type === 'ONLINE_FILING' ? '🟢 Online Filing' : type === 'MAIL_FILING' ? '📬 Mail Filing' : '📋 Guidance') + '</div>';
+    html += '<div style="font-weight:700;margin-bottom:8px;">' + (type === 'ONLINE_FILING' ? 'Online Filing' : type === 'MAIL_FILING' ? 'Mail Filing' : 'Guidance') + '</div>';
     if (d.license_name) html += '<div style="font-size:15px;font-weight:600;">'+d.license_name+'</div>';
     if (d.issuing_authority) html += '<div style="font-size:13px;color:var(--muted);">Issued by: '+d.issuing_authority+'</div>';
     if (d.filing_fee !== undefined) html += '<div style="margin-top:8px;">Government fee: <strong>$'+d.filing_fee+'</strong></div>';
@@ -1601,14 +1771,14 @@ async function checkSpecificLicense(typeId) {
       d.requirements.forEach(r => html += '<li>'+r+'</li>');
       html += '</ul>';
     }
-    if (d.portal_url) html += '<div style="margin-top:8px;"><a href="'+d.portal_url+'" target="_blank">Filing Portal →</a></div>';
+    if (d.portal_url) html += '<div style="margin-top:8px;"><a href="'+d.portal_url+'" target="_blank">Filing Portal</a></div>';
     if (d.office_address) html += '<div style="margin-top:4px;font-size:13px;color:var(--muted);">Office: '+d.office_address+'</div>';
     if (d.phone) html += '<div style="font-size:13px;color:var(--muted);">Phone: '+d.phone+'</div>';
     if (d.additional_notes) html += '<div style="margin-top:8px;font-size:13px;color:var(--yellow);">'+d.additional_notes+'</div>';
     if (d.our_fee > 0) html += '<div style="margin-top:12px;font-size:16px;color:var(--accent);font-weight:700;">Our fee: $'+d.our_fee+'</div>';
     html += '</div>';
     if (type !== 'GUIDANCE' && d.our_fee > 0) {
-      html += '<button onclick="alert(\'Filing service coming soon! Contact support@sosfiler.com.\')" class="btn" style="width:100%;margin-top:12px;">File Now →</button>';
+      html += '<button onclick="alert(\'Filing service coming soon! Contact support@sosfiler.com.\')" class="btn" style="width:100%;margin-top:12px;">File Now</button>';
     }
     el.innerHTML = html;
   } catch(e) {
