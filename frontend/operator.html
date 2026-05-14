@@ -154,9 +154,13 @@
 
     .auth {
       display: grid;
-      grid-template-columns: minmax(180px, 280px) auto auto auto auto auto;
+      grid-template-columns: minmax(132px, 180px) minmax(180px, 240px) minmax(132px, 190px) minmax(86px, 110px) repeat(7, auto);
       gap: 8px;
       align-items: center;
+    }
+
+    .auth input {
+      min-width: 0;
     }
 
     .layout {
@@ -464,7 +468,9 @@
       </div>
       <div class="auth">
         <input id="operatorName" placeholder="Operator" autocomplete="username" />
-        <input id="adminToken" type="password" placeholder="Admin token (not stored)" autocomplete="off" />
+        <input id="adminEmail" type="email" placeholder="Admin email" autocomplete="username" />
+        <input id="adminPassword" type="password" placeholder="Password" autocomplete="current-password" />
+        <input id="adminMfaCode" inputmode="numeric" maxlength="6" placeholder="2FA code" autocomplete="one-time-code" style="display:none;" />
         <button id="saveTokenBtn" type="button">Start Session</button>
         <button id="logoutBtn" type="button">Logout</button>
         <button id="healthBtn" type="button">DB Health</button>
@@ -690,6 +696,8 @@
       busy: false,
       adminSessionToken: sessionStorage.getItem("sosfiler_admin_session_token") || "",
       adminSessionId: sessionStorage.getItem("sosfiler_admin_session_id") || "",
+      adminMfaChallengeId: "",
+      adminEmail: "",
       operator: localStorage.getItem("sosfiler_operator_name") || "operator",
     };
     window.__sosfilerOperatorState = state;
@@ -701,9 +709,6 @@
       if (state.adminSessionToken) {
         headers.Authorization = `Bearer ${state.adminSessionToken}`;
         headers["x-operator-id"] = state.operator;
-      } else {
-        const token = $("adminToken").value.trim();
-        if (token) headers["x-admin-token"] = token;
       }
       return headers;
     }
@@ -717,14 +722,20 @@
     }
 
     function hasAdminAccess() {
-      return Boolean(state.adminSessionToken || $("adminToken").value.trim());
+      return Boolean(state.adminSessionToken);
     }
 
     function clearAdminSession() {
       state.adminSessionToken = "";
       state.adminSessionId = "";
+      state.adminMfaChallengeId = "";
+      state.adminEmail = "";
       sessionStorage.removeItem("sosfiler_admin_session_token");
       sessionStorage.removeItem("sosfiler_admin_session_id");
+      if ($("adminMfaCode")) $("adminMfaCode").style.display = "none";
+      if ($("adminMfaCode")) $("adminMfaCode").value = "";
+      if ($("adminPassword")) $("adminPassword").value = "";
+      if ($("saveTokenBtn")) $("saveTokenBtn").textContent = "Start Session";
     }
 
     function label(value) {
@@ -2363,19 +2374,39 @@
     }
 
     async function startAdminSession() {
-      const adminToken = $("adminToken").value.trim();
       state.operator = $("operatorName").value.trim() || "operator";
       localStorage.setItem("sosfiler_operator_name", state.operator);
-      if (!adminToken) {
-        toast("Enter the admin token to start a session.");
-        return;
-      }
       try {
-        const res = await fetch("/api/admin/session", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ admin_token: adminToken, operator: state.operator }),
-        });
+        let res;
+        if (state.adminMfaChallengeId) {
+          const code = $("adminMfaCode").value.trim();
+          if (!code) {
+            toast("Enter the 2FA code from your email.");
+            return;
+          }
+          res = await fetch("/api/admin/session/verify", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              challenge_id: state.adminMfaChallengeId,
+              code,
+              operator: state.operator,
+            }),
+          });
+        } else {
+          const email = $("adminEmail").value.trim();
+          const password = $("adminPassword").value;
+          if (!email || !password) {
+            toast("Enter your admin email and password.");
+            return;
+          }
+          state.adminEmail = email;
+          res = await fetch("/api/admin/session/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, password, operator: state.operator }),
+          });
+        }
         if (!res.ok) {
           let message = `${res.status} ${res.statusText}`;
           try {
@@ -2384,12 +2415,26 @@
           } catch (_) {}
           throw new Error(message);
         }
-        const session = await res.json();
+        const payload = await res.json();
+        if (payload.mfa_required) {
+          state.adminMfaChallengeId = payload.challenge_id;
+          $("adminPassword").value = "";
+          $("adminMfaCode").style.display = "";
+          $("adminMfaCode").focus();
+          $("saveTokenBtn").textContent = "Verify 2FA";
+          toast(payload.message || "Enter the 2FA code sent to your email.");
+          return;
+        }
+        const session = payload;
         state.adminSessionToken = session.session_token;
         state.adminSessionId = session.session_id;
         sessionStorage.setItem("sosfiler_admin_session_token", session.session_token);
         sessionStorage.setItem("sosfiler_admin_session_id", session.session_id);
-        $("adminToken").value = "";
+        state.adminMfaChallengeId = "";
+        $("adminMfaCode").style.display = "none";
+        $("adminMfaCode").value = "";
+        $("adminPassword").value = "";
+        $("saveTokenBtn").textContent = "Start Session";
         toast(`Operator session started for ${session.operator}.`);
         await refreshAll();
       } catch (error) {
@@ -2510,7 +2555,9 @@
     $("engineeringBackfillBtn").addEventListener("click", backfillEngineeringJobs);
 
     $("operatorName").value = state.operator;
-    $("adminToken").value = "";
+    $("adminPassword").value = "";
+    $("adminMfaCode").value = "";
+    $("adminMfaCode").style.display = "none";
     refreshAll();
   </script>
 </body>

@@ -365,6 +365,24 @@ class Notifier:
 </div>"""
         return await self._send_email(email, "Reset your SOSFiler password", self._base_template(content))
 
+    async def send_login_code(self, email: str, code: str, destination: str = "SOSFiler"):
+        """Send a short-lived one-time login code."""
+        safe_destination = html.escape(destination or "SOSFiler")
+        safe_code = html.escape(code)
+        content = f"""
+<div class="card">
+  <h2>Your SOSFiler verification code</h2>
+  <p>Use this code to finish signing in to the {safe_destination}. It expires in 10 minutes.</p>
+  <p style="font-size:28px;font-weight:800;letter-spacing:6px;margin:24px 0;">{safe_code}</p>
+  <p>If you did not request this code, you can ignore this email.</p>
+</div>"""
+        text = (
+            f"Your SOSFiler verification code is {code}.\n\n"
+            f"Use it to finish signing in to the {destination or 'SOSFiler'}. It expires in 10 minutes.\n"
+            "If you did not request this code, you can ignore this email."
+        )
+        return await self._send_email(email, "Your SOSFiler verification code", self._base_template(content), text)
+
     async def send_oauth_recovery_guidance(self, email: str, provider: str):
         """Tell OAuth users to recover through their identity provider."""
         content = f"""

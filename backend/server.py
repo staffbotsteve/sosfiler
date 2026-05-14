@@ -110,9 +110,12 @@ RESEARCH_REQUIRED_TASKS = [
     "productization",
 ]
 ADMIN_SESSION_TTL_SECONDS = int(os.getenv("ADMIN_SESSION_TTL_SECONDS", str(8 * 60 * 60)))
+ADMIN_MFA_TTL_SECONDS = int(os.getenv("ADMIN_MFA_TTL_SECONDS", str(10 * 60)))
+ADMIN_MFA_MAX_ATTEMPTS = int(os.getenv("ADMIN_MFA_MAX_ATTEMPTS", "5"))
 ADMIN_RATE_LIMIT_WINDOW_SECONDS = int(os.getenv("ADMIN_RATE_LIMIT_WINDOW_SECONDS", "60"))
 ADMIN_RATE_LIMIT_MAX_ATTEMPTS = int(os.getenv("ADMIN_RATE_LIMIT_MAX_ATTEMPTS", "12"))
 ADMIN_RATE_LIMITS: dict[str, list[float]] = {}
+PASSWORD_HASH_ITERATIONS = int(os.getenv("PASSWORD_HASH_ITERATIONS", "210000"))
 
 app = FastAPI(
     title="SOSFiler API",
@@ -195,6 +198,8 @@ def init_db():
             auth_provider TEXT NOT NULL,
             auth_provider_id TEXT,
             password_hash TEXT,
+            role TEXT NOT NULL DEFAULT 'customer',
+            mfa_enabled INTEGER NOT NULL DEFAULT 1,
             created_at TEXT NOT NULL DEFAULT (datetime('now')),
             last_login TEXT
         );
@@ -206,6 +211,19 @@ def init_db():
             purpose TEXT NOT NULL,
             expires_at TEXT NOT NULL,
             used_at TEXT,
+            created_at TEXT NOT NULL DEFAULT (datetime('now'))
+        );
+
+        CREATE TABLE IF NOT EXISTS auth_mfa_challenges (
+            id TEXT PRIMARY KEY,
+            user_id TEXT NOT NULL REFERENCES users(id),
+            purpose TEXT NOT NULL,
+            code_hash TEXT NOT NULL,
+            expires_at TEXT NOT NULL,
+            attempts INTEGER NOT NULL DEFAULT 0,
+            used_at TEXT,
+            client_ip TEXT,
+            user_agent TEXT,
             created_at TEXT NOT NULL DEFAULT (datetime('now'))
         );
 
@@ -603,7 +621,10 @@ def init_db():
         CREATE INDEX IF NOT EXISTS idx_partner_webhook_events_partner ON partner_webhook_events(partner_id, status);
         CREATE INDEX IF NOT EXISTS idx_partner_applications_status ON partner_applications(status, created_at);
         CREATE INDEX IF NOT EXISTS idx_partner_applications_email ON partner_applications(contact_email);
+        CREATE INDEX IF NOT EXISTS idx_auth_mfa_challenges_user ON auth_mfa_challenges(user_id, purpose, expires_at);
     """)
+    _ensure_column(conn, "users", "role", "TEXT NOT NULL DEFAULT 'customer'")
+    _ensure_column(conn, "users", "mfa_enabled", "INTEGER NOT NULL DEFAULT 1")
     _ensure_column(conn, "orders", "gov_processing_fee_cents", "INTEGER NOT NULL DEFAULT 0")
     _ensure_column(conn, "orders", "product_type", "TEXT NOT NULL DEFAULT 'formation'")
     _ensure_column(conn, "orders", "service_code", "TEXT")
@@ -902,6 +923,16 @@ class AdminSessionRequest(BaseModel):
     admin_token: str = Field(..., min_length=1)
     operator: str = Field(default="operator", min_length=1, max_length=80)
 
+class AdminSessionLoginRequest(BaseModel):
+    email: EmailStr
+    password: str = Field(..., min_length=1)
+    operator: str = Field(default="", max_length=80)
+
+class AdminSessionMfaVerifyRequest(BaseModel):
+    challenge_id: str = Field(..., min_length=1, max_length=80)
+    code: str = Field(..., min_length=4, max_length=20)
+    operator: str = Field(default="", max_length=80)
+
 class EmailTestRequest(BaseModel):
     to_email: Optional[EmailStr] = None
     subject: str = Field(default="SOSFiler SendGrid diagnostic", max_length=160)
@@ -1128,6 +1159,67 @@ def normalize_operator(value: str) -> str:
     return cleaned[:80] or "operator"
 
 
+def configured_admin_emails() -> set[str]:
+    values: list[str] = []
+    for key in ("SOSFILER_ADMIN_EMAILS", "ADMIN_EMAILS", "ADMIN_USER_EMAILS", "ADMIN_EMAIL"):
+        raw = os.getenv(key, "")
+        if raw:
+            values.extend(raw.split(","))
+    emails = {value.strip().lower() for value in values if value.strip()}
+    return emails or {"admin@sosfiler.com"}
+
+
+def user_has_admin_access(user: dict | sqlite3.Row | None) -> bool:
+    if not user:
+        return False
+    role = (user["role"] if isinstance(user, sqlite3.Row) and "role" in user.keys() else user.get("role", "customer")).lower()
+    email = (user["email"] if isinstance(user, sqlite3.Row) else user.get("email", "")).strip().lower()
+    return role in {"admin", "operator", "owner"} or email in configured_admin_emails()
+
+
+def hash_password(password: str) -> str:
+    salt = secrets.token_hex(16)
+    digest = hashlib.pbkdf2_hmac(
+        "sha256",
+        password.encode("utf-8"),
+        salt.encode("utf-8"),
+        PASSWORD_HASH_ITERATIONS,
+    ).hex()
+    return f"pbkdf2_sha256${PASSWORD_HASH_ITERATIONS}${salt}${digest}"
+
+
+def verify_password(password: str, stored_hash: str | None) -> bool:
+    if not stored_hash:
+        return False
+    if stored_hash.startswith("pbkdf2_sha256$"):
+        try:
+            _, iterations, salt, digest = stored_hash.split("$", 3)
+            candidate = hashlib.pbkdf2_hmac(
+                "sha256",
+                password.encode("utf-8"),
+                salt.encode("utf-8"),
+                int(iterations),
+            ).hex()
+            return secrets.compare_digest(candidate, digest)
+        except Exception:
+            return False
+    legacy = hashlib.sha256(password.encode()).hexdigest()
+    return secrets.compare_digest(legacy, stored_hash)
+
+
+def password_hash_needs_upgrade(stored_hash: str | None) -> bool:
+    return not (stored_hash or "").startswith("pbkdf2_sha256$")
+
+
+def normalize_mfa_code(code: str) -> str:
+    return _re.sub(r"\D", "", code or "")
+
+
+def hash_mfa_code(challenge_id: str, code: str) -> str:
+    message = f"{challenge_id}:{normalize_mfa_code(code)}".encode("utf-8")
+    return hmac.new(JWT_SECRET.encode("utf-8"), message, hashlib.sha256).hexdigest()
+
+
 def enforce_admin_rate_limit(request: Request, action: str):
     now = time.time()
     key = f"{action}:{request_client_ip(request)}"
@@ -1171,17 +1263,10 @@ def record_admin_audit_event(
         pass
 
 
-def create_admin_session(payload: AdminSessionRequest, request: Request) -> dict:
-    admin_token = os.getenv("ADMIN_TOKEN")
-    if not admin_token:
-        raise HTTPException(status_code=503, detail="Admin filing API is not configured")
-    enforce_admin_rate_limit(request, "admin_session")
-    if not secrets.compare_digest(payload.admin_token, admin_token):
-        record_admin_audit_event(request, normalize_operator(payload.operator), "denied", detail="Invalid admin session token")
-        raise HTTPException(status_code=403, detail="Invalid admin token")
+def insert_admin_session(operator: str, request: Request, detail: str = "Admin session created") -> dict:
     session_id = f"ADM-{uuid.uuid4().hex[:12].upper()}"
     session_token = secrets.token_urlsafe(32)
-    operator = normalize_operator(payload.operator)
+    operator = normalize_operator(operator)
     expires_at = admin_timestamp(ADMIN_SESSION_TTL_SECONDS)
     conn = get_db()
     conn.execute("""
@@ -1199,7 +1284,7 @@ def create_admin_session(payload: AdminSessionRequest, request: Request) -> dict
     ))
     conn.commit()
     conn.close()
-    record_admin_audit_event(request, operator, "allowed", session_id, "Admin session created")
+    record_admin_audit_event(request, operator, "allowed", session_id, detail)
     return {
         "session_id": session_id,
         "session_token": session_token,
@@ -1207,6 +1292,123 @@ def create_admin_session(payload: AdminSessionRequest, request: Request) -> dict
         "expires_at": expires_at,
         "ttl_seconds": ADMIN_SESSION_TTL_SECONDS,
     }
+
+
+def create_admin_session(payload: AdminSessionRequest, request: Request) -> dict:
+    admin_token = os.getenv("ADMIN_TOKEN")
+    if not admin_token:
+        raise HTTPException(status_code=503, detail="Admin filing API is not configured")
+    enforce_admin_rate_limit(request, "admin_session")
+    if not secrets.compare_digest(payload.admin_token, admin_token):
+        record_admin_audit_event(request, normalize_operator(payload.operator), "denied", detail="Invalid admin session token")
+        raise HTTPException(status_code=403, detail="Invalid admin token")
+    return insert_admin_session(payload.operator, request, "Legacy admin token session created")
+
+
+async def start_admin_password_login(payload: AdminSessionLoginRequest, request: Request) -> dict:
+    enforce_admin_rate_limit(request, "admin_password_login")
+    email = payload.email.strip().lower()
+    operator = normalize_operator(payload.operator or email)
+    conn = get_db()
+    user = conn.execute("SELECT * FROM users WHERE lower(email) = lower(?) AND auth_provider = 'email'", (email,)).fetchone()
+    if not user or not verify_password(payload.password, user["password_hash"]):
+        conn.close()
+        record_admin_audit_event(request, operator, "denied", detail="Invalid admin account credentials")
+        raise HTTPException(status_code=401, detail="Invalid credentials")
+    if not user_has_admin_access(user):
+        conn.close()
+        record_admin_audit_event(request, operator, "denied", detail="User account is not allowed for admin access")
+        raise HTTPException(status_code=403, detail="This account is not allowed to access the operator cockpit")
+
+    if password_hash_needs_upgrade(user["password_hash"]):
+        conn.execute("UPDATE users SET password_hash = ? WHERE id = ?", (hash_password(payload.password), user["id"]))
+
+    challenge_id = f"MFA-{uuid.uuid4().hex[:12].upper()}"
+    code = f"{secrets.randbelow(1000000):06d}"
+    expires_at = admin_timestamp(ADMIN_MFA_TTL_SECONDS)
+    conn.execute(
+        """
+        INSERT INTO auth_mfa_challenges (
+            id, user_id, purpose, code_hash, expires_at, client_ip, user_agent
+        ) VALUES (?, ?, 'admin_session', ?, ?, ?, ?)
+        """,
+        (
+            challenge_id,
+            user["id"],
+            hash_mfa_code(challenge_id, code),
+            expires_at,
+            request_client_ip(request),
+            request.headers.get("user-agent", "")[:240],
+        ),
+    )
+    conn.commit()
+    conn.close()
+
+    from notifier import Notifier
+    sent = await Notifier().send_login_code(email, code, "operator cockpit")
+    if not sent:
+        record_admin_audit_event(request, operator, "denied", detail="Admin 2FA email could not be sent")
+        raise HTTPException(status_code=503, detail="Could not send the 2FA code. Check email delivery configuration.")
+
+    record_admin_audit_event(request, operator, "allowed", detail="Admin 2FA challenge sent")
+    return {
+        "mfa_required": True,
+        "challenge_id": challenge_id,
+        "email": email,
+        "expires_at": expires_at,
+        "expires_in_seconds": ADMIN_MFA_TTL_SECONDS,
+        "message": "Enter the 6-digit code sent to your email.",
+    }
+
+
+def verify_admin_mfa_and_create_session(payload: AdminSessionMfaVerifyRequest, request: Request) -> dict:
+    enforce_admin_rate_limit(request, "admin_mfa_verify")
+    code = normalize_mfa_code(payload.code)
+    if not _re.fullmatch(r"\d{6}", code):
+        raise HTTPException(status_code=400, detail="Enter the 6-digit 2FA code")
+
+    conn = get_db()
+    row = conn.execute(
+        """
+        SELECT c.*, u.email, u.name, u.role
+        FROM auth_mfa_challenges c
+        JOIN users u ON u.id = c.user_id
+        WHERE c.id = ?
+          AND c.purpose = 'admin_session'
+          AND c.used_at IS NULL
+          AND c.expires_at > datetime('now')
+        """,
+        (payload.challenge_id,),
+    ).fetchone()
+    if not row:
+        conn.close()
+        record_admin_audit_event(request, normalize_operator(payload.operator), "denied", detail="Invalid or expired admin 2FA challenge")
+        raise HTTPException(status_code=400, detail="Invalid or expired 2FA code")
+
+    operator = normalize_operator(payload.operator or row["email"])
+    if int(row["attempts"] or 0) >= ADMIN_MFA_MAX_ATTEMPTS:
+        conn.close()
+        record_admin_audit_event(request, operator, "denied", detail="Admin 2FA challenge attempt limit reached")
+        raise HTTPException(status_code=429, detail="Too many incorrect 2FA attempts. Start a new login.")
+
+    if not secrets.compare_digest(row["code_hash"], hash_mfa_code(payload.challenge_id, code)):
+        conn.execute("UPDATE auth_mfa_challenges SET attempts = attempts + 1 WHERE id = ?", (payload.challenge_id,))
+        conn.commit()
+        conn.close()
+        record_admin_audit_event(request, operator, "denied", detail="Invalid admin 2FA code")
+        raise HTTPException(status_code=401, detail="Invalid 2FA code")
+
+    user = {"id": row["user_id"], "email": row["email"], "name": row["name"], "role": row["role"]}
+    if not user_has_admin_access(user):
+        conn.close()
+        record_admin_audit_event(request, operator, "denied", detail="2FA user is no longer allowed for admin access")
+        raise HTTPException(status_code=403, detail="This account is not allowed to access the operator cockpit")
+
+    conn.execute("UPDATE auth_mfa_challenges SET used_at = datetime('now') WHERE id = ?", (payload.challenge_id,))
+    conn.execute("UPDATE users SET last_login = datetime('now') WHERE id = ?", (row["user_id"],))
+    conn.commit()
+    conn.close()
+    return insert_admin_session(operator, request, f"Admin user 2FA session created for {row['email']}")
 
 
 def bearer_admin_token(request: Request) -> str:
@@ -4899,6 +5101,8 @@ def handle_oauth_login(email: str, name: str, provider: str, provider_id: str):
 
 @app.post("/api/auth/signup")
 async def auth_signup(data: AuthSignupRequest):
+    if len(data.password) < 8:
+        raise HTTPException(status_code=400, detail="Password must be at least 8 characters")
     conn = get_db()
     existing = conn.execute("SELECT id FROM users WHERE email = ?", (data.email,)).fetchone()
     if existing:
@@ -4906,7 +5110,7 @@ async def auth_signup(data: AuthSignupRequest):
         raise HTTPException(status_code=400, detail="Email already exists")
 
     user_id = f"USR-{uuid.uuid4().hex[:12].upper()}"
-    password_hash = hashlib.sha256(data.password.encode()).hexdigest()
+    password_hash = hash_password(data.password)
 
     conn.execute(
         "INSERT INTO users (id, email, name, auth_provider, password_hash, last_login) VALUES (?, ?, ?, 'email', ?, datetime('now'))",
@@ -4928,11 +5132,12 @@ async def auth_login(data: AuthLoginRequest):
     if not user:
         raise HTTPException(status_code=401, detail="Invalid credentials")
 
-    password_hash = hashlib.sha256(data.password.encode()).hexdigest()
-    if user["password_hash"] != password_hash:
+    if not verify_password(data.password, user["password_hash"]):
         raise HTTPException(status_code=401, detail="Invalid credentials")
 
     conn = get_db()
+    if password_hash_needs_upgrade(user["password_hash"]):
+        conn.execute("UPDATE users SET password_hash = ? WHERE id = ?", (hash_password(data.password), user["id"]))
     conn.execute("UPDATE users SET last_login = datetime('now') WHERE id = ?", (user["id"],))
     conn.commit()
     conn.close()
@@ -4994,7 +5199,7 @@ async def confirm_password_reset(data: PasswordResetConfirmRequest):
         conn.close()
         raise HTTPException(status_code=400, detail="This account does not use password sign-in")
 
-    password_hash = hashlib.sha256(data.password.encode()).hexdigest()
+    password_hash = hash_password(data.password)
     conn.execute("UPDATE users SET password_hash = ? WHERE id = ?", (password_hash, user["id"]))
     conn.execute("UPDATE auth_recovery_tokens SET used_at = datetime('now') WHERE id = ?", (row["id"],))
     conn.commit()
@@ -7616,6 +7821,16 @@ async def get_slack_config_status(request: Request):
 @app.post("/api/admin/session")
 async def start_admin_session(payload: AdminSessionRequest, request: Request):
     return create_admin_session(payload, request)
+
+
+@app.post("/api/admin/session/login")
+async def start_admin_session_login(payload: AdminSessionLoginRequest, request: Request):
+    return await start_admin_password_login(payload, request)
+
+
+@app.post("/api/admin/session/verify")
+async def verify_admin_session_login(payload: AdminSessionMfaVerifyRequest, request: Request):
+    return verify_admin_mfa_and_create_session(payload, request)
 
 
 @app.get("/api/admin/session")
