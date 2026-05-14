@@ -876,6 +876,29 @@ function escapeHtml(value) {
   }[char]));
 }
 
+function apiUrl(path) {
+  return `${window.location.protocol === 'file:' ? 'https://sosfiler.com' : ''}${path}`;
+}
+
+function publicReturnUrl(path) {
+  return window.location.protocol === 'file:'
+    ? `https://sosfiler.com${path}`
+    : `${window.location.origin}${path}`;
+}
+
+async function apiErrorMessage(response, fallback) {
+  try {
+    const data = await response.json();
+    if (Array.isArray(data.detail)) {
+      const messages = data.detail.map(item => item.msg || item.message || JSON.stringify(item));
+      return messages.join('; ') || fallback;
+    }
+    return data.detail || data.message || fallback;
+  } catch (e) {
+    return fallback;
+  }
+}
+
 function fulfillmentClass(availability) {
   const lane = `${availability?.fulfillment_lane || ''}`.toLowerCase();
   if (lane.includes('partner')) return 'partner';
@@ -915,7 +938,7 @@ function renderFormationAvailability(state) {
 
 async function loadFormationAvailability() {
   try {
-    const res = await fetch('/api/formation-availability');
+    const res = await fetch(apiUrl('/api/formation-availability'));
     if (!res.ok) throw new Error('Availability unavailable');
     const payload = await res.json();
     formationAvailabilityByState = {};
@@ -1088,7 +1111,7 @@ function triggerGoogleAuth() {
   
   if (isMobile) {
     // Mobile: use full redirect (popups are unreliable on mobile browsers)
-    const redirectUri = window.location.origin + '/app.html';
+    const redirectUri = publicReturnUrl('/app.html');
     const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${GOOGLE_CLIENT_ID}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=token&scope=${scope}&prompt=select_account`;
     window.location.href = authUrl;
   } else {
@@ -1103,7 +1126,7 @@ function triggerGoogleAuth() {
     
     // If popup was blocked, fall back to redirect
     if (!popup || popup.closed || typeof popup.closed === 'undefined') {
-      const redirectUri2 = window.location.origin + '/app.html';
+      const redirectUri2 = publicReturnUrl('/app.html');
       const authUrl2 = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${GOOGLE_CLIENT_ID}&redirect_uri=${encodeURIComponent(redirectUri2)}&response_type=token&scope=${scope}&prompt=select_account`;
       window.location.href = authUrl2;
       return;
@@ -1135,7 +1158,7 @@ async function handleGoogleToken(accessToken) {
     const profile = await res.json();
     
     // Send to our backend
-    const authRes = await fetch('/api/auth/google', {
+    const authRes = await fetch(apiUrl('/api/auth/google'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ 
@@ -1195,7 +1218,7 @@ async function triggerAppleAuth() {
   saveProgress();
   
   const APPLE_SERVICE_ID = 'com.sosfiler.auth';
-  const redirectUri = window.location.origin + '/app.html';
+  const redirectUri = publicReturnUrl('/app.html');
   const state = Math.random().toString(36).substring(2, 15);
   
   // Store state for CSRF verification
@@ -1251,7 +1274,7 @@ function checkAppleRedirect() {
 
 async function handleAppleToken(idToken, userName) {
   try {
-    const res = await fetch('/api/auth/apple', {
+    const res = await fetch(apiUrl('/api/auth/apple'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ token: idToken, name: userName })
@@ -1275,7 +1298,7 @@ async function triggerFacebookAuth() {
   saveProgress();
   
   const FACEBOOK_APP_ID = '1502505134824359';
-  const redirectUri = window.location.origin + '/app.html';
+  const redirectUri = publicReturnUrl('/app.html');
   const state = Math.random().toString(36).substring(2, 15);
   
   localStorage.setItem('sosfiler_fb_state', state);
@@ -1321,7 +1344,7 @@ function checkFacebookRedirect() {
 
 async function handleFacebookToken(accessToken) {
   try {
-    const res = await fetch('/api/auth/facebook', {
+    const res = await fetch(apiUrl('/api/auth/facebook'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ token: accessToken })
@@ -1900,7 +1923,7 @@ async function sendChatMessage(e) {
   typing.style.display = 'block';
 
   try {
-    const res = await fetch('/api/chat', {
+    const res = await fetch(apiUrl('/api/chat'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -2112,9 +2135,15 @@ async function submitAndPay() {
     goToStep(7);
     return;
   }
+
+  if (!isValidTaxId(payload.responsible_party_ssn)) {
+    alert('Please enter the full 9-digit SSN/ITIN for the responsible party before checkout.');
+    goToStep(6);
+    return;
+  }
   
   try {
-    const quoteRes = await fetch('/api/quote', {
+    const quoteRes = await fetch(apiUrl('/api/quote'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -2124,10 +2153,10 @@ async function submitAndPay() {
         include_registered_agent: payload.ra_choice === 'sosfiler'
       })
     });
-    if (!quoteRes.ok) throw new Error('Failed to create quote');
+    if (!quoteRes.ok) throw new Error(await apiErrorMessage(quoteRes, 'Failed to create quote'));
     const quote = await quoteRes.json();
 
-    const orderRes = await fetch('/api/orders', {
+    const orderRes = await fetch(apiUrl('/api/orders'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -2137,24 +2166,24 @@ async function submitAndPay() {
       })
     });
     
-    if (!orderRes.ok) throw new Error('Failed to create order');
+    if (!orderRes.ok) throw new Error(await apiErrorMessage(orderRes, 'Failed to create order'));
     const order = await orderRes.json();
     
     // Save for later
     localStorage.setItem('sosfiler_order', JSON.stringify(order));
     
     // Authorize estimated total; final government fees are reconciled before capture.
-    const checkoutRes = await fetch(`/api/orders/${encodeURIComponent(order.order_id)}/authorize`, {
+    const checkoutRes = await fetch(apiUrl(`/api/orders/${encodeURIComponent(order.order_id)}/authorize`), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         quote_id: quote.quote_id,
-        success_url: window.location.origin + '/dashboard.html',
-        cancel_url: window.location.origin + '/app.html'
+        success_url: publicReturnUrl('/dashboard.html'),
+        cancel_url: publicReturnUrl('/app.html')
       })
     });
     
-    if (!checkoutRes.ok) throw new Error('Failed to create checkout');
+    if (!checkoutRes.ok) throw new Error(await apiErrorMessage(checkoutRes, 'Failed to create checkout'));
     const checkout = await checkoutRes.json();
     
     // Redirect to Stripe
@@ -2162,7 +2191,7 @@ async function submitAndPay() {
     
   } catch (e) {
     console.error('Checkout error:', e);
-    alert('There was an error processing your order. Please try again or contact support at support@sosfiler.com');
+    alert(`There was an error processing your order: ${e.message || 'Please try again or contact support at support@sosfiler.com'}`);
     goToStep(7);
   }
 }
