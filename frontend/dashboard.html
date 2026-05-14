@@ -2,12 +2,12 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<link rel="icon" type="image/png" href="/favicon.png">
+<link rel="icon" type="image/png" href="https://sosfiler.com/favicon.png">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Dashboard — SOSFiler</title>
-<link rel="manifest" href="/manifest.json">
+<link rel="manifest" href="https://sosfiler.com/manifest.json">
 <meta name="theme-color" content="#0A0A0A">
-<link rel="stylesheet" href="/chat-widget.css">
+<link rel="stylesheet" href="https://sosfiler.com/chat-widget.css">
 <style>
 :root {
   --bg: #0A0A0A;
@@ -554,6 +554,29 @@ let refreshTimer = null;
 let recoveryMode = 'password';
 let resetToken = '';
 const stateNames = {"AL":"Alabama","AK":"Alaska","AZ":"Arizona","AR":"Arkansas","CA":"California","CO":"Colorado","CT":"Connecticut","DE":"Delaware","DC":"District of Columbia","FL":"Florida","GA":"Georgia","HI":"Hawaii","ID":"Idaho","IL":"Illinois","IN":"Indiana","IA":"Iowa","KS":"Kansas","KY":"Kentucky","LA":"Louisiana","ME":"Maine","MD":"Maryland","MA":"Massachusetts","MI":"Michigan","MN":"Minnesota","MS":"Mississippi","MO":"Missouri","MT":"Montana","NE":"Nebraska","NV":"Nevada","NH":"New Hampshire","NJ":"New Jersey","NM":"New Mexico","NY":"New York","NC":"North Carolina","ND":"North Dakota","OH":"Ohio","OK":"Oklahoma","OR":"Oregon","PA":"Pennsylvania","RI":"Rhode Island","SC":"South Carolina","SD":"South Dakota","TN":"Tennessee","TX":"Texas","UT":"Utah","VT":"Vermont","VA":"Virginia","WA":"Washington","WV":"West Virginia","WI":"Wisconsin","WY":"Wyoming"};
+const PUBLIC_SITE_ORIGIN = 'https://sosfiler.com';
+
+function apiUrl(path) {
+  return `${window.location.protocol === 'file:' ? PUBLIC_SITE_ORIGIN : ''}${path}`;
+}
+
+function publicReturnUrl(path) {
+  return window.location.protocol === 'file:'
+    ? `${PUBLIC_SITE_ORIGIN}${path}`
+    : `${window.location.origin}${path}`;
+}
+
+function currentDashboardUrl() {
+  if (window.location.protocol !== 'file:') return window.location.href;
+  return `${PUBLIC_SITE_ORIGIN}/dashboard.html${window.location.search || ''}${window.location.hash || ''}`;
+}
+
+function rewritePublicLinksForFile() {
+  if (window.location.protocol !== 'file:') return;
+  document.querySelectorAll('a[href^="/"]').forEach(anchor => {
+    anchor.href = `${PUBLIC_SITE_ORIGIN}${anchor.getAttribute('href')}`;
+  });
+}
 
 function authHeaders() {
   const authToken = localStorage.getItem('sosfiler_token');
@@ -616,7 +639,7 @@ async function accountLogin() {
   const email = document.getElementById('accountEmail').value.trim();
   const password = document.getElementById('accountPassword').value;
   if (!email || !password) { alert('Please enter your email and password.'); return; }
-  const res = await fetch('/api/auth/login', {
+  const res = await fetch(apiUrl('/api/auth/login'), {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ email, password })
@@ -640,7 +663,7 @@ function onAuthSuccess(authToken, user) {
 const GOOGLE_CLIENT_ID = '137294630475-e1o2o3ddpud3jkt12d7hrvul1uuaj1jb.apps.googleusercontent.com';
 
 function triggerGoogleAuth() {
-  const redirectUri = window.location.origin + '/dashboard.html';
+  const redirectUri = publicReturnUrl('/dashboard.html');
   const scope = encodeURIComponent('email profile');
   const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${GOOGLE_CLIENT_ID}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=token&scope=${scope}&prompt=select_account`;
   const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
@@ -675,7 +698,7 @@ async function handleGoogleToken(accessToken) {
       headers: { Authorization: `Bearer ${accessToken}` }
     });
     const profile = await res.json();
-    const authRes = await fetch('/api/auth/google', {
+    const authRes = await fetch(apiUrl('/api/auth/google'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -713,7 +736,7 @@ function checkGoogleRedirect() {
 
 function triggerAppleAuth() {
   const APPLE_SERVICE_ID = 'com.sosfiler.auth';
-  const redirectUri = window.location.origin + '/dashboard.html';
+  const redirectUri = publicReturnUrl('/dashboard.html');
   const state = Math.random().toString(36).substring(2, 15);
   localStorage.setItem('sosfiler_apple_state', state);
   const params = new URLSearchParams({
@@ -755,7 +778,7 @@ function checkAppleRedirect() {
 
 async function handleAppleToken(idToken, userName) {
   try {
-    const res = await fetch('/api/auth/apple', {
+    const res = await fetch(apiUrl('/api/auth/apple'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ token: idToken, name: userName })
@@ -773,7 +796,7 @@ async function handleAppleToken(idToken, userName) {
 
 function triggerFacebookAuth() {
   const FACEBOOK_APP_ID = '1502505134824359';
-  const redirectUri = window.location.origin + '/dashboard.html';
+  const redirectUri = publicReturnUrl('/dashboard.html');
   const state = Math.random().toString(36).substring(2, 15);
   localStorage.setItem('sosfiler_fb_state', state);
   const params = new URLSearchParams({
@@ -807,7 +830,7 @@ function checkFacebookRedirect() {
 
 async function handleFacebookToken(accessToken) {
   try {
-    const res = await fetch('/api/auth/facebook', {
+    const res = await fetch(apiUrl('/api/auth/facebook'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ token: accessToken })
@@ -849,7 +872,7 @@ async function submitRecovery() {
   const email = document.getElementById('recoveryEmail').value.trim();
   if (!email) { alert('Please enter your email address.'); return; }
   const endpoint = recoveryMode === 'token' ? '/api/auth/order-token-recovery' : '/api/auth/password-reset/request';
-  const res = await fetch(endpoint, {
+  const res = await fetch(apiUrl(endpoint), {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ email })
@@ -861,7 +884,7 @@ async function submitRecovery() {
 async function confirmPasswordReset() {
   const password = document.getElementById('newPassword').value;
   if (!password || password.length < 8) { alert('Password must be at least 8 characters.'); return; }
-  const res = await fetch('/api/auth/password-reset/confirm', {
+  const res = await fetch(apiUrl('/api/auth/password-reset/confirm'), {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ token: resetToken, password })
@@ -872,7 +895,7 @@ async function confirmPasswordReset() {
     return;
   }
   alert('Password updated. Please sign in.');
-  window.location.href = '/dashboard.html';
+  window.location.href = publicReturnUrl('/dashboard.html');
 }
 
 async function showDashboard() {
@@ -892,8 +915,8 @@ async function showDashboard() {
 async function loadOrderData() {
   try {
     const res = accountMode
-      ? await fetch(`/api/user/orders/${orderId}`, { headers: authHeaders() })
-      : await fetch(`/api/status/${orderId}?token=${token}`);
+      ? await fetch(apiUrl(`/api/user/orders/${orderId}`), { headers: authHeaders() })
+      : await fetch(apiUrl(`/api/status/${orderId}?token=${token}`));
     if (!res.ok) {
       if (res.status === 403) { alert('Invalid order ID or token.'); return; }
       if (res.status === 401) { alert('Please sign in again.'); return; }
@@ -911,7 +934,7 @@ async function loadOrderData() {
 
 async function loadDocuments() {
   try {
-    const res = await fetch(`/api/documents/${orderId}?token=${token}`);
+    const res = await fetch(apiUrl(`/api/documents/${orderId}?token=${token}`));
     if (!res.ok) return;
     const data = await res.json();
     renderDocuments(data.documents || []);
@@ -948,7 +971,7 @@ async function showCompanyList() {
   const el = document.getElementById('companyList');
   el.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
   try {
-    const res = await fetch('/api/user/orders', { headers: authHeaders() });
+    const res = await fetch(apiUrl('/api/user/orders'), { headers: authHeaders() });
     if (!res.ok) {
       el.innerHTML = '<div class="empty">Sign in from the formation app to see your companies, or use an order ID and token.</div>';
       document.getElementById('loginGate').style.display = '';
@@ -1148,7 +1171,7 @@ async function submitResponsiblePartySSN(event) {
   const endpoint = accountMode
     ? `/api/user/orders/${orderId}/responsible-party-ssn`
     : `/api/orders/${orderId}/responsible-party-ssn?token=${encodeURIComponent(token)}`;
-  const res = await fetch(endpoint, {
+  const res = await fetch(apiUrl(endpoint), {
     method: 'POST',
     headers: accountMode ? { ...authHeaders(), 'Content-Type': 'application/json' } : { 'Content-Type': 'application/json' },
     body: JSON.stringify({ ssn_itin: ssn })
@@ -1382,13 +1405,13 @@ function renderDocuments(docs) {
       <div>
         <div class="doc-name">${docNames[doc.doc_type] || doc.doc_type} <span class="doc-format">(${doc.format.toUpperCase()})</span></div>
       </div>
-      <a href="${accountMode ? `/api/user/orders/${orderId}/download/${doc.filename}` : `/api/documents/${orderId}/download/${doc.filename}?token=${token}`}" class="download-btn" ${accountMode ? `onclick="return downloadAccountDoc(event, '${doc.filename}')"` : ''}>Download</a>
+      <a href="${accountMode ? apiUrl(`/api/user/orders/${orderId}/download/${doc.filename}`) : apiUrl(`/api/documents/${orderId}/download/${doc.filename}?token=${token}`)}" class="download-btn" ${accountMode ? `onclick="return downloadAccountDoc(event, '${doc.filename}')"` : ''}>Download</a>
     </li>`).join('')}</ul>`;
 }
 
 async function downloadAccountDoc(event, filename) {
   event.preventDefault();
-  const res = await fetch(`/api/user/orders/${orderId}/download/${filename}`, { headers: authHeaders() });
+  const res = await fetch(apiUrl(`/api/user/orders/${orderId}/download/${filename}`), { headers: authHeaders() });
   if (!res.ok) {
     alert('Could not download this document. Please sign in again.');
     return false;
@@ -1560,7 +1583,7 @@ async function orderComplianceService(serviceCode) {
   const base = currentOrderData || {};
   el.innerHTML = '<div style="text-align:center;padding:16px;"><div class="spinner"></div>Creating service order...</div>';
   try {
-    const serviceRes = await fetch('/api/service-orders', {
+    const serviceRes = await fetch(apiUrl('/api/service-orders'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', ...authHeaders() },
       body: JSON.stringify({
@@ -1580,12 +1603,12 @@ async function orderComplianceService(serviceCode) {
     });
     const serviceOrder = await serviceRes.json();
     if (!serviceRes.ok) throw new Error(serviceOrder.detail || 'Could not create service order.');
-    const checkoutRes = await fetch(`/api/orders/${encodeURIComponent(serviceOrder.order_id)}/authorize`, {
+    const checkoutRes = await fetch(apiUrl(`/api/orders/${encodeURIComponent(serviceOrder.order_id)}/authorize`), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        success_url: window.location.origin + '/dashboard.html',
-        cancel_url: window.location.href
+        success_url: publicReturnUrl('/dashboard.html'),
+        cancel_url: currentDashboardUrl()
       })
     });
     const checkout = await checkoutRes.json();
@@ -1621,7 +1644,7 @@ async function checkDBA() {
   if (!name || !state) { el.innerHTML = '<p style="color:var(--red)">Please enter DBA name and state.</p>'; return; }
   el.innerHTML = '<div style="text-align:center;padding:16px;"><div class="spinner"></div>Checking '+stateNames[state]+' requirements...</div>';
   try {
-    const res = await fetch('/api/license-check', {
+    const res = await fetch(apiUrl('/api/license-check'), {
       method: 'POST', headers: {'Content-Type':'application/json'},
       body: JSON.stringify({state, county, city, business_type:'', license_type:'dba'})
     });
@@ -1670,7 +1693,7 @@ async function checkLicenseNeeds() {
   if (!city || !state || !biz) { el.innerHTML = '<p style="color:var(--red)">Please fill in all fields.</p>'; return; }
   el.innerHTML = '<div style="text-align:center;padding:16px;"><div class="spinner"></div>Checking licenses for '+biz+' in '+city+', '+stateNames[state]+'...</div>';
   try {
-    const res = await fetch('/api/license-needs', {
+    const res = await fetch(apiUrl('/api/license-needs'), {
       method: 'POST', headers: {'Content-Type':'application/json'},
       body: JSON.stringify({city, state, business_type: biz})
     });
@@ -1753,7 +1776,7 @@ async function checkSpecificLicense(typeId) {
   if (!state) { el.innerHTML = '<p style="color:var(--red)">Please select a state.</p>'; return; }
   el.innerHTML = '<div style="text-align:center;padding:16px;"><div class="spinner"></div>Checking ' + typeId.replace(/_/g,' ') + ' requirements...</div>';
   try {
-    const res = await fetch('/api/license-check', {
+    const res = await fetch(apiUrl('/api/license-check'), {
       method: 'POST', headers: {'Content-Type':'application/json'},
       body: JSON.stringify({city, county, state, business_type: biz, license_type: typeId})
     });
@@ -1787,8 +1810,9 @@ async function checkSpecificLicense(typeId) {
 }
 
 // Init
+rewritePublicLinksForFile();
 checkAppleRedirect() || checkFacebookRedirect() || checkGoogleRedirect() || checkUrlParams();
 </script>
-<script src="/chat-widget.js"></script>
+<script src="https://sosfiler.com/chat-widget.js"></script>
 </body>
 </html>
