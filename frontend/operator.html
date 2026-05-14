@@ -154,12 +154,58 @@
 
     .auth {
       display: grid;
-      grid-template-columns: minmax(132px, 180px) minmax(180px, 240px) minmax(132px, 190px) minmax(86px, 110px) repeat(7, auto);
+      grid-template-columns: repeat(6, auto);
       gap: 8px;
       align-items: center;
     }
 
-    .auth input {
+    .session-label {
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      white-space: nowrap;
+    }
+
+    .admin-auth-panel {
+      margin: 16px;
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
+      display: grid;
+      grid-template-columns: minmax(220px, 1fr) minmax(260px, 1.2fr);
+      gap: 16px;
+      align-items: end;
+    }
+
+    .admin-auth-panel h2 {
+      margin: 0 0 6px;
+      font-size: 17px;
+      letter-spacing: 0;
+    }
+
+    .admin-auth-panel p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .admin-auth-form {
+      display: grid;
+      grid-template-columns: minmax(130px, 0.7fr) minmax(190px, 1fr) minmax(150px, 0.8fr) minmax(92px, 0.5fr) auto;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .admin-auth-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .admin-auth-form input {
       min-width: 0;
     }
 
@@ -446,11 +492,15 @@
       .summary { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .auth { grid-template-columns: 1fr auto; }
       .auth button:last-child { grid-column: 1 / -1; }
+      .admin-auth-panel { grid-template-columns: 1fr; }
+      .admin-auth-form { grid-template-columns: 1fr 1fr; }
+      .admin-auth-form button { grid-column: 1 / -1; }
     }
 
     @media (max-width: 640px) {
       .topbar { align-items: stretch; flex-direction: column; }
       .auth { grid-template-columns: 1fr; }
+      .admin-auth-form { grid-template-columns: 1fr; }
       .filters, .form-grid, .summary { grid-template-columns: 1fr; }
       .layout { padding: 10px; }
     }
@@ -467,11 +517,7 @@
         </div>
       </div>
       <div class="auth">
-        <input id="operatorName" placeholder="Operator" autocomplete="username" />
-        <input id="adminEmail" type="email" placeholder="Admin email" autocomplete="username" />
-        <input id="adminPassword" type="password" placeholder="Password" autocomplete="current-password" />
-        <input id="adminMfaCode" inputmode="numeric" maxlength="6" placeholder="2FA code" autocomplete="one-time-code" style="display:none;" />
-        <button id="saveTokenBtn" type="button">Start Session</button>
+        <span id="operatorSessionLabel" class="session-label">Not signed in</span>
         <button id="logoutBtn" type="button">Logout</button>
         <button id="healthBtn" type="button">DB Health</button>
         <button id="syncBtn" type="button">Sync</button>
@@ -480,6 +526,26 @@
         <button id="refreshBtn" class="primary" type="button">Refresh</button>
       </div>
     </header>
+
+    <section id="adminAuthPanel" class="admin-auth-panel">
+      <div>
+        <h2>Admin Sign In</h2>
+        <p>Use your SOSFiler account, then enter the one-time email code before loading operator tools.</p>
+      </div>
+      <div>
+        <div class="admin-auth-actions">
+          <button id="accountAdminBtn" class="primary" type="button">Use Signed-In Account</button>
+          <button id="oauthAdminBtn" type="button">Sign In with OAuth</button>
+        </div>
+        <div class="admin-auth-form">
+          <input id="operatorName" placeholder="Operator" autocomplete="username" />
+          <input id="adminEmail" type="email" placeholder="Admin email" autocomplete="username" />
+          <input id="adminPassword" type="password" placeholder="Password" autocomplete="current-password" />
+          <input id="adminMfaCode" inputmode="numeric" maxlength="6" placeholder="2FA code" autocomplete="one-time-code" style="display:none;" />
+          <button id="saveTokenBtn" type="button">Send 2FA Code</button>
+        </div>
+      </div>
+    </section>
 
     <main class="layout">
       <section class="panel">
@@ -698,6 +764,7 @@
       adminSessionId: sessionStorage.getItem("sosfiler_admin_session_id") || "",
       adminMfaChallengeId: "",
       adminEmail: "",
+      adminAccountToken: localStorage.getItem("sosfiler_token") || "",
       operator: localStorage.getItem("sosfiler_operator_name") || "operator",
     };
     window.__sosfilerOperatorState = state;
@@ -713,6 +780,11 @@
       return headers;
     }
 
+    function accountHeaders(extra = {}) {
+      const token = localStorage.getItem("sosfiler_token") || state.adminAccountToken;
+      return token ? { ...extra, Authorization: `Bearer ${token}` } : { ...extra };
+    }
+
     function toast(message) {
       const el = $("toast");
       el.textContent = message;
@@ -725,6 +797,14 @@
       return Boolean(state.adminSessionToken);
     }
 
+    function updateAdminAuthUI() {
+      const signedIn = hasAdminAccess();
+      if ($("adminAuthPanel")) $("adminAuthPanel").style.display = signedIn ? "none" : "grid";
+      if ($("operatorSessionLabel")) {
+        $("operatorSessionLabel").textContent = signedIn ? `Admin: ${state.operator}` : "Not signed in";
+      }
+    }
+
     function clearAdminSession() {
       state.adminSessionToken = "";
       state.adminSessionId = "";
@@ -735,7 +815,8 @@
       if ($("adminMfaCode")) $("adminMfaCode").style.display = "none";
       if ($("adminMfaCode")) $("adminMfaCode").value = "";
       if ($("adminPassword")) $("adminPassword").value = "";
-      if ($("saveTokenBtn")) $("saveTokenBtn").textContent = "Start Session";
+      if ($("saveTokenBtn")) $("saveTokenBtn").textContent = "Send 2FA Code";
+      updateAdminAuthUI();
     }
 
     function label(value) {
@@ -2373,6 +2454,73 @@
       await Promise.all([loadSystemHealth(), loadLaunchReadiness(), loadStateMetadata(), loadEinQueue(), loadPaymentReadiness(), loadJobs(), loadTickets(), loadEngineeringJobs()]);
     }
 
+    async function handleAdminSessionResponse(res) {
+      if (!res.ok) {
+        let message = `${res.status} ${res.statusText}`;
+        try {
+          const payload = await res.json();
+          message = payload.detail || message;
+        } catch (_) {}
+        throw new Error(message);
+      }
+      const payload = await res.json();
+      if (payload.mfa_required) {
+        state.adminMfaChallengeId = payload.challenge_id;
+        state.adminEmail = payload.email || state.adminEmail;
+        $("adminPassword").value = "";
+        $("adminMfaCode").style.display = "";
+        $("adminMfaCode").focus();
+        $("saveTokenBtn").textContent = "Verify 2FA";
+        toast(payload.message || "Enter the 2FA code sent to your email.");
+        updateAdminAuthUI();
+        return null;
+      }
+      state.adminSessionToken = payload.session_token;
+      state.adminSessionId = payload.session_id;
+      state.operator = payload.operator || state.operator;
+      sessionStorage.setItem("sosfiler_admin_session_token", payload.session_token);
+      sessionStorage.setItem("sosfiler_admin_session_id", payload.session_id);
+      state.adminMfaChallengeId = "";
+      $("adminMfaCode").style.display = "none";
+      $("adminMfaCode").value = "";
+      $("adminPassword").value = "";
+      $("saveTokenBtn").textContent = "Send 2FA Code";
+      toast(`Operator session started for ${state.operator}.`);
+      updateAdminAuthUI();
+      await refreshAll();
+      return payload;
+    }
+
+    async function startAdminSessionFromAccount() {
+      state.operator = $("operatorName").value.trim() || "operator";
+      localStorage.setItem("sosfiler_operator_name", state.operator);
+      const token = localStorage.getItem("sosfiler_token") || state.adminAccountToken;
+      if (!token) {
+        toast("Sign in with Google or email first.");
+        return;
+      }
+      try {
+        const res = await fetch("/api/admin/session/account", {
+          method: "POST",
+          headers: accountHeaders({ "Content-Type": "application/json" }),
+          body: JSON.stringify({ operator: state.operator }),
+        });
+        await handleAdminSessionResponse(res);
+      } catch (error) {
+        clearAdminSession();
+        toast(error.message);
+      }
+    }
+
+    function openDashboardOAuth() {
+      window.location.href = "dashboard.html?return_to=operator";
+    }
+
+    function shouldAutoStartAdmin() {
+      const params = new URLSearchParams(window.location.search);
+      return params.get("start_admin") === "1";
+    }
+
     async function startAdminSession() {
       state.operator = $("operatorName").value.trim() || "operator";
       localStorage.setItem("sosfiler_operator_name", state.operator);
@@ -2407,36 +2555,7 @@
             body: JSON.stringify({ email, password, operator: state.operator }),
           });
         }
-        if (!res.ok) {
-          let message = `${res.status} ${res.statusText}`;
-          try {
-            const payload = await res.json();
-            message = payload.detail || message;
-          } catch (_) {}
-          throw new Error(message);
-        }
-        const payload = await res.json();
-        if (payload.mfa_required) {
-          state.adminMfaChallengeId = payload.challenge_id;
-          $("adminPassword").value = "";
-          $("adminMfaCode").style.display = "";
-          $("adminMfaCode").focus();
-          $("saveTokenBtn").textContent = "Verify 2FA";
-          toast(payload.message || "Enter the 2FA code sent to your email.");
-          return;
-        }
-        const session = payload;
-        state.adminSessionToken = session.session_token;
-        state.adminSessionId = session.session_id;
-        sessionStorage.setItem("sosfiler_admin_session_token", session.session_token);
-        sessionStorage.setItem("sosfiler_admin_session_id", session.session_id);
-        state.adminMfaChallengeId = "";
-        $("adminMfaCode").style.display = "none";
-        $("adminMfaCode").value = "";
-        $("adminPassword").value = "";
-        $("saveTokenBtn").textContent = "Start Session";
-        toast(`Operator session started for ${session.operator}.`);
-        await refreshAll();
+        await handleAdminSessionResponse(res);
       } catch (error) {
         clearAdminSession();
         toast(error.message);
@@ -2486,6 +2605,14 @@
     }
 
     $("saveTokenBtn").addEventListener("click", startAdminSession);
+    $("accountAdminBtn").addEventListener("click", startAdminSessionFromAccount);
+    $("oauthAdminBtn").addEventListener("click", openDashboardOAuth);
+    $("adminMfaCode").addEventListener("keydown", (event) => {
+      if (event.key === "Enter") startAdminSession();
+    });
+    $("adminPassword").addEventListener("keydown", (event) => {
+      if (event.key === "Enter") startAdminSession();
+    });
     $("logoutBtn").addEventListener("click", logoutAdminSession);
     $("systemHealthBtn").addEventListener("click", loadSystemHealth);
     $("refreshBtn").addEventListener("click", refreshAll);
@@ -2558,6 +2685,11 @@
     $("adminPassword").value = "";
     $("adminMfaCode").value = "";
     $("adminMfaCode").style.display = "none";
+    updateAdminAuthUI();
+    if (shouldAutoStartAdmin()) {
+      history.replaceState(null, "", window.location.pathname);
+      startAdminSessionFromAccount();
+    }
     refreshAll();
   </script>
 </body>

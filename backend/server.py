@@ -933,6 +933,9 @@ class AdminSessionMfaVerifyRequest(BaseModel):
     code: str = Field(..., min_length=4, max_length=20)
     operator: str = Field(default="", max_length=80)
 
+class AdminSessionAccountRequest(BaseModel):
+    operator: str = Field(default="", max_length=80)
+
 class EmailTestRequest(BaseModel):
     to_email: Optional[EmailStr] = None
     subject: str = Field(default="SOSFiler SendGrid diagnostic", max_length=160)
@@ -1305,27 +1308,14 @@ def create_admin_session(payload: AdminSessionRequest, request: Request) -> dict
     return insert_admin_session(payload.operator, request, "Legacy admin token session created")
 
 
-async def start_admin_password_login(payload: AdminSessionLoginRequest, request: Request) -> dict:
-    enforce_admin_rate_limit(request, "admin_password_login")
-    email = payload.email.strip().lower()
-    operator = normalize_operator(payload.operator or email)
-    conn = get_db()
-    user = conn.execute("SELECT * FROM users WHERE lower(email) = lower(?) AND auth_provider = 'email'", (email,)).fetchone()
-    if not user or not verify_password(payload.password, user["password_hash"]):
-        conn.close()
-        record_admin_audit_event(request, operator, "denied", detail="Invalid admin account credentials")
-        raise HTTPException(status_code=401, detail="Invalid credentials")
-    if not user_has_admin_access(user):
-        conn.close()
-        record_admin_audit_event(request, operator, "denied", detail="User account is not allowed for admin access")
-        raise HTTPException(status_code=403, detail="This account is not allowed to access the operator cockpit")
-
-    if password_hash_needs_upgrade(user["password_hash"]):
-        conn.execute("UPDATE users SET password_hash = ? WHERE id = ?", (hash_password(payload.password), user["id"]))
-
+async def create_admin_mfa_challenge(user: dict | sqlite3.Row, operator: str, request: Request) -> dict:
+    email = (user["email"] if isinstance(user, sqlite3.Row) else user.get("email", "")).strip().lower()
+    user_id = user["id"] if isinstance(user, sqlite3.Row) else user.get("id")
+    operator = normalize_operator(operator or email)
     challenge_id = f"MFA-{uuid.uuid4().hex[:12].upper()}"
     code = f"{secrets.randbelow(1000000):06d}"
     expires_at = admin_timestamp(ADMIN_MFA_TTL_SECONDS)
+    conn = get_db()
     conn.execute(
         """
         INSERT INTO auth_mfa_challenges (
@@ -1334,7 +1324,7 @@ async def start_admin_password_login(payload: AdminSessionLoginRequest, request:
         """,
         (
             challenge_id,
-            user["id"],
+            user_id,
             hash_mfa_code(challenge_id, code),
             expires_at,
             request_client_ip(request),
@@ -1359,6 +1349,41 @@ async def start_admin_password_login(payload: AdminSessionLoginRequest, request:
         "expires_in_seconds": ADMIN_MFA_TTL_SECONDS,
         "message": "Enter the 6-digit code sent to your email.",
     }
+
+
+async def start_admin_password_login(payload: AdminSessionLoginRequest, request: Request) -> dict:
+    enforce_admin_rate_limit(request, "admin_password_login")
+    email = payload.email.strip().lower()
+    operator = normalize_operator(payload.operator or email)
+    conn = get_db()
+    user = conn.execute("SELECT * FROM users WHERE lower(email) = lower(?) AND auth_provider = 'email'", (email,)).fetchone()
+    if not user or not verify_password(payload.password, user["password_hash"]):
+        conn.close()
+        record_admin_audit_event(request, operator, "denied", detail="Invalid admin account credentials")
+        raise HTTPException(status_code=401, detail="Invalid credentials")
+    if not user_has_admin_access(user):
+        conn.close()
+        record_admin_audit_event(request, operator, "denied", detail="User account is not allowed for admin access")
+        raise HTTPException(status_code=403, detail="This account is not allowed to access the operator cockpit")
+
+    if password_hash_needs_upgrade(user["password_hash"]):
+        conn.execute("UPDATE users SET password_hash = ? WHERE id = ?", (hash_password(payload.password), user["id"]))
+        conn.commit()
+    conn.close()
+    return await create_admin_mfa_challenge(user, operator, request)
+
+
+async def start_admin_account_login(payload: AdminSessionAccountRequest, request: Request) -> dict:
+    enforce_admin_rate_limit(request, "admin_account_login")
+    user = get_current_user(request)
+    operator = normalize_operator(payload.operator or (user or {}).get("email", "operator"))
+    if not user:
+        record_admin_audit_event(request, operator, "denied", detail="Missing or invalid account session")
+        raise HTTPException(status_code=401, detail="Sign in to your SOSFiler account first")
+    if not user_has_admin_access(user):
+        record_admin_audit_event(request, operator, "denied", detail="Signed-in account is not allowed for admin access")
+        raise HTTPException(status_code=403, detail="This account is not allowed to access the operator cockpit")
+    return await create_admin_mfa_challenge(user, operator, request)
 
 
 def verify_admin_mfa_and_create_session(payload: AdminSessionMfaVerifyRequest, request: Request) -> dict:
@@ -7826,6 +7851,11 @@ async def start_admin_session(payload: AdminSessionRequest, request: Request):
 @app.post("/api/admin/session/login")
 async def start_admin_session_login(payload: AdminSessionLoginRequest, request: Request):
     return await start_admin_password_login(payload, request)
+
+
+@app.post("/api/admin/session/account")
+async def start_admin_session_from_account(payload: AdminSessionAccountRequest, request: Request):
+    return await start_admin_account_login(payload, request)
 
 
 @app.post("/api/admin/session/verify")

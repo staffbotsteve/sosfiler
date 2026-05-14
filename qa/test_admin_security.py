@@ -128,6 +128,31 @@ class AdminSecurityTests(unittest.TestCase):
 
         self.assertEqual(res.status_code, 403, res.text)
 
+    def test_signed_in_admin_account_can_request_mfa(self):
+        self.create_admin_user()
+        token = server.create_jwt_token("USR-ADMINTEST")
+
+        res = self.client.post(
+            "/api/admin/session/account",
+            json={"operator": "ops@example.com"},
+            headers={"Authorization": f"Bearer {token}"},
+        )
+
+        self.assertEqual(res.status_code, 200, res.text)
+        self.assertTrue(res.json()["mfa_required"])
+
+    def test_signed_in_customer_account_cannot_request_admin_mfa(self):
+        self.create_admin_user(email="customer@example.com", role="customer")
+        token = server.create_jwt_token("USR-ADMINTEST")
+
+        res = self.client.post(
+            "/api/admin/session/account",
+            json={"operator": "customer@example.com"},
+            headers={"Authorization": f"Bearer {token}"},
+        )
+
+        self.assertEqual(res.status_code, 403, res.text)
+
     def test_admin_mfa_rejects_wrong_code(self):
         self.create_admin_user()
         start = self.client.post(

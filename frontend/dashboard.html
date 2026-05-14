@@ -579,6 +579,29 @@ function rewritePublicLinksForFile() {
   });
 }
 
+function operatorUrl() {
+  return window.location.protocol === 'file:' ? `${PUBLIC_SITE_ORIGIN}/operator.html?start_admin=1` : 'operator.html?start_admin=1';
+}
+
+function capturePostAuthRedirect() {
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('return_to') === 'operator' || params.get('admin') === '1') {
+    sessionStorage.setItem('sosfiler_post_auth_redirect', 'operator');
+    return 'operator';
+  }
+  return sessionStorage.getItem('sosfiler_post_auth_redirect') || '';
+}
+
+function maybeRedirectAfterAuth() {
+  const target = sessionStorage.getItem('sosfiler_post_auth_redirect');
+  if (target === 'operator') {
+    sessionStorage.removeItem('sosfiler_post_auth_redirect');
+    window.location.href = operatorUrl();
+    return true;
+  }
+  return false;
+}
+
 function authHeaders() {
   const authToken = localStorage.getItem('sosfiler_token');
   return authToken ? { 'Authorization': `Bearer ${authToken}` } : {};
@@ -587,6 +610,7 @@ function authHeaders() {
 // Check URL params
 function checkUrlParams() {
   const params = new URLSearchParams(window.location.search);
+  const postAuthRedirect = capturePostAuthRedirect();
   if (params.get('login') === '1') {
     return false;
   }
@@ -608,6 +632,7 @@ function checkUrlParams() {
   }
 
   if (localStorage.getItem('sosfiler_token')) {
+    if (postAuthRedirect === 'operator' && maybeRedirectAfterAuth()) return true;
     showCompanyList();
     return true;
   }
@@ -652,12 +677,14 @@ async function accountLogin() {
   }
   localStorage.setItem('sosfiler_token', data.token);
   localStorage.setItem('sosfiler_user', JSON.stringify(data.user));
+  if (maybeRedirectAfterAuth()) return;
   showCompanyList();
 }
 
 function onAuthSuccess(authToken, user) {
   localStorage.setItem('sosfiler_token', authToken);
   localStorage.setItem('sosfiler_user', JSON.stringify(user || {}));
+  if (maybeRedirectAfterAuth()) return;
   showCompanyList();
 }
 
