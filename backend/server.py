@@ -5,6 +5,7 @@ Production-grade LLC formation platform.
 
 import os
 import asyncio
+import logging
 import jwt
 import urllib.request
 import urllib.parse
@@ -96,6 +97,8 @@ DBA_PLATFORM_FEE = 2900  # $29.00 in cents
 LICENSE_PLATFORM_FEE = 4900  # $49.00 in cents
 SPECIALTY_LICENSE_FEE = 9900  # $99.00 in cents
 RA_RENEWAL_FEE = 4900  # $49/yr
+CUSTOMER_REGISTERED_AGENT_SERVICE_AVAILABLE = False
+REGISTERED_AGENT_UNAVAILABLE_MESSAGE = "Registered agent service is coming in June. Please use your own registered agent name and physical street address for now."
 ANNUAL_REPORT_FEE = 2900  # $29 per annual filing, plus state fees
 PARTNER_SETUP_FEE_CENTS = int(os.getenv("PARTNER_SETUP_FEE_CENTS", "29700"))
 
@@ -122,6 +125,7 @@ app = FastAPI(
     version="1.0.0",
     description="LLC formation platform — honest pricing, AI-powered documents, automated filing."
 )
+logger = logging.getLogger(__name__)
 
 app.add_middleware(
     CORSMiddleware,
@@ -421,6 +425,7 @@ def init_db():
             priority TEXT NOT NULL DEFAULT 'normal',
             customer_email TEXT,
             order_id TEXT,
+            filing_job_id TEXT,
             session_id TEXT,
             state TEXT,
             product_type TEXT,
@@ -637,6 +642,8 @@ def init_db():
     _ensure_column(conn, "filing_jobs", "customer_status", "TEXT")
     _ensure_column(conn, "filing_jobs", "portal_blockers", "TEXT")
     _ensure_column(conn, "filing_jobs", "route_metadata", "TEXT")
+    _ensure_column(conn, "support_tickets", "filing_job_id", "TEXT")
+    conn.execute("CREATE INDEX IF NOT EXISTS idx_support_tickets_filing_job ON support_tickets(filing_job_id, status)")
     _ensure_column(conn, "stripe_webhook_events", "order_id", "TEXT")
     _ensure_column(conn, "stripe_webhook_events", "stripe_object_id", "TEXT")
     _ensure_column(conn, "stripe_webhook_events", "error", "TEXT")
@@ -808,7 +815,7 @@ class QuoteRequest(BaseModel):
     entity_type: str = "LLC"
     state: str = Field(..., min_length=2, max_length=2)
     include_registered_agent: bool = False
-    expedite_fee_cents: int = 0
+    expedite_fee_cents: int = Field(default=0, ge=0)
 
 class OrderRequest(BaseModel):
     product_type: str = Field(default="formation", max_length=80)
@@ -837,6 +844,11 @@ class AuthorizeRequest(BaseModel):
     success_url: str
     cancel_url: str
     quote_id: Optional[str] = None
+
+class FormationCartCheckoutRequest(BaseModel):
+    items: list[FormationRequest] = Field(..., min_length=1, max_length=10)
+    success_url: str
+    cancel_url: str
 
 class PaymentReconcileRequest(BaseModel):
     final_government_fee_cents: int = Field(default=0, ge=0)
@@ -883,6 +895,15 @@ class AutomationRunRequest(BaseModel):
     operation: str = Field(default="preflight", pattern="^(preflight|submit|check_status|collect_documents)$")
     dry_run: bool = True
     actor: str = "operator"
+
+class FilingAutopilotStartRequest(BaseModel):
+    actor: str = "autopilot"
+    notify_owner: bool = True
+
+class FilingAutopilotResumeRequest(BaseModel):
+    actor: str = "admin"
+    checkpoint_note: str = Field(default="", max_length=1000)
+    evidence_path: str = Field(default="", max_length=500)
 
 class PersistenceBackfillRequest(BaseModel):
     dry_run: bool = True
@@ -1163,21 +1184,28 @@ def normalize_operator(value: str) -> str:
 
 
 def configured_admin_emails() -> set[str]:
-    values: list[str] = []
-    for key in ("SOSFILER_ADMIN_EMAILS", "ADMIN_EMAILS", "ADMIN_USER_EMAILS", "ADMIN_EMAIL"):
-        raw = os.getenv(key, "")
-        if raw:
-            values.extend(raw.split(","))
-    emails = {value.strip().lower() for value in values if value.strip()}
-    return emails or {"admin@sosfiler.com"}
+    # Keep the operator surface intentionally narrow until a real RBAC UI exists.
+    return {"sactoswan@gmail.com", "admin@sosfiler.com"}
 
 
 def user_has_admin_access(user: dict | sqlite3.Row | None) -> bool:
     if not user:
         return False
-    role = (user["role"] if isinstance(user, sqlite3.Row) and "role" in user.keys() else user.get("role", "customer")).lower()
     email = (user["email"] if isinstance(user, sqlite3.Row) else user.get("email", "")).strip().lower()
-    return role in {"admin", "operator", "owner"} or email in configured_admin_emails()
+    return email in configured_admin_emails()
+
+
+def public_user_payload(user: dict | sqlite3.Row) -> dict:
+    if isinstance(user, sqlite3.Row):
+        payload = dict(user)
+    else:
+        payload = user or {}
+    return {
+        "id": payload.get("id", ""),
+        "email": payload.get("email", ""),
+        "name": payload.get("name", ""),
+        "is_admin": user_has_admin_access(payload),
+    }
 
 
 def hash_password(password: str) -> str:
@@ -1305,13 +1333,17 @@ def create_admin_session(payload: AdminSessionRequest, request: Request) -> dict
     if not secrets.compare_digest(payload.admin_token, admin_token):
         record_admin_audit_event(request, normalize_operator(payload.operator), "denied", detail="Invalid admin session token")
         raise HTTPException(status_code=403, detail="Invalid admin token")
+    operator_email = normalize_operator(payload.operator).lower()
+    if operator_email not in configured_admin_emails():
+        record_admin_audit_event(request, operator_email, "denied", detail="Operator email is not allowed")
+        raise HTTPException(status_code=403, detail="This account is not allowed to access the operator cockpit")
     return insert_admin_session(payload.operator, request, "Legacy admin token session created")
 
 
 async def create_admin_mfa_challenge(user: dict | sqlite3.Row, operator: str, request: Request) -> dict:
     email = (user["email"] if isinstance(user, sqlite3.Row) else user.get("email", "")).strip().lower()
     user_id = user["id"] if isinstance(user, sqlite3.Row) else user.get("id")
-    operator = normalize_operator(operator or email)
+    operator = normalize_operator(email)
     challenge_id = f"MFA-{uuid.uuid4().hex[:12].upper()}"
     code = f"{secrets.randbelow(1000000):06d}"
     expires_at = admin_timestamp(ADMIN_MFA_TTL_SECONDS)
@@ -1376,7 +1408,7 @@ async def start_admin_password_login(payload: AdminSessionLoginRequest, request:
 async def start_admin_account_login(payload: AdminSessionAccountRequest, request: Request) -> dict:
     enforce_admin_rate_limit(request, "admin_account_login")
     user = get_current_user(request)
-    operator = normalize_operator(payload.operator or (user or {}).get("email", "operator"))
+    operator = normalize_operator((user or {}).get("email", "operator"))
     if not user:
         record_admin_audit_event(request, operator, "denied", detail="Missing or invalid account session")
         raise HTTPException(status_code=401, detail="Sign in to your SOSFiler account first")
@@ -1410,7 +1442,7 @@ def verify_admin_mfa_and_create_session(payload: AdminSessionMfaVerifyRequest, r
         record_admin_audit_event(request, normalize_operator(payload.operator), "denied", detail="Invalid or expired admin 2FA challenge")
         raise HTTPException(status_code=400, detail="Invalid or expired 2FA code")
 
-    operator = normalize_operator(payload.operator or row["email"])
+    operator = normalize_operator(row["email"])
     if int(row["attempts"] or 0) >= ADMIN_MFA_MAX_ATTEMPTS:
         conn.close()
         record_admin_audit_event(request, operator, "denied", detail="Admin 2FA challenge attempt limit reached")
@@ -1636,6 +1668,46 @@ def verify_order_access(order_id: str, token: str) -> dict:
         raise HTTPException(status_code=403, detail="Invalid order ID or token")
     return dict(row)
 
+def should_email_customer_status(order: dict, status: str) -> bool:
+    if not order or not order.get("email"):
+        return False
+    if status == "pending_payment" and not (
+        order.get("paid_at") or order.get("stripe_session_id") or order.get("stripe_payment_intent")
+    ):
+        return False
+    return True
+
+async def send_customer_status_update(order_id: str, status: str, message: str = ""):
+    conn = get_db()
+    row = conn.execute("SELECT * FROM orders WHERE id = ?", (order_id,)).fetchone()
+    conn.close()
+    order = dict(row) if row else {}
+    if not should_email_customer_status(order, status):
+        return {"sent": False, "reason": "not_customer_visible"}
+    try:
+        from notifier import Notifier
+        result = await Notifier().send_status_update(order, status, message)
+        return result if isinstance(result, dict) else {"sent": bool(result)}
+    except Exception as exc:
+        logger.exception("Customer status email failed for %s/%s: %s", order_id, status, exc)
+        return {"sent": False, "reason": "exception"}
+
+def schedule_customer_status_email(order_id: str, status: str, message: str = ""):
+    try:
+        loop = asyncio.get_running_loop()
+    except RuntimeError:
+        return asyncio.run(send_customer_status_update(order_id, status, message))
+    task = loop.create_task(send_customer_status_update(order_id, status, message))
+
+    def _log_failure(done):
+        try:
+            done.result()
+        except Exception as exc:
+            logger.exception("Customer status email task failed for %s/%s: %s", order_id, status, exc)
+
+    task.add_done_callback(_log_failure)
+    return {"scheduled": True}
+
 def add_status_update(order_id: str, status: str, message: str = ""):
     conn = get_db()
     conn.execute(
@@ -1648,6 +1720,7 @@ def add_status_update(order_id: str, status: str, message: str = ""):
     )
     conn.commit()
     conn.close()
+    schedule_customer_status_email(order_id, status, message)
 
 
 def formation_data_needs_ssn(formation_data: dict) -> bool:
@@ -2049,8 +2122,55 @@ def build_fee_breakdown(state: str, entity_type: str, include_ra: bool = False) 
         "registered_agent_fee_cents": ra_fee_cents,
         "total_cents": total_cents,
         "processing_fee_rule": (action or {}).get("processing_fee"),
+        "expedite_options": route.get("expedite_options") or [],
         "automation_route": route,
     }
+
+def validate_expedite_fee_selection(route: dict, expedite_fee_cents: int) -> dict | None:
+    if not expedite_fee_cents:
+        return None
+    for option in route.get("expedite_options") or []:
+        if option.get("customer_selectable") is False:
+            continue
+        if int(option.get("fee_cents") or 0) == int(expedite_fee_cents):
+            return option
+    raise HTTPException(
+        status_code=400,
+        detail="Selected expedite fee is not available for this state, entity type, and filing.",
+    )
+
+def build_formation_checkout_quote(data: FormationRequest) -> dict:
+    state = data.state.upper()
+    if data.ra_choice == "sosfiler" and not CUSTOMER_REGISTERED_AGENT_SERVICE_AVAILABLE:
+        raise HTTPException(status_code=400, detail=REGISTERED_AGENT_UNAVAILABLE_MESSAGE)
+
+    responsible_members = [member for member in data.members if member.is_responsible_party]
+    if len(responsible_members) != 1:
+        raise HTTPException(status_code=400, detail="Exactly one responsible party is required for EIN filing.")
+    responsible_ssn = _validate_full_ssn_itin(data.responsible_party_ssn)
+    responsible = responsible_members[0]
+    if responsible.ssn_itin:
+        member_ssn = _validate_full_ssn_itin(responsible.ssn_itin, "responsible_party_member_ssn")
+        if member_ssn != responsible_ssn:
+            raise HTTPException(status_code=400, detail="Responsible party SSN/ITIN does not match the selected member.")
+
+    entity_key = "LLC" if data.entity_type == "LLC" else "Corp"
+    if state not in STATE_FEES.get(entity_key, {}):
+        raise HTTPException(status_code=400, detail=f"Invalid state: {state}")
+
+    fees = build_fee_breakdown(state, entity_key, include_ra=data.ra_choice == "sosfiler")
+    quote = build_quote(
+        product_type="formation",
+        entity_type=data.entity_type,
+        state=state,
+        platform_fee_cents=fees["platform_fee_cents"],
+        government_fee_cents=fees["state_fee_cents"],
+        processing_fee_cents=fees["gov_processing_fee_cents"],
+        registered_agent_fee_cents=fees["registered_agent_fee_cents"],
+    )
+    quote["automation_route"] = fees.get("automation_route", {})
+    quote["expedite_options"] = quote["automation_route"].get("expedite_options") or []
+    return quote
 
 def service_catalog_items() -> list[dict]:
     return [dict(service) for service in SERVICE_CATALOG.get("services", [])]
@@ -2096,6 +2216,7 @@ def build_service_quote(
     government_fee = 0
     processing_fee = 0
     route = get_state_filing_route(state, entity_type, action_type)
+    selected_expedite_option = validate_expedite_fee_selection(route, expedite_fee_cents)
     if service.get("requires_official_filing_record") is not False and action_type not in {"ein", "service"} and route.get("has_deep_action"):
         government_fee = int(route.get("state_fee_cents") or 0)
         processing_fee = calculate_processing_fee_cents(route, government_fee)
@@ -2111,6 +2232,9 @@ def build_service_quote(
     quote["service_code"] = service.get("service_code")
     quote["service_name"] = service.get("service_name")
     quote["automation_route"] = route
+    quote["expedite_options"] = route.get("expedite_options") or []
+    if selected_expedite_option:
+        quote["selected_expedite_option"] = selected_expedite_option
     return quote
 
 def persist_quote(quote: dict, order_id: str = "") -> dict:
@@ -2152,6 +2276,12 @@ def insert_payment_ledger(
     ledger_id = f"PAY-{uuid.uuid4().hex[:12].upper()}"
     idem = build_idempotency_key(order_id, event_type, amount_cents, stripe_payment_intent or stripe_session_id)
     conn = get_db()
+    existing = conn.execute("SELECT * FROM payment_ledger WHERE idempotency_key = ? LIMIT 1", (idem,)).fetchone()
+    if existing:
+        conn.close()
+        ledger = dict(existing)
+        ledger["raw_event"] = parse_json_field(ledger.get("raw_event"), {})
+        return ledger
     conn.execute("""
         INSERT INTO payment_ledger (
             id, order_id, quote_id, stripe_session_id, stripe_payment_intent, event_type,
@@ -2345,6 +2475,11 @@ def reconcile_order_payment(order_id: str, payload: PaymentReconcileRequest) -> 
         line_items.append({"code": "registered_agent", "label": "Registered agent partner fee", "amount_cents": int(ra_fee or 0), "kind": "partner"})
     if amounts["expedite"]:
         line_items.append({"code": "expedite", "label": "Expedited processing estimate", "amount_cents": amounts["expedite"], "kind": "passthrough"})
+    status_message = payload.message or (
+        "Final government fees reconciled and payment is ready to capture."
+        if status == "ready_to_capture"
+        else "Final government fees exceed the authorized amount; additional customer authorization is required."
+    )
     conn.execute(
         """
         UPDATE execution_quotes
@@ -2356,18 +2491,11 @@ def reconcile_order_payment(order_id: str, payload: PaymentReconcileRequest) -> 
     )
     conn.execute(
         "INSERT INTO status_updates (order_id, status, message) VALUES (?, ?, ?)",
-        (
-            order_id,
-            status,
-            payload.message or (
-                "Final government fees reconciled and payment is ready to capture."
-                if status == "ready_to_capture"
-                else "Final government fees exceed the authorized amount; additional customer authorization is required."
-            ),
-        ),
+        (order_id, status, status_message),
     )
     conn.commit()
     conn.close()
+    schedule_customer_status_email(order_id, status, status_message)
     insert_payment_ledger(
         order_id=order_id,
         quote_id=quote["id"],
@@ -2716,6 +2844,190 @@ def update_payment_authorization_from_session(session: dict) -> dict:
     }
 
 
+def metadata_csv(value: str) -> list[str]:
+    return [item.strip() for item in (value or "").split(",") if item.strip()]
+
+
+def formation_cart_allocations_from_session(conn, session: dict) -> dict:
+    metadata = session.get("metadata") or {}
+    order_ids = metadata_csv(metadata.get("order_ids") or metadata.get("order_id_list") or "")
+    quote_ids = metadata_csv(metadata.get("quote_ids") or "")
+    if not order_ids:
+        return {"ok": False, "reason": "missing_order_ids"}
+
+    allocations = []
+    for index, order_id in enumerate(order_ids):
+        order = conn.execute("SELECT * FROM orders WHERE id = ?", (order_id,)).fetchone()
+        if not order:
+            return {"ok": False, "reason": "order_not_found", "order_id": order_id}
+        quote_id = quote_ids[index] if index < len(quote_ids) else ""
+        quote = None
+        if quote_id:
+            quote = conn.execute("SELECT * FROM execution_quotes WHERE id = ?", (quote_id,)).fetchone()
+        if not quote:
+            quote = latest_quote_for_order(conn, order_id)
+            quote_id = dict(quote)["id"] if quote else ""
+        amount = int((dict(quote).get("estimated_total_cents") if quote else 0) or dict(order).get("total_cents") or 0)
+        allocations.append({
+            "order": dict(order),
+            "quote_id": quote_id,
+            "quote": dict(quote) if quote else {},
+            "amount_cents": amount,
+        })
+    return {"ok": True, "metadata": metadata, "allocations": allocations}
+
+
+def quote_payload_from_row(quote: dict, amount_cents: int, reconciliation_status: str) -> dict:
+    payload = dict(quote or {})
+    if not payload:
+        return {}
+    payload["quote_id"] = payload.get("quote_id") or payload.get("id")
+    payload["line_items"] = parse_json_field(payload.get("line_items"), [])
+    payload["authorized_total_cents"] = amount_cents
+    if reconciliation_status == "captured":
+        payload["captured_total_cents"] = amount_cents
+    payload["reconciliation_status"] = reconciliation_status
+    return payload
+
+
+def update_formation_cart_authorization_from_session(session: dict) -> dict:
+    payment_intent = session.get("payment_intent") or ""
+    session_id = session.get("id") or ""
+    conn = get_db()
+    prepared = formation_cart_allocations_from_session(conn, session)
+    if not prepared.get("ok"):
+        conn.close()
+        return {"updated": False, **prepared}
+    allocations = prepared["allocations"]
+
+    for item in allocations:
+        order_id = item["order"]["id"]
+        conn.execute(
+            """
+            UPDATE orders
+            SET status = 'payment_authorized',
+                stripe_session_id = ?,
+                stripe_payment_intent = COALESCE(?, stripe_payment_intent),
+                updated_at = datetime('now')
+            WHERE id = ?
+            """,
+            (session_id, payment_intent, order_id),
+        )
+        if item["quote_id"]:
+            conn.execute(
+                """
+                UPDATE execution_quotes
+                SET authorized_total_cents = ?,
+                    reconciliation_status = 'authorized',
+                    updated_at = datetime('now')
+                WHERE id = ?
+                """,
+                (item["amount_cents"], item["quote_id"]),
+            )
+    conn.commit()
+    conn.close()
+
+    for item in allocations:
+        if item["quote_id"]:
+            execution_dual_write("update_quote_authorized", item["quote_id"], item["amount_cents"])
+        insert_payment_ledger(
+            order_id=item["order"]["id"],
+            quote_id=item["quote_id"],
+            event_type="authorized",
+            amount_cents=item["amount_cents"],
+            stripe_session_id=session_id,
+            stripe_payment_intent=payment_intent,
+            raw_event={**session, "cart_allocation_cents": item["amount_cents"]},
+        )
+        add_status_update(
+            item["order"]["id"],
+            "payment_authorized",
+            "Payment authorized as part of a multi-LLC checkout. Preparing workflow before final capture.",
+        )
+
+    return {
+        "updated": True,
+        "cart_id": prepared.get("metadata", {}).get("cart_id", ""),
+        "order_ids": [item["order"]["id"] for item in allocations],
+        "quote_ids": [item["quote_id"] for item in allocations],
+        "allocated_total_cents": sum(item["amount_cents"] for item in allocations),
+        "session_amount_cents": int(session.get("amount_total") or session.get("amount_subtotal") or 0),
+        "product_type": "formation_cart",
+    }
+
+
+def update_formation_cart_capture_from_session(session: dict) -> dict:
+    payment_intent = session.get("payment_intent") or ""
+    session_id = session.get("id") or ""
+    conn = get_db()
+    prepared = formation_cart_allocations_from_session(conn, session)
+    if not prepared.get("ok"):
+        conn.close()
+        return {"updated": False, **prepared}
+    allocations = prepared["allocations"]
+
+    for item in allocations:
+        order_id = item["order"]["id"]
+        amount = item["amount_cents"]
+        conn.execute(
+            """
+            UPDATE orders
+            SET status = 'payment_captured',
+                paid_at = COALESCE(paid_at, datetime('now')),
+                stripe_session_id = ?,
+                stripe_payment_intent = COALESCE(?, stripe_payment_intent),
+                total_cents = ?,
+                updated_at = datetime('now')
+            WHERE id = ?
+            """,
+            (session_id, payment_intent, amount, order_id),
+        )
+        if item["quote_id"]:
+            conn.execute(
+                """
+                UPDATE execution_quotes
+                SET authorized_total_cents = MAX(COALESCE(authorized_total_cents, 0), ?),
+                    captured_total_cents = MAX(COALESCE(captured_total_cents, 0), ?),
+                    reconciliation_status = 'captured',
+                    updated_at = datetime('now')
+                WHERE id = ?
+                """,
+                (amount, amount, item["quote_id"]),
+            )
+    conn.commit()
+    conn.close()
+
+    for item in allocations:
+        if item["quote_id"]:
+            quote_payload = quote_payload_from_row(item["quote"], item["amount_cents"], "captured")
+            if quote_payload:
+                execution_dual_write("upsert_quote", quote_payload, item["order"]["id"])
+        insert_payment_ledger(
+            order_id=item["order"]["id"],
+            quote_id=item["quote_id"],
+            event_type="captured",
+            amount_cents=item["amount_cents"],
+            stripe_session_id=session_id,
+            stripe_payment_intent=payment_intent,
+            raw_event={**session, "cart_allocation_cents": item["amount_cents"]},
+        )
+        add_status_update(
+            item["order"]["id"],
+            "payment_captured",
+            "Payment received and captured through public LLC checkout. Preparing formation workflow.",
+        )
+
+    return {
+        "updated": True,
+        "cart_id": prepared.get("metadata", {}).get("cart_id", ""),
+        "order_ids": [item["order"]["id"] for item in allocations],
+        "quote_ids": [item["quote_id"] for item in allocations],
+        "captured_total_cents": sum(item["amount_cents"] for item in allocations),
+        "session_amount_cents": int(session.get("amount_total") or session.get("amount_subtotal") or 0),
+        "product_type": "formation_cart",
+    }
+
+
 def update_payment_intent_snapshot(intent: dict) -> dict:
     payment_intent = intent.get("id") or ""
     if not payment_intent:
@@ -2723,54 +3035,87 @@ def update_payment_intent_snapshot(intent: dict) -> dict:
     amount_capturable = int(intent.get("amount_capturable") or 0)
     amount_received = int(intent.get("amount_received") or 0)
     conn = get_db()
-    order = conn.execute("SELECT * FROM orders WHERE stripe_payment_intent = ? ORDER BY created_at DESC LIMIT 1", (payment_intent,)).fetchone()
-    if not order:
+    orders = conn.execute("SELECT * FROM orders WHERE stripe_payment_intent = ? ORDER BY created_at", (payment_intent,)).fetchall()
+    if not orders:
         conn.close()
         return {"updated": False, "reason": "order_not_found", "payment_intent": payment_intent}
-    order = dict(order)
-    quote = latest_quote_for_order(conn, order["id"])
-    quote_id = dict(quote)["id"] if quote else ""
-    if quote and amount_capturable:
-        conn.execute(
-            """
-            UPDATE execution_quotes
-            SET authorized_total_cents = MAX(COALESCE(authorized_total_cents, 0), ?),
-                reconciliation_status = CASE
-                    WHEN reconciliation_status = 'quoted' THEN 'authorized'
-                    ELSE reconciliation_status
-                END,
-                updated_at = datetime('now')
-            WHERE id = ?
-            """,
-            (amount_capturable, quote_id),
-        )
-    if amount_received and quote:
-        conn.execute(
-            """
-            UPDATE execution_quotes
-            SET captured_total_cents = MAX(COALESCE(captured_total_cents, 0), ?),
-                reconciliation_status = 'captured',
-                updated_at = datetime('now')
-            WHERE id = ?
-            """,
-            (amount_received, quote_id),
-        )
-        conn.execute(
-            "UPDATE orders SET status = 'payment_captured', total_cents = ?, updated_at = datetime('now') WHERE id = ?",
-            (amount_received, order["id"]),
-        )
+    allocations = []
+    for order_row in orders:
+        order = dict(order_row)
+        quote = latest_quote_for_order(conn, order["id"])
+        quote_id = dict(quote)["id"] if quote else ""
+        allocation = int((dict(quote).get("estimated_total_cents") if quote else 0) or order.get("total_cents") or 0)
+        if len(orders) == 1 and (amount_received or amount_capturable):
+            allocation = amount_received or amount_capturable
+        allocations.append({"order": order, "quote_id": quote_id, "quote": dict(quote) if quote else {}, "amount_cents": allocation})
+
+    for item in allocations:
+        quote_id = item["quote_id"]
+        amount = item["amount_cents"]
+        if quote_id and amount_capturable:
+            conn.execute(
+                """
+                UPDATE execution_quotes
+                SET authorized_total_cents = MAX(COALESCE(authorized_total_cents, 0), ?),
+                    reconciliation_status = CASE
+                        WHEN reconciliation_status = 'quoted' THEN 'authorized'
+                        ELSE reconciliation_status
+                    END,
+                    updated_at = datetime('now')
+                WHERE id = ?
+                """,
+                (amount, quote_id),
+            )
+        if amount_received:
+            if quote_id:
+                conn.execute(
+                    """
+                    UPDATE execution_quotes
+                    SET captured_total_cents = MAX(COALESCE(captured_total_cents, 0), ?),
+                        reconciliation_status = 'captured',
+                        updated_at = datetime('now')
+                    WHERE id = ?
+                    """,
+                    (amount, quote_id),
+                )
+            conn.execute(
+                """
+                UPDATE orders
+                SET status = 'payment_captured',
+                    paid_at = COALESCE(paid_at, datetime('now')),
+                    total_cents = ?,
+                    updated_at = datetime('now')
+                WHERE id = ?
+                """,
+                (amount, item["order"]["id"]),
+            )
     conn.commit()
     conn.close()
     event_type = "captured" if amount_received else "amount_capturable_updated"
-    insert_payment_ledger(
-        order_id=order["id"],
-        quote_id=quote_id,
-        event_type=event_type,
-        amount_cents=amount_received or amount_capturable,
-        stripe_payment_intent=payment_intent,
-        raw_event=intent,
-    )
-    return {"updated": True, "order_id": order["id"], "quote_id": quote_id, "payment_intent": payment_intent}
+    for item in allocations:
+        if item["quote_id"]:
+            quote_payload = quote_payload_from_row(
+                item["quote"],
+                item["amount_cents"],
+                "captured" if amount_received else "authorized",
+            )
+            if quote_payload:
+                execution_dual_write("upsert_quote", quote_payload, item["order"]["id"])
+        insert_payment_ledger(
+            order_id=item["order"]["id"],
+            quote_id=item["quote_id"],
+            event_type=event_type,
+            amount_cents=item["amount_cents"],
+            stripe_payment_intent=payment_intent,
+            raw_event={**intent, "payment_intent_allocation_cents": item["amount_cents"]},
+        )
+    return {
+        "updated": True,
+        "order_id": allocations[-1]["order"]["id"],
+        "order_ids": [item["order"]["id"] for item in allocations],
+        "quote_ids": [item["quote_id"] for item in allocations],
+        "payment_intent": payment_intent,
+    }
 
 
 def store_sensitive_value(subject_type: str, subject_id: str, pii_type: str, value: str, created_by: str = "system") -> str:
@@ -2823,12 +3168,14 @@ def create_support_ticket(
     confidence_reason: str,
     session_id: str = "",
     order_id: str = "",
+    filing_job_id: str = "",
     customer_email: str = "",
     state: str = "",
     product_type: str = "",
     suggested_answer: str = "",
     ticket_type: str = "support",
     priority: str = "normal",
+    notify_slack: bool = True,
 ) -> dict:
     ticket_id = f"TKT-{uuid.uuid4().hex[:12].upper()}"
     ticket = {
@@ -2838,6 +3185,7 @@ def create_support_ticket(
         "priority": priority,
         "customer_email": customer_email,
         "order_id": order_id,
+        "filing_job_id": filing_job_id,
         "session_id": session_id,
         "state": state,
         "product_type": product_type,
@@ -2846,19 +3194,20 @@ def create_support_ticket(
         "suggested_answer": suggested_answer,
     }
     slack_sent = 0
-    try:
-        slack_sent = 1 if send_slack_ticket(ticket) else 0
-    except Exception:
-        slack_sent = 0
+    if notify_slack:
+        try:
+            slack_sent = 1 if send_slack_ticket(ticket) else 0
+        except Exception:
+            slack_sent = 0
     conn = get_db()
     conn.execute("""
         INSERT INTO support_tickets (
-            id, ticket_type, status, priority, customer_email, order_id, session_id,
+            id, ticket_type, status, priority, customer_email, order_id, filing_job_id, session_id,
             state, product_type, question, confidence_reason, suggested_answer, slack_sent
         )
-        VALUES (?, ?, 'open', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, 'open', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     """, (
-        ticket_id, ticket_type, priority, customer_email, order_id, session_id, state,
+        ticket_id, ticket_type, priority, customer_email, order_id, filing_job_id, session_id, state,
         product_type, question, confidence_reason, suggested_answer, slack_sent,
     ))
     conn.commit()
@@ -4655,6 +5004,541 @@ def build_operator_fulfillment_packet(job: dict, order: dict | None = None, arti
     }
 
 
+OPERATOR_FILING_TICKET_STATUSES = {
+    "ready_to_file",
+    "annual_report_packet_prepared",
+    "automation_started",
+    "operator_required",
+    "received_needs_sosdirect_check",
+    "rejected_or_needs_correction",
+    "submitted",
+    "submitted_to_state",
+    "pending_government_review",
+    "state_approved",
+    "approved",
+    "documents_collected",
+}
+
+
+def format_ticket_money(cents: int | None) -> str:
+    return f"${int(cents or 0) / 100:.2f}"
+
+
+def operator_ticket_priority_for_job(job: dict) -> str:
+    status = job.get("status") or ""
+    if status in {"rejected_or_needs_correction", "operator_required"}:
+        return "urgent"
+    if status in {"ready_to_file", "annual_report_packet_prepared", "submitted", "pending_government_review"}:
+        return "high"
+    return "normal"
+
+
+def operator_ticket_stage_for_job(job: dict, order: dict) -> str:
+    status = job.get("status") or ""
+    action_type = job.get("action_type") or "formation"
+    if status == "operator_required":
+        return "Clear protected state-portal checkpoint, then resume or complete the filing."
+    if status in {"ready_to_file", "annual_report_packet_prepared", "automation_started"}:
+        return "Submit the official state filing or annual report."
+    if status in {"submitted", "submitted_to_state", "pending_government_review", "received_needs_sosdirect_check"}:
+        return "Monitor state acceptance and capture approval evidence."
+    if status == "rejected_or_needs_correction":
+        return "Resolve the state rejection or correction notice before refiling."
+    if status in {"state_approved", "approved", "documents_collected"} and action_type == "formation" and not order.get("ein"):
+        return "State approval is on file; proceed to the EIN workflow."
+    return "Finish evidence collection and customer-visible completion."
+
+
+def operator_ticket_order_is_qa_fixture(job: dict, order: dict) -> bool:
+    if str(job.get("order_id") or "").startswith("QA-") or str(order.get("id") or "").startswith("QA-"):
+        return True
+    formation = order.get("formation_data") or {}
+    if isinstance(formation, str):
+        formation = parse_json_field(formation, {})
+    return bool(isinstance(formation, dict) and formation.get("qa_fixture"))
+
+
+def operator_filing_job_needs_ticket(job: dict, order: dict) -> bool:
+    if operator_ticket_order_is_qa_fixture(job, order):
+        return False
+    status = job.get("status") or ""
+    if status not in OPERATOR_FILING_TICKET_STATUSES:
+        return False
+    if status in {"state_approved", "approved", "documents_collected"}:
+        if (job.get("action_type") or "formation") == "formation":
+            return not bool(order.get("ein"))
+        return status != "complete"
+    return True
+
+
+def lines_for_items(items: list, empty: str = "None currently flagged.") -> str:
+    values = [str(item).strip() for item in (items or []) if str(item or "").strip()]
+    return "\n".join(f"- {value}" for value in values) if values else f"- {empty}"
+
+
+def payment_guardrail_lines(payment_readiness: dict | None) -> str:
+    if not payment_readiness:
+        return "- Payment readiness could not be computed; verify Stripe/order payment state before filing."
+    payment = payment_readiness.get("payment") or {}
+    lines = [
+        f"- Readiness: {payment_readiness.get('readiness_status', 'unknown')}",
+        f"- Order payment status: {payment_readiness.get('order_status', 'unknown')}",
+        f"- Reconciliation status: {payment.get('reconciliation_status', 'unknown')}",
+        f"- Authorized: {format_ticket_money(payment.get('authorized_total_cents'))}",
+        f"- Captured: {format_ticket_money(payment.get('captured_total_cents'))}",
+        f"- Final expected total: {format_ticket_money(payment.get('final_total_cents'))}",
+    ]
+    review_checks = [
+        check for check in payment_readiness.get("checks") or []
+        if check.get("status") in {"blocked", "needs_review"}
+    ]
+    if review_checks:
+        lines.append("- Checks requiring attention:")
+        lines.extend(
+            f"  - {check.get('label')}: {check.get('status')}. {check.get('message')}"
+            for check in review_checks
+        )
+    else:
+        lines.append("- Checks requiring attention: none")
+    return "\n".join(lines)
+
+
+def filing_action_ticket_question(job: dict, order: dict) -> str:
+    business = order.get("business_name") or job.get("business_name") or job.get("order_id")
+    state = job.get("state") or order.get("state") or ""
+    entity = job.get("entity_type") or order.get("entity_type") or ""
+    action = label_text(job.get("action_type") or order.get("product_type") or "filing")
+    stage = operator_ticket_stage_for_job(job, order).strip().rstrip(".")
+    return f"{stage}: {state} {entity} {action} for {business}"
+
+
+def label_text(value: str) -> str:
+    return str(value or "").replace("_", " ").strip().title()
+
+
+def order_formation_data(order: dict) -> dict:
+    formation = order.get("formation_data") or {}
+    if isinstance(formation, str):
+        formation = parse_json_field(formation, {})
+    return formation if isinstance(formation, dict) else {}
+
+
+def california_management_choice(formation: dict) -> str:
+    management = (formation.get("management_type") or "").lower()
+    managers = formation.get("managers") or []
+    if "manager" in management:
+        return "One Manager" if len(managers) <= 1 else "More Than One Manager"
+    return "All LLC Member(s)"
+
+
+def california_llc_exact_values(job: dict, order: dict) -> list[str]:
+    formation = order_formation_data(order)
+    business_name = formation.get("business_name") or order.get("business_name") or job.get("business_name") or ""
+    principal = address_line(
+        formation.get("principal_address"),
+        formation.get("principal_city"),
+        formation.get("principal_state"),
+        formation.get("principal_zip"),
+    )
+    mailing = formation.get("mailing_address") or principal
+    ra = address_line(
+        formation.get("ra_address"),
+        formation.get("ra_city"),
+        formation.get("ra_state"),
+        formation.get("ra_zip"),
+    )
+    members = named_customer_people(formation)
+    organizer = os.getenv("SOSFILER_FILING_ORGANIZER_NAME", "SOSFiler authorized submitter")
+    return [
+        f"Entity name: {business_name}",
+        "Entity ending: LLC (do not choose Corporation, LP, LLP, or nonprofit forms)",
+        f"Purpose: {formation.get('purpose') or 'Any lawful purpose'}",
+        f"Principal office address: {principal or 'MISSING - stop and request customer clarification'}",
+        f"Mailing address: {mailing or 'Same as principal office'}",
+        f"Registered agent name: {formation.get('ra_name') or 'MISSING - stop and request customer clarification'}",
+        f"Registered agent address: {ra or 'MISSING - stop and request customer clarification'}",
+        f"Management selection: {california_management_choice(formation)}",
+        f"Organizer/signature name: {organizer}; use only if the filing authorization document is present and the portal attestation is true.",
+        f"Member/manager reference only: {'; '.join(person.get('name', '') for person in members if person.get('name')) or 'No member/manager names supplied'}",
+    ]
+
+
+def california_llc_bizfile_button_steps(job: dict, order: dict) -> list[str]:
+    business = order.get("business_name") or job.get("business_name") or job.get("order_id")
+    return [
+        "Open https://bizfileonline.sos.ca.gov/ in the trusted/access operator browser profile.",
+        "Click `Login` or `Sign In` and sign in as the authorized SOSFiler BizFile account. Use the password manager or secure operator credential store; do not copy passwords into tickets or notes.",
+        "From the BizFile dashboard/home page, click the tile/link named `Articles of Organization - CA LLC`; if the portal first shows a forms list, use `Business Entities` -> `Forms` -> `Limited Liability Company (LLC)` -> `Articles of Organization - CA LLC`.",
+        f"On the `Articles of Organization - CA LLC` tile, click `File Online` for {business}. Do not click `Statement of Information - CA LLC`, `Articles of Organization - Conversion`, corporation, nonprofit, or foreign LLC forms.",
+        "On the privacy/terms page, check the acknowledgement box only after reading it, then click `Next Step`.",
+        "On `Submitter Information`, enter SOSFiler/admin contact information if the field is required; otherwise leave optional submitter fields blank. Click `Next Step`.",
+        "On `Entity Name`, answer `No` to reserved-name question unless this order has a reservation number in the packet, enter the exact entity name, then click `Next Step`.",
+        "On `Business Addresses`, enter the principal office address and mailing address from `Exact California LLC-1 values` below, then click `Next Step`.",
+        "On `Service of Process`, choose the registered-agent option matching the packet. For a self/individual agent, enter the agent name and California street address from the packet. Do not choose a 1505 corporate agent unless the packet says the RA is a California registered corporate agent. Click `Next Step`.",
+        "On `Management Structure`, select the exact management option from `Exact California LLC-1 values`, then click `Next Step`.",
+        "On any `Additional Information`, `Optional Provisions`, or `Attachments` page, leave it blank and click `Next Step` unless the packet explicitly lists a California filing attachment. Standard California LLC-1 orders have no required upload.",
+        "On `Signature` or `Organizer`, enter the authorized organizer/submitter name only if the filing authorization is present and the attestation is accurate. Click `Next Step`.",
+        "On `Review`, compare every displayed value against the packet. If the entity name, RA, address, management, or fee is different, stop.",
+        "Click `Add to Cart` or `Checkout` only after the review page is correct. Do not add certified copies, expedited handling, name reservation, Statement of Information, or other products unless this order explicitly includes them.",
+        "On payment, verify the CA Articles of Organization government fee is the expected filing charge in the ticket/payment guardrails. Pay with the authorized SOSFiler payment method and click the final `Submit`/`Pay & Submit` button only when the portal summary is still correct.",
+        "Immediately download or screenshot the official confirmation/receipt page, including confirmation number, timestamp, entity name, and amount paid.",
+    ]
+
+
+def document_role_for_operator(doc: dict) -> str:
+    doc_type = doc.get("doc_type") or doc.get("type") or ""
+    filename = doc.get("filename") or ""
+    if doc_type == "filing_authorization":
+        return "source/proof: confirms customer authorized SOSFiler to prepare/submit; do not upload to CA unless the portal or state asks for proof."
+    if doc_type in {"operating_agreement", "initial_resolutions", "meeting_minutes", "member_certificate"}:
+        return "customer delivery document after formation; do not upload to California for standard LLC-1."
+    if doc_type == "ein_ss4_data":
+        return "IRS EIN preparation data after CA approval; do not upload to California."
+    if "articles_of_organization" in doc_type or "articles_of_organization" in filename:
+        return "reference only for online field entry unless the portal explicitly requires an attachment."
+    return "review/use only if the filing packet calls for it."
+
+
+def operator_document_lines(documents: list[dict]) -> str:
+    if not documents:
+        return "- No generated SOSFiler documents are recorded yet; stop and run/repair filing prep before submitting."
+    rows = []
+    for doc in documents:
+        rows.append(
+            f"- {doc.get('filename')} ({doc.get('doc_type') or doc.get('type')}, {doc.get('format', 'file')}): {document_role_for_operator(doc)}"
+        )
+    return "\n".join(rows)
+
+
+def california_upload_requirements(job: dict, order: dict, documents: list[dict]) -> str:
+    if (job.get("state") or order.get("state")) != "CA" or (job.get("entity_type") or order.get("entity_type")) != "LLC":
+        return "- Follow the state-specific packet; no California-specific upload rule applies."
+    attachment_docs = [
+        doc for doc in documents
+        if "attachment" in str(doc.get("doc_type") or "").lower()
+        or "attachment" in str(doc.get("filename") or "").lower()
+    ]
+    lines = [
+        "- California BizFile upload/attachment before submission: NONE for a standard domestic LLC Articles of Organization (LLC-1).",
+        "- The CA filing is completed by typing the LLC-1 values into BizFile; do not upload the Operating Agreement, member certificates, EIN/SS-4 data, or internal resolutions.",
+        "- If BizFile shows an optional `Attachments` page, leave it blank and continue unless this order has a specific California filing attachment.",
+    ]
+    if attachment_docs:
+        lines.append("- Specific attachment files present for this order:")
+        lines.extend(f"  - {doc.get('filename')}" for doc in attachment_docs)
+    else:
+        lines.append("- Specific attachment files present for this order: none.")
+    return "\n".join(lines)
+
+
+def documents_to_capture_after_california_submission() -> str:
+    return "\n".join([
+        "- Upload/capture immediately after payment/submission: official BizFile receipt or confirmation page as `submitted_receipt`.",
+        "- Include in the receipt evidence: confirmation/order number, entity name, payment amount, timestamp, and status shown by BizFile.",
+        "- Upload/capture after California approval: file-stamped/approved Articles of Organization, approval certificate, or official approval correspondence as `approved_certificate`.",
+        "- Only after approval evidence is attached: proceed to EIN collection and upload official IRS EIN confirmation evidence.",
+    ])
+
+
+def build_operator_filing_ticket_body(
+    job: dict,
+    order: dict,
+    packet: dict,
+    payment_readiness: dict | None,
+    documents: list[dict] | None = None,
+) -> str:
+    summary = packet.get("summary") or {}
+    route = packet.get("official_route") or {}
+    pricing = packet.get("pricing") or {}
+    evidence = packet.get("required_evidence") or {}
+    portal_steps = packet.get("portal_steps") or []
+    safe_stops = packet.get("safe_stop_conditions") or []
+    completion = packet.get("completion_criteria") or []
+    status = job.get("status") or ""
+    portal_url = route.get("portal_url") or job.get("portal_url") or ""
+    portal_name = route.get("portal_name") or job.get("portal_name") or "Official state portal"
+    action = operator_ticket_stage_for_job(job, order)
+    documents = documents or []
+
+    use_california_exact_steps = (
+        (job.get("state") or order.get("state")) == "CA"
+        and (job.get("entity_type") or order.get("entity_type")) == "LLC"
+        and (job.get("action_type") or "formation") == "formation"
+        and status not in {"submitted", "submitted_to_state", "pending_government_review", "received_needs_sosdirect_check", "state_approved", "approved", "documents_collected"}
+    )
+    steps = (
+        california_llc_bizfile_button_steps(job, order)
+        if use_california_exact_steps
+        else [
+            f"Open filing job {job.get('id')} in the SOSFiler operator cockpit.",
+            "Review the Operator Fulfillment Packet and use only its customer filing data; do not use customer PII outside audited workflows.",
+            "Verify payment guardrails before any live government submission or portal payment. If any blocking or review item changes the filing/payment decision, stop and reconcile first.",
+            f"Open the official portal: {portal_name}{f' ({portal_url})' if portal_url else ''}.",
+            "Sign in with authorized SOSFiler/operator state-portal access. Stop if login, access checkpoint, CAPTCHA, identity, terms, or payment controls cannot be completed through authorized access.",
+        ]
+    )
+    if status in {"submitted", "submitted_to_state", "pending_government_review", "received_needs_sosdirect_check"}:
+        steps.extend([
+            "Check the official portal and operator email/account notifications for state acceptance, rejection, file-stamped documents, or certificate availability.",
+            "Download or screenshot official approval, rejection, or correspondence evidence immediately when it appears.",
+            "If approved, upload the approval certificate/file-stamped evidence and mark the job approved. If rejected, mark rejected_or_needs_correction and capture the notice.",
+            "After state approval for a formation, move to the EIN workflow only after official approval evidence is attached.",
+        ])
+    elif status in {"state_approved", "approved", "documents_collected"}:
+        steps.extend([
+            "Confirm approval evidence is attached to the filing job and customer document vault.",
+            "For formations without an EIN, open the EIN queue and collect the EIN through the audited IRS workflow.",
+            "Upload official IRS EIN confirmation evidence before showing EIN completion to the customer.",
+        ])
+    elif status == "rejected_or_needs_correction":
+        steps.extend([
+            "Open the captured state rejection/correction notice and identify the exact portal or document issue.",
+            "Correct only the flagged issue using the customer filing data already on file; request customer clarification if the correction changes filing substance.",
+            "Resubmit only after payment, authorization, and evidence requirements are still valid.",
+        ])
+    elif not use_california_exact_steps:
+        steps.extend([
+            "Complete each required portal page exactly from the packet.",
+            "Review the portal summary, business name, entity type, registered agent, addresses, organizer/member details, and official fee total before submitting.",
+            "Submit only when the portal summary and payment authorization match the packet.",
+            "Capture the official receipt, confirmation number, timestamp, and submission evidence before changing the job to submitted or pending government review.",
+            "Monitor approval after submission; when approved, upload the certificate/file-stamped evidence and then proceed to EIN for formations.",
+        ])
+
+    portal_step_lines = []
+    for index, step in enumerate(portal_steps, start=1):
+        title = step.get("title") or f"Portal step {index}"
+        instruction = step.get("instruction") or "Complete using the customer filing data in the packet."
+        inputs = ", ".join(step.get("required_inputs") or [])
+        suffix = f" Inputs: {inputs}." if inputs else ""
+        portal_step_lines.append(f"{index}. {title}: {instruction}{suffix}")
+
+    return "\n".join([
+        "Operator filing ticket",
+        "",
+        f"Action now: {action}",
+        f"Order: {job.get('order_id')}",
+        f"Filing job: {job.get('id')}",
+        f"Business: {summary.get('business_name') or order.get('business_name') or ''}",
+        f"Customer: {summary.get('customer_email') or order.get('email') or ''}",
+        f"State/entity: {summary.get('state') or job.get('state')} {summary.get('entity_type') or job.get('entity_type')}",
+        f"Current filing status: {status}",
+        f"Official route: {route.get('office') or job.get('office') or ''} / {route.get('form_name') or job.get('form_name') or ''}",
+        f"Official portal: {portal_name}{f' - {portal_url}' if portal_url else ''}",
+        "SOSFiler operator URL: https://sosfiler.com/operator.html",
+        "Operator login: Google sign-in with sactoswan@gmail.com or admin@sosfiler.com, then email 2FA.",
+        "Official portal login: use the authorized state-filer/operator account for that official portal.",
+        f"Official government total expected: {format_ticket_money(pricing.get('official_total_government_cents') or job.get('total_government_cents'))}",
+        "",
+        "Payment guardrails",
+        payment_guardrail_lines(payment_readiness),
+        "",
+        "Exact California LLC-1 values" if (job.get("state") or order.get("state")) == "CA" else "Exact filing values",
+        lines_for_items(california_llc_exact_values(job, order)) if (job.get("state") or order.get("state")) == "CA" else "Use the Customer Filing Data section in the Operator Fulfillment Packet.",
+        "",
+        "SOSFiler documents for this order",
+        operator_document_lines(documents),
+        "",
+        "Documents to upload in California BizFile",
+        california_upload_requirements(job, order, documents),
+        "",
+        "Documents/evidence to upload back into SOSFiler",
+        documents_to_capture_after_california_submission() if (job.get("state") or order.get("state")) == "CA" else "Capture official submitted and approved evidence listed below before changing job status.",
+        "",
+        "Do this in order",
+        "\n".join(f"{index}. {step}" for index, step in enumerate(steps, start=1)),
+        "",
+        "Mapped portal steps",
+        "\n".join(portal_step_lines) if portal_step_lines else "1. No state-specific portal-page map is available; use the official route and packet data.",
+        "",
+        "Evidence required before status changes",
+        f"- Submitted: {', '.join(evidence.get('submitted') or ['Official portal receipt, confirmation, or submission evidence'])}",
+        f"- Approved: {', '.join(evidence.get('approved') or ['Official approval certificate, file-stamped document, or government correspondence'])}",
+        "",
+        "Safe stop conditions",
+        lines_for_items(safe_stops),
+        "",
+        "Completion criteria",
+        lines_for_items(completion),
+    ])
+
+
+def sync_operator_filing_action_tickets(limit: int = 500) -> dict:
+    statuses = sorted(OPERATOR_FILING_TICKET_STATUSES)
+    status_placeholders = ",".join("?" for _ in statuses)
+    limit = max(1, min(int(limit or 500), 500))
+    conn = get_db()
+    rows = conn.execute(f"""
+        SELECT
+            j.*,
+            o.business_name,
+            o.email,
+            o.status AS order_status,
+            o.total_cents,
+            o.platform_fee_cents,
+            o.gov_processing_fee_cents,
+            o.ein
+        FROM filing_jobs j
+        JOIN orders o ON o.id = j.order_id
+        WHERE j.status IN ({status_placeholders})
+        ORDER BY COALESCE(j.updated_at, j.created_at) DESC
+        LIMIT ?
+    """, statuses + [limit]).fetchall()
+    touched_ids: list[str] = []
+    active_job_ids: list[str] = []
+    created = 0
+    updated = 0
+    closed_duplicates = 0
+    for row in rows:
+        job = enrich_filing_job_for_adapter(conn, serialize_filing_job(row))
+        order = dict(conn.execute("SELECT * FROM orders WHERE id = ?", (job.get("order_id"),)).fetchone() or {})
+        if not operator_filing_job_needs_ticket(job, order):
+            continue
+        active_job_ids.append(job["id"])
+        artifact_rows = conn.execute(
+            "SELECT * FROM filing_artifacts WHERE filing_job_id = ? ORDER BY created_at DESC, id DESC LIMIT 100",
+            (job["id"],),
+        ).fetchall()
+        artifacts = [dict(artifact) for artifact in artifact_rows]
+        documents = [
+            dict(document)
+            for document in conn.execute(
+                """
+                SELECT doc_type, filename, file_path, format, category, visibility, created_at
+                FROM documents
+                WHERE order_id = ?
+                ORDER BY
+                    CASE format WHEN 'pdf' THEN 0 WHEN 'json' THEN 1 ELSE 2 END,
+                    filename
+                """,
+                (job.get("order_id"),),
+            ).fetchall()
+        ]
+        packet = build_operator_fulfillment_packet(job, order, artifacts)
+        payment_readiness = payment_execution_readiness(conn, order, job) if order else None
+        question = filing_action_ticket_question(job, order)
+        confidence_reason = (
+            f"Filing job {job.get('id')} is {job.get('status')}; operator action is required before the workflow can advance. "
+            "This ticket was generated from the evidence-gated filing job queue."
+        )
+        suggested_answer = build_operator_filing_ticket_body(job, order, packet, payment_readiness, documents)
+        priority = operator_ticket_priority_for_job(job)
+        existing_rows = conn.execute("""
+            SELECT * FROM support_tickets
+            WHERE ticket_type = 'filing_action'
+              AND status = 'open'
+              AND filing_job_id = ?
+            ORDER BY updated_at DESC, created_at DESC
+        """, (job["id"],)).fetchall()
+        existing = existing_rows[0] if existing_rows else None
+        if existing:
+            conn.execute("""
+                UPDATE support_tickets
+                SET priority = ?, customer_email = ?, order_id = ?, session_id = ?,
+                    state = ?, product_type = ?, question = ?, confidence_reason = ?,
+                    suggested_answer = ?, updated_at = datetime('now')
+                WHERE id = ?
+            """, (
+                priority,
+                order.get("email") or job.get("email") or "",
+                job.get("order_id") or "",
+                job.get("id") or "",
+                job.get("state") or "",
+                job.get("action_type") or order.get("product_type") or "formation",
+                question,
+                confidence_reason,
+                suggested_answer,
+                existing["id"],
+            ))
+            touched_ids.append(existing["id"])
+            updated += 1
+            duplicate_ids = [row["id"] for row in existing_rows[1:]]
+            if duplicate_ids:
+                duplicate_placeholders = ",".join("?" for _ in duplicate_ids)
+                conn.execute(f"""
+                    UPDATE support_tickets
+                    SET status = 'closed',
+                        confidence_reason = 'Closed duplicate filing-action ticket after operator ticket sync.',
+                        updated_at = datetime('now')
+                    WHERE id IN ({duplicate_placeholders})
+                """, duplicate_ids)
+                closed_duplicates += len(duplicate_ids)
+        else:
+            ticket_id = f"TKT-{uuid.uuid4().hex[:12].upper()}"
+            conn.execute("""
+                INSERT INTO support_tickets (
+                    id, ticket_type, status, priority, customer_email, order_id, filing_job_id, session_id,
+                    state, product_type, question, confidence_reason, suggested_answer, slack_sent
+                )
+                VALUES (?, 'filing_action', 'open', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0)
+            """, (
+                ticket_id,
+                priority,
+                order.get("email") or job.get("email") or "",
+                job.get("order_id") or "",
+                job.get("id") or "",
+                job.get("id") or "",
+                job.get("state") or "",
+                job.get("action_type") or order.get("product_type") or "formation",
+                question,
+                confidence_reason,
+                suggested_answer,
+            ))
+            touched_ids.append(ticket_id)
+            created += 1
+
+    stale_status_placeholders = ",".join("?" for _ in statuses)
+    conn.execute(f"""
+        UPDATE support_tickets
+        SET status = 'closed',
+            confidence_reason = 'Closed because the filing job no longer requires operator action.',
+            updated_at = datetime('now')
+        WHERE ticket_type = 'filing_action'
+          AND status = 'open'
+          AND (
+            filing_job_id IS NULL
+            OR filing_job_id = ''
+            OR NOT EXISTS (
+                SELECT 1
+                FROM filing_jobs j
+                WHERE j.id = support_tickets.filing_job_id
+                  AND j.status IN ({stale_status_placeholders})
+            )
+            OR EXISTS (
+                SELECT 1
+                FROM filing_jobs j
+                JOIN orders o ON o.id = j.order_id
+                WHERE j.id = support_tickets.filing_job_id
+                  AND (j.order_id LIKE 'QA-%' OR o.id LIKE 'QA-%')
+            )
+            OR EXISTS (
+                SELECT 1
+                FROM filing_jobs j
+                JOIN orders o ON o.id = j.order_id
+                WHERE j.id = support_tickets.filing_job_id
+                  AND j.status IN ('state_approved', 'approved', 'documents_collected')
+                  AND COALESCE(j.action_type, 'formation') = 'formation'
+                  AND COALESCE(o.ein, '') != ''
+            )
+          )
+    """, statuses)
+    conn.commit()
+    synced_rows = conn.execute(
+        "SELECT * FROM support_tickets WHERE id IN (%s)" % ",".join("?" for _ in touched_ids),
+        touched_ids,
+    ).fetchall() if touched_ids else []
+    conn.close()
+    for row in synced_rows:
+        execution_dual_write("insert_support_ticket", dict(row))
+    return {
+        "created": created,
+        "updated": updated,
+        "closed_duplicates": closed_duplicates,
+        "active_jobs": len(active_job_ids),
+        "ticket_ids": touched_ids,
+    }
+
+
 def annual_report_packet_path(job_id: str) -> Path:
     safe_job_id = _re.sub(r"[^A-Za-z0-9_.-]", "-", job_id)
     return DOCS_DIR / "annual_report_packets" / safe_job_id / "annual_report_packet.md"
@@ -4784,6 +5668,11 @@ def prepare_annual_report_packet(job_id: str, actor: str = "operator", message: 
     )
     conn.commit()
     conn.close()
+    schedule_customer_status_email(
+        job["order_id"],
+        "annual_report_packet_prepared",
+        "Annual report filing packet is ready for operator verification.",
+    )
     return {
         "status": "prepared",
         "artifact": {
@@ -4907,7 +5796,7 @@ def customer_timeline(status_rows, filing_rows, order: dict | None = None) -> li
     if order and order.get("status") == "operator_required" and not any(item.get("status") == "operator_required" for item in items):
         items.append({
             "status": "operator_required",
-            "message": "An SOSFiler operator is verifying a filing requirement before the government submission can continue.",
+            "message": "The state filing is paused at a verification checkpoint before government submission can continue.",
             "created_at": order.get("updated_at") or order.get("created_at"),
         })
     return sorted(items, key=lambda item: item.get("created_at") or "")
@@ -4934,6 +5823,135 @@ def enrich_filing_job_for_adapter(conn, job: dict) -> dict:
     job["artifact_types"] = [row["artifact_type"] for row in artifact_rows]
     job["document_types"] = [row["doc_type"] for row in doc_rows]
     return job
+
+
+def serialize_automation_run(row) -> dict:
+    run = dict(row)
+    run["redacted_log"] = parse_json_field(run.get("redacted_log"), [])
+    return run
+
+
+def autopilot_intervention_payload(job: dict, run_id: str, result_payload: dict | None = None) -> dict:
+    blockers_payload = job.get("portal_blockers") or []
+    blocker = next(
+        (
+            item for item in blockers_payload
+            if "trusted_access" in str(item.get("code", "")).lower()
+            or "checkpoint" in str(item.get("code", "")).lower()
+        ),
+        {},
+    )
+    route = job.get("route_metadata") or {}
+    result_payload = result_payload or {}
+    return {
+        "run_id": run_id,
+        "filing_job_id": job.get("id", ""),
+        "order_id": job.get("order_id", ""),
+        "state": job.get("state", ""),
+        "business_name": job.get("business_name", ""),
+        "intervention_type": "trusted_access_checkpoint",
+        "status": "waiting_for_intervention",
+        "portal_name": job.get("portal_name") or route.get("portal_name") or "Official state portal",
+        "portal_url": job.get("portal_url") or route.get("portal_url") or "",
+        "blocker_code": blocker.get("code", "trusted_access_checkpoint"),
+        "required_action": (
+            "Use the verified California filing browser/profile to clear only the portal login, MFA, "
+            "security, or trusted-access checkpoint. Do not mark the filing submitted until an official "
+            "receipt or confirmation is captured."
+        ),
+        "resume_instruction": "After the checkpoint is cleared, call the resume endpoint or use the owner intervention queue to resume the same run.",
+        "resume_endpoint": f"/api/admin/automation-runs/{run_id}/resume",
+        "evidence_required_before_customer_submission": [
+            "official_submission_receipt_or_confirmation",
+            "state_confirmation_number_if_available",
+            "filed_or_approved_government_document",
+        ],
+        "trace_guarantee": "This run is traceable through automation_runs.redacted_log and filing_events; customer-visible submission milestones require evidence.",
+        "adapter_status": result_payload.get("status", ""),
+        "adapter_message": result_payload.get("message", ""),
+    }
+
+
+def create_or_reuse_intervention_ticket(job: dict, intervention: dict) -> dict | None:
+    conn = get_db()
+    existing = conn.execute(
+        """
+        SELECT * FROM support_tickets
+        WHERE ticket_type = 'filing_intervention'
+          AND status = 'open'
+          AND order_id = ?
+        ORDER BY created_at DESC
+        LIMIT 1
+        """,
+        (job.get("order_id", ""),),
+    ).fetchone()
+    conn.close()
+    if existing:
+        return dict(existing)
+    return create_support_ticket(
+        ticket_type="filing_intervention",
+        priority="high",
+        order_id=job.get("order_id", ""),
+        filing_job_id=job.get("id", ""),
+        customer_email=job.get("email", ""),
+        state=job.get("state", ""),
+        product_type=job.get("action_type", "formation"),
+        session_id=intervention.get("run_id", ""),
+        question=f"Trusted-access checkpoint paused for {job.get('business_name', '')} ({job.get('order_id', '')}).",
+        confidence_reason=(
+            f"Autopilot run {intervention.get('run_id')} reached a protected state-portal checkpoint. "
+            "This is an owner/admin intervention, not a customer data issue."
+        ),
+        suggested_answer=intervention.get("required_action", ""),
+    )
+
+
+def list_filing_interventions(limit: int = 100) -> list[dict]:
+    limit = max(1, min(int(limit or 100), 500))
+    conn = get_db()
+    rows = conn.execute(
+        """
+        SELECT
+          r.*,
+          j.state,
+          j.action_type,
+          j.entity_type,
+          j.status AS filing_status,
+          j.portal_name,
+          j.portal_url,
+          j.portal_blockers,
+          o.business_name,
+          o.email,
+          o.status AS order_status
+        FROM automation_runs r
+        JOIN filing_jobs j ON j.id = r.filing_job_id
+        LEFT JOIN orders o ON o.id = r.order_id
+        WHERE r.status IN ('waiting_for_intervention', 'ready_to_resume')
+        ORDER BY r.updated_at DESC
+        LIMIT ?
+        """,
+        (limit,),
+    ).fetchall()
+    conn.close()
+    items = []
+    for row in rows:
+        data = dict(row)
+        log = parse_json_field(data.get("redacted_log"), [])
+        data["redacted_log"] = log
+        data["portal_blockers"] = parse_json_field(data.get("portal_blockers"), [])
+        latest_intervention = next(
+            (
+                entry.get("intervention")
+                for entry in reversed(log)
+                if isinstance(entry, dict) and entry.get("intervention")
+            ),
+            None,
+        )
+        if not latest_intervention:
+            latest_intervention = autopilot_intervention_payload(data, data.get("id", ""))
+        data["intervention"] = latest_intervention
+        items.append(redact_sensitive(data))
+    return items
 
 
 def validate_submission_safety(conn, job: dict, order: dict | None = None) -> dict:
@@ -5121,8 +6139,9 @@ def handle_oauth_login(email: str, name: str, provider: str, provider_id: str):
         )
         link_orders_to_user_by_email(conn, user_id, email)
     conn.commit()
+    user = conn.execute("SELECT * FROM users WHERE id = ?", (user_id,)).fetchone()
     conn.close()
-    return create_jwt_token(user_id)
+    return create_jwt_token(user_id), public_user_payload(user)
 
 @app.post("/api/auth/signup")
 async def auth_signup(data: AuthSignupRequest):
@@ -5146,7 +6165,7 @@ async def auth_signup(data: AuthSignupRequest):
     conn.close()
 
     token = create_jwt_token(user_id)
-    return {"token": token, "user": {"id": user_id, "email": data.email, "name": data.name}}
+    return {"token": token, "user": public_user_payload({"id": user_id, "email": data.email, "name": data.name})}
 
 @app.post("/api/auth/login")
 async def auth_login(data: AuthLoginRequest):
@@ -5163,12 +6182,13 @@ async def auth_login(data: AuthLoginRequest):
     conn = get_db()
     if password_hash_needs_upgrade(user["password_hash"]):
         conn.execute("UPDATE users SET password_hash = ? WHERE id = ?", (hash_password(data.password), user["id"]))
+    link_orders_to_user_by_email(conn, user["id"], user["email"])
     conn.execute("UPDATE users SET last_login = datetime('now') WHERE id = ?", (user["id"],))
     conn.commit()
     conn.close()
 
     token = create_jwt_token(user["id"])
-    return {"token": token, "user": {"id": user["id"], "email": user["email"], "name": user["name"]}}
+    return {"token": token, "user": public_user_payload(user)}
 
 @app.post("/api/auth/password-reset/request")
 async def request_password_reset(data: AuthRecoveryRequest):
@@ -5266,6 +6286,8 @@ async def auth_google(data: AuthOAuthRequest):
             req = urllib.request.Request(f"https://oauth2.googleapis.com/tokeninfo?id_token={data.token}")
             with urllib.request.urlopen(req) as response:
                 token_info = json.loads(response.read())
+                if str(token_info.get("email_verified", "true")).lower() == "false":
+                    raise HTTPException(status_code=400, detail="Google account email is not verified")
                 email = token_info.get("email")
                 name = token_info.get("name", "")
                 provider_id = token_info.get("sub", "")
@@ -5279,24 +6301,19 @@ async def auth_google(data: AuthOAuthRequest):
                     headers={"Authorization": f"Bearer {data.token}"})
                 with urllib.request.urlopen(req) as response:
                     user_info = json.loads(response.read())
+                    if str(user_info.get("email_verified", "true")).lower() == "false":
+                        raise HTTPException(status_code=400, detail="Google account email is not verified")
                     email = user_info.get("email")
                     name = user_info.get("name", "")
                     provider_id = user_info.get("sub", "")
             except Exception:
                 pass
 
-        # Fallback: trust the frontend-provided email/name if token validation fails
-        # (for cases where frontend already validated with Google and sends user info)
-        if not email and data.email:
-            email = data.email
-            name = data.name or ""
-            provider_id = data.provider_id or ""
-
         if not email:
             raise HTTPException(status_code=400, detail="Could not verify Google account")
 
-        token = handle_oauth_login(email=email, name=name, provider="google", provider_id=provider_id)
-        return {"token": token, "user": {"email": email, "name": name}}
+        token, user = handle_oauth_login(email=email, name=name, provider="google", provider_id=provider_id)
+        return {"token": token, "user": user}
     except HTTPException:
         raise
     except Exception as e:
@@ -5370,13 +6387,13 @@ async def auth_apple(data: AuthOAuthRequest):
         # Apple only sends the user's name on the FIRST authorization — grab from request if available
         name = data.name or ""
 
-        token = handle_oauth_login(
+        token, user = handle_oauth_login(
             email=email,
             name=name,
             provider="apple",
             provider_id=payload.get("sub", "")
         )
-        return {"token": token, "user": {"email": email, "name": name}}
+        return {"token": token, "user": user}
     except HTTPException:
         raise
     except Exception as e:
@@ -5394,13 +6411,13 @@ async def auth_facebook(data: AuthOAuthRequest):
         if not email:
             raise HTTPException(status_code=400, detail="Facebook account has no email")
 
-        token = handle_oauth_login(
+        token, user = handle_oauth_login(
             email=email,
             name=user_info.get("name", ""),
             provider="facebook",
             provider_id=user_info.get("id", "")
         )
-        return {"token": token, "user": {"email": email, "name": user_info.get("name", "")}}
+        return {"token": token, "user": user}
     except Exception as e:
         raise HTTPException(status_code=400, detail=f"Facebook auth failed: {str(e)}")
 
@@ -5409,7 +6426,7 @@ async def auth_me(request: Request):
     user = get_current_user(request)
     if not user:
         raise HTTPException(status_code=401, detail="Not authenticated")
-    return {"user": {"id": user["id"], "email": user["email"], "name": user["name"]}}
+    return {"user": public_user_payload(user)}
 
 
 # --- Routes ---
@@ -5964,6 +6981,7 @@ async def get_state_fee(state: str, entity_type: str = "LLC"):
         "fee_breakdown": breakdown,
         "notes": fee_data.get("notes", ""),
         "expedited_fee": fee_data.get("expedited"),
+        "expedite_options": breakdown.get("expedite_options") or [],
         "filing_action": get_filing_action(state, et),
         "automation_route": breakdown.get("automation_route"),
     }
@@ -6044,6 +7062,8 @@ async def create_quote(data: QuoteRequest):
     entity_key = "LLC" if data.entity_type.upper() == "LLC" else "Corp"
     if state not in STATE_FEES.get(entity_key, {}):
         raise HTTPException(status_code=400, detail=f"Invalid state: {state}")
+    if data.product_type == "formation" and data.include_registered_agent and not CUSTOMER_REGISTERED_AGENT_SERVICE_AVAILABLE:
+        raise HTTPException(status_code=400, detail=REGISTERED_AGENT_UNAVAILABLE_MESSAGE)
 
     service = service_by_code(data.service_code or data.product_type)
     if service and (data.product_type != "formation" or data.service_code):
@@ -6082,6 +7102,9 @@ async def create_quote(data: QuoteRequest):
         government_fee = 0
         processing_fee = 0
         ra_fee = 0
+    route_action = "formation" if data.product_type == "formation" else data.product_type
+    route = (fees.get("automation_route") if data.product_type == "formation" else None) or get_state_filing_route(state, data.entity_type, route_action)
+    selected_expedite_option = validate_expedite_fee_selection(route, data.expedite_fee_cents)
 
     quote = build_quote(
         product_type=data.product_type,
@@ -6094,8 +7117,10 @@ async def create_quote(data: QuoteRequest):
         expedite_fee_cents=data.expedite_fee_cents,
     )
     persist_quote(quote)
-    route_action = "formation" if data.product_type == "formation" else data.product_type
-    quote["automation_route"] = get_state_filing_route(state, data.entity_type, route_action)
+    quote["automation_route"] = route
+    quote["expedite_options"] = quote["automation_route"].get("expedite_options") or []
+    if selected_expedite_option:
+        quote["selected_expedite_option"] = selected_expedite_option
     return quote
 
 
@@ -6141,6 +7166,119 @@ async def create_order(data: OrderRequest):
             quote["line_items"] = parse_json_field(quote.get("line_items"), [])
             execution_dual_write("upsert_quote", quote, result["order_id"])
     return result
+
+
+@app.post("/api/formations/checkout")
+async def create_formation_cart_checkout(data: FormationCartCheckoutRequest):
+    """Create one or more formation orders and collect payment in one customer checkout."""
+    if not STRIPE_SECRET_KEY:
+        raise HTTPException(status_code=503, detail="Stripe is not configured")
+
+    normalized_emails = {item.email.strip().lower() for item in data.items if item.email}
+    if len(normalized_emails) != 1:
+        raise HTTPException(status_code=400, detail="All filings in a multi-LLC checkout must use the same customer email.")
+
+    prepared_quotes = [build_formation_checkout_quote(item) for item in data.items]
+    cart_id = f"CART-{uuid.uuid4().hex[:12].upper()}"
+    prepared_orders = []
+
+    for formation, quote in zip(data.items, prepared_quotes):
+        result = await create_formation(formation)
+        persist_quote(quote, result["order_id"])
+        amount = int(quote.get("estimated_total_cents") or result.get("total_cents") or 0)
+        prepared_orders.append({
+            "order_id": result["order_id"],
+            "token": result["token"],
+            "business_name": formation.business_name,
+            "state": formation.state.upper(),
+            "entity_type": formation.entity_type,
+            "quote_id": quote["quote_id"],
+            "total_cents": amount,
+        })
+
+    order_ids = [item["order_id"] for item in prepared_orders]
+    quote_ids = [item["quote_id"] for item in prepared_orders]
+    line_items = []
+    for item in prepared_orders:
+        amount = int(item["total_cents"] or 0)
+        if amount <= 0:
+            continue
+        state_name = STATE_FEES["state_names"].get(item["state"], item["state"])
+        product_name = f"{item['business_name']} - {state_name} {item['entity_type']} filing estimate"
+        line_items.append({
+            "price_data": {
+                "currency": "usd",
+                "unit_amount": amount,
+                "product_data": {"name": product_name[:120]},
+            },
+            "quantity": 1,
+        })
+    if not line_items:
+        raise HTTPException(status_code=400, detail="Checkout total must be greater than zero.")
+
+    first_order = prepared_orders[0]
+    success_joiner = "&" if "?" in data.success_url else "?"
+    success_url = (
+        f"{data.success_url}{success_joiner}"
+        f"cart_id={urllib.parse.quote(cart_id)}"
+        f"&order_id={urllib.parse.quote(first_order['order_id'])}"
+        f"&token={urllib.parse.quote(first_order['token'])}"
+    )
+    try:
+        session = stripe.checkout.Session.create(
+            payment_method_types=["card"],
+            line_items=line_items,
+            mode="payment",
+            success_url=success_url,
+            cancel_url=data.cancel_url,
+            customer_email=next(iter(normalized_emails)),
+            metadata={
+                "type": "formation_cart",
+                "cart_id": cart_id,
+                "order_ids": ",".join(order_ids),
+                "quote_ids": ",".join(quote_ids),
+                "capture_strategy": "capture_immediate",
+            },
+        )
+    except stripe.error.StripeError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+    conn = get_db()
+    for item in prepared_orders:
+        conn.execute(
+            "UPDATE orders SET stripe_session_id = ?, updated_at = datetime('now') WHERE id = ?",
+            (session.id, item["order_id"]),
+        )
+        conn.execute(
+            """
+            UPDATE execution_quotes
+            SET reconciliation_status = 'checkout_started',
+                updated_at = datetime('now')
+            WHERE id = ?
+            """,
+            (item["quote_id"],),
+        )
+    conn.commit()
+    conn.close()
+
+    for item in prepared_orders:
+        insert_payment_ledger(
+            order_id=item["order_id"],
+            quote_id=item["quote_id"],
+            event_type="checkout_started",
+            amount_cents=item["total_cents"],
+            stripe_session_id=session.id,
+            raw_event={"checkout_session": session.id, "cart_id": cart_id, "capture_strategy": "capture_immediate"},
+        )
+
+    return {
+        "checkout_url": session.url,
+        "session_id": session.id,
+        "cart_id": cart_id,
+        "capture_strategy": "capture_immediate",
+        "orders": prepared_orders,
+        "total_cents": sum(int(item["total_cents"] or 0) for item in prepared_orders),
+    }
 
 
 @app.post("/api/service-orders")
@@ -6382,6 +7520,106 @@ async def capture_admin_order_payment(order_id: str, payload: PaymentCaptureRequ
         conn.close()
         raise HTTPException(status_code=400, detail="Capture amount must be greater than zero and not exceed the authorized amount.")
     payment_intent = order.get("stripe_payment_intent") or summary.get("stripe_payment_intent") or ""
+    shared_rows = []
+    if payment_intent:
+        shared_rows = conn.execute(
+            """
+            SELECT * FROM orders
+            WHERE stripe_payment_intent = ?
+            ORDER BY created_at ASC
+            """,
+            (payment_intent,),
+        ).fetchall()
+    if len(shared_rows) > 1:
+        shared_orders = [dict(row) for row in shared_rows]
+        shared_summaries = [(item, payment_reconciliation_summary(conn, item)) for item in shared_orders]
+        not_ready = [
+            f"{item['id']}:{item_summary.get('reconciliation_status')}"
+            for item, item_summary in shared_summaries
+            if item_summary.get("reconciliation_status") != "ready_to_capture"
+        ]
+        if not_ready:
+            conn.close()
+            raise HTTPException(
+                status_code=400,
+                detail=(
+                    "This payment authorization covers multiple LLCs. Reconcile every cart order before capture. "
+                    f"Not ready: {', '.join(not_ready)}"
+                ),
+            )
+        cart_amount = sum(int(item_summary.get("final_total_cents") or 0) for _, item_summary in shared_summaries)
+        cart_authorized = sum(int(item_summary.get("authorized_total_cents") or 0) for _, item_summary in shared_summaries)
+        if payload.amount_cents is not None and int(payload.amount_cents) != cart_amount:
+            conn.close()
+            raise HTTPException(status_code=400, detail="Shared checkout captures must use the reconciled total for every LLC in the cart.")
+        if cart_amount <= 0 or cart_amount > cart_authorized:
+            conn.close()
+            raise HTTPException(status_code=400, detail="Shared checkout capture total must be greater than zero and not exceed the authorized cart amount.")
+
+        capture_message = payload.message or "Payment captured after final fee reconciliation for multi-LLC checkout."
+        dry_run = not bool(STRIPE_SECRET_KEY and payment_intent)
+        stripe_result = {"dry_run": True, "message": "Stripe payment intent unavailable or Stripe is not configured; cart capture recorded as dry-run."}
+        if not dry_run:
+            try:
+                intent = stripe_object_to_dict(stripe.PaymentIntent.retrieve(payment_intent))
+                capturable = int(intent.get("amount_capturable") or 0)
+                if capturable and cart_amount > capturable:
+                    conn.close()
+                    raise HTTPException(status_code=400, detail=f"Stripe only has {capturable} cents capturable for this payment intent.")
+                stripe_result = stripe.PaymentIntent.capture(payment_intent, amount_to_capture=cart_amount)
+            except stripe.error.StripeError as e:
+                conn.close()
+                raise HTTPException(status_code=400, detail=str(e))
+
+        for item, item_summary in shared_summaries:
+            final_amount = int(item_summary.get("final_total_cents") or 0)
+            quote_id = item_summary.get("quote_id") or ""
+            conn.execute(
+                "UPDATE orders SET status = 'payment_captured', total_cents = ?, updated_at = datetime('now') WHERE id = ?",
+                (final_amount, item["id"]),
+            )
+            if quote_id:
+                conn.execute(
+                    """
+                    UPDATE execution_quotes
+                    SET captured_total_cents = ?, reconciliation_status = 'captured',
+                        updated_at = datetime('now')
+                    WHERE id = ?
+                    """,
+                    (final_amount, quote_id),
+            )
+            conn.execute(
+                "INSERT INTO status_updates (order_id, status, message) VALUES (?, 'payment_captured', ?)",
+                (item["id"], capture_message),
+            )
+        conn.commit()
+        conn.close()
+        for item, _ in shared_summaries:
+            schedule_customer_status_email(item["id"], "payment_captured", capture_message)
+
+        for item, item_summary in shared_summaries:
+            insert_payment_ledger(
+                order_id=item["id"],
+                quote_id=item_summary.get("quote_id") or "",
+                event_type="captured_dry_run" if dry_run else "captured",
+                amount_cents=int(item_summary.get("final_total_cents") or 0),
+                stripe_payment_intent=payment_intent,
+                raw_event={
+                    "actor": normalize_operator(payload.actor),
+                    "shared_cart_capture": True,
+                    "cart_total_cents": cart_amount,
+                    "stripe_result": redact_sensitive(stripe_result if isinstance(stripe_result, dict) else str(stripe_result)),
+                },
+            )
+        return {
+            "captured": True,
+            "cart_capture": True,
+            "dry_run": dry_run,
+            "order_ids": [item["id"] for item, _ in shared_summaries],
+            "amount_cents": cart_amount,
+            "authorized_total_cents": cart_authorized,
+        }
+
     dry_run = not bool(STRIPE_SECRET_KEY and payment_intent)
     stripe_result = {"dry_run": True, "message": "Stripe payment intent unavailable or Stripe is not configured; capture recorded as dry-run."}
     if not dry_run:
@@ -6409,12 +7647,14 @@ async def capture_admin_order_payment(order_id: str, payload: PaymentCaptureRequ
             """,
             (amount, quote_id),
         )
+    capture_message = payload.message or "Payment captured after final fee reconciliation."
     conn.execute(
         "INSERT INTO status_updates (order_id, status, message) VALUES (?, 'payment_captured', ?)",
-        (order_id, payload.message or "Payment captured after final fee reconciliation."),
+        (order_id, capture_message),
     )
     conn.commit()
     conn.close()
+    schedule_customer_status_email(order_id, "payment_captured", capture_message)
     insert_payment_ledger(
         order_id=order_id,
         quote_id=quote_id,
@@ -6844,6 +8084,8 @@ async def check_name_availability(state: str, name: str, entity_type: str = "LLC
 async def create_formation(data: FormationRequest):
     """Create a new formation order."""
     state = data.state.upper()
+    if data.ra_choice == "sosfiler" and not CUSTOMER_REGISTERED_AGENT_SERVICE_AVAILABLE:
+        raise HTTPException(status_code=400, detail=REGISTERED_AGENT_UNAVAILABLE_MESSAGE)
     responsible_members = [member for member in data.members if member.is_responsible_party]
     if len(responsible_members) != 1:
         raise HTTPException(status_code=400, detail="Exactly one responsible party is required for EIN filing.")
@@ -7062,6 +8304,17 @@ async def stripe_webhook(request: Request, background_tasks: BackgroundTasks):
                 finish_stripe_webhook_event(event_id)
                 return {"status": "ok", "event_id": event_id, "partner_application_id": application_id}
 
+            if metadata.get("type") == "formation_cart":
+                if metadata.get("capture_strategy") == "authorize_then_capture":
+                    result = update_formation_cart_authorization_from_session(obj)
+                else:
+                    result = update_formation_cart_capture_from_session(obj)
+                if result.get("updated"):
+                    for formation_order_id in result.get("order_ids", []):
+                        background_tasks.add_task(run_formation_pipeline, formation_order_id)
+                finish_stripe_webhook_event(event_id)
+                return {"status": "ok", "event_id": event_id, "result": result}
+
             order_id = metadata.get("order_id")
             capture_strategy = metadata.get("capture_strategy", "")
 
@@ -7111,7 +8364,9 @@ async def stripe_webhook(request: Request, background_tasks: BackgroundTasks):
         elif event_type == "payment_intent.succeeded":
             result = update_payment_intent_snapshot(obj)
             if result.get("updated"):
-                add_status_update(result["order_id"], "payment_captured", "Stripe confirmed payment capture.")
+                for captured_order_id in result.get("order_ids") or [result.get("order_id")]:
+                    if captured_order_id:
+                        add_status_update(captured_order_id, "payment_captured", "Stripe confirmed payment capture.")
 
         elif event_type == "payment_intent.canceled":
             payment_intent = obj.get("id") or ""
@@ -7634,6 +8889,7 @@ async def transition_filing_job(job_id: str, payload: FilingTransitionRequest, r
         raise HTTPException(status_code=400, detail=decision.reason)
     previous = job["status"]
     target = payload.target_status
+    status_message = payload.message or f"Filing moved to {target}."
     evidence_path = payload.evidence_path
     if evidence_path:
         filename = Path(evidence_path).name
@@ -7659,7 +8915,7 @@ async def transition_filing_job(job_id: str, payload: FilingTransitionRequest, r
     conn.execute("UPDATE orders SET status = ?, updated_at = datetime('now') WHERE id = ?", (target, job["order_id"]))
     conn.execute(
         "INSERT INTO status_updates (order_id, status, message) VALUES (?, ?, ?)",
-        (job["order_id"], target, payload.message or f"Filing moved to {target}."),
+        (job["order_id"], target, status_message),
     )
     conn.execute("""
         INSERT INTO filing_events (filing_job_id, order_id, event_type, message, actor, evidence_path)
@@ -7683,7 +8939,212 @@ async def transition_filing_job(job_id: str, payload: FilingTransitionRequest, r
     })
     conn.commit()
     conn.close()
+    schedule_customer_status_email(job["order_id"], target, status_message)
     return {"status": target, "previous_status": previous}
+
+
+@app.get("/api/admin/filing-interventions")
+async def get_filing_interventions(request: Request, limit: int = 100):
+    """List state-portal autopilot runs that are waiting for owner/admin action."""
+    verify_admin_access(request)
+    return {"interventions": list_filing_interventions(limit)}
+
+
+@app.post("/api/admin/filing-jobs/{job_id}/autopilot/start")
+async def start_filing_job_autopilot(job_id: str, payload: FilingAutopilotStartRequest, request: Request):
+    """Start a traceable state filing autopilot run and pause safely at protected portal checkpoints."""
+    verify_admin_access(request)
+    actor = normalize_operator(payload.actor)
+    conn = get_db()
+    job_row = conn.execute("SELECT * FROM filing_jobs WHERE id = ?", (job_id,)).fetchone()
+    if not job_row:
+        conn.close()
+        raise HTTPException(status_code=404, detail="Filing job not found")
+    job = enrich_filing_job_for_adapter(conn, serialize_filing_job(job_row))
+    run_id = f"AUTO-{uuid.uuid4().hex[:12].upper()}"
+    start_log = [{
+        "at": utc_now(),
+        "message": "Filing autopilot started.",
+        "operation": "preflight",
+        "actor": actor,
+        "filing_job_id": job_id,
+        "order_id": job.get("order_id", ""),
+        "adapter_key": job.get("adapter_key", ""),
+        "lane": job.get("automation_lane", ""),
+        "portal_url": job.get("portal_url", ""),
+        "safety_policy": "No protected portal controls, payment controls, or final submission actions are bypassed.",
+    }]
+    conn.execute(
+        """
+        INSERT INTO automation_runs (id, filing_job_id, order_id, adapter_key, lane, status, redacted_log)
+        VALUES (?, ?, ?, ?, ?, 'running', ?)
+        """,
+        (
+            run_id,
+            job_id,
+            job.get("order_id", ""),
+            job.get("adapter_key") or "",
+            job.get("automation_lane") or "operator_assisted",
+            json.dumps(redact_sensitive(start_log)),
+        ),
+    )
+    conn.execute(
+        """
+        INSERT INTO filing_events (filing_job_id, order_id, event_type, message, actor)
+        VALUES (?, ?, 'autopilot_started', ?, ?)
+        """,
+        (job_id, job.get("order_id", ""), "Filing autopilot started with evidence-gated tracing.", actor),
+    )
+    conn.commit()
+    conn.close()
+    execution_dual_write("insert_automation_run", {
+        "id": run_id,
+        "filing_job_id": job_id,
+        "order_id": job.get("order_id", ""),
+        "adapter_key": job.get("adapter_key") or "",
+        "lane": job.get("automation_lane") or "operator_assisted",
+        "status": "running",
+        "redacted_log": redact_sensitive(start_log),
+    })
+
+    result = await run_adapter_operation(job, "preflight", dry_run=False)
+    result_payload = {
+        "status": result.status,
+        "message": result.message,
+        "evidence_path": result.evidence_path,
+        "raw_status": result.raw_status,
+        "metadata": result.metadata,
+    }
+    preflight = result.metadata.get("preflight") if isinstance(result.metadata, dict) else {}
+    blocking = bool((preflight or {}).get("blocking_issues"))
+    trusted_checkpoint = bool(result.metadata.get("trusted_access_checkpoint_required")) and not blocking
+    intervention = autopilot_intervention_payload(job, run_id, result_payload) if trusted_checkpoint else None
+    completed_status = "waiting_for_intervention" if intervention else ("blocked" if result.status == "operator_required" else result.status)
+    event_type = "autopilot_intervention_required" if intervention else ("autopilot_blocked" if completed_status == "blocked" else "autopilot_preflight_complete")
+    message = (
+        "Filing autopilot paused at a protected trusted-access checkpoint."
+        if intervention else result.message
+    )
+    completion_log = start_log + [{
+        "at": utc_now(),
+        "message": message,
+        "result": result_payload,
+        "intervention": intervention,
+    }]
+
+    ticket = None
+    if intervention and payload.notify_owner:
+        ticket = create_or_reuse_intervention_ticket(job, intervention)
+
+    conn = get_db()
+    conn.execute(
+        """
+        UPDATE automation_runs
+        SET status = ?, redacted_log = ?, updated_at = datetime('now')
+        WHERE id = ?
+        """,
+        (completed_status, json.dumps(redact_sensitive(completion_log)), run_id),
+    )
+    conn.execute(
+        """
+        INSERT INTO filing_events (filing_job_id, order_id, event_type, message, actor)
+        VALUES (?, ?, ?, ?, ?)
+        """,
+        (job_id, job.get("order_id", ""), event_type, message, actor),
+    )
+    if intervention:
+        conn.execute(
+            """
+            UPDATE filing_jobs
+            SET status = 'operator_required', evidence_summary = ?, updated_at = datetime('now')
+            WHERE id = ?
+            """,
+            (message, job_id),
+        )
+    conn.commit()
+    row = conn.execute("SELECT * FROM automation_runs WHERE id = ?", (run_id,)).fetchone()
+    conn.close()
+    execution_dual_write("update_automation_run", run_id, completed_status, redact_sensitive(completion_log))
+    execution_dual_write("insert_event", {
+        "filing_job_id": job_id,
+        "order_id": job.get("order_id", ""),
+        "event_type": event_type,
+        "message": message,
+        "actor": actor,
+        "redacted_payload": redact_sensitive(result_payload),
+    })
+    return {
+        "run": serialize_automation_run(row),
+        "result": redact_sensitive(result_payload),
+        "intervention": redact_sensitive(intervention) if intervention else None,
+        "ticket": redact_sensitive(ticket) if ticket else None,
+    }
+
+
+@app.post("/api/admin/automation-runs/{run_id}/resume")
+async def resume_filing_autopilot(run_id: str, payload: FilingAutopilotResumeRequest, request: Request):
+    """Record that an owner/admin checkpoint was cleared and make the same run resumable."""
+    verify_admin_access(request)
+    actor = normalize_operator(payload.actor)
+    conn = get_db()
+    run_row = conn.execute("SELECT * FROM automation_runs WHERE id = ?", (run_id,)).fetchone()
+    if not run_row:
+        conn.close()
+        raise HTTPException(status_code=404, detail="Automation run not found")
+    run = serialize_automation_run(run_row)
+    job_row = conn.execute("SELECT * FROM filing_jobs WHERE id = ?", (run.get("filing_job_id"),)).fetchone()
+    if not job_row:
+        conn.close()
+        raise HTTPException(status_code=404, detail="Filing job not found")
+    job = serialize_filing_job(job_row)
+    log = run["redacted_log"]
+    resume_entry = {
+        "at": utc_now(),
+        "message": "Trusted-access checkpoint was marked cleared by owner/admin.",
+        "actor": actor,
+        "checkpoint_note": payload.checkpoint_note,
+        "evidence_path": payload.evidence_path,
+        "next_status": "ready_to_resume",
+        "next_action": "Resume the Playwright filing worker from the same run; do not publish submitted status without official evidence.",
+    }
+    log.append(resume_entry)
+    conn.execute(
+        """
+        UPDATE automation_runs
+        SET status = 'ready_to_resume', redacted_log = ?, updated_at = datetime('now')
+        WHERE id = ?
+        """,
+        (json.dumps(redact_sensitive(log)), run_id),
+    )
+    conn.execute(
+        """
+        INSERT INTO filing_events (filing_job_id, order_id, event_type, message, actor, evidence_path)
+        VALUES (?, ?, 'autopilot_intervention_cleared', ?, ?, ?)
+        """,
+        (
+            job.get("id", ""),
+            job.get("order_id", ""),
+            "Trusted-access checkpoint cleared; autopilot run is ready to resume.",
+            actor,
+            payload.evidence_path,
+        ),
+    )
+    conn.commit()
+    updated = conn.execute("SELECT * FROM automation_runs WHERE id = ?", (run_id,)).fetchone()
+    conn.close()
+    execution_dual_write("update_automation_run", run_id, "ready_to_resume", redact_sensitive(log))
+    execution_dual_write("insert_event", {
+        "filing_job_id": job.get("id", ""),
+        "order_id": job.get("order_id", ""),
+        "event_type": "autopilot_intervention_cleared",
+        "message": "Trusted-access checkpoint cleared; autopilot run is ready to resume.",
+        "actor": actor,
+        "evidence_path": payload.evidence_path,
+    })
+    return {
+        "run": serialize_automation_run(updated),
+        "next_action": "Resume the Playwright filing worker from this run. Submission still requires official receipt evidence.",
+    }
 
 
 @app.post("/api/admin/filing-jobs/{job_id}/automation/run")
@@ -7797,6 +9258,7 @@ async def approve_slack_ticket(ticket_id: str, payload: SlackApprovalRequest, re
 @app.get("/api/admin/slack/tickets")
 async def list_slack_tickets(request: Request, status: str = "", priority: str = "", limit: int = 100):
     verify_admin_access(request)
+    sync_summary = sync_operator_filing_action_tickets(limit=500)
     clauses = []
     params = []
     if status:
@@ -7817,7 +9279,7 @@ async def list_slack_tickets(request: Request, status: str = "", priority: str =
         LIMIT ?
     """, params + [limit]).fetchall()
     conn.close()
-    return {"tickets": [redact_sensitive(dict(row)) for row in rows]}
+    return {"tickets": [redact_sensitive(dict(row)) for row in rows], "sync": sync_summary}
 
 
 @app.get("/api/admin/slack/config-status")
@@ -8600,6 +10062,8 @@ async def mark_annual_report_complete(job_id: str, evidence: FilingEvidenceReque
     """, (job_id, job["order_id"], message, evidence.file_path))
     conn.commit()
     conn.close()
+    if evidence.notify_customer:
+        schedule_customer_status_email(job["order_id"], "complete", message)
     execution_dual_write("upsert_filing_job", {**serialize_filing_job(job), "status": "complete"})
     execution_dual_write("insert_event", {
         "filing_job_id": job_id,
@@ -9279,6 +10743,11 @@ async def prepare_admin_ein_submission(order_id: str, payload: EinQueueActionReq
     )
     conn.commit()
     conn.close()
+    schedule_customer_status_email(
+        order_id,
+        "ein_ready_for_submission",
+        payload.message or "EIN queue passed IRS-hours and secure SSN readiness checks.",
+    )
     return {"status": "ready_for_browser_submission", "irs_availability": availability, "queue": redacted_ein_queue_summary(dict(order), queue)}
 
 
@@ -9323,6 +10792,11 @@ async def complete_admin_ein_queue(order_id: str, payload: EinCompletionRequest,
     save_ein_queue(order_id, queue)
     conn.commit()
     conn.close()
+    schedule_customer_status_email(
+        order_id,
+        "ein_received",
+        payload.message or "EIN confirmation document has been captured and added to your document vault.",
+    )
     return {"status": "ein_received", "ein_recorded": bool(normalized_ein), "document": filename}
 
 

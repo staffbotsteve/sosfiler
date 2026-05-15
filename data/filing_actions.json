@@ -1,4 +1,118 @@
 {
+  "CA": {
+    "Corp": {
+      "formation": {
+        "expedite_options": [
+          {
+            "label": "24-Hour Filing Service (Class C)",
+            "fee_cents": 35000,
+            "processing_time": "Filing response guaranteed within 24 hours, excluding weekends and holidays.",
+            "channel": "online_or_sacramento_dropoff",
+            "customer_selectable": true,
+            "combinable": false,
+            "source_url": "https://www.sos.ca.gov/business-programs/business-entities/service-options/"
+          },
+          {
+            "label": "Same Day Filing Service (Class B)",
+            "fee_cents": 75000,
+            "processing_time": "Filing response guaranteed by 4:00 p.m. the same day when received by 9:30 a.m.",
+            "channel": "online_or_sacramento_dropoff",
+            "customer_selectable": true,
+            "combinable": false,
+            "source_url": "https://www.sos.ca.gov/business-programs/business-entities/service-options/"
+          },
+          {
+            "label": "4-Hour Filing Service (Class A)",
+            "fee_cents": 50000,
+            "processing_time": "Filing response guaranteed within 4 hours for precleared documents.",
+            "channel": "sacramento_dropoff_only",
+            "customer_selectable": false,
+            "combinable": false,
+            "requires_preclearance": true,
+            "source_url": "https://www.sos.ca.gov/business-programs/business-entities/service-options/"
+          }
+        ],
+        "optional_state_fees": [
+          {
+            "label": "Drop-off special handling fee per filing request",
+            "amount_cents": 1500,
+            "channel": "sacramento_dropoff_only",
+            "customer_selectable": false,
+            "source_url": "https://www.sos.ca.gov/business-programs/business-entities/service-options/"
+          },
+          {
+            "label": "24-Hour preclearance service",
+            "amount_cents": 50000,
+            "channel": "sacramento_dropoff_only",
+            "customer_selectable": false,
+            "source_url": "https://www.sos.ca.gov/business-programs/business-entities/service-options/"
+          }
+        ],
+        "source_urls": [
+          "https://bpd.cdn.sos.ca.gov/pdf/be-fee-schedule-062018.pdf",
+          "https://www.sos.ca.gov/business-programs/business-entities/service-options/",
+          "https://www.sos.ca.gov/business-programs/business-entities/processing-dates",
+          "https://bizfile.sos.ca.gov"
+        ]
+      }
+    },
+    "LLC": {
+      "formation": {
+        "expedite_options": [
+          {
+            "label": "24-Hour Filing Service (Class C)",
+            "fee_cents": 35000,
+            "processing_time": "Filing response guaranteed within 24 hours, excluding weekends and holidays.",
+            "channel": "online_or_sacramento_dropoff",
+            "customer_selectable": true,
+            "combinable": false,
+            "source_url": "https://www.sos.ca.gov/business-programs/business-entities/service-options/"
+          },
+          {
+            "label": "Same Day Filing Service (Class B)",
+            "fee_cents": 75000,
+            "processing_time": "Filing response guaranteed by 4:00 p.m. the same day when received by 9:30 a.m.",
+            "channel": "online_or_sacramento_dropoff",
+            "customer_selectable": true,
+            "combinable": false,
+            "source_url": "https://www.sos.ca.gov/business-programs/business-entities/service-options/"
+          },
+          {
+            "label": "4-Hour Filing Service (Class A)",
+            "fee_cents": 50000,
+            "processing_time": "Filing response guaranteed within 4 hours for precleared documents.",
+            "channel": "sacramento_dropoff_only",
+            "customer_selectable": false,
+            "combinable": false,
+            "requires_preclearance": true,
+            "source_url": "https://www.sos.ca.gov/business-programs/business-entities/service-options/"
+          }
+        ],
+        "optional_state_fees": [
+          {
+            "label": "Drop-off special handling fee per filing request",
+            "amount_cents": 1500,
+            "channel": "sacramento_dropoff_only",
+            "customer_selectable": false,
+            "source_url": "https://www.sos.ca.gov/business-programs/business-entities/service-options/"
+          },
+          {
+            "label": "24-Hour preclearance service",
+            "amount_cents": 50000,
+            "channel": "sacramento_dropoff_only",
+            "customer_selectable": false,
+            "source_url": "https://www.sos.ca.gov/business-programs/business-entities/service-options/"
+          }
+        ],
+        "source_urls": [
+          "https://bpd.cdn.sos.ca.gov/pdf/be-fee-schedule-062018.pdf",
+          "https://www.sos.ca.gov/business-programs/business-entities/service-options/",
+          "https://www.sos.ca.gov/business-programs/business-entities/processing-dates",
+          "https://bizfile.sos.ca.gov"
+        ]
+      }
+    }
+  },
   "TX": {
     "LLC": {
       "formation": {

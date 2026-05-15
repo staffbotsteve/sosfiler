@@ -150,6 +150,31 @@ def filter_stale_technical_blockers(blockers: list[dict], production_readiness: 
     return filtered
 
 
+def expedite_options_for_route(action: dict | None, fee_record: dict | None) -> list[dict[str, Any]]:
+    options = deepcopy((action or {}).get("expedite_options") or [])
+    if options:
+        return options
+    if not action:
+        return []
+    expedited = (fee_record or {}).get("expedited")
+    if expedited is None:
+        return []
+    try:
+        fee_cents = int(round(float(expedited) * 100))
+    except (TypeError, ValueError):
+        return []
+    return [
+        {
+            "label": "Expedited processing",
+            "fee_cents": fee_cents,
+            "processing_time": "Expedited state processing when available",
+            "channel": "state_portal",
+            "customer_selectable": True,
+            "source_url": "",
+        }
+    ]
+
+
 def customer_status_for_lane(lane: str, difficulty: str) -> str:
     if lane in {"official_api", "partner_api", "browser_automation"}:
         return "automation_ready"
@@ -221,6 +246,7 @@ def build_state_route(
         "state_fee_cents": state_fee_cents,
         "deep_action_state_fee_cents": action_fee_cents,
         "processing_fee": (action or {}).get("processing_fee") or {"type": "none"},
+        "expedite_options": expedite_options_for_route(action, fee_record),
         "expected_processing_time": (action or {}).get("expected_processing_time") or "Varies by state and portal workload.",
         "required_consents": (action or {}).get("required_consents") or [
             "Customer authorization for SOSFiler to prepare and submit filing documents"

@@ -58,6 +58,19 @@ class StateRoutingTests(unittest.TestCase):
         codes = {blocker["code"] for blocker in route["blockers"]}
         self.assertIn("trusted_access_operator_checkpoint", codes)
 
+    def test_california_expedite_options_are_exposed(self):
+        route = self.route("CA")
+        fees = {option["fee_cents"] for option in route["expedite_options"]}
+        self.assertIn(35000, fees)
+        self.assertIn(75000, fees)
+        self.assertIn(50000, fees)
+        selectable_fees = {
+            option["fee_cents"]
+            for option in route["expedite_options"]
+            if option.get("customer_selectable")
+        }
+        self.assertEqual(selectable_fees, {35000, 75000})
+
     def test_medium_state_gets_profile_lane(self):
         route = self.route("AR")
         self.assertEqual(route["automation_difficulty"], "medium")

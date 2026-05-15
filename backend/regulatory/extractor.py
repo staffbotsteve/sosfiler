@@ -9,6 +9,7 @@ from .automation_classifier import classify_automation
 from .firecrawl_client import FirecrawlExtractResult, FirecrawlSource
 from .schemas import (
     EntityType,
+    ExpediteOption,
     FeeComponent,
     FilingCategory,
     FilingRecord,
@@ -87,6 +88,20 @@ FILING_EXTRACTION_SCHEMA: dict[str, Any] = {
                             "source_url": {"type": "string"},
                         },
                     },
+                    "expedite_options": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "label": {"type": "string"},
+                                "fee_cents": {"type": ["integer", "null"]},
+                                "processing_time": {"type": "string"},
+                                "channel": {"type": "string"},
+                                "customer_selectable": {"type": "boolean"},
+                                "source_url": {"type": "string"},
+                            },
+                        },
+                    },
                     "process_steps": {
                         "type": "array",
                         "items": {
@@ -149,9 +164,18 @@ def build_extraction_prompt(batch: dict[str, Any]) -> str:
         "Extract SOSFiler regulatory filing records from official government sources only. "
         "Do not use competitor sites as authority. For each filing, capture official fees, "
         "processing or card fees, expected turnaround, ordered process steps, submission channel, "
-        "status-check method, document outputs, and source citations. If a fee is variable, "
+        "status-check method, document outputs, customer-selectable options, and source citations. "
+        "Actively look for every mandatory, optional, conditional, and pass-through fee on fee schedules, "
+        "service-options pages, portal payment screens, filing instructions, and forms. This includes filing fees, "
+        "initial report or statement fees, publication fees, copy/certificate fees, card or ACH fees, portal fees, "
+        "special handling, preclearance, and expedite/rush/same-day/hourly processing. "
+        "Use fee_components only for required fees, processing_fee only for card/convenience/portal payment fees, "
+        "and expedite_options for optional expedited processing choices. Do not bury expedite fees only in notes. "
+        "If an official source says a filing cannot be expedited, state that in notes. If a fee is variable, "
         "store the official formula and set amount_cents to null. Store fixed amount_cents in cents, "
         "not dollars: $300 must be 30000, $35 must be 3500, and $5 must be 500. "
+        "For each expedite option, capture the label, fee_cents, processing_time, channel, whether the customer "
+        "can select it directly, and the official source URL. "
         "When automation requires a verified government portal account, trusted-access enrollment, "
         "or operator identity verification, mention that only in automation blockers or notes. "
         "If a portal supports an authorized filer, professional, or Trusted Access for Cyber-style "
@@ -257,6 +281,17 @@ def _fee_component(payload: dict[str, Any], default_code: str) -> FeeComponent:
         fee_type=payload.get("fee_type") or ("formula" if payload.get("formula") else "fixed"),
         formula=payload.get("formula") or "",
         required=payload.get("required", True),
+        source_url=payload.get("source_url") or "",
+    )
+
+
+def _expedite_option(payload: dict[str, Any]) -> ExpediteOption:
+    return ExpediteOption(
+        label=payload.get("label") or "Expedited processing",
+        fee_cents=payload.get("fee_cents"),
+        processing_time=payload.get("processing_time") or "",
+        channel=payload.get("channel") or "any",
+        customer_selectable=payload.get("customer_selectable", True) is not False,
         source_url=payload.get("source_url") or "",
     )
 
@@ -430,6 +465,14 @@ def _record_from_payload(batch: dict[str, Any], payload: dict[str, Any]) -> Fili
     processing_fee = _fee_component(processing_payload, "processing_fee") if isinstance(processing_payload, dict) else None
     if processing_fee and not processing_fee.source_url and default_fee_source:
         processing_fee.source_url = default_fee_source
+    expedite_options = [
+        _expedite_option(item)
+        for item in payload.get("expedite_options") or []
+        if isinstance(item, dict)
+    ]
+    for option in expedite_options:
+        if not option.source_url and default_fee_source:
+            option.source_url = default_fee_source
     process_steps = [
         _process_step(item, index)
         for index, item in enumerate(payload.get("process_steps") or [], start=1)
@@ -463,6 +506,7 @@ def _record_from_payload(batch: dict[str, Any], payload: dict[str, Any]) -> Fili
         expected_turnaround=payload.get("expected_turnaround") or "",
         fee_components=fee_components,
         processing_fee=processing_fee,
+        expedite_options=expedite_options,
         process_steps=process_steps,
         source_citations=citations,
         notes=payload.get("notes") or "",
@@ -542,6 +586,24 @@ def record_quality_issues(record: FilingRecord) -> list[str]:
                 issues.append(f"suspicious_high_dba_fee:{fee.code}")
         if fee.required and not fee.source_url and not fee.formula:
             issues.append(f"missing_fee_source:{fee.code}")
+    expedite_text = " ".join(
+        [
+            record.filing_name,
+            record.expected_turnaround,
+            record.notes,
+            " ".join(fee.label for fee in record.fee_components),
+            record.processing_fee.label if record.processing_fee else "",
+        ]
+    ).lower()
+    if "expedit" in expedite_text and not record.expedite_options and "no expedite" not in expedite_text:
+        issues.append("expedite_mentioned_without_structured_options")
+    for index, option in enumerate(record.expedite_options, start=1):
+        if option.fee_cents is None:
+            issues.append(f"missing_expedite_fee:{index}")
+        if not option.processing_time:
+            issues.append(f"missing_expedite_processing_time:{index}")
+        if not option.source_url:
+            issues.append(f"missing_expedite_source:{index}")
     if record.jurisdiction_id == "tx_state" and "articles of organization" in record.filing_name.lower():
         issues.append("texas_term_mismatch_articles_of_organization")
     return sorted(set(issues))

@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import re
 import sys
 import uuid
 from pathlib import Path
@@ -129,11 +130,25 @@ def run_batch(
     max_local_sources: int | None = None,
     local_source_offset: int = 0,
     local_source_urls: list[str] | None = None,
+    source_urls: list[str] | None = None,
 ) -> dict[str, Any]:
     max_local_sources = local_source_limit() if max_local_sources is None else max_local_sources
     local_discovery_artifact: dict[str, Any] | None = None
     local_candidate_count = 0
-    if batch.get("scope") == "local" and local_source_urls:
+    if source_urls:
+        urls = [url.strip().rstrip("/") for url in source_urls if url.strip()]
+        batch = {**batch, "extraction_urls": urls}
+        if batch.get("scope") == "local":
+            local_candidate_count = len(urls)
+            local_discovery_artifact = {
+                "batch_id": batch["batch_id"],
+                "captured_at": utc_now(),
+                "enable_web_discovery": False,
+                "candidate_count": local_candidate_count,
+                "source": "targeted_cli_urls",
+                "candidates": [{"official_url": url, "source_kind": "targeted_cli_url"} for url in urls],
+            }
+    elif batch.get("scope") == "local" and local_source_urls:
         urls = [url.strip().rstrip("/") for url in local_source_urls if url.strip()]
         local_candidate_count = len(urls)
         batch = {**batch, "extraction_urls": urls}
@@ -183,6 +198,7 @@ def run_batch(
             "local_candidate_count": local_candidate_count,
             "local_source_offset": local_source_offset,
             "local_source_urls": local_source_urls or [],
+            "source_urls": source_urls or [],
         }
 
     try:
@@ -236,6 +252,7 @@ def run_batch(
             "local_candidate_count": local_candidate_count,
             "local_source_offset": local_source_offset,
             "local_source_urls": local_source_urls or [],
+            "source_urls": source_urls or [],
             "local_discovery": local_discovery_artifact,
             "records": [record.filing_id for record in records],
             "verification_statuses": {record.filing_id: record.verification_status.value for record in records},
@@ -266,6 +283,7 @@ def run_research(
     max_local_sources: int | None = None,
     local_source_offset: int = 0,
     local_source_urls: list[str] | None = None,
+    source_urls: list[str] | None = None,
 ) -> dict[str, Any]:
     batches = _selected_batches(phase=phase, limit=limit, all_batches=all_batches, batch_id=batch_id)
     provider = active_extraction_provider()
@@ -295,6 +313,7 @@ def run_research(
                 max_local_sources=max_local_sources,
                 local_source_offset=local_source_offset,
                 local_source_urls=local_source_urls,
+                source_urls=source_urls,
             )
         )
     run["finished_at"] = utc_now()
@@ -443,6 +462,59 @@ def validate_records() -> dict[str, Any]:
     }
 
 
+FEE_AUDIT_EXPEDITE_PATTERN = re.compile(r"expedit|rush|same[- ]day|24[- ]hour|2[- ]hour|1[- ]hour", re.I)
+
+
+def fee_audit_report(state: str | None = None, limit: int = 50) -> dict[str, Any]:
+    records = load_filing_records()
+    state_prefix = f"{state.strip().lower()}_" if state else ""
+    findings: list[dict[str, Any]] = []
+    counts_by_jurisdiction: dict[str, int] = {}
+    for record in records:
+        jurisdiction_id = str(record.get("jurisdiction_id") or "")
+        if state_prefix and not jurisdiction_id.lower().startswith(state_prefix):
+            continue
+        fee_text = " ".join(
+            " ".join(str(fee.get(field, "")) for field in ["code", "label", "formula", "source_url"])
+            for fee in record.get("fee_components") or []
+            if isinstance(fee, dict)
+        )
+        processing_fee = record.get("processing_fee") if isinstance(record.get("processing_fee"), dict) else {}
+        text = " ".join(
+            [
+                str(record.get("filing_id", "")),
+                str(record.get("filing_name", "")),
+                str(record.get("expected_turnaround", "")),
+                str(record.get("notes", "")),
+                fee_text,
+                " ".join(str(processing_fee.get(field, "")) for field in ["code", "label", "formula", "source_url"]),
+            ]
+        )
+        issues: list[str] = []
+        if FEE_AUDIT_EXPEDITE_PATTERN.search(text) and not record.get("expedite_options"):
+            issues.append("expedite_mentioned_without_structured_options")
+        if issues:
+            counts_by_jurisdiction[jurisdiction_id] = counts_by_jurisdiction.get(jurisdiction_id, 0) + 1
+            if len(findings) < limit:
+                findings.append({
+                    "filing_id": record.get("filing_id"),
+                    "jurisdiction_id": jurisdiction_id,
+                    "filing_name": record.get("filing_name"),
+                    "issues": issues,
+                    "source_urls": [
+                        citation.get("url")
+                        for citation in record.get("source_citations") or []
+                        if isinstance(citation, dict) and citation.get("url")
+                    ][:3],
+                })
+    return {
+        "record_count": len(records),
+        "finding_count": sum(counts_by_jurisdiction.values()),
+        "counts_by_jurisdiction": dict(sorted(counts_by_jurisdiction.items(), key=lambda item: item[1], reverse=True)),
+        "findings": findings,
+    }
+
+
 def unlock_next_phase() -> dict[str, Any]:
     return activate_phase(REMAINING_PHASE)
 
@@ -479,10 +551,19 @@ def main(argv: list[str] | None = None) -> int:
     run_parser.add_argument("--local-source-limit", type=int)
     run_parser.add_argument("--local-source-offset", type=int, default=0)
     run_parser.add_argument("--local-source-url", action="append", default=[])
+    run_parser.add_argument(
+        "--source-url",
+        action="append",
+        default=[],
+        help="Override extraction URLs for any batch. Useful for targeted official fee-service pages.",
+    )
 
     subparsers.add_parser("status", help="Show research runner status.")
     subparsers.add_parser("unlock-next-phase", help="Activate remaining_40_plus_dc after top-ten completion.")
     subparsers.add_parser("validate-records", help="Validate extracted filing records.")
+    fee_audit_parser = subparsers.add_parser("fee-audit", help="Find likely fee coverage gaps in extracted records.")
+    fee_audit_parser.add_argument("--state")
+    fee_audit_parser.add_argument("--limit", type=int, default=50)
     subparsers.add_parser("backfill-reminders", help="Add default reminder rules to existing recurring records.")
     subparsers.add_parser("backfill-output-documents", help="Add generic output document labels where extraction omitted them.")
     subparsers.add_parser("prune-reminders", help="Remove default reminder rules from non-recurring records.")
@@ -519,6 +600,7 @@ def main(argv: list[str] | None = None) -> int:
                 max_local_sources=args.local_source_limit,
                 local_source_offset=args.local_source_offset,
                 local_source_urls=_split_urls(args.local_source_url),
+                source_urls=_split_urls(args.source_url),
             ),
             indent=2,
             sort_keys=True,
@@ -532,6 +614,9 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     if args.command == "validate-records":
         print(json.dumps(validate_records(), indent=2, sort_keys=True))
+        return 0
+    if args.command == "fee-audit":
+        print(json.dumps(fee_audit_report(state=args.state, limit=args.limit), indent=2, sort_keys=True))
         return 0
     if args.command == "backfill-reminders":
         print(json.dumps(backfill_reminder_rules(), indent=2, sort_keys=True))

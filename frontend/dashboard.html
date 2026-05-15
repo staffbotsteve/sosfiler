@@ -120,6 +120,15 @@ a:hover { color: var(--accent); text-decoration: none; }
 .divider { display: flex; align-items: center; text-align: center; margin: 20px 0; color: var(--muted); }
 .divider::before, .divider::after { content: ''; flex: 1; border-bottom: 1px solid var(--border); }
 .divider span { padding: 0 10px; font-size: 13px; }
+.auth-form { text-align: left; }
+.auth-form .btn { margin-top: 4px; }
+.auth-links { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px 16px; margin-top: 16px; font-size: 13px; }
+.auth-links a { color: var(--cyan); }
+.auth-links a:hover { color: var(--accent); }
+.auth-message { min-height: 18px; margin-top: 12px; color: var(--muted); font-size: 13px; line-height: 1.4; text-align: center; }
+.auth-message.error { color: var(--red); }
+.auth-note { color: var(--muted); font-size: 12px; margin-top: 18px !important; margin-bottom: 0 !important; }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
 .btn {
   padding: 14px 32px;
   border-radius: 8px;
@@ -159,7 +168,7 @@ a:hover { color: var(--accent); text-decoration: none; }
 .header-card .biz-meta { color: var(--muted); font-size: 14px; margin-top: 4px; }
 .status-badge { display: inline-block; padding: 6px 16px; border-radius: 20px; font-size: 13px; font-weight: 600; }
 .status-pending_payment { background: rgba(255,107,0,0.15); color: var(--yellow); }
-.status-paid, .status-preparing, .status-generating_documents, .status-ready_to_file, .status-annual_report_packet_prepared { background: rgba(204,255,0,0.1); color: var(--accent); }
+.status-paid, .status-payment_captured, .status-preparing, .status-generating_documents, .status-ready_to_file, .status-annual_report_packet_prepared { background: rgba(204,255,0,0.1); color: var(--accent); }
 .status-filing, .status-processing, .status-submitted, .status-submitted_to_state, .status-awaiting_state, .status-pending_government_review, .status-pending_state_review, .status-received_needs_sosdirect_check, .status-operator_required { background: rgba(204,255,0,0.1); color: var(--accent); }
 .status-approved, .status-state_approved, .status-complete { background: rgba(57,255,20,0.15); color: var(--green); }
 .status-error, .status-failed { background: rgba(255,51,102,0.15); color: var(--red); }
@@ -333,42 +342,23 @@ a:hover { color: var(--accent); text-decoration: none; }
   <nav>
     <a href="index.html">Home</a>
     <a href="#" class="active">Dashboard</a>
-    <a href="app.html">New filing</a>
+    <a href="app.html?new=1">New filing</a>
     <a href="licenses.html">Licenses</a>
-    <a href="operator.html">Admin</a>
+    <a href="operator.html" id="operatorAdminLink" style="display:none;">Admin</a>
   </nav>
 </div>
 
 <!-- Login Gate -->
 <div id="loginGate">
   <div class="login-card">
-    <h2>Dashboard</h2>
-    <p>Sign in to see all companies linked to your account.</p>
+    <h2 id="accountAuthTitle">Customer Portal</h2>
+    <p id="accountAuthCopy">Sign in with Google to see companies linked to your account.</p>
     <div class="auth-providers">
-      <button class="auth-btn google-btn" onclick="triggerGoogleAuth()">
+      <button class="auth-btn google-btn" type="button" onclick="triggerGoogleAuth()">
         Continue with Google
       </button>
-      <button class="auth-btn apple-btn" onclick="triggerAppleAuth()">
-        Continue with Apple
-      </button>
-      <button class="auth-btn facebook-btn" onclick="triggerFacebookAuth()">
-        Continue with Facebook
-      </button>
     </div>
-    <div class="divider"><span>OR</span></div>
-    <input type="email" id="accountEmail" placeholder="Email address">
-    <input type="password" id="accountPassword" placeholder="Password">
-    <button class="btn" onclick="accountLogin()">Sign In</button>
-    <p style="color: var(--muted); font-size: 12px; margin: 12px 0 20px;">
-      <a href="#" onclick="showRecovery('password');return false;">Forgot password?</a> ·
-      <a href="#" onclick="showRecovery('token');return false;">Recover order token</a>
-    </p>
-    <div style="height:1px;background:var(--border);margin:20px 0;"></div>
-    <p>Or enter an order ID and token to view one company.</p>
-    <input type="text" id="loginOrderId" placeholder="Order ID (e.g., TX-ABC123DEF456)">
-    <input type="text" id="loginToken" placeholder="Order token (from your email)">
-    <button class="btn" onclick="login()">View Dashboard</button>
-    <p style="color: var(--muted); font-size: 12px; margin-top: 16px;">Check your email for your order ID and token.</p>
+    <p class="auth-note">Use the same Google email from your order. Private order links in confirmation emails still open directly.</p>
   </div>
 </div>
 
@@ -405,7 +395,7 @@ a:hover { color: var(--accent); text-decoration: none; }
     <div class="card full">
       <div class="company-toolbar">
         <h3 style="margin:0;">Companies</h3>
-        <a href="/app.html" class="download-btn" style="text-decoration:none;">Start New Formation</a>
+        <a href="/app.html?new=1" class="download-btn" style="text-decoration:none;">Start New Formation</a>
       </div>
       <div id="companyList"><div class="loading"><div class="spinner"></div></div></div>
     </div>
@@ -426,6 +416,11 @@ a:hover { color: var(--accent); text-decoration: none; }
     </div>
 
     <div class="action-banner" id="actionBanner"></div>
+
+    <div class="card full" id="portalAccessCard" style="margin-bottom:20px;">
+      <h3>Portal Access</h3>
+      <div id="portalAccess"></div>
+    </div>
 
     <div class="grid">
 
@@ -553,9 +548,12 @@ let currentOrderData = null;
 let accountMode = false;
 let refreshTimer = null;
 let recoveryMode = 'password';
+let accountAuthMode = 'login';
+let savedDashboardOrders = [];
 let resetToken = '';
 const stateNames = {"AL":"Alabama","AK":"Alaska","AZ":"Arizona","AR":"Arkansas","CA":"California","CO":"Colorado","CT":"Connecticut","DE":"Delaware","DC":"District of Columbia","FL":"Florida","GA":"Georgia","HI":"Hawaii","ID":"Idaho","IL":"Illinois","IN":"Indiana","IA":"Iowa","KS":"Kansas","KY":"Kentucky","LA":"Louisiana","ME":"Maine","MD":"Maryland","MA":"Massachusetts","MI":"Michigan","MN":"Minnesota","MS":"Mississippi","MO":"Missouri","MT":"Montana","NE":"Nebraska","NV":"Nevada","NH":"New Hampshire","NJ":"New Jersey","NM":"New Mexico","NY":"New York","NC":"North Carolina","ND":"North Dakota","OH":"Ohio","OK":"Oklahoma","OR":"Oregon","PA":"Pennsylvania","RI":"Rhode Island","SC":"South Carolina","SD":"South Dakota","TN":"Tennessee","TX":"Texas","UT":"Utah","VT":"Vermont","VA":"Virginia","WA":"Washington","WV":"West Virginia","WI":"Wisconsin","WY":"Wyoming"};
 const PUBLIC_SITE_ORIGIN = 'https://sosfiler.com';
+const OPERATOR_EMAILS = new Set(['sactoswan@gmail.com', 'admin@sosfiler.com']);
 
 function apiUrl(path) {
   return `${window.location.protocol === 'file:' ? PUBLIC_SITE_ORIGIN : ''}${path}`;
@@ -577,6 +575,21 @@ function rewritePublicLinksForFile() {
   document.querySelectorAll('a[href^="/"]').forEach(anchor => {
     anchor.href = `${PUBLIC_SITE_ORIGIN}${anchor.getAttribute('href')}`;
   });
+}
+
+function signedInUser() {
+  try {
+    return JSON.parse(localStorage.getItem('sosfiler_user') || '{}') || {};
+  } catch (e) {
+    return {};
+  }
+}
+
+function setOperatorAdminLink(user) {
+  const link = document.getElementById('operatorAdminLink');
+  if (!link) return;
+  const email = (user?.email || '').trim().toLowerCase();
+  link.style.display = (user?.is_admin || OPERATOR_EMAILS.has(email)) ? '' : 'none';
 }
 
 function operatorUrl() {
@@ -607,6 +620,63 @@ function authHeaders() {
   return authToken ? { 'Authorization': `Bearer ${authToken}` } : {};
 }
 
+function escapeHtml(value) {
+  return String(value || '').replace(/[&<>"']/g, char => ({
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#039;'
+  }[char]));
+}
+
+function savedCheckoutOrders() {
+  try {
+    const orders = JSON.parse(localStorage.getItem('sosfiler_orders') || '[]');
+    return Array.isArray(orders) ? orders.filter(order => (order.order_id || order.id) && order.token) : [];
+  } catch (e) {
+    return [];
+  }
+}
+
+function showSavedCheckoutDashboard() {
+  const orders = savedCheckoutOrders();
+  if (!orders.length) return false;
+  savedDashboardOrders = orders;
+  if (orders.length === 1) {
+    openSavedCompany(0);
+    return true;
+  }
+  if (refreshTimer) clearInterval(refreshTimer);
+  accountMode = false;
+  orderId = '';
+  token = '';
+  document.getElementById('loginGate').style.display = 'none';
+  document.getElementById('recoveryGate').style.display = 'none';
+  document.getElementById('resetGate').style.display = 'none';
+  document.getElementById('dashboard').classList.remove('active');
+  document.getElementById('companyListView').classList.add('active');
+  const el = document.getElementById('companyList');
+  el.innerHTML = `<div class="company-list">${orders.map((order, index) => `
+    <button class="company-card" onclick="openSavedCompany(${index})">
+      <div class="name">${escapeHtml(order.business_name || 'Company')}</div>
+      <div class="meta">${escapeHtml(order.entity_type || 'LLC')} · ${escapeHtml(stateNames[order.state] || order.state || '')}</div>
+      <div class="meta">Order ${escapeHtml(order.order_id || order.id)}</div>
+    </button>`).join('')}</div>`;
+  return true;
+}
+
+function openSavedCompany(index) {
+  const order = savedDashboardOrders[index] || savedCheckoutOrders()[index];
+  if (!order) return false;
+  accountMode = false;
+  orderId = order.order_id || order.id || '';
+  token = order.token || '';
+  if (!orderId || !token) return false;
+  showDashboard();
+  return true;
+}
+
 // Check URL params
 function checkUrlParams() {
   const params = new URLSearchParams(window.location.search);
@@ -621,6 +691,9 @@ function checkUrlParams() {
     document.getElementById('resetGate').style.display = '';
     return true;
   }
+  if (params.get('cart_id') && showSavedCheckoutDashboard()) {
+    return true;
+  }
   const oid = params.get('order_id');
   const tok = params.get('token');
   if (oid && tok) {
@@ -632,6 +705,7 @@ function checkUrlParams() {
   }
 
   if (localStorage.getItem('sosfiler_token')) {
+    setOperatorAdminLink(signedInUser());
     if (postAuthRedirect === 'operator' && maybeRedirectAfterAuth()) return true;
     showCompanyList();
     return true;
@@ -652,40 +726,98 @@ function checkUrlParams() {
   return false;
 }
 
-function login() {
-  orderId = document.getElementById('loginOrderId').value.trim();
-  token = document.getElementById('loginToken').value.trim();
-  if (!orderId || !token) { alert('Please enter both Order ID and Token.'); return; }
-  localStorage.setItem('sosfiler_order', JSON.stringify({ order_id: orderId, token: token }));
-  accountMode = false;
-  showDashboard();
-}
-
-async function accountLogin() {
-  const email = document.getElementById('accountEmail').value.trim();
-  const password = document.getElementById('accountPassword').value;
-  if (!email || !password) { alert('Please enter your email and password.'); return; }
-  const res = await fetch(apiUrl('/api/auth/login'), {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email, password })
-  });
-  const data = await res.json();
-  if (!res.ok) {
-    alert(data.detail || 'Could not sign in.');
-    return;
-  }
-  localStorage.setItem('sosfiler_token', data.token);
-  localStorage.setItem('sosfiler_user', JSON.stringify(data.user));
-  if (maybeRedirectAfterAuth()) return;
-  showCompanyList();
-}
-
 function onAuthSuccess(authToken, user) {
   localStorage.setItem('sosfiler_token', authToken);
   localStorage.setItem('sosfiler_user', JSON.stringify(user || {}));
+  setAccountAuthMessage('');
+  setOperatorAdminLink(user || {});
   if (maybeRedirectAfterAuth()) return;
   showCompanyList();
+}
+
+function currentAccountEmail() {
+  const emailInput = document.getElementById('accountEmail');
+  return emailInput ? emailInput.value.trim() : '';
+}
+
+function setAccountAuthMessage(message, isError = false) {
+  const el = document.getElementById('accountAuthResult');
+  if (!el) return;
+  el.textContent = message || '';
+  el.classList.toggle('error', Boolean(isError));
+}
+
+function setAccountAuthMode(mode) {
+  accountAuthMode = mode === 'signup' ? 'signup' : 'login';
+  const isSignup = accountAuthMode === 'signup';
+  const title = document.getElementById('accountAuthTitle');
+  const copy = document.getElementById('accountAuthCopy');
+  const name = document.getElementById('accountName');
+  const password = document.getElementById('accountPassword');
+  const button = document.getElementById('accountAuthButton');
+  const toggle = document.getElementById('accountModeToggle');
+  if (title) title.textContent = isSignup ? 'Create Customer Login' : 'Returning Customer Login';
+  if (copy) copy.textContent = isSignup
+    ? 'Create a login with your checkout email to see your companies.'
+    : 'Sign in to see every company linked to your account.';
+  if (name) {
+    name.style.display = isSignup ? '' : 'none';
+    name.required = isSignup;
+  }
+  if (password) password.autocomplete = isSignup ? 'new-password' : 'current-password';
+  if (button) button.textContent = isSignup ? 'Create Account' : 'Sign In';
+  if (toggle) toggle.textContent = isSignup ? 'Already have an account?' : 'Create an account';
+  setAccountAuthMessage('');
+}
+
+function toggleAccountAuthMode(event) {
+  if (event) event.preventDefault();
+  setAccountAuthMode(accountAuthMode === 'login' ? 'signup' : 'login');
+  return false;
+}
+
+async function accountAuth(event) {
+  if (event) event.preventDefault();
+  const email = currentAccountEmail();
+  const password = (document.getElementById('accountPassword')?.value || '').trim();
+  const name = (document.getElementById('accountName')?.value || '').trim();
+  const button = document.getElementById('accountAuthButton');
+  if (!email || !password) {
+    setAccountAuthMessage('Enter your email and password.', true);
+    return false;
+  }
+  if (accountAuthMode === 'signup' && password.length < 8) {
+    setAccountAuthMessage('Password must be at least 8 characters.', true);
+    return false;
+  }
+  if (button) {
+    button.disabled = true;
+    button.textContent = accountAuthMode === 'signup' ? 'Creating...' : 'Signing in...';
+  }
+  setAccountAuthMessage('');
+  try {
+    const endpoint = accountAuthMode === 'signup' ? '/api/auth/signup' : '/api/auth/login';
+    const payload = accountAuthMode === 'signup' ? { email, password, name } : { email, password };
+    const res = await fetch(apiUrl(endpoint), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok || !data.token) {
+      setAccountAuthMessage(data.detail || 'Could not sign in. Check your email and password.', true);
+      return false;
+    }
+    onAuthSuccess(data.token, data.user);
+  } catch (err) {
+    setAccountAuthMessage('Connection error. Please try again.', true);
+  } finally {
+    if (button) {
+      button.disabled = false;
+      button.textContent = accountAuthMode === 'signup' ? 'Create Account' : 'Sign In';
+    }
+  }
+  return false;
 }
 
 const GOOGLE_CLIENT_ID = '137294630475-e1o2o3ddpud3jkt12d7hrvul1uuaj1jb.apps.googleusercontent.com';
@@ -879,7 +1011,7 @@ function showRecovery(mode) {
   document.getElementById('loginGate').style.display = 'none';
   document.getElementById('recoveryGate').style.display = '';
   document.getElementById('recoveryResult').textContent = '';
-  document.getElementById('recoveryEmail').value = document.getElementById('accountEmail').value.trim();
+  document.getElementById('recoveryEmail').value = currentAccountEmail();
   if (mode === 'token') {
     document.getElementById('recoveryTitle').textContent = 'Recover Order Tokens';
     document.getElementById('recoveryCopy').textContent = 'We will email dashboard links for every company tied to this email.';
@@ -1001,7 +1133,7 @@ async function showCompanyList() {
   try {
     const res = await fetch(apiUrl('/api/user/orders'), { headers: authHeaders() });
     if (!res.ok) {
-      el.innerHTML = '<div class="empty">Sign in from the formation app to see your companies, or use an order ID and token.</div>';
+      el.innerHTML = '<div class="empty">Sign in or create an account with your checkout email to see linked companies.</div>';
       document.getElementById('loginGate').style.display = '';
       return;
     }
@@ -1059,11 +1191,12 @@ function renderDashboard(data) {
   const statusLabels = {
     'pending_payment': 'Awaiting Payment',
     'payment_authorized': 'Payment Authorized',
+    'payment_captured': 'Payment Captured',
     'paid': 'Paid',
     'preparing': 'Preparing Filing Packet',
     'generating_documents': 'Generating Documents',
     'ready_to_file': 'Ready for State Filing',
-    'operator_required': 'Operator Verification Required',
+    'operator_required': 'State Portal Checkpoint',
     'registered_agent_processing': 'Registered Agent Assignment In Progress',
     'registered_agent_assigned': 'Registered Agent Assigned',
     'annual_report_packet_prepared': 'Annual Report Packet Ready',
@@ -1086,6 +1219,7 @@ function renderDashboard(data) {
   statusEl.textContent = statusLabels[data.status] || data.status;
   statusEl.className = `status-badge status-${data.status}`;
   renderActionBanner(data);
+  renderPortalAccess(data);
 
   // Timeline
   const timeline = data.timeline || [];
@@ -1150,6 +1284,20 @@ function renderDashboard(data) {
 
   // Checklist
   renderChecklist(data);
+}
+
+function renderPortalAccess(data) {
+  const el = document.getElementById('portalAccess');
+  if (!el) return;
+  const customerPortalUrl = publicReturnUrl('/dashboard.html');
+  const job = data.filing_job || {};
+  const statePortal = job.portal_url || '';
+  el.innerHTML = `
+    <div class="info-row"><span class="label">Customer Portal URL</span><span class="value"><a href="${customerPortalUrl}">${customerPortalUrl}</a></span></div>
+    <div class="info-row"><span class="label">Customer Login</span><span class="value">Sign in with email/password or Google using the checkout email. Private order links from confirmation emails still open a specific order directly.</span></div>
+    <div class="info-row"><span class="label">Order ID</span><span class="value">${data.order_id}</span></div>
+    <div class="info-row"><span class="label">Official Filing Portal</span><span class="value">${statePortal ? `<a href="${statePortal}" target="_blank" rel="noopener">${job.portal_name || statePortal}</a>` : 'Pending route assignment'}</span></div>
+    <div style="font-size:12px;color:var(--muted);line-height:1.5;margin-top:8px;">SOSFiler uses the official filing portal through an authorized operator workflow. You do not need to create a state portal account for this order unless support specifically asks you to.</div>`;
 }
 
 function routeLabel(value) {
@@ -1501,7 +1649,7 @@ function renderChecklist(data) {
     const approvedStatuses = ['approved','state_approved','complete'];
     const label = serviceOrderLabel(data);
     const items = [
-      { done: ['payment_authorized','paid','ready_to_file',...filedStatuses].includes(data.status), text: `Pay for ${label}` },
+      { done: ['payment_authorized','payment_captured','paid','ready_to_file',...filedStatuses].includes(data.status), text: `Pay for ${label}` },
       { done: ['ready_to_file',...filedStatuses].includes(data.status), text: 'SOSFiler prepares operator filing packet' },
       { done: filedStatuses.includes(data.status), text: `Submit ${label} with ${stateNames[state] || state}` },
       { done: approvedStatuses.includes(data.status), text: 'Receive official completion evidence' },
@@ -1513,7 +1661,7 @@ function renderChecklist(data) {
       </li>`).join('');
     return;
   }
-  const paidStatuses = ['payment_authorized','paid','preparing','generating_documents','ready_to_file','submitted_to_state','awaiting_state','pending_state_review','received_needs_sosdirect_check','state_approved','ein_pending','ein_received','complete','approved'];
+  const paidStatuses = ['payment_authorized','payment_captured','paid','preparing','generating_documents','ready_to_file','submitted_to_state','awaiting_state','pending_state_review','received_needs_sosdirect_check','state_approved','ein_pending','ein_received','complete','approved'];
   const docsStatuses = ['ready_to_file','submitted','submitted_to_state','awaiting_state','pending_government_review','pending_state_review','received_needs_sosdirect_check','approved','state_approved','ein_pending','ein_received','complete'];
   const filedStatuses = ['submitted','submitted_to_state','awaiting_state','pending_government_review','pending_state_review','received_needs_sosdirect_check','approved','state_approved','ein_pending','ein_received','complete'];
   const approvedStatuses = ['approved','state_approved','ein_pending','ein_received','complete'];
@@ -1839,6 +1987,7 @@ async function checkSpecificLicense(typeId) {
 
 // Init
 rewritePublicLinksForFile();
+setOperatorAdminLink(signedInUser());
 checkAppleRedirect() || checkFacebookRedirect() || checkGoogleRedirect() || checkUrlParams();
 </script>
 <script src="https://sosfiler.com/chat-widget.js"></script>

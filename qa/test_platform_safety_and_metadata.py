@@ -121,6 +121,48 @@ class PlatformSafetyAndMetadataTests(unittest.TestCase):
         conn.close()
         return dict(row)
 
+    def create_ca_formation_order(self, *, status="paid"):
+        order_id = "ORD-SAFETY-CA"
+        formation_data = {
+            "business_name": "California Autopilot LLC",
+            "state": "CA",
+            "entity_type": "LLC",
+            "principal_address": "100 Market St",
+            "principal_city": "San Francisco",
+            "principal_state": "CA",
+            "principal_zip": "94105",
+            "ra_choice": "self",
+            "ra_name": "Casey Agent",
+            "ra_address": "100 Market St",
+            "ra_city": "San Francisco",
+            "ra_state": "CA",
+            "ra_zip": "94105",
+            "members": [{
+                "name": "Casey Owner",
+                "address": "100 Market St",
+                "city": "San Francisco",
+                "state": "CA",
+                "zip_code": "94105",
+            }],
+        }
+        conn = server.get_db()
+        conn.execute(
+            """
+            INSERT INTO orders (
+                id, email, token, status, entity_type, state, business_name,
+                formation_data, state_fee_cents, gov_processing_fee_cents,
+                platform_fee_cents, total_cents, paid_at
+            )
+            VALUES (?, 'ca-autopilot@sosfiler.com', 'tok-ca', ?, 'LLC', 'CA', 'California Autopilot LLC',
+                    ?, 9000, 0, 2900, 11900, datetime('now'))
+            """,
+            (order_id, status, server.json.dumps(formation_data)),
+        )
+        row = conn.execute("SELECT * FROM orders WHERE id = ?", (order_id,)).fetchone()
+        conn.commit()
+        conn.close()
+        return dict(row)
+
     def test_shared_order_api_uses_requested_state_prefix(self):
         formation = {
             "email": "qa+co-prefix@sosfiler.com",
@@ -176,6 +218,89 @@ class PlatformSafetyAndMetadataTests(unittest.TestCase):
         self.assertIn("portal_url", tx)
         self.assertIn("evidence_requirements", tx)
         self.assertIn("automation_readiness", tx)
+
+    def test_california_autopilot_pauses_with_traceable_intervention(self):
+        order = self.create_ca_formation_order(status="paid")
+        job = server.create_or_update_filing_job(order, "formation", "ready_to_file")
+        conn = server.get_db()
+        conn.execute(
+            """
+            INSERT INTO documents (order_id, doc_type, filename, file_path, format, category, visibility)
+            VALUES (?, 'filing_authorization', 'authorization.pdf', '/tmp/authorization.pdf', 'pdf', 'authorization', 'customer')
+            """,
+            (order["id"],),
+        )
+        conn.commit()
+        conn.close()
+
+        started = self.client.post(
+            f"/api/admin/filing-jobs/{job['id']}/autopilot/start",
+            headers=self.headers,
+            json={"actor": "steven", "notify_owner": True},
+        )
+
+        self.assertEqual(started.status_code, 200, started.text)
+        payload = started.json()
+        self.assertEqual(payload["run"]["status"], "waiting_for_intervention")
+        self.assertEqual(payload["intervention"]["intervention_type"], "trusted_access_checkpoint")
+        self.assertIn("/resume", payload["intervention"]["resume_endpoint"])
+        self.assertEqual(payload["ticket"]["ticket_type"], "filing_intervention")
+
+        queue = self.client.get("/api/admin/filing-interventions", headers=self.headers)
+        self.assertEqual(queue.status_code, 200, queue.text)
+        self.assertEqual(queue.json()["interventions"][0]["id"], payload["run"]["id"])
+
+        conn = server.get_db()
+        event_types = [
+            row["event_type"]
+            for row in conn.execute(
+                "SELECT event_type FROM filing_events WHERE order_id = ? ORDER BY created_at",
+                (order["id"],),
+            ).fetchall()
+        ]
+        conn.close()
+        self.assertIn("autopilot_started", event_types)
+        self.assertIn("autopilot_intervention_required", event_types)
+
+    def test_autopilot_resume_records_checkpoint_without_submission(self):
+        order = self.create_ca_formation_order(status="paid")
+        job = server.create_or_update_filing_job(order, "formation", "ready_to_file")
+        conn = server.get_db()
+        conn.execute(
+            """
+            INSERT INTO automation_runs (id, filing_job_id, order_id, adapter_key, lane, status, redacted_log)
+            VALUES ('AUTO-CA-RESUME', ?, ?, 'ca_formation_operator_assisted_browser_provider',
+                    'operator_assisted_browser_provider', 'waiting_for_intervention', '[]')
+            """,
+            (job["id"], order["id"]),
+        )
+        conn.commit()
+        conn.close()
+
+        resumed = self.client.post(
+            "/api/admin/automation-runs/AUTO-CA-RESUME/resume",
+            headers=self.headers,
+            json={"actor": "steven", "checkpoint_note": "Verified browser session is ready."},
+        )
+
+        self.assertEqual(resumed.status_code, 200, resumed.text)
+        self.assertEqual(resumed.json()["run"]["status"], "ready_to_resume")
+        self.assertIn("official receipt evidence", resumed.json()["next_action"])
+
+        conn = server.get_db()
+        run_status = conn.execute("SELECT status FROM automation_runs WHERE id = 'AUTO-CA-RESUME'").fetchone()[0]
+        submitted_events = conn.execute(
+            "SELECT count(*) FROM filing_events WHERE order_id = ? AND event_type IN ('submitted', 'submitted_to_state')",
+            (order["id"],),
+        ).fetchone()[0]
+        checkpoint_event = conn.execute(
+            "SELECT count(*) FROM filing_events WHERE order_id = ? AND event_type = 'autopilot_intervention_cleared'",
+            (order["id"],),
+        ).fetchone()[0]
+        conn.close()
+        self.assertEqual(run_status, "ready_to_resume")
+        self.assertEqual(submitted_events, 0)
+        self.assertEqual(checkpoint_event, 1)
 
     def test_formation_submission_blocks_missing_ra_assignment_then_allows_after_evidence(self):
         order = self.create_formation_order(ra_choice="sosfiler", status="paid")
@@ -762,6 +887,44 @@ class PlatformSafetyAndMetadataTests(unittest.TestCase):
         count = conn.execute("SELECT count(*) FROM support_tickets WHERE session_id = 'chat-ticket'").fetchone()[0]
         conn.close()
         self.assertEqual(count, 1)
+
+    def test_quote_exposes_and_validates_california_expedite_options(self):
+        valid = self.client.post(
+            "/api/quote",
+            json={
+                "product_type": "formation",
+                "entity_type": "LLC",
+                "state": "CA",
+                "expedite_fee_cents": 35000,
+            },
+        )
+        self.assertEqual(valid.status_code, 200, valid.text)
+        line_items = {item["code"]: item["amount_cents"] for item in valid.json()["line_items"]}
+        self.assertEqual(line_items["expedite"], 35000)
+        self.assertEqual(valid.json()["selected_expedite_option"]["fee_cents"], 35000)
+        self.assertTrue(valid.json()["expedite_options"])
+
+        invalid = self.client.post(
+            "/api/quote",
+            json={
+                "product_type": "formation",
+                "entity_type": "LLC",
+                "state": "CA",
+                "expedite_fee_cents": 12345,
+            },
+        )
+        self.assertEqual(invalid.status_code, 400)
+
+        unrelated = self.client.post(
+            "/api/quote",
+            json={
+                "product_type": "dba",
+                "entity_type": "LLC",
+                "state": "CA",
+                "expedite_fee_cents": 35000,
+            },
+        )
+        self.assertEqual(unrelated.status_code, 400)
 
 
 if __name__ == "__main__":

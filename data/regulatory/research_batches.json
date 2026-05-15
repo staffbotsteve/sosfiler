@@ -152,6 +152,8 @@
       "created_at": "2026-05-07T22:41:03+00:00",
       "discovery_queries": [
         "site:bizfileonline.sos.ca.gov OR site:sos.ca.gov OR site:ftb.ca.gov California state filing map LLC formation articles organization fee online filing",
+        "site:sos.ca.gov/business-programs/business-entities/service-options California business entity expedite 24-hour same day 4-hour filing service fee",
+        "site:sos.ca.gov/business-programs/business-entities/processing-dates California business entity current processing dates expedite service options",
         "site:bizfileonline.sos.ca.gov OR site:sos.ca.gov OR site:ftb.ca.gov California state filing map corporation incorporation articles incorporation fee online filing",
         "site:bizfileonline.sos.ca.gov OR site:sos.ca.gov OR site:ftb.ca.gov California state filing map nonprofit corporation articles incorporation fee",
         "site:bizfileonline.sos.ca.gov OR site:sos.ca.gov OR site:ftb.ca.gov California state filing map foreign LLC registration application authority fee",

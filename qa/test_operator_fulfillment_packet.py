@@ -70,9 +70,9 @@ class OperatorFulfillmentPacketTests(unittest.TestCase):
             "fiscal_year_end": "December",
         }
 
-    def create_order_and_job(self, state="CA"):
+    def create_order_and_job(self, state="CA", order_id=None):
         formation = self.formation_payload(state)
-        order_id = f"ORD-{state}-PACKET"
+        order_id = order_id or f"ORD-{state}-PACKET"
         route = server.get_state_filing_route(state, "LLC", "formation")
         conn = server.get_db()
         conn.execute("""
@@ -160,6 +160,78 @@ class OperatorFulfillmentPacketTests(unittest.TestCase):
         self.assertIn("renderOperatorFulfillmentPacket", html)
         self.assertIn("Customer Filing Data", html)
         self.assertIn("Safe-stop conditions", html)
+        self.assertIn("Operator Tickets", html)
+        self.assertIn("Open Filing Job", html)
+
+    def test_operator_ticket_sync_creates_precise_filing_action_ticket(self):
+        order, job = self.create_order_and_job("CA")
+        route = server.get_state_filing_route("CA", "LLC", "formation")
+        conn = server.get_db()
+        conn.execute(
+            """
+            INSERT INTO documents (order_id, doc_type, filename, file_path, format, category, visibility)
+            VALUES (?, 'filing_authorization', 'filing_authorization.pdf', '/tmp/filing_authorization.pdf', 'pdf', 'customer_document', 'customer')
+            """,
+            (order["id"],),
+        )
+        conn.execute(
+            """
+            INSERT INTO documents (order_id, doc_type, filename, file_path, format, category, visibility)
+            VALUES (?, 'operating_agreement', 'operating_agreement_single.pdf', '/tmp/operating_agreement_single.pdf', 'pdf', 'customer_document', 'customer')
+            """,
+            (order["id"],),
+        )
+        conn.commit()
+        conn.close()
+
+        res = self.client.get("/api/admin/slack/tickets?status=open", headers=self.headers)
+
+        self.assertEqual(res.status_code, 200, res.text)
+        tickets = [ticket for ticket in res.json()["tickets"] if ticket["ticket_type"] == "filing_action"]
+        self.assertEqual(len(tickets), 1)
+        ticket = tickets[0]
+        self.assertEqual(ticket["filing_job_id"], job["id"])
+        self.assertEqual(ticket["order_id"], job["order_id"])
+        self.assertEqual(ticket["state"], "CA")
+        self.assertIn("Submit the official state filing", ticket["question"])
+
+        body = ticket["suggested_answer"]
+        self.assertIn("Operator filing ticket", body)
+        self.assertIn("Do this in order", body)
+        self.assertIn("1. Open https://bizfileonline.sos.ca.gov/", body)
+        self.assertIn("Articles of Organization - CA LLC", body)
+        self.assertIn("File Online", body)
+        self.assertIn("Exact California LLC-1 values", body)
+        self.assertIn("Entity name: CA Customer Packet LLC", body)
+        self.assertIn("Payment guardrails", body)
+        self.assertIn("SOSFiler documents for this order", body)
+        self.assertIn("filing_authorization.pdf", body)
+        self.assertIn("operating_agreement_single.pdf", body)
+        self.assertIn("Documents to upload in California BizFile", body)
+        self.assertIn("NONE for a standard domestic LLC Articles of Organization", body)
+        self.assertIn("Evidence required before status changes", body)
+        self.assertIn("Safe stop conditions", body)
+        self.assertIn("Operator login: Google sign-in", body)
+        self.assertIn("Official portal login", body)
+        if route.get("portal_url"):
+            self.assertIn(route["portal_url"], body)
+        self.assertNotIn("123456789", body)
+        self.assertNotIn("PII-secret-vault-id", body)
+
+        second = self.client.get("/api/admin/slack/tickets?status=open", headers=self.headers)
+        self.assertEqual(second.status_code, 200, second.text)
+        second_tickets = [ticket for ticket in second.json()["tickets"] if ticket["ticket_type"] == "filing_action"]
+        self.assertEqual(len(second_tickets), 1)
+        self.assertEqual(second_tickets[0]["id"], ticket["id"])
+
+    def test_operator_ticket_sync_excludes_qa_fixture_orders(self):
+        self.create_order_and_job("CA", order_id="QA-AR-CA-TEST")
+
+        res = self.client.get("/api/admin/slack/tickets?status=open", headers=self.headers)
+
+        self.assertEqual(res.status_code, 200, res.text)
+        tickets = [ticket for ticket in res.json()["tickets"] if ticket["ticket_type"] == "filing_action"]
+        self.assertEqual(tickets, [])
 
 
 if __name__ == "__main__":

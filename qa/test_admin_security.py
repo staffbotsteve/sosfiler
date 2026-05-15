@@ -23,7 +23,7 @@ class AdminSecurityTests(unittest.TestCase):
         self.old_email_mode = os.environ.get("EMAIL_DELIVERY_MODE")
         self.old_mode = os.environ.get("EXECUTION_PERSISTENCE_MODE")
         os.environ["ADMIN_TOKEN"] = "test-admin"
-        os.environ["ADMIN_EMAILS"] = "ops@example.com"
+        os.environ["ADMIN_EMAILS"] = "sactoswan@gmail.com"
         os.environ["EMAIL_DELIVERY_MODE"] = "noop"
         os.environ["EXECUTION_PERSISTENCE_MODE"] = "sqlite"
         server.DB_PATH = Path(self.tmp.name) / "admin-security.db"
@@ -55,12 +55,12 @@ class AdminSecurityTests(unittest.TestCase):
     def start_session(self):
         res = self.client.post(
             "/api/admin/session",
-            json={"admin_token": "test-admin", "operator": "ops@example.com"},
+            json={"admin_token": "test-admin", "operator": "sactoswan@gmail.com"},
         )
         self.assertEqual(res.status_code, 200, res.text)
         return res.json()
 
-    def create_admin_user(self, email="ops@example.com", role="admin"):
+    def create_admin_user(self, email="sactoswan@gmail.com", role="admin"):
         conn = server.get_db()
         conn.execute(
             """
@@ -76,7 +76,7 @@ class AdminSecurityTests(unittest.TestCase):
         self.create_admin_user()
         start = self.client.post(
             "/api/admin/session/login",
-            json={"email": "ops@example.com", "password": "AdminPass123!", "operator": "ops@example.com"},
+            json={"email": "sactoswan@gmail.com", "password": "AdminPass123!", "operator": "sactoswan@gmail.com"},
         )
         self.assertEqual(start.status_code, 200, start.text)
         challenge_id = start.json()["challenge_id"]
@@ -89,7 +89,7 @@ class AdminSecurityTests(unittest.TestCase):
         conn.close()
         verify = self.client.post(
             "/api/admin/session/verify",
-            json={"challenge_id": challenge_id, "code": "123456", "operator": "ops@example.com"},
+            json={"challenge_id": challenge_id, "code": "123456", "operator": "sactoswan@gmail.com"},
         )
         self.assertEqual(verify.status_code, 200, verify.text)
         return verify.json()
@@ -103,7 +103,7 @@ class AdminSecurityTests(unittest.TestCase):
         )
 
         self.assertEqual(res.status_code, 200, res.text)
-        self.assertEqual(res.json()["operator"], "ops@example.com")
+        self.assertEqual(res.json()["operator"], "sactoswan@gmail.com")
         self.assertEqual(res.json()["auth_mode"], "session")
 
     def test_admin_user_login_requires_mfa_before_session(self):
@@ -115,7 +115,7 @@ class AdminSecurityTests(unittest.TestCase):
         )
 
         self.assertEqual(res.status_code, 200, res.text)
-        self.assertEqual(res.json()["operator"], "ops@example.com")
+        self.assertEqual(res.json()["operator"], "sactoswan@gmail.com")
         self.assertEqual(res.json()["auth_mode"], "session")
 
     def test_admin_user_login_rejects_non_admin_account(self):
@@ -134,7 +134,7 @@ class AdminSecurityTests(unittest.TestCase):
 
         res = self.client.post(
             "/api/admin/session/account",
-            json={"operator": "ops@example.com"},
+            json={"operator": "sactoswan@gmail.com"},
             headers={"Authorization": f"Bearer {token}"},
         )
 
@@ -157,13 +157,13 @@ class AdminSecurityTests(unittest.TestCase):
         self.create_admin_user()
         start = self.client.post(
             "/api/admin/session/login",
-            json={"email": "ops@example.com", "password": "AdminPass123!", "operator": "ops@example.com"},
+            json={"email": "sactoswan@gmail.com", "password": "AdminPass123!", "operator": "sactoswan@gmail.com"},
         )
         self.assertEqual(start.status_code, 200, start.text)
 
         verify = self.client.post(
             "/api/admin/session/verify",
-            json={"challenge_id": start.json()["challenge_id"], "code": "111111", "operator": "ops@example.com"},
+            json={"challenge_id": start.json()["challenge_id"], "code": "111111", "operator": "sactoswan@gmail.com"},
         )
 
         self.assertEqual(verify.status_code, 401, verify.text)

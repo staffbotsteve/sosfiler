@@ -1,9 +1,8 @@
 // SOSFiler Service Worker — PWA Offline Support
-const CACHE_NAME = 'sosfiler-v1';
+const CACHE_NAME = 'sosfiler-v2';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
-  '/app.html',
   '/dashboard.html',
   '/chat-widget.css',
   '/chat-widget.js',
@@ -44,8 +43,9 @@ self.addEventListener('fetch', event => {
   // For HTML pages: network first, cache fallback
   if (event.request.mode === 'navigate' || event.request.headers.get('accept')?.includes('text/html')) {
     event.respondWith(
-      fetch(event.request)
+      fetch(event.request, { cache: url.pathname === '/app.html' ? 'no-store' : 'default' })
         .then(response => {
+          if (url.pathname === '/app.html') return response;
           const clone = response.clone();
           caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
           return response;

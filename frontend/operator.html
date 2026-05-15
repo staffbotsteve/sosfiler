@@ -167,15 +167,16 @@
     }
 
     .admin-auth-panel {
-      margin: 16px;
-      padding: 18px;
+      max-width: 560px;
+      margin: 28px auto 16px;
+      padding: 22px;
       border: 1px solid var(--line);
       border-radius: 10px;
       background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
       display: grid;
-      grid-template-columns: minmax(220px, 1fr) minmax(260px, 1.2fr);
-      gap: 16px;
-      align-items: end;
+      gap: 14px;
+      align-items: start;
+      align-self: start;
     }
 
     .admin-auth-panel h2 {
@@ -193,16 +194,16 @@
 
     .admin-auth-form {
       display: grid;
-      grid-template-columns: minmax(130px, 0.7fr) minmax(190px, 1fr) minmax(150px, 0.8fr) minmax(92px, 0.5fr) auto;
+      grid-template-columns: 1fr;
       gap: 8px;
-      align-items: center;
+      align-items: stretch;
     }
 
     .admin-auth-actions {
       display: flex;
       flex-wrap: wrap;
       gap: 8px;
-      margin-bottom: 10px;
+      margin-bottom: 0;
     }
 
     .admin-auth-form input {
@@ -518,36 +519,27 @@
       </div>
       <div class="auth">
         <span id="operatorSessionLabel" class="session-label">Not signed in</span>
-        <button id="logoutBtn" type="button">Logout</button>
-        <button id="healthBtn" type="button">DB Health</button>
-        <button id="syncBtn" type="button">Sync</button>
-        <button id="slackConfigBtn" type="button">Slack</button>
-        <button id="emailConfigBtn" type="button">Email</button>
-        <button id="refreshBtn" class="primary" type="button">Refresh</button>
+        <button id="logoutBtn" data-admin-action type="button">Logout</button>
+        <button id="healthBtn" data-admin-action type="button">DB Health</button>
+        <button id="syncBtn" data-admin-action type="button">Sync</button>
+        <button id="slackConfigBtn" data-admin-action type="button">Slack</button>
+        <button id="emailConfigBtn" data-admin-action type="button">Email</button>
+        <button id="refreshBtn" data-admin-action class="primary" type="button">Refresh</button>
       </div>
     </header>
 
     <section id="adminAuthPanel" class="admin-auth-panel">
       <div>
-        <h2>Admin Sign In</h2>
-        <p>Use your SOSFiler account, then enter the one-time email code before loading operator tools.</p>
+        <h2>Operator Sign In</h2>
+        <p>Continue with Google. If your account is authorized, SOSFiler will send a one-time code before opening operator tools.</p>
       </div>
-      <div>
-        <div class="admin-auth-actions">
-          <button id="accountAdminBtn" class="primary" type="button">Use Signed-In Account</button>
-          <button id="oauthAdminBtn" type="button">Sign In with OAuth</button>
-        </div>
-        <div class="admin-auth-form">
-          <input id="operatorName" placeholder="Operator" autocomplete="username" />
-          <input id="adminEmail" type="email" placeholder="Admin email" autocomplete="username" />
-          <input id="adminPassword" type="password" placeholder="Password" autocomplete="current-password" />
-          <input id="adminMfaCode" inputmode="numeric" maxlength="6" placeholder="2FA code" autocomplete="one-time-code" style="display:none;" />
-          <button id="saveTokenBtn" type="button">Send 2FA Code</button>
-        </div>
+      <div class="admin-auth-form">
+        <input id="adminMfaCode" inputmode="numeric" maxlength="6" placeholder="6-digit code" autocomplete="one-time-code" style="display:none;" />
+        <button id="saveTokenBtn" class="primary" type="button">Continue with Google</button>
       </div>
     </section>
 
-    <main class="layout">
+    <main class="layout" id="operatorLayout">
       <section class="panel">
         <div class="panel-head">
           <h2>System Health</h2>
@@ -682,13 +674,13 @@
         <div id="jobList" class="queue"></div>
 
         <div class="panel-head" style="border-top:1px solid var(--line-soft);">
-          <h2>Slack Tickets</h2>
+          <h2>Operator Tickets</h2>
           <span id="ticketCount" class="chip">0 tickets</span>
         </div>
         <div class="filters" style="grid-template-columns: 1fr 1fr;">
           <select id="ticketStatusFilter">
-            <option value="">All tickets</option>
             <option value="open">Open</option>
+            <option value="">All tickets</option>
             <option value="approved">Approved</option>
             <option value="closed">Closed</option>
           </select>
@@ -762,14 +754,17 @@
       busy: false,
       adminSessionToken: sessionStorage.getItem("sosfiler_admin_session_token") || "",
       adminSessionId: sessionStorage.getItem("sosfiler_admin_session_id") || "",
-      adminMfaChallengeId: "",
-      adminEmail: "",
+      adminMfaChallengeId: sessionStorage.getItem("sosfiler_admin_mfa_challenge_id") || "",
+      adminEmail: sessionStorage.getItem("sosfiler_admin_mfa_email") || "",
       adminAccountToken: localStorage.getItem("sosfiler_token") || "",
       operator: localStorage.getItem("sosfiler_operator_name") || "operator",
     };
     window.__sosfilerOperatorState = state;
 
     const $ = (id) => document.getElementById(id);
+    const GOOGLE_CLIENT_ID = "137294630475-e1o2o3ddpud3jkt12d7hrvul1uuaj1jb.apps.googleusercontent.com";
+    const GOOGLE_IDENTITY_SCRIPT_ID = "google-identity-services";
+    let googleIdentityScriptPromise = null;
 
     function adminHeaders(extra = {}) {
       const headers = { ...extra };
@@ -783,6 +778,14 @@
     function accountHeaders(extra = {}) {
       const token = localStorage.getItem("sosfiler_token") || state.adminAccountToken;
       return token ? { ...extra, Authorization: `Bearer ${token}` } : { ...extra };
+    }
+
+    function signedInUser() {
+      try {
+        return JSON.parse(localStorage.getItem("sosfiler_user") || "{}") || {};
+      } catch (_) {
+        return {};
+      }
     }
 
     function toast(message) {
@@ -800,22 +803,51 @@
     function updateAdminAuthUI() {
       const signedIn = hasAdminAccess();
       if ($("adminAuthPanel")) $("adminAuthPanel").style.display = signedIn ? "none" : "grid";
+      if ($("operatorLayout")) $("operatorLayout").style.display = signedIn ? "grid" : "none";
+      document.querySelectorAll("[data-admin-action]").forEach((button) => {
+        button.style.display = signedIn ? "" : "none";
+      });
       if ($("operatorSessionLabel")) {
         $("operatorSessionLabel").textContent = signedIn ? `Admin: ${state.operator}` : "Not signed in";
       }
+      if ($("adminMfaCode")) {
+        $("adminMfaCode").style.display = (!signedIn && state.adminMfaChallengeId) ? "" : "none";
+      }
+      if ($("saveTokenBtn")) {
+        $("saveTokenBtn").disabled = false;
+        $("saveTokenBtn").textContent = state.adminMfaChallengeId ? "Verify 2FA" : "Continue with Google";
+      }
+    }
+
+    function persistAdminMfaChallenge(payload) {
+      state.adminMfaChallengeId = payload.challenge_id || "";
+      state.adminEmail = payload.email || "";
+      if (state.adminEmail) {
+        state.operator = state.adminEmail;
+        localStorage.setItem("sosfiler_operator_name", state.operator);
+      }
+      if (state.adminMfaChallengeId) {
+        sessionStorage.setItem("sosfiler_admin_mfa_challenge_id", state.adminMfaChallengeId);
+        sessionStorage.setItem("sosfiler_admin_mfa_email", state.adminEmail);
+      }
+    }
+
+    function clearAdminMfaChallenge() {
+      state.adminMfaChallengeId = "";
+      state.adminEmail = "";
+      sessionStorage.removeItem("sosfiler_admin_mfa_challenge_id");
+      sessionStorage.removeItem("sosfiler_admin_mfa_email");
     }
 
     function clearAdminSession() {
       state.adminSessionToken = "";
       state.adminSessionId = "";
-      state.adminMfaChallengeId = "";
-      state.adminEmail = "";
+      clearAdminMfaChallenge();
       sessionStorage.removeItem("sosfiler_admin_session_token");
       sessionStorage.removeItem("sosfiler_admin_session_id");
       if ($("adminMfaCode")) $("adminMfaCode").style.display = "none";
       if ($("adminMfaCode")) $("adminMfaCode").value = "";
-      if ($("adminPassword")) $("adminPassword").value = "";
-      if ($("saveTokenBtn")) $("saveTokenBtn").textContent = "Send 2FA Code";
+      if ($("saveTokenBtn")) $("saveTokenBtn").textContent = "Continue with Google";
       updateAdminAuthUI();
     }
 
@@ -1266,10 +1298,10 @@
 
     async function loadTickets() {
       if (!hasAdminAccess()) {
-        $("ticketStatus").textContent = "Start an operator session to load Slack tickets.";
+        $("ticketStatus").textContent = "Start an operator session to load operator tickets.";
         return;
       }
-      $("ticketStatus").textContent = "Loading tickets...";
+      $("ticketStatus").textContent = "Syncing filing-action tickets...";
       const params = new URLSearchParams();
       const status = $("ticketStatusFilter").value;
       const priority = $("ticketPriorityFilter").value;
@@ -1278,6 +1310,7 @@
       try {
         const payload = await api(`/api/admin/slack/tickets?${params.toString()}`);
         state.tickets = payload.tickets || [];
+        state.ticketSync = payload.sync || {};
         $("ticketCount").textContent = `${state.tickets.length} tickets`;
         $("ticketStatus").textContent = state.tickets.length ? "" : "No tickets match the current filters.";
         renderTickets();
@@ -1382,6 +1415,16 @@
       `).join("");
     }
 
+    function isFilingTicket(ticket) {
+      return ["filing_action", "filing_intervention"].includes(ticket.ticket_type || "");
+    }
+
+    function ticketFilingJobId(ticket) {
+      if (!ticket) return "";
+      if (ticket.filing_job_id) return ticket.filing_job_id;
+      return (ticket.session_id || "").startsWith("FIL-") ? ticket.session_id : "";
+    }
+
     function renderTickets() {
       const list = $("ticketList");
       list.innerHTML = state.tickets.map((ticket) => `
@@ -1389,12 +1432,13 @@
           <div class="job-title">
             <div>
               <div class="job-name">${h(ticket.question || ticket.id)}</div>
-              <div class="job-sub">${h(ticket.id)} · ${h(ticket.customer_email || ticket.session_id || "")}</div>
+              <div class="job-sub">${h(ticket.id)} · ${h(ticket.customer_email || ticketFilingJobId(ticket) || ticket.session_id || "")}</div>
             </div>
             <span class="chip ${chipClass(ticket.status)}">${h(label(ticket.status))}</span>
           </div>
           <div class="chips">
             <span class="chip ${ticket.priority === "urgent" || ticket.priority === "high" ? "red" : "amber"}">${h(label(ticket.priority))}</span>
+            <span class="chip ${isFilingTicket(ticket) ? "blue" : ""}">${h(label(ticket.ticket_type || "support"))}</span>
             <span class="chip">${h(ticket.state || "NA")} ${h(ticket.product_type || "support")}</span>
             ${ticket.order_id ? `<span class="chip">${h(ticket.order_id)}</span>` : ""}
           </div>
@@ -1448,6 +1492,14 @@
       renderEngineeringJobs();
       const ticket = state.tickets.find((item) => item.id === ticketId);
       renderTicketDetail(ticket);
+    }
+
+    function openTicketFilingJob(jobId) {
+      if (!jobId) {
+        toast("This ticket is not linked to a filing job.");
+        return;
+      }
+      selectJob(jobId);
     }
 
     function selectEngineeringJob(runId) {
@@ -1579,21 +1631,31 @@
         $("detail").innerHTML = `<div class="empty">Ticket not found.</div>`;
         return;
       }
+      const filing = isFilingTicket(ticket);
+      const jobId = ticketFilingJobId(ticket);
+      const jobArg = encodeURIComponent(jobId || "");
+      const primaryActions = filing
+        ? `${jobId ? `<button class="primary" type="button" onclick="openTicketFilingJob(decodeURIComponent('${jobArg}'))">Open Filing Job</button>` : ""}
+           <button type="button" onclick="closeTicket()">Close Ticket</button>`
+        : `<button class="primary" type="button" onclick="approveTicket()">Approve Enhancement</button>
+           <button type="button" onclick="closeTicket()">Close Ticket</button>`;
       $("detail").innerHTML = `
         <div class="summary">
           <div class="metric"><div class="label">Ticket</div><div class="value">${h(ticket.id)}</div></div>
           <div class="metric"><div class="label">Status</div><div class="value">${h(label(ticket.status))}</div></div>
           <div class="metric"><div class="label">Priority</div><div class="value">${h(label(ticket.priority))}</div></div>
+          <div class="metric"><div class="label">Type</div><div class="value">${h(label(ticket.ticket_type || "support"))}</div></div>
           <div class="metric"><div class="label">Context</div><div class="value">${h(ticket.state || "NA")} ${h(ticket.product_type || "support")}</div></div>
+          <div class="metric"><div class="label">Filing Job</div><div class="value">${h(jobId || "None")}</div></div>
         </div>
 
         <div class="section">
-          <h3>Question</h3>
+          <h3>${filing ? "Operator Action" : "Question"}</h3>
           <div class="entry"><div class="entry-body">${h(ticket.question || "")}</div></div>
         </div>
 
         <div class="section">
-          <h3>Review</h3>
+          <h3>${filing ? "Filing Ticket" : "Review"}</h3>
           <div class="summary">
             <div class="metric"><div class="label">Customer</div><div class="value">${h(ticket.customer_email || "Unknown")}</div></div>
             <div class="metric"><div class="label">Order</div><div class="value">${h(ticket.order_id || "None")}</div></div>
@@ -1605,7 +1667,7 @@
             <div class="entry-body">${h(ticket.confidence_reason || "")}</div>
           </div>
           <div class="entry" style="margin-top:8px;">
-            <div class="entry-head"><span>Suggested answer / enhancement</span><span>${h(ticket.approved_by ? `Approved by ${ticket.approved_by}` : "")}</span></div>
+            <div class="entry-head"><span>${filing ? "Operator filing steps" : "Suggested answer / enhancement"}</span><span>${h(ticket.approved_by ? `Approved by ${ticket.approved_by}` : "")}</span></div>
             <div class="entry-body">${h(ticket.suggested_answer || "")}</div>
           </div>
           <div class="form-grid" style="margin-top:10px;">
@@ -1616,8 +1678,7 @@
               <input id="ticketApprovalNote" placeholder="Why this is approved or closed" />
             </label>
             <div class="actions wide">
-              <button class="primary" type="button" onclick="approveTicket()">Approve Enhancement</button>
-              <button type="button" onclick="closeTicket()">Close Ticket</button>
+              ${primaryActions}
             </div>
           </div>
         </div>
@@ -1874,6 +1935,13 @@
             <div class="metric"><div class="label">Office</div><div class="value">${h(job.office || "")}</div></div>
             <div class="metric"><div class="label">Form</div><div class="value">${h(job.form_name || "")}</div></div>
             <div class="metric"><div class="label">Portal</div><div class="value">${h(job.portal_name || job.filing_method || "")}</div></div>
+          </div>
+          <div class="entry" style="margin-top:10px;">
+            <div class="entry-head"><span>Portal access</span><span>${h(job.portal_name || "Official portal")}</span></div>
+            <div class="entry-body">SOSFiler operator portal: sosfiler.com/operator.html
+Operator login: authorized SOSFiler admin/operator account plus email code.
+Official state portal: ${h(job.portal_url || "Not mapped")}
+State portal login: use the authorized filer account for the official portal; stop if login, access, terms, identity, CAPTCHA, or payment controls cannot be completed through authorized access.</div>
           </div>
           <div class="actions">
             ${job.portal_url ? `<button type="button" onclick="openPortal('${portalArg}')">Open Portal</button>` : ""}
@@ -2465,13 +2533,11 @@
       }
       const payload = await res.json();
       if (payload.mfa_required) {
-        state.adminMfaChallengeId = payload.challenge_id;
-        state.adminEmail = payload.email || state.adminEmail;
-        $("adminPassword").value = "";
+        persistAdminMfaChallenge(payload);
         $("adminMfaCode").style.display = "";
         $("adminMfaCode").focus();
         $("saveTokenBtn").textContent = "Verify 2FA";
-        toast(payload.message || "Enter the 2FA code sent to your email.");
+        toast(payload.message || "Enter the 2FA code sent to your email. This prompt will stay if you leave and come back.");
         updateAdminAuthUI();
         return null;
       }
@@ -2480,11 +2546,10 @@
       state.operator = payload.operator || state.operator;
       sessionStorage.setItem("sosfiler_admin_session_token", payload.session_token);
       sessionStorage.setItem("sosfiler_admin_session_id", payload.session_id);
-      state.adminMfaChallengeId = "";
+      clearAdminMfaChallenge();
       $("adminMfaCode").style.display = "none";
       $("adminMfaCode").value = "";
-      $("adminPassword").value = "";
-      $("saveTokenBtn").textContent = "Send 2FA Code";
+      $("saveTokenBtn").textContent = "Continue with Google";
       toast(`Operator session started for ${state.operator}.`);
       updateAdminAuthUI();
       await refreshAll();
@@ -2492,11 +2557,12 @@
     }
 
     async function startAdminSessionFromAccount() {
-      state.operator = $("operatorName").value.trim() || "operator";
+      const user = signedInUser();
+      state.operator = user.email || state.operator || "operator";
       localStorage.setItem("sosfiler_operator_name", state.operator);
       const token = localStorage.getItem("sosfiler_token") || state.adminAccountToken;
       if (!token) {
-        toast("Sign in with Google or email first.");
+        openDashboardOAuth();
         return;
       }
       try {
@@ -2507,13 +2573,99 @@
         });
         await handleAdminSessionResponse(res);
       } catch (error) {
-        clearAdminSession();
+        if (!state.adminMfaChallengeId) clearAdminSession();
         toast(error.message);
+        updateAdminAuthUI();
       }
     }
 
-    function openDashboardOAuth() {
-      window.location.href = "dashboard.html?return_to=operator";
+    function loadGoogleIdentityScript() {
+      if (window.google && window.google.accounts && window.google.accounts.oauth2) {
+        return Promise.resolve();
+      }
+      if (googleIdentityScriptPromise) return googleIdentityScriptPromise;
+      googleIdentityScriptPromise = new Promise((resolve, reject) => {
+        const existing = document.getElementById(GOOGLE_IDENTITY_SCRIPT_ID);
+        if (existing) {
+          existing.addEventListener("load", resolve, { once: true });
+          existing.addEventListener("error", () => reject(new Error("Google sign-in could not be loaded.")), { once: true });
+          return;
+        }
+        const script = document.createElement("script");
+        script.id = GOOGLE_IDENTITY_SCRIPT_ID;
+        script.src = "https://accounts.google.com/gsi/client";
+        script.async = true;
+        script.defer = true;
+        script.onload = resolve;
+        script.onerror = () => reject(new Error("Google sign-in could not be loaded."));
+        document.head.appendChild(script);
+      });
+      return googleIdentityScriptPromise;
+    }
+
+    async function completeGoogleOperatorOAuth(accessToken) {
+      const authRes = await fetch("/api/auth/google", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token: accessToken }),
+      });
+      const payload = await authRes.json().catch(() => ({}));
+      if (!authRes.ok || !payload.token) {
+        throw new Error(payload.detail || "Google sign-in failed.");
+      }
+      localStorage.setItem("sosfiler_token", payload.token);
+      localStorage.setItem("sosfiler_user", JSON.stringify(payload.user || {}));
+      state.adminAccountToken = payload.token;
+      state.operator = (payload.user || {}).email || state.operator || "operator";
+      localStorage.setItem("sosfiler_operator_name", state.operator);
+      await startAdminSessionFromAccount();
+    }
+
+    async function openDashboardOAuth() {
+      const button = $("saveTokenBtn");
+      if (button) {
+        button.disabled = true;
+        button.textContent = "Opening Google...";
+      }
+      try {
+        await loadGoogleIdentityScript();
+        const client = window.google.accounts.oauth2.initTokenClient({
+          client_id: GOOGLE_CLIENT_ID,
+          scope: "email profile",
+          prompt: "select_account",
+          callback: async (response) => {
+            try {
+              if (response.error) {
+                throw new Error(response.error_description || response.error);
+              }
+              if (!response.access_token) {
+                throw new Error("Google did not return an access token.");
+              }
+              await completeGoogleOperatorOAuth(response.access_token);
+            } catch (error) {
+              toast(error.message);
+            } finally {
+              if (button && !state.adminMfaChallengeId && !state.adminSessionToken) {
+                button.disabled = false;
+                button.textContent = "Continue with Google";
+              }
+            }
+          },
+        });
+        client.requestAccessToken();
+        window.setTimeout(() => {
+          if (button && button.disabled && !state.adminMfaChallengeId && !state.adminSessionToken) {
+            button.disabled = false;
+            button.textContent = "Continue with Google";
+          }
+        }, 30000);
+      } catch (error) {
+        toast(error.message);
+        if (button) {
+          button.disabled = false;
+          button.textContent = "Continue with Google";
+        }
+      }
     }
 
     function shouldAutoStartAdmin() {
@@ -2522,8 +2674,6 @@
     }
 
     async function startAdminSession() {
-      state.operator = $("operatorName").value.trim() || "operator";
-      localStorage.setItem("sosfiler_operator_name", state.operator);
       try {
         let res;
         if (state.adminMfaChallengeId) {
@@ -2542,23 +2692,17 @@
             }),
           });
         } else {
-          const email = $("adminEmail").value.trim();
-          const password = $("adminPassword").value;
-          if (!email || !password) {
-            toast("Enter your admin email and password.");
-            return;
-          }
-          state.adminEmail = email;
-          res = await fetch("/api/admin/session/login", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ email, password, operator: state.operator }),
-          });
+          openDashboardOAuth();
+          return;
         }
         await handleAdminSessionResponse(res);
       } catch (error) {
-        clearAdminSession();
         toast(error.message);
+        if (!state.adminMfaChallengeId) {
+          clearAdminSession();
+        } else {
+          updateAdminAuthUI();
+        }
       }
     }
 
@@ -2605,12 +2749,7 @@
     }
 
     $("saveTokenBtn").addEventListener("click", startAdminSession);
-    $("accountAdminBtn").addEventListener("click", startAdminSessionFromAccount);
-    $("oauthAdminBtn").addEventListener("click", openDashboardOAuth);
     $("adminMfaCode").addEventListener("keydown", (event) => {
-      if (event.key === "Enter") startAdminSession();
-    });
-    $("adminPassword").addEventListener("keydown", (event) => {
       if (event.key === "Enter") startAdminSession();
     });
     $("logoutBtn").addEventListener("click", logoutAdminSession);
@@ -2681,16 +2820,15 @@
     $("engineeringStatusFilter").addEventListener("change", loadEngineeringJobs);
     $("engineeringBackfillBtn").addEventListener("click", backfillEngineeringJobs);
 
-    $("operatorName").value = state.operator;
-    $("adminPassword").value = "";
     $("adminMfaCode").value = "";
     $("adminMfaCode").style.display = "none";
     updateAdminAuthUI();
     if (shouldAutoStartAdmin()) {
       history.replaceState(null, "", window.location.pathname);
       startAdminSessionFromAccount();
+    } else if (hasAdminAccess()) {
+      refreshAll();
     }
-    refreshAll();
   </script>
 </body>
 </html>

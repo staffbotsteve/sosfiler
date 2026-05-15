@@ -42,6 +42,17 @@ python3 backend/research_worker.py next --state TX --limit 5
 python3 backend/research_worker.py run --state TX --limit 2
 ```
 
+Run a targeted official-source fee pass when a missing fee is suspected:
+
+```bash
+python3 -m backend.regulatory.research_runner fee-audit --state CA --limit 25
+
+python3 -m backend.regulatory.research_runner run \
+  --batch-id ca_state_filings \
+  --source-url https://www.sos.ca.gov/business-programs/business-entities/service-options/ \
+  --source-url https://www.sos.ca.gov/business-programs/business-entities/processing-dates
+```
+
 After an operator or research agent extracts enough official evidence:
 
 ```bash

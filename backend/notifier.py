@@ -25,6 +25,7 @@ FROM_NAME = os.getenv("SENDGRID_FROM_NAME") or "SOSFiler"
 ADMIN_EMAIL = os.getenv("ADMIN_EMAIL") or "admin@sosfiler.com"
 REPLY_TO_EMAIL = os.getenv("SENDGRID_REPLY_TO") or "support@sosfiler.com"
 DASHBOARD_URL = os.getenv("DASHBOARD_URL", "https://sosfiler.com/dashboard.html")
+OPERATOR_COCKPIT_URL = os.getenv("SOSFILER_OPERATOR_COCKPIT_URL", "https://sosfiler.com/operator.html")
 
 
 @dataclass
@@ -129,6 +130,7 @@ class Notifier:
         self.admin_email = os.getenv("ADMIN_EMAIL") or ADMIN_EMAIL
         self.reply_to_email = os.getenv("SENDGRID_REPLY_TO") or REPLY_TO_EMAIL
         self.dashboard_url = os.getenv("DASHBOARD_URL") or DASHBOARD_URL
+        self.operator_cockpit_url = os.getenv("SOSFILER_OPERATOR_COCKPIT_URL") or OPERATOR_COCKPIT_URL
 
     def config_status(self) -> dict:
         """Return a safe, non-live email delivery diagnostic."""
@@ -171,6 +173,7 @@ class Notifier:
             "admin_email": self.admin_email,
             "reply_to_email": self.reply_to_email,
             "dashboard_url": self.dashboard_url,
+            "operator_cockpit_url": self.operator_cockpit_url,
             "sendgrid_package_available": sendgrid_import_ok,
             "live_send_performed": False,
         }
@@ -321,6 +324,7 @@ class Notifier:
     async def send_order_confirmation(self, order: dict, formation_data: dict):
         """Send order confirmation after payment."""
         state_name = formation_data.get("state", "")
+        dashboard_link = f"{self.dashboard_url}?order_id={order.get('id', '')}&token={order.get('token', '')}"
         content = f"""
 <div class="card">
   <h2>✅ Payment Confirmed — We're On It!</h2>
@@ -335,6 +339,14 @@ class Notifier:
     <div class="detail-row"><span class="detail-label">Total Paid</span><span class="detail-value">${order.get('total_cents', 0) / 100:.2f}</span></div>
   </div>
 
+  <p><strong>Your customer portal access:</strong></p>
+  <ul>
+    <li>Portal URL: <a href="{self.dashboard_url}">{self.dashboard_url}</a></li>
+    <li>Login: sign in with email/password or Google using the email used for this order.</li>
+    <li>Private order link: <a href="{dashboard_link}">open this order directly</a>.</li>
+  </ul>
+  <p>Keep this email private. Anyone with the private order link can view this order's dashboard and documents.</p>
+
   <p><strong>What happens next:</strong></p>
   <ul>
     <li>📄 We generate your internal company documents, including your Operating Agreement and initial resolutions</li>
@@ -345,14 +357,93 @@ class Notifier:
   </ul>
 
   <p>Track everything in real-time:</p>
-  <a href="{self.dashboard_url}?order_id={order.get('id', '')}&token={order.get('token', '')}" class="btn">View Dashboard →</a>
+  <a href="{dashboard_link}" class="btn">View Dashboard →</a>
 </div>"""
 
         html = self._base_template(content)
         # Notify Customer
         await self._send_email(order.get("email", ""), f"✅ Order Confirmed — {order.get('business_name', '')}", html)
         # Notify Admin
-        await self._send_email(self.admin_email, f"ADMN: New Order Paid — {order.get('business_name', '')}", html)
+        admin_content = f"""
+<div class="card">
+  <h2>New Formation Order Paid</h2>
+  <p><strong>Order:</strong> {order.get('id', '')}</p>
+  <p><strong>Business:</strong> {order.get('business_name', '')}</p>
+  <p><strong>Customer:</strong> {order.get('email', '')}</p>
+  <p><strong>Customer portal:</strong> <a href="{dashboard_link}">{dashboard_link}</a></p>
+  <p><strong>Operator portal:</strong> <a href="{self.operator_cockpit_url}">{self.operator_cockpit_url}</a></p>
+  <p><strong>Operator login:</strong> sign in with an authorized admin/operator account and complete the one-time email code.</p>
+  <p>Open the operator portal, load the filing queue, and use the order/job record before touching any state portal.</p>
+</div>"""
+        await self._send_email(self.admin_email, f"ADMN: New Order Paid — {order.get('business_name', '')}", self._base_template(admin_content))
+
+    def _dashboard_link_for_order(self, order: dict) -> str:
+        return f"{self.dashboard_url}?order_id={order.get('id', '')}&token={order.get('token', '')}"
+
+    def _status_label(self, status: str) -> str:
+        labels = {
+            "paid": "Payment received",
+            "payment_authorized": "Payment authorized",
+            "payment_captured": "Purchase complete",
+            "preparing": "Preparing your filing",
+            "generating_documents": "Generating documents",
+            "ready_to_file": "Ready for state filing",
+            "operator_required": "State portal checkpoint",
+            "submitted": "Submitted to the state",
+            "submitted_to_state": "Submitted to the state",
+            "pending_state_review": "Pending state review",
+            "received_needs_sosdirect_check": "Received by state",
+            "approved": "Approved",
+            "state_approved": "Approved by the state",
+            "complete": "Complete",
+            "ein_pending": "EIN pending",
+            "ein_ready_for_submission": "EIN ready for submission",
+            "ein_received": "EIN received",
+            "additional_authorization_required": "Action needed",
+            "additional_authorization_started": "Additional payment started",
+            "refund_recorded": "Refund recorded",
+            "error": "Needs review",
+        }
+        return labels.get(status, (status or "Status update").replace("_", " ").title())
+
+    async def send_status_update(self, order: dict, status: str, message: str = ""):
+        """Send a customer-facing status update with a private dashboard link."""
+        dashboard_link = self._dashboard_link_for_order(order)
+        status_label = self._status_label(status)
+        safe_business = html.escape(order.get("business_name", "") or "your company")
+        safe_order_id = html.escape(order.get("id", ""))
+        safe_status = html.escape(status_label)
+        if status == "error":
+            safe_message = "This order needs SOSFiler review. We are checking it and will update your dashboard."
+        else:
+            safe_message = html.escape(message or f"Your order status changed to {status_label}.")
+        content = f"""
+<div class="card">
+  <h2>{safe_status}</h2>
+  <p><span class="status-badge status-filing">{safe_status}</span></p>
+  <p><strong>{safe_business}</strong> has a new SOSFiler status update.</p>
+  <p>{safe_message}</p>
+  <div style="margin: 20px 0;">
+    <div class="detail-row"><span class="detail-label">Order ID</span><span class="detail-value">{safe_order_id}</span></div>
+    <div class="detail-row"><span class="detail-label">Current Status</span><span class="detail-value">{safe_status}</span></div>
+  </div>
+  <p>Your dashboard has the latest timeline, documents, receipts, and any next steps.</p>
+  <a href="{dashboard_link}" class="btn">Open Dashboard →</a>
+  <p>Keep this email private. Anyone with the private order link can view this order's dashboard and documents.</p>
+</div>"""
+        text = (
+            f"SOSFiler status update: {status_label}\n\n"
+            f"{order.get('business_name', 'Your company')} has a new status update.\n"
+            f"{message or f'Your order status changed to {status_label}.'}\n\n"
+            f"Open your dashboard: {dashboard_link}\n"
+            "Keep this link private."
+        )
+        return await self._send_email(
+            order.get("email", ""),
+            f"SOSFiler status update: {status_label} — {order.get('business_name', '')}",
+            self._base_template(content),
+            text,
+        )
 
     async def send_password_reset(self, email: str, reset_url: str):
         """Send a password reset link."""
@@ -401,7 +492,8 @@ class Notifier:
             <li>
               <strong>{order.get('business_name', 'Company')}</strong><br>
               {order.get('entity_type', '')} · {order.get('state', '')} · Status: {order.get('status', '')}<br>
-              <a href="{self.dashboard_url}?order_id={order.get('id', '')}&token={order.get('token', '')}">Open dashboard</a>
+              Order ID: <strong>{order.get('id', '')}</strong><br>
+              <a href="{self.dashboard_url}?order_id={order.get('id', '')}&token={order.get('token', '')}">Open private order dashboard</a>
             </li>
             """
             for order in orders
@@ -468,7 +560,11 @@ class Notifier:
   <p><strong>Business:</strong> {order.get('business_name', '')}</p>
   <p><strong>Customer:</strong> {order.get('email', '')}</p>
   <p><strong>State/Form:</strong> {filing_job.get('state', '')} {filing_job.get('form_name', 'Formation filing')}</p>
-  <p><strong>Portal:</strong> {filing_job.get('portal_name', '')} — {filing_job.get('portal_url', '')}</p>
+  <p><strong>SOSFiler operator portal:</strong> <a href="{self.operator_cockpit_url}">{self.operator_cockpit_url}</a></p>
+  <p><strong>Operator login:</strong> use an authorized admin/operator account and complete the one-time email code.</p>
+  <p><strong>Official state portal:</strong> {filing_job.get('portal_name', '')} — <a href="{filing_job.get('portal_url', '')}">{filing_job.get('portal_url', '')}</a></p>
+  <p><strong>State portal login:</strong> use the authorized SOSFiler/state-filer account for this portal. If the portal access checkpoint cannot be completed through authorized access, stop and mark the job operator-required.</p>
+  <p><strong>Filing job:</strong> {filing_job.get('id', '')}</p>
   <p><strong>Government total:</strong> ${(filing_job.get('total_government_cents', 0) or 0) / 100:.2f}</p>
   <p>Submit only through the official portal, then attach receipt evidence before changing the customer-facing status.</p>
 </div>"""

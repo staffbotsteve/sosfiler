@@ -115,6 +115,26 @@ def test_recurring_record_gets_default_reminders() -> None:
     assert [rule.offset_days for rule in records[0].reminder_rules] == [90, 60, 30, 7]
 
 
+def test_expedite_options_are_structured_from_extraction() -> None:
+    payload = load_fixture()
+    record = payload["data"]["filing_records"][0]
+    record["expedite_options"] = [
+        {
+            "label": "24-Hour Filing Service",
+            "fee_cents": 35000,
+            "processing_time": "Filing response guaranteed within 24 hours.",
+            "channel": "online",
+            "customer_selectable": True,
+            "source_url": "https://www.sos.ca.gov/business-programs/business-entities/service-options/",
+        }
+    ]
+    result = FirecrawlExtractResult.from_payload(payload)
+    records = records_from_firecrawl_result(tx_batch(), result, auto_verify=True)
+    assert len(records[0].expedite_options) == 1
+    assert records[0].expedite_options[0].fee_cents == 35000
+    assert records[0].expedite_options[0].customer_selectable is True
+
+
 def test_mocked_runner_integration_for_texas_batch() -> None:
     from backend.regulatory import research_runner
 

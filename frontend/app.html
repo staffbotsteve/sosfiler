@@ -76,7 +76,18 @@ a:hover { color: var(--accent); text-decoration: none; }
 .topbar .logo { display: flex; align-items: center; gap: 12px; font-family: var(--font-display); font-size: 20px; font-weight: 900; letter-spacing: -0.02em; color: #fff; }
 .topbar .logo span { color: var(--accent); }
 .topbar .logo img { height: 56px; width: auto; }
-.topbar .back { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
+.topbar-actions { display: flex; align-items: center; gap: 16px; }
+.topbar .back {
+  background: none;
+  border: 0;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  cursor: pointer;
+  padding: 0;
+}
 .topbar .back:hover { color: var(--accent); }
 
 /* Progress */
@@ -144,8 +155,30 @@ textarea { resize: vertical; min-height: 80px; }
 }
 .option-card:hover { border-color: var(--accent); box-shadow: 0 0 15px rgba(204,255,0,0.08); }
 .option-card.selected { border-color: var(--accent); background: rgba(204,255,0,0.05); }
+.option-card.disabled,
+.option-card.disabled:hover {
+  cursor: not-allowed;
+  opacity: 0.55;
+  filter: grayscale(0.75);
+  border-color: var(--border);
+  box-shadow: none;
+  background: #171717;
+}
 .option-card .name { font-weight: 700; font-size: 15px; }
 .option-card .desc { font-size: 12px; color: var(--muted); margin-top: 4px; }
+.option-card .badge {
+  display: inline-block;
+  margin-bottom: 8px;
+  padding: 4px 8px;
+  border: 1px solid var(--border-strong);
+  border-radius: 999px;
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
 
 /* State recommendation */
 .recommendation { background: rgba(204,255,0,0.05); border: 1px solid rgba(204,255,0,0.2); border-radius: 8px; padding: 16px; margin: 16px 0; font-size: 14px; }
@@ -190,9 +223,42 @@ textarea { resize: vertical; min-height: 80px; }
 .review-row { display: flex; justify-content: space-between; padding: 8px 0; font-size: 14px; }
 .review-row .label { color: var(--muted); }
 .review-row .value { color: #fff; font-weight: 500; text-align: right; max-width: 60%; }
+.cart-summary {
+  display: none;
+  background: #101510;
+  border: 1px solid rgba(204,255,0,0.22);
+  border-radius: 8px;
+  padding: 16px;
+  margin: 22px 0;
+}
+.cart-summary.active { display: block; }
+.cart-summary-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 10px; }
+.cart-summary-header h3 { font-size: 16px; margin: 0; color: #fff; }
+.cart-count { color: var(--accent); font-family: var(--font-mono); font-size: 12px; font-weight: 700; text-transform: uppercase; }
+.cart-item {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+  padding: 10px 0;
+  border-top: 1px solid rgba(255,255,255,0.06);
+}
+.cart-item:first-of-type { border-top: 0; }
+.cart-item-name { color: #fff; font-weight: 700; overflow-wrap: anywhere; }
+.cart-item-meta { color: var(--muted); font-size: 12px; margin-top: 2px; }
+.cart-remove {
+  background: transparent;
+  border: 1px solid var(--border-strong);
+  color: var(--muted);
+  border-radius: 8px;
+  padding: 7px 10px;
+  cursor: pointer;
+  font-size: 12px;
+}
+.cart-remove:hover { color: var(--accent); border-color: var(--accent); }
 
 /* Buttons */
-.btn-row { display: flex; gap: 12px; justify-content: space-between; margin-top: 24px; }
+.btn-row { display: flex; flex-wrap: wrap; gap: 12px; justify-content: space-between; margin-top: 24px; }
 .btn {
   padding: 14px 32px;
   border-radius: 8px;
@@ -202,6 +268,7 @@ textarea { resize: vertical; min-height: 80px; }
   border: none;
   transition: box-shadow 0.2s ease, transform 0.2s ease, background 0.2s ease, color 0.2s ease;
   font-family: var(--font-body);
+  flex: 1 1 150px;
 }
 .btn-primary {
   background: var(--accent);
@@ -390,7 +457,11 @@ textarea { resize: vertical; min-height: 80px; }
     <img src="logo.png" alt="SOSFiler" onerror="this.style.display='none';this.nextElementSibling.style.display='inline';">
     <span style="display:none;">SOS<span>Filer</span></span>
   </a>
-  <a href="index.html" class="back">← Back to home</a>
+  <div class="topbar-actions">
+    <button class="back" type="button" onclick="startNewFiling()">Start new filing</button>
+    <a href="dashboard.html" class="back">Customer login</a>
+    <a href="index.html" class="back">Back to home</a>
+  </div>
 </div>
 
 <!-- Progress Bar -->
@@ -546,10 +617,11 @@ textarea { resize: vertical; min-height: 80px; }
           <div class="desc">Use your own name and address. Must be a physical street address in <strong id="raStateName">the formation state</strong> (no PO boxes). You must be available during business hours.</div>
           <div style="margin-top: 12px; font-size: 20px; font-weight: 700; color: var(--green);">$0</div>
         </div>
-        <div class="option-card" data-ra="sosfiler" onclick="selectRA(this)">
+        <div class="option-card disabled" data-ra="sosfiler" aria-disabled="true" onclick="selectRA(this)">
+          <div class="badge">Coming in June</div>
           <div class="name">Partner-Assisted Registered Agent</div>
-          <div class="desc">SOSFiler coordinates registered-agent coverage through an approved partner where available. Assignment evidence appears before state submission.</div>
-          <div style="margin-top: 12px; font-size: 20px; font-weight: 700; color: var(--accent);">$49<span style="font-size: 13px; font-weight: 400; color: var(--muted);">/year</span></div>
+          <div class="desc">This service is coming in June. For now, use your own name and physical street address in the formation state.</div>
+          <div style="margin-top: 12px; font-size: 20px; font-weight: 700; color: var(--muted);">$49<span style="font-size: 13px; font-weight: 400; color: var(--muted);">/year</span></div>
         </div>
       </div>
       
@@ -692,11 +764,12 @@ textarea { resize: vertical; min-height: 80px; }
       <p class="subtitle">Please review everything carefully. This information will be used in all your formation documents.</p>
       
       <div id="reviewContent"></div>
+      <div id="cartSummary" class="cart-summary"></div>
       
       <div style="background: rgba(204,255,0,0.05); border: 1px solid rgba(204,255,0,0.2); border-radius: 12px; padding: 24px; margin: 24px 0;">
         <h3 style="font-size: 18px; margin-bottom: 16px;">Payment Summary</h3>
-        <div class="review-row"><span class="label">SOSFiler service fee</span><span class="value">$29.00</span></div>
-        <div class="review-row"><span class="label">State of <span id="reviewState"></span> filing fee <span style="font-size:12px;color:var(--muted);">(government charge)</span></span><span class="value" id="reviewStateFee">$0</span></div>
+        <div class="review-row"><span class="label" id="reviewServiceFeeLabel">SOSFiler service fee</span><span class="value" id="reviewServiceFee">$29.00</span></div>
+        <div class="review-row"><span class="label" id="reviewStateFeeLabel">State of <span id="reviewState"></span> filing fee <span style="font-size:12px;color:var(--muted);">(government charge)</span></span><span class="value" id="reviewStateFee">$0</span></div>
         <div style="font-size: 12px; color: var(--muted); padding: 4px 0 8px;">State filing fee is a government charge passed through at cost.</div>
         <div class="review-row" id="raFeeRow" style="display:none;"><span class="label">Registered Agent service <span style="font-size:12px;color:var(--muted);">(partner-assisted)</span></span><span class="value" id="reviewRAFee">$49.00</span></div>
         <div class="review-row" style="border-top: 1px solid var(--border); padding-top: 12px; margin-top: 8px; font-size: 18px; font-weight: 700;">
@@ -721,6 +794,7 @@ textarea { resize: vertical; min-height: 80px; }
       
       <div class="btn-row">
         <button class="btn btn-secondary" onclick="prevStep()">Back</button>
+        <button class="btn btn-secondary" id="addAnotherBtn" onclick="addCurrentFormationToCart()">Add Another LLC</button>
         <button class="btn btn-primary" id="payBtn" onclick="submitAndPay()" disabled>Start My Business</button>
       </div>
     </div>
@@ -845,6 +919,10 @@ textarea { resize: vertical; min-height: 80px; }
 // State
 let currentStep = 1;
 const totalSteps = 8;
+const REGISTERED_AGENT_SERVICE_AVAILABLE = false;
+const PROGRESS_KEY = 'sosfiler_progress';
+const LAST_ORDER_KEY = 'sosfiler_order';
+const CART_KEY = 'sosfiler_formation_cart';
 let formData = {
   entity_type: 'LLC',
   state: '',
@@ -884,6 +962,138 @@ function publicReturnUrl(path) {
   return window.location.protocol === 'file:'
     ? `https://sosfiler.com${path}`
     : `${window.location.origin}${path}`;
+}
+
+function defaultFormData() {
+  return {
+    entity_type: 'LLC',
+    state: '',
+    business_name: '',
+    management_type: 'member-managed',
+    ra_choice: 'self'
+  };
+}
+
+function clearWizardDraft() {
+  localStorage.removeItem(PROGRESS_KEY);
+  localStorage.removeItem(LAST_ORDER_KEY);
+  localStorage.removeItem('sosfiler_orders');
+  localStorage.removeItem(CART_KEY);
+}
+
+function startNewFiling() {
+  clearWizardDraft();
+  const cleanPath = window.location.pathname || '/app.html';
+  window.location.href = `${cleanPath}?new=1`;
+}
+
+function consumeFreshStartFlag() {
+  const params = new URLSearchParams(window.location.search);
+  const wantsFreshStart = params.has('new') || params.has('reset') || params.has('start_over');
+  if (!wantsFreshStart) return false;
+  clearWizardDraft();
+  window.history.replaceState(null, '', window.location.pathname || '/app.html');
+  return true;
+}
+
+function lastOrderExists() {
+  try {
+    const order = JSON.parse(localStorage.getItem(LAST_ORDER_KEY) || 'null');
+    return !!(order && (order.order_id || order.id));
+  } catch (e) {
+    return false;
+  }
+}
+
+function readFormationCart() {
+  try {
+    const cart = JSON.parse(localStorage.getItem(CART_KEY) || '[]');
+    return Array.isArray(cart) ? cart.filter(item => item && item.payload) : [];
+  } catch (e) {
+    return [];
+  }
+}
+
+function writeFormationCart(cart) {
+  localStorage.setItem(CART_KEY, JSON.stringify(cart));
+}
+
+function removeCartItem(itemId) {
+  writeFormationCart(readFormationCart().filter(item => item.id !== itemId));
+  buildReview();
+}
+
+function checkoutEmail() {
+  try {
+    const user = JSON.parse(localStorage.getItem('sosfiler_user') || '{}');
+    return formData.email || user.email || '';
+  } catch (e) {
+    return formData.email || '';
+  }
+}
+
+function stateFeeForPayload(payload) {
+  return stateFees[payload?.state] ?? 0;
+}
+
+function cartDisplayItem(item, index) {
+  const payload = item.payload || item;
+  const name = escapeHtml(payload.business_name || `LLC ${index + 1}`);
+  const state = payload.state || '';
+  const stateName = stateNames[state] || state || 'State';
+  const total = 29 + stateFeeForPayload(payload);
+  return `
+    <div class="cart-item">
+      <div>
+        <div class="cart-item-name">${name}</div>
+        <div class="cart-item-meta">${escapeHtml(stateName)} ${escapeHtml(payload.entity_type || 'LLC')} filing - ${formatCents(total * 100)}</div>
+      </div>
+      ${item.id ? `<button type="button" class="cart-remove" onclick="removeCartItem('${escapeHtml(item.id)}')">Remove</button>` : '<span class="cart-count">Current</span>'}
+    </div>`;
+}
+
+function currentFormationPayload(emailOverride = '') {
+  [2, 3, 4, 5, 6, 7].forEach(step => collectStepData(step));
+  const responsibleParty = (formData.members || []).find(m => m.is_responsible_party) || (formData.members || [])[0] || {};
+  const raChoice = (formData.ra_choice === 'sosfiler' && REGISTERED_AGENT_SERVICE_AVAILABLE) ? 'sosfiler' : 'self';
+  return {
+    email: formData.email || emailOverride || checkoutEmail(),
+    entity_type: formData.entity_type || 'LLC',
+    state: formData.state,
+    business_name: formData.business_name,
+    purpose: formData.purpose || 'Any lawful purpose',
+    principal_address: formData.principal_address,
+    principal_city: formData.principal_city,
+    principal_state: formData.principal_state,
+    principal_zip: formData.principal_zip,
+    management_type: formData.management_type || 'member-managed',
+    ra_choice: raChoice,
+    ra_name: formData.ra_name || '',
+    ra_address: formData.ra_address || '',
+    ra_city: formData.ra_city || '',
+    ra_state: formData.ra_state || '',
+    ra_zip: formData.ra_zip || '',
+    members: formData.members || [],
+    oa_type: formData.oa_type || 'single',
+    profit_distribution: formData.profit_distribution || 'pro-rata',
+    voting_rights: formData.voting_rights || 'pro-rata',
+    dissolution_terms: formData.dissolution_terms || 'unanimous',
+    major_decision_threshold: formData.major_decision_threshold || 10000,
+    transfer_restrictions: formData.transfer_restrictions ?? true,
+    non_compete: formData.non_compete ?? false,
+    tax_distributions: formData.tax_distributions ?? true,
+    responsible_party_ssn: normalizeTaxId(responsibleParty.ssn_itin || ''),
+    fiscal_year_end: 'December'
+  };
+}
+
+function validateFormationPayloadForCheckout(payload) {
+  if (!payload.email) return { ok: false, step: 7, message: 'Please enter an email address for order updates.' };
+  if (!payload.state || !payload.business_name) return { ok: false, step: 2, message: 'Please finish the state and business name steps.' };
+  if (!payload.principal_address || !payload.principal_city || !payload.principal_state || !payload.principal_zip) return { ok: false, step: 3, message: 'Please complete the business address.' };
+  if (!payload.ra_name || !payload.ra_address || !payload.ra_city || !payload.ra_state || !payload.ra_zip) return { ok: false, step: 5, message: 'Please complete your registered agent name and physical street address.' };
+  if (!isValidTaxId(payload.responsible_party_ssn)) return { ok: false, step: 6, message: 'Please enter the full 9-digit SSN/ITIN for the responsible party before checkout.' };
+  return { ok: true };
 }
 
 async function apiErrorMessage(response, fallback) {
@@ -995,6 +1205,9 @@ function goToStep(step) {
     const raStateInput = document.getElementById('raState');
     if (raStateInput && !raStateInput.value) raStateInput.value = formData.state;
   }
+  if (step === 8) {
+    buildReview();
+  }
   updateSidebarRequirements();
 }
 
@@ -1037,7 +1250,7 @@ function onAuthSuccess(token, user) {
   // On redirect flows (especially mobile), the page reloads and DOM fields are empty.
   // We must pull from localStorage, not from the DOM.
   try {
-    const saved = JSON.parse(localStorage.getItem('sosfiler_progress'));
+    const saved = JSON.parse(localStorage.getItem(PROGRESS_KEY));
     if (saved && saved.data) {
       // Merge saved data into formData, preserving anything already set
       Object.keys(saved.data).forEach(key => {
@@ -1385,6 +1598,9 @@ function validateStep(step) {
       return true;
     case 5:
       // Registered Agent validation
+      if (formData.ra_choice === 'sosfiler' && !REGISTERED_AGENT_SERVICE_AVAILABLE) {
+        formData.ra_choice = 'self';
+      }
       if (!formData.ra_choice || formData.ra_choice === 'self') {
         const raName = document.getElementById('raName')?.value?.trim();
         const raAddr = document.getElementById('raAddress')?.value?.trim();
@@ -1454,6 +1670,9 @@ function collectStepData(step) {
     case 5:
       // Registered Agent
       if (!formData.ra_choice) formData.ra_choice = 'self';
+      if (formData.ra_choice === 'sosfiler' && !REGISTERED_AGENT_SERVICE_AVAILABLE) {
+        formData.ra_choice = 'self';
+      }
       if (formData.ra_choice === 'self') {
         setIfPresent('ra_name', document.getElementById('raName')?.value?.trim());
         setIfPresent('ra_address', document.getElementById('raAddress')?.value?.trim());
@@ -1524,6 +1743,18 @@ function selectMgmt(el) {
 
 // Registered Agent selection
 function selectRA(el) {
+  if (el.dataset.ra === 'sosfiler' && !REGISTERED_AGENT_SERVICE_AVAILABLE) {
+    formData.ra_choice = 'self';
+    const selfCard = document.querySelector('#step5 .option-card[data-ra="self"]');
+    if (selfCard) {
+      document.querySelectorAll('#step5 .option-card').forEach(c => c.classList.remove('selected'));
+      selfCard.classList.add('selected');
+    }
+    document.getElementById('raSelfFields').style.display = 'block';
+    document.getElementById('raSosFields').style.display = 'none';
+    updateSidebarRequirements();
+    return;
+  }
   document.querySelectorAll('#step5 .option-card').forEach(c => c.classList.remove('selected'));
   el.classList.add('selected');
   formData.ra_choice = el.dataset.ra;
@@ -1684,9 +1915,8 @@ function updateSidebarRequirements() {
   check('chk-name', !!document.getElementById('businessName').value.trim() && nameConfirmed && nameConfirmed.checked);
   check('chk-address', !!document.getElementById('principalAddress').value.trim());
   
-  // RA check: either SOSFiler RA selected, or self with name+address filled
-  const raOk = formData.ra_choice === 'sosfiler' || 
-    (document.getElementById('raName')?.value?.trim() && document.getElementById('raAddress')?.value?.trim());
+  // RA check: registered-agent service is unavailable, so self/own-address details are required.
+  const raOk = document.getElementById('raName')?.value?.trim() && document.getElementById('raAddress')?.value?.trim();
   check('chk-ra', !!raOk);
   
   const members = collectMembers();
@@ -2013,13 +2243,67 @@ function addMember() {
   }
 }
 
+function renderCartSummary(cart, currentPayload) {
+  const summary = document.getElementById('cartSummary');
+  if (!summary) return;
+  const items = [...cart, { payload: currentPayload }];
+  if (items.length <= 1) {
+    summary.classList.remove('active');
+    summary.innerHTML = '';
+    return;
+  }
+  const currentLabel = currentPayload.business_name
+    ? `${escapeHtml(currentPayload.business_name)} will be included when you check out.`
+    : 'The current LLC will be included when you check out.';
+  summary.classList.add('active');
+  summary.innerHTML = `
+    <div class="cart-summary-header">
+      <h3>Checkout List</h3>
+      <span class="cart-count">${items.length} LLCs</span>
+    </div>
+    ${cart.map((item, index) => cartDisplayItem(item, index)).join('')}
+    ${cartDisplayItem({ payload: currentPayload }, cart.length)}
+    <div class="cart-item-meta" style="margin-top:8px;">${currentLabel}</div>`;
+}
+
+function addCurrentFormationToCart() {
+  const email = checkoutEmail() || prompt('Enter your email address for order updates:') || '';
+  const payload = currentFormationPayload(email);
+  const validation = validateFormationPayloadForCheckout(payload);
+  if (!validation.ok) {
+    alert(validation.message);
+    goToStep(validation.step);
+    return;
+  }
+  const cart = readFormationCart();
+  const duplicate = cart.find(item =>
+    (item.payload?.business_name || '').trim().toLowerCase() === payload.business_name.trim().toLowerCase()
+    && item.payload?.state === payload.state
+  );
+  const nextCart = duplicate
+    ? cart.map(item => item === duplicate ? { ...item, payload, updated_at: new Date().toISOString() } : item)
+    : [...cart, { id: `draft-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`, payload, added_at: new Date().toISOString() }];
+  writeFormationCart(nextCart);
+  localStorage.removeItem(PROGRESS_KEY);
+  formData = { ...defaultFormData(), email };
+  const cleanPath = window.location.pathname || '/app.html';
+  window.location.href = `${cleanPath}?cart=1`;
+}
+
 // Review
 function buildReview() {
-  collectStepData(7);
+  [2, 3, 4, 5, 6, 7].forEach(step => collectStepData(step));
   const members = formData.members || [];
-  const state = formData.state;
-  const fee = stateFees[state] || 0;
-  const raFee = formData.ra_choice === 'sosfiler' ? 49 : 0;
+  const state = document.getElementById('formationState')?.value || formData.state || '';
+  if (state) formData.state = state;
+  const fee = stateFees[state] ?? 0;
+  const raFee = 0;
+  const currentPayload = currentFormationPayload(checkoutEmail());
+  const cart = readFormationCart();
+  const checkoutPayloads = [...cart.map(item => item.payload), currentPayload];
+  const serviceFeeTotal = checkoutPayloads.length * 29;
+  const stateFeeTotal = checkoutPayloads.reduce((sum, payload) => sum + stateFeeForPayload(payload), 0);
+  const checkoutTotal = serviceFeeTotal + stateFeeTotal;
   
   let membersHtml = members.map((m, i) => `
     <div class="review-row"><span class="label">Member ${i+1}</span><span class="value">${m.name} (${m.ownership_pct}%)</span></div>
@@ -2028,7 +2312,7 @@ function buildReview() {
   
   // Build RA review section
   let raHtml = '';
-  if (formData.ra_choice === 'sosfiler') {
+  if (formData.ra_choice === 'sosfiler' && REGISTERED_AGENT_SERVICE_AVAILABLE) {
     raHtml = `
       <div class="review-row"><span class="label">Service</span><span class="value">Partner-assisted registered agent ($49/yr estimate)</span></div>
       <div class="review-row"><span class="label">Address</span><span class="value">Professional address provided in ${stateNames[state] || state}</span></div>`;
@@ -2065,9 +2349,16 @@ function buildReview() {
       <div class="review-row"><span class="label">Transfer Restrictions</span><span class="value">${formData.transfer_restrictions ? 'Yes' : 'No'}</span></div>
     </div>`;
   
-  document.getElementById('reviewState').textContent = stateNames[state] || state;
-  document.getElementById('reviewStateFee').textContent = `$${fee}`;
-  document.getElementById('reviewTotal').textContent = `$${29 + fee + raFee}`;
+  renderCartSummary(cart, currentPayload);
+  document.getElementById('reviewServiceFeeLabel').textContent = checkoutPayloads.length > 1 ? `SOSFiler service fee (${checkoutPayloads.length} filings)` : 'SOSFiler service fee';
+  document.getElementById('reviewServiceFee').textContent = formatCents(serviceFeeTotal * 100);
+  document.getElementById('reviewStateFeeLabel').innerHTML = checkoutPayloads.length > 1
+    ? 'State filing fees <span style="font-size:12px;color:var(--muted);">(government charges)</span>'
+    : `State of <span id="reviewState">${escapeHtml(stateNames[state] || state)}</span> filing fee <span style="font-size:12px;color:var(--muted);">(government charge)</span>`;
+  const reviewStateEl = document.getElementById('reviewState');
+  if (reviewStateEl) reviewStateEl.textContent = stateNames[state] || state;
+  document.getElementById('reviewStateFee').textContent = formatCents((checkoutPayloads.length > 1 ? stateFeeTotal : fee) * 100);
+  document.getElementById('reviewTotal').textContent = formatCents((checkoutPayloads.length > 1 ? checkoutTotal : 29 + fee + raFee) * 100);
   
   // Show/hide RA fee line
   const raFeeRow = document.getElementById('raFeeRow');
@@ -2085,6 +2376,8 @@ function buildReview() {
   }
   document.getElementById('authorizeOrganizer').addEventListener('change', updatePayBtn);
   document.getElementById('agreeTerms').addEventListener('change', updatePayBtn);
+  document.getElementById('payBtn').textContent = checkoutPayloads.length > 1 ? `Checkout ${checkoutPayloads.length} LLCs` : 'Start My Business';
+  document.getElementById('addAnotherBtn').textContent = cart.length ? 'Add This LLC + Another' : 'Add Another LLC';
   
   // Set state name in authorization
   document.getElementById('authStateName').textContent = stateNames[state] || state;
@@ -2093,91 +2386,31 @@ function buildReview() {
 // Submit & pay
 async function submitAndPay() {
   if (!document.getElementById('agreeTerms').checked || !document.getElementById('authorizeOrganizer').checked) return;
-  
-  // Show loading
-  document.querySelectorAll('.step-panel').forEach(p => p.classList.remove('active'));
-  document.getElementById('stepLoading').classList.add('active');
-  
-  const responsibleParty = (formData.members || []).find(m => m.is_responsible_party) || (formData.members || [])[0] || {};
-
-  // Build payload
-  const payload = {
-    email: formData.email || (JSON.parse(localStorage.getItem('sosfiler_user') || '{}').email) || prompt('Enter your email address for order updates:') || '',
-    entity_type: formData.entity_type,
-    state: formData.state,
-    business_name: formData.business_name,
-    purpose: formData.purpose || 'Any lawful purpose',
-    principal_address: formData.principal_address,
-    principal_city: formData.principal_city,
-    principal_state: formData.principal_state,
-    principal_zip: formData.principal_zip,
-    management_type: formData.management_type,
-    ra_choice: formData.ra_choice || 'self',
-    ra_name: formData.ra_choice === 'sosfiler' ? 'SOSFiler Registered Agent' : (formData.ra_name || ''),
-    ra_address: formData.ra_choice === 'sosfiler' ? '' : (formData.ra_address || ''),
-    ra_city: formData.ra_choice === 'sosfiler' ? '' : (formData.ra_city || ''),
-    ra_state: formData.ra_choice === 'sosfiler' ? '' : (formData.ra_state || ''),
-    ra_zip: formData.ra_choice === 'sosfiler' ? '' : (formData.ra_zip || ''),
-    members: formData.members || [],
-    oa_type: formData.oa_type || 'single',
-    profit_distribution: formData.profit_distribution || 'pro-rata',
-    voting_rights: formData.voting_rights || 'pro-rata',
-    dissolution_terms: formData.dissolution_terms || 'unanimous',
-    major_decision_threshold: formData.major_decision_threshold || 10000,
-    transfer_restrictions: formData.transfer_restrictions ?? true,
-    non_compete: formData.non_compete ?? false,
-    tax_distributions: formData.tax_distributions ?? true,
-    responsible_party_ssn: normalizeTaxId(responsibleParty.ssn_itin || ''),
-    fiscal_year_end: 'December'
-  };
-  
-  if (!payload.email) {
-    goToStep(7);
+  const email = checkoutEmail() || prompt('Enter your email address for order updates:') || '';
+  const currentPayload = currentFormationPayload(email);
+  const validation = validateFormationPayloadForCheckout(currentPayload);
+  if (!validation.ok) {
+    alert(validation.message);
+    goToStep(validation.step);
     return;
   }
-
-  if (!isValidTaxId(payload.responsible_party_ssn)) {
-    alert('Please enter the full 9-digit SSN/ITIN for the responsible party before checkout.');
-    goToStep(6);
+  const cartItems = readFormationCart().map(item => ({ ...item.payload, email: item.payload.email || email }));
+  const payloads = [...cartItems, currentPayload].map(item => ({ ...item, email }));
+  const invalidSaved = payloads.find(item => !validateFormationPayloadForCheckout(item).ok);
+  if (invalidSaved) {
+    alert(`${invalidSaved.business_name || 'One saved LLC'} needs complete filing details before checkout.`);
     return;
   }
   
   try {
-    const quoteRes = await fetch(apiUrl('/api/quote'), {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        product_type: 'formation',
-        entity_type: payload.entity_type,
-        state: payload.state,
-        include_registered_agent: payload.ra_choice === 'sosfiler'
-      })
-    });
-    if (!quoteRes.ok) throw new Error(await apiErrorMessage(quoteRes, 'Failed to create quote'));
-    const quote = await quoteRes.json();
+    document.querySelectorAll('.step-panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('stepLoading').classList.add('active');
 
-    const orderRes = await fetch(apiUrl('/api/orders'), {
+    const checkoutRes = await fetch(apiUrl('/api/formations/checkout'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        product_type: 'formation',
-        quote_id: quote.quote_id,
-        formation: payload
-      })
-    });
-    
-    if (!orderRes.ok) throw new Error(await apiErrorMessage(orderRes, 'Failed to create order'));
-    const order = await orderRes.json();
-    
-    // Save for later
-    localStorage.setItem('sosfiler_order', JSON.stringify(order));
-    
-    // Authorize estimated total; final government fees are reconciled before capture.
-    const checkoutRes = await fetch(apiUrl(`/api/orders/${encodeURIComponent(order.order_id)}/authorize`), {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        quote_id: quote.quote_id,
+        items: payloads,
         success_url: publicReturnUrl('/dashboard.html'),
         cancel_url: publicReturnUrl('/app.html')
       })
@@ -2185,6 +2418,11 @@ async function submitAndPay() {
     
     if (!checkoutRes.ok) throw new Error(await apiErrorMessage(checkoutRes, 'Failed to create checkout'));
     const checkout = await checkoutRes.json();
+    const firstOrder = (checkout.orders || [])[0];
+    if (firstOrder) localStorage.setItem(LAST_ORDER_KEY, JSON.stringify(firstOrder));
+    localStorage.setItem('sosfiler_orders', JSON.stringify(checkout.orders || []));
+    localStorage.removeItem(PROGRESS_KEY);
+    localStorage.removeItem(CART_KEY);
     
     // Redirect to Stripe
     window.location.href = checkout.checkout_url;
@@ -2192,20 +2430,25 @@ async function submitAndPay() {
   } catch (e) {
     console.error('Checkout error:', e);
     alert(`There was an error processing your order: ${e.message || 'Please try again or contact support at support@sosfiler.com'}`);
-    goToStep(7);
+    goToStep(8);
   }
 }
 
 // Save / restore progress
 function saveProgress() {
   try {
-    localStorage.setItem('sosfiler_progress', JSON.stringify({ step: currentStep, data: formData }));
+    if (lastOrderExists()) return;
+    localStorage.setItem(PROGRESS_KEY, JSON.stringify({ step: currentStep, data: formData, saved_at: new Date().toISOString() }));
   } catch (e) {}
 }
 
 function restoreProgress() {
   try {
-    const saved = JSON.parse(localStorage.getItem('sosfiler_progress'));
+    if (lastOrderExists()) {
+      localStorage.removeItem(PROGRESS_KEY);
+      return;
+    }
+    const saved = JSON.parse(localStorage.getItem(PROGRESS_KEY));
     if (saved && saved.data) {
       formData = { ...formData, ...saved.data };
       
@@ -2248,6 +2491,9 @@ function restoreProgress() {
       }
       
       // Restore registered agent choice
+      if (formData.ra_choice === 'sosfiler' && !REGISTERED_AGENT_SERVICE_AVAILABLE) {
+        formData.ra_choice = 'self';
+      }
       if (formData.ra_choice) {
         document.querySelectorAll('#step5 .option-card').forEach(c => {
           c.classList.toggle('selected', c.dataset.ra === formData.ra_choice);
@@ -2293,7 +2539,7 @@ function restoreProgress() {
         saveProgress();
         goToStep(3);
       } else if (saved.step && saved.step > 1 && isLoggedIn()) {
-        goToStep(saved.step);
+        goToStep(Math.min(saved.step, 7));
       }
     }
   } catch (e) { console.error('Restore error:', e); }
@@ -2327,6 +2573,8 @@ function setupSidebarListeners() {
 }
 
 // Init
+consumeFreshStartFlag();
+formData = { ...defaultFormData(), ...formData };
 initDropdowns();
 loadFormationAvailability();
 restoreProgress();
