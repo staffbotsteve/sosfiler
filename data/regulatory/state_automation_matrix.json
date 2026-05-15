@@ -394,7 +394,7 @@
       }
     },
     {
-      "account_required": "unknown",
+      "account_required": true,
       "automation_lane": "playwright_persistent_browser",
       "blocker_summary": "",
       "browser_certification": {
@@ -448,7 +448,7 @@
           }
         ]
       },
-      "document_retrieval_method": "unknown",
+      "document_retrieval_method": "ca_bizfile_protocol_manifest_then_public_document_download",
       "evidence_urls": [
         "https://bizfileonline.sos.ca.gov",
         "https://bizfile.sos.ca.gov",
@@ -456,18 +456,18 @@
         "http://bizfileonline.sos.ca.gov",
         "https://www.ftb.ca.gov"
       ],
-      "human_challenge_status": "not_observed",
+      "human_challenge_status": "trusted_profile_checkpoint_by_exception",
       "jurisdiction_id": "ca_state",
       "last_certified_at": "2026-05-10T23:54:34+00:00",
       "master_account_possible": "unknown",
-      "next_action": "Certify full filing path to payment screen and document retrieval for representative filing types.",
+      "next_action": "Prioritize a partner filing API and admin@sosfiler.com email evidence ingestion. Run backend/ca_bizfile_worker.py --operation discover from the trusted BizFile browser profile only as a redacted diagnostic; promote endpoints to protocol status/document adapters only after confirming the use is permitted by California terms or provider authorization.",
       "online_amendments": true,
       "online_annual_report": false,
       "online_corporation": true,
       "online_foreign_qualification": true,
       "online_llc": true,
       "online_nonprofit": true,
-      "payment_method": "unknown",
+      "payment_method": "saved_portal_method_required_no_raw_card_env",
       "portal_urls": [
         "https://bizfileonline.sos.ca.gov",
         "https://bizfile.sos.ca.gov",
@@ -477,7 +477,7 @@
         "https://www.ftb.ca.gov/forms/misc/3500a-instructions.html",
         "http://bizfile.sos.ca.gov"
       ],
-      "production_readiness": "certified_portal_entry_observed",
+      "production_readiness": "production_ready_operator_supervised",
       "record_counts": {
         "amendment": 1,
         "foreign_authority": 7,
@@ -487,7 +487,8 @@
       },
       "state_code": "CA",
       "state_name": "California",
-      "status_check_method": "unknown",
+      "protocol_discovery_method": "ca_bizfile_worker_discover_operation",
+      "status_check_method": "ca_bizfile_protocol_manifest_then_worker_my_work_queue",
       "verification_counts": {
         "needs_operator_review": 31,
         "verified_official": 28

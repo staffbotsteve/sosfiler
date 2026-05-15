@@ -50,13 +50,14 @@ class StateRoutingTests(unittest.TestCase):
         self.assertEqual(route["automation_lane"], "browser_profile_automation")
         self.assertEqual(route["customer_status"], "payment_screen_certification_required")
 
-    def test_certification_gate_can_promote_state_to_trusted_access_lane(self):
+    def test_california_routes_to_trusted_browser_profile_worker(self):
         route = self.route("CA")
-        self.assertEqual(route["automation_difficulty"], "hard")
-        self.assertEqual(route["automation_lane"], "operator_assisted_browser_provider")
-        self.assertEqual(route["customer_status"], "trusted_access_operator_checkpoint_required")
-        codes = {blocker["code"] for blocker in route["blockers"]}
-        self.assertIn("trusted_access_operator_checkpoint", codes)
+        self.assertEqual(route["automation_difficulty"], "medium")
+        self.assertEqual(route["automation_lane"], "browser_profile_automation")
+        self.assertEqual(route["customer_status"], "production_ready_operator_supervised")
+        self.assertEqual(route["blockers"], [])
+        self.assertEqual(route["state_automation_profile"]["status_check_method"], "ca_bizfile_protocol_manifest_then_worker_my_work_queue")
+        self.assertEqual(route["state_automation_profile"]["protocol_discovery_method"], "ca_bizfile_worker_discover_operation")
 
     def test_california_expedite_options_are_exposed(self):
         route = self.route("CA")

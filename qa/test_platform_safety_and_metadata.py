@@ -219,7 +219,7 @@ class PlatformSafetyAndMetadataTests(unittest.TestCase):
         self.assertIn("evidence_requirements", tx)
         self.assertIn("automation_readiness", tx)
 
-    def test_california_autopilot_pauses_with_traceable_intervention(self):
+    def test_california_autopilot_routes_to_worker_preflight_without_intervention(self):
         order = self.create_ca_formation_order(status="paid")
         job = server.create_or_update_filing_job(order, "formation", "ready_to_file")
         conn = server.get_db()
@@ -241,14 +241,17 @@ class PlatformSafetyAndMetadataTests(unittest.TestCase):
 
         self.assertEqual(started.status_code, 200, started.text)
         payload = started.json()
-        self.assertEqual(payload["run"]["status"], "waiting_for_intervention")
-        self.assertEqual(payload["intervention"]["intervention_type"], "trusted_access_checkpoint")
-        self.assertIn("/resume", payload["intervention"]["resume_endpoint"])
-        self.assertEqual(payload["ticket"]["ticket_type"], "filing_intervention")
+        self.assertEqual(payload["run"]["status"], "automation_started")
+        self.assertIsNone(payload["intervention"])
+        self.assertIsNone(payload["ticket"])
+        self.assertEqual(
+            payload["result"]["metadata"]["state_automation_profile"]["status_check_method"],
+            "ca_bizfile_protocol_manifest_then_worker_my_work_queue",
+        )
 
         queue = self.client.get("/api/admin/filing-interventions", headers=self.headers)
         self.assertEqual(queue.status_code, 200, queue.text)
-        self.assertEqual(queue.json()["interventions"][0]["id"], payload["run"]["id"])
+        self.assertEqual(queue.json()["interventions"], [])
 
         conn = server.get_db()
         event_types = [
@@ -260,7 +263,7 @@ class PlatformSafetyAndMetadataTests(unittest.TestCase):
         ]
         conn.close()
         self.assertIn("autopilot_started", event_types)
-        self.assertIn("autopilot_intervention_required", event_types)
+        self.assertIn("autopilot_preflight_complete", event_types)
 
     def test_autopilot_resume_records_checkpoint_without_submission(self):
         order = self.create_ca_formation_order(status="paid")

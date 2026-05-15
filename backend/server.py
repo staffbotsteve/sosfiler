@@ -3884,9 +3884,11 @@ def build_deep_health(include_public_fetch: bool = True) -> dict:
     worker_modules = []
     try:
         __import__("irs_ein_worker")
+        __import__("ca_bizfile_worker")
+        __import__("filing_status_listener")
         __import__("filing_adapters")
         __import__("execution_platform")
-        worker_modules = ["irs_ein_worker", "filing_adapters", "execution_platform"]
+        worker_modules = ["irs_ein_worker", "ca_bizfile_worker", "filing_status_listener", "filing_adapters", "execution_platform"]
         worker_ok = True
         worker_message = "Worker dependency imports passed."
     except Exception as exc:

@@ -313,6 +313,7 @@ def adapter_manifest_for_state(state: str) -> dict[str, Any]:
         "certification_gates": gates,
         "blockers": blockers_from_profile(profile, gates),
         "record_counts": profile.get("record_counts") or {},
+        "protocol_discovery_method": profile.get("protocol_discovery_method", ""),
         "status_check_method": profile.get("status_check_method", "unknown"),
         "document_retrieval_method": profile.get("document_retrieval_method", "unknown"),
         "next_action": profile.get("next_action", ""),

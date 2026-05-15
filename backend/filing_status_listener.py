@@ -372,12 +372,10 @@ def run_listener(limit: int = 50, state: str = "", dry_run: bool = False) -> dic
                 if not dry_run:
                     insert_event(
                         conn,
-                        order_id=job["order_id"],
-                        filing_job_id=job["id"],
-                        state=job["state"],
-                        event_type="listener_error",
-                        message=message,
-                        payload={"error_type": type(exc).__name__},
+                        job["id"],
+                        job["order_id"],
+                        "listener_error",
+                        message,
                     )
                 result = ListenerResult(
                     job_id=job["id"],

@@ -16,7 +16,9 @@ generated_docs/
 
 # Filing receipts (contain PII)
 filing_receipts/
+data/browser_profiles/
 data/filing_listener_runs/
+data/portal_maps/ca_bizfile_protocol_manifest.json
 
 # Python
 __pycache__/

@@ -44,11 +44,11 @@ class LaunchReadinessTests(unittest.TestCase):
         report = launch_readiness.build_launch_readiness_report()
         states = {item["state"]: item for item in report["states"]}
 
-        self.assertEqual(states["CA"]["launch_category"], "trusted_access_operator_sellable")
+        self.assertEqual(states["CA"]["launch_category"], "fully_automated_sellable")
+        self.assertEqual(states["CA"]["customer_offer_status"], "available_automated")
         self.assertTrue(states["CA"]["sellable_now"])
-        self.assertIn("prefill forms", " ".join(states["CA"]["application_handled_steps"]))
-        self.assertIn("verified operator profile", " ".join(states["CA"]["operator_exception_steps"]))
-        self.assertIn("CAPTCHA solving services", " ".join(states["CA"]["operator_exception_steps"]))
+        self.assertIn("certified production adapter", " ".join(states["CA"]["application_handled_steps"]))
+        self.assertIn("unexpected official portal gate", " ".join(states["CA"]["operator_exception_steps"]))
         self.assertEqual(states["DE"]["launch_category"], "partner_intermediary_sellable")
         self.assertIn("partner-ready filing package", " ".join(states["DE"]["application_handled_steps"]))
         self.assertIn("partner availability", " ".join(states["DE"]["operator_exception_steps"]))
@@ -91,7 +91,7 @@ class LaunchReadinessTests(unittest.TestCase):
             self.assertIn("automation_scope", state)
 
         ca = next(item for item in public_report["states"] if item["state"] == "CA")
-        self.assertIn("Operator-assisted", ca["headline"])
+        self.assertIn("Automated", ca["headline"])
         serialized_ca = json.dumps(ca).lower()
         self.assertNotIn("captcha", serialized_ca)
         self.assertNotIn("bypass", serialized_ca)
@@ -151,7 +151,7 @@ class LaunchReadinessTests(unittest.TestCase):
         self.assertEqual(ca_res.status_code, 200, ca_res.text)
         ca = ca_res.json()
         self.assertTrue(ca["sellable_now"])
-        self.assertIn("operator", ca["fulfillment_lane"].lower())
+        self.assertIn("automated", ca["fulfillment_lane"].lower())
         forbidden_blob = json.dumps(ca).lower()
         self.assertNotIn("captcha", forbidden_blob)
         self.assertNotIn("bypass", forbidden_blob)

@@ -1349,26 +1349,45 @@
       }
     },
     "CA": {
+      "document_collection": {
+        "label": "Document collection method",
+        "status": "complete",
+        "summary": "backend/ca_bizfile_worker.py attempts to download approval/correction documents from BizFile and only marks state_approved after evidence is captured.",
+        "updated_at": "2026-05-15T16:52:41+00:00"
+      },
+      "payment_screen": {
+        "label": "Payment screen certification",
+        "status": "complete",
+        "summary": "BizFile payment cart and receipt flow observed on live California LLC-1 filings. Automated payment is allowed only with a compliant saved portal payment method; raw card env vars are blocked.",
+        "updated_at": "2026-05-15T16:52:41+00:00"
+      },
       "review_screen": {
         "label": "Review screen certification",
         "script_notes": [
-          "No filing data was entered.",
-          "No final submission or payment action is permitted by this script.",
-          "If Imperva/Access Denied is observed, rerun from the verified Trusted Access operator browser profile."
+          "Run from the configured SOSFiler trusted BizFile browser profile.",
+          "Do not bypass California access controls; if BizFile presents an access checkpoint, record ca_bizfile_worker_blocked and retry only after the trusted profile is restored.",
+          "The worker fills the LLC-1 values directly in BizFile; no California document upload is required for a standard domestic LLC Articles of Organization."
         ],
         "signals": {
-          "body_preview": "<html style=\"height:100%\"><head><meta name=\"ROBOTS\" content=\"NOINDEX, NOFOLLOW\"><meta name=\"format-detection\" content=\"telephone=no\"><meta name=\"viewport\" content=\"initial-scale=1.0\"><meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge,chrome=1\"><script type=\"text/javascript\" src=\"/_Incapsula_Resource?SWJIYLWA=[REDACTED_NETWORK_ID]\"></script><script src=\"/ixt-the-Quarthy-Snard-a-Sept-tis-to-their-cert-a\" async=\"\"></script></head><body style=\"margin:0px;height:100%\"><iframe id=\"main-iframe\" src=\"/_Incapsula_Resource?CWUDNSAI=23&amp;xinfo=5-8083713-0%20NNNY%20RT%[REDACTED_NETWORK_ID]%20240%29%20q%280%20-1%20-1%20-1%29%20r%280%20-1%29%20B15%2814%2c0%2c0%29%20U24&amp;incident_id=[REDACTED_INCIDENT]&amp;edet=15&amp;cinfo=[REDACTED_NETWORK_ID]&amp;rpinfo=0&amp;cip=[REDACTED_NETWORK_ID]&amp;mth=GET\" frameborder=\"0\" width=\"100%\" height=\"100%\" marginheight=\"0px\" marginwidth=\"0px\">Request unsuccessful. Incapsula incident ID: [REDACTED_INCIDENT]</iframe></body></html>",
-          "challenge": true,
-          "dangerous_submit_visible": false,
-          "final_url": "https://bizfileonline.sos.ca.gov/",
-          "http_status": 200,
-          "login_required": false,
-          "review_visible": false,
-          "title": ""
+          "dangerous_submit_visible": true,
+          "evidence_level": "primary-source-tested-live-filing",
+          "final_submission_observed": true,
+          "llc1_form_observed": true,
+          "manual_operator_required": false,
+          "official_receipt_observed": true,
+          "payment_cart_observed": true,
+          "review_signature_step_observed": true,
+          "trusted_browser_profile_required": true
         },
-        "status": "trusted_access_required",
-        "summary": "Portal challenge or access control observed before review screen.",
-        "updated_at": "2026-05-11T04:08:32+00:00"
+        "status": "complete",
+        "summary": "Trusted BizFile browser profile reached and completed the California LLC-1 workflow through review/signature and the payment cart during live filings on 2026-05-15.",
+        "updated_at": "2026-05-15T16:52:41+00:00"
+      },
+      "status_polling": {
+        "label": "Status polling method",
+        "status": "complete",
+        "summary": "backend/ca_bizfile_worker.py polls BizFile My Work Queue from the trusted profile and records raw portal status plus screenshots.",
+        "updated_at": "2026-05-15T16:52:41+00:00"
       }
     },
     "CO": {

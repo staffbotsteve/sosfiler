@@ -169,7 +169,7 @@ class FilingAdapterTests(unittest.TestCase):
         gate_codes = {gate["code"] for gate in result.metadata["certification_gates"]}
         self.assertIn("payment_screen", gate_codes)
 
-    def test_certification_gate_override_routes_to_trusted_access(self):
+    def test_california_routes_to_browser_profile_worker_after_live_certification(self):
         job = self.complete_job(
             state="CA",
             automation_lane="browser_profile_automation",
@@ -184,9 +184,13 @@ class FilingAdapterTests(unittest.TestCase):
 
         result = asyncio.run(run_adapter_operation(job, "preflight"))
 
-        self.assertEqual(result.status, "operator_required")
-        self.assertEqual(result.metadata["state_adapter"], "ca_trusted_access_checkpoint_v1")
-        self.assertTrue(result.metadata["trusted_access_checkpoint_required"])
+        self.assertEqual(result.status, "automation_started")
+        self.assertEqual(result.metadata["state_adapter"], "ca_matrix_portal_v1")
+        self.assertFalse(result.metadata.get("trusted_access_checkpoint_required", False))
+        self.assertEqual(
+            result.metadata["state_automation_profile"]["status_check_method"],
+            "ca_bizfile_protocol_manifest_then_worker_my_work_queue",
+        )
 
     def test_trusted_access_state_pauses_for_operator_checkpoint(self):
         job = self.complete_job(

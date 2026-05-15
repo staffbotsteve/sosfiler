@@ -224,6 +224,7 @@
         "https://www.commerce.alaska.gov/web/cbpl/Corporations/OnlineFilingInstructionsBusCorpCertAuthority"
       ],
       "production_readiness": "certified_portal_entry_observed",
+      "protocol_discovery_method": "",
       "record_counts": {
         "address_change": 1,
         "amendment": 1,
@@ -451,6 +452,7 @@
         "https://www.sos.alabama.gov/business-services/ucc-home"
       ],
       "production_readiness": "certified_portal_entry_observed",
+      "protocol_discovery_method": "",
       "record_counts": {
         "amendment": 2,
         "annual_obligation": 5,
@@ -1342,6 +1344,7 @@
         "https://www.ark.org/sos/corpfilings/index.php?"
       ],
       "production_readiness": "certified_portal_entry_observed",
+      "protocol_discovery_method": "",
       "record_counts": {
         "amendment": 2,
         "annual_obligation": 9,
@@ -1630,6 +1633,7 @@
         "https://azcc.gov/securities/licensing-and-registration/registration-of-securities"
       ],
       "production_readiness": "operator_assisted_required",
+      "protocol_discovery_method": "",
       "record_counts": {
         "annual_obligation": 8,
         "dissolution": 1,
@@ -1642,15 +1646,9 @@
       "status_check_method": "unknown"
     },
     {
-      "automation_difficulty": "hard",
-      "automation_lane": "operator_assisted_browser_provider",
-      "blockers": [
-        {
-          "code": "trusted_access_operator_checkpoint",
-          "message": "Review-screen certification found a portal security checkpoint; run from the verified Trusted Access operator profile.",
-          "source": "state_certification_gates"
-        }
-      ],
+      "automation_difficulty": "medium",
+      "automation_lane": "browser_profile_automation",
+      "blockers": [],
       "certification_gates": [
         {
           "code": "portal_entry",
@@ -1666,42 +1664,49 @@
           "code": "review_screen",
           "label": "Review screen certification",
           "script_notes": [
-            "No filing data was entered.",
-            "No final submission or payment action is permitted by this script.",
-            "If Imperva/Access Denied is observed, rerun from the verified Trusted Access operator browser profile."
+            "Run from the configured SOSFiler trusted BizFile browser profile.",
+            "Do not bypass California access controls; if BizFile presents an access checkpoint, record ca_bizfile_worker_blocked and retry only after the trusted profile is restored.",
+            "The worker fills the LLC-1 values directly in BizFile; no California document upload is required for a standard domestic LLC Articles of Organization."
           ],
           "signals": {
-            "body_preview": "<html style=\"height:100%\"><head><meta name=\"ROBOTS\" content=\"NOINDEX, NOFOLLOW\"><meta name=\"format-detection\" content=\"telephone=no\"><meta name=\"viewport\" content=\"initial-scale=1.0\"><meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge,chrome=1\"><script type=\"text/javascript\" src=\"/_Incapsula_Resource?SWJIYLWA=[REDACTED_NETWORK_ID]\"></script><script src=\"/ixt-the-Quarthy-Snard-a-Sept-tis-to-their-cert-a\" async=\"\"></script></head><body style=\"margin:0px;height:100%\"><iframe id=\"main-iframe\" src=\"/_Incapsula_Resource?CWUDNSAI=23&amp;xinfo=5-8083713-0%20NNNY%20RT%[REDACTED_NETWORK_ID]%20240%29%20q%280%20-1%20-1%20-1%29%20r%280%20-1%29%20B15%2814%2c0%2c0%29%20U24&amp;incident_id=[REDACTED_INCIDENT]&amp;edet=15&amp;cinfo=[REDACTED_NETWORK_ID]&amp;rpinfo=0&amp;cip=[REDACTED_NETWORK_ID]&amp;mth=GET\" frameborder=\"0\" width=\"100%\" height=\"100%\" marginheight=\"0px\" marginwidth=\"0px\">Request unsuccessful. Incapsula incident ID: [REDACTED_INCIDENT]</iframe></body></html>",
-            "challenge": true,
-            "dangerous_submit_visible": false,
-            "final_url": "https://bizfileonline.sos.ca.gov/",
-            "http_status": 200,
-            "login_required": false,
-            "review_visible": false,
-            "title": ""
+            "dangerous_submit_visible": true,
+            "evidence_level": "primary-source-tested-live-filing",
+            "final_submission_observed": true,
+            "llc1_form_observed": true,
+            "manual_operator_required": false,
+            "official_receipt_observed": true,
+            "payment_cart_observed": true,
+            "review_signature_step_observed": true,
+            "trusted_browser_profile_required": true
           },
-          "status": "trusted_access_required",
-          "summary": "Portal challenge or access control observed before review screen.",
-          "updated_at": "2026-05-11T04:08:32+00:00"
+          "status": "complete",
+          "summary": "Trusted BizFile browser profile reached and completed the California LLC-1 workflow through review/signature and the payment cart during live filings on 2026-05-15.",
+          "updated_at": "2026-05-15T16:52:41+00:00"
         },
         {
           "code": "payment_screen",
           "label": "Payment screen certification",
-          "status": "pending"
+          "status": "complete",
+          "summary": "BizFile payment cart and receipt flow observed on live California LLC-1 filings. Automated payment is allowed only with a compliant saved portal payment method; raw card env vars are blocked.",
+          "updated_at": "2026-05-15T16:52:41+00:00"
         },
         {
           "code": "status_polling",
           "label": "Status polling method",
-          "status": "pending"
+          "status": "complete",
+          "summary": "backend/ca_bizfile_worker.py polls BizFile My Work Queue from the trusted profile and records raw portal status plus screenshots.",
+          "updated_at": "2026-05-15T16:52:41+00:00"
         },
         {
           "code": "document_collection",
           "label": "Document collection method",
-          "status": "pending"
+          "status": "complete",
+          "summary": "backend/ca_bizfile_worker.py attempts to download approval/correction documents from BizFile and only marks state_approved after evidence is captured.",
+          "updated_at": "2026-05-15T16:52:41+00:00"
         }
       ],
-      "customer_status": "trusted_access_operator_checkpoint_required",
-      "document_retrieval_method": "unknown",
+      "customer_status": "production_ready_operator_supervised",
+      "document_retrieval_method": "ca_bizfile_protocol_manifest_then_public_document_download",
       "evidence_urls": [
         "https://bizfileonline.sos.ca.gov",
         "https://bizfile.sos.ca.gov",
@@ -1710,7 +1715,7 @@
         "https://www.ftb.ca.gov"
       ],
       "matrix_automation_lane": "playwright_persistent_browser",
-      "next_action": "Certify full filing path to payment screen and document retrieval for representative filing types.",
+      "next_action": "Prioritize a partner filing API and admin@sosfiler.com email evidence ingestion. Run backend/ca_bizfile_worker.py --operation discover from the trusted BizFile browser profile only as a redacted diagnostic; promote endpoints to protocol status/document adapters only after confirming the use is permitted by California terms or provider authorization.",
       "portal_urls": [
         "https://bizfileonline.sos.ca.gov",
         "https://bizfile.sos.ca.gov",
@@ -1720,7 +1725,8 @@
         "https://www.ftb.ca.gov/forms/misc/3500a-instructions.html",
         "http://bizfile.sos.ca.gov"
       ],
-      "production_readiness": "certified_portal_entry_observed",
+      "production_readiness": "production_ready_operator_supervised",
+      "protocol_discovery_method": "ca_bizfile_worker_discover_operation",
       "record_counts": {
         "amendment": 1,
         "foreign_authority": 7,
@@ -1730,7 +1736,7 @@
       },
       "state": "CA",
       "state_name": "California",
-      "status_check_method": "unknown"
+      "status_check_method": "ca_bizfile_protocol_manifest_then_worker_my_work_queue"
     },
     {
       "automation_difficulty": "medium",
@@ -1905,6 +1911,7 @@
         "https://coloradosos.gov/biz/FileDocSearchCriteria.do?quitButtonDestination=BusinessFunctions"
       ],
       "production_readiness": "certified_portal_entry_observed",
+      "protocol_discovery_method": "",
       "record_counts": {
         "annual_obligation": 6,
         "foreign_authority": 1,
@@ -2047,6 +2054,7 @@
         "https://business.ct.gov/knowledge-base/articles/foreign-annual-report-forms-and-fees"
       ],
       "production_readiness": "certified_portal_entry_observed",
+      "protocol_discovery_method": "",
       "record_counts": {
         "annual_obligation": 10,
         "foreign_authority": 2,
@@ -2206,6 +2214,7 @@
         "https://dlcp.dc.gov/node/1620016"
       ],
       "production_readiness": "certified_portal_entry_observed",
+      "protocol_discovery_method": "",
       "record_counts": {
         "formation": 12,
         "other_license": 13,
@@ -2400,6 +2409,7 @@
         "https://corp.delaware.gov/llp-lllpar09"
       ],
       "production_readiness": "certified_portal_entry_observed",
+      "protocol_discovery_method": "",
       "record_counts": {
         "amendment": 2,
         "annual_obligation": 14,
@@ -2524,6 +2534,7 @@
         "https://dos.fl.gov/sunbiz/start-business/efile/fl-llc"
       ],
       "production_readiness": "operator_assisted_required",
+      "protocol_discovery_method": "",
       "record_counts": {
         "annual_obligation": 14,
         "formation": 23,
@@ -2637,6 +2648,7 @@
         "https://georgiasos.seamlessdocs.com/sc/charitiesdivision"
       ],
       "production_readiness": "operator_assisted_required",
+      "protocol_discovery_method": "",
       "record_counts": {
         "annual_obligation": 9,
         "foreign_authority": 2,
@@ -2963,6 +2975,7 @@
         "https://cca.hawaii.gov/breg/registration/fllp/fees"
       ],
       "production_readiness": "certified_portal_entry_observed",
+      "protocol_discovery_method": "",
       "record_counts": {
         "annual_obligation": 7,
         "foreign_authority": 4,
@@ -3075,6 +3088,7 @@
         "https://sos.iowa.gov/businesses/uniform-commercial-code-ucc"
       ],
       "production_readiness": "operator_assisted_required",
+      "protocol_discovery_method": "",
       "record_counts": {
         "annual_obligation": 2,
         "foreign_authority": 4,
@@ -3214,6 +3228,7 @@
         "https://sos.idaho.gov/CORP/forms/FOREIGN/foreign%20reg%20statement.pdf"
       ],
       "production_readiness": "certified_portal_entry_observed",
+      "protocol_discovery_method": "",
       "record_counts": {
         "dissolution": 4,
         "foreign_authority": 2,
@@ -3343,6 +3358,7 @@
         "https://www.ilsos.gov/publications/business-services/llc.html"
       ],
       "production_readiness": "operator_assisted_required",
+      "protocol_discovery_method": "",
       "record_counts": {
         "annual_obligation": 13,
         "dba_fbn": 1,
@@ -3523,6 +3539,7 @@
         "https://inbiz.in.gov/bos/sos.businessentityreport/businesssearch"
       ],
       "production_readiness": "certified_portal_entry_observed",
+      "protocol_discovery_method": "",
       "record_counts": {
         "other_license": 2
       },
@@ -3654,6 +3671,7 @@
         "https://www.sos.ks.gov/general-services/ucc-filing-information.html"
       ],
       "production_readiness": "certified_portal_entry_observed",
+      "protocol_discovery_method": "",
       "record_counts": {
         "amendment": 1,
         "annual_obligation": 3,
@@ -3870,6 +3888,7 @@
         "https://sos.ky.gov/bus/UCC/Pages/UCC-Fees.aspx"
       ],
       "production_readiness": "operator_assisted_required",
+      "protocol_discovery_method": "",
       "record_counts": {
         "amendment": 1,
         "annual_obligation": 6,
@@ -4121,6 +4140,7 @@
         "https://www.sos.la.gov/BusinessServices/PublishedDocuments/1444ArticlesOfReinstatement.pdf"
       ],
       "production_readiness": "operator_assisted_required",
+      "protocol_discovery_method": "",
       "record_counts": {
         "annual_obligation": 2,
         "dissolution": 1,
@@ -4241,6 +4261,7 @@
         "https://www.sec.state.ma.us/divisions/corporations/download/c156cfdllcagentoffice.pdf"
       ],
       "production_readiness": "certified_portal_entry_observed",
+      "protocol_discovery_method": "",
       "record_counts": {
         "annual_obligation": 5,
         "dissolution": 1,
@@ -4473,6 +4494,7 @@
         "https://egov.maryland.gov/sdat/uccfiling/uccmainpage.aspx"
       ],
       "production_readiness": "certified_portal_entry_observed",
+      "protocol_discovery_method": "",
       "record_counts": {
         "annual_obligation": 1,
         "certificate_copy": 1,
@@ -4660,6 +4682,7 @@
         "https://www.maine.gov/sos/corporations-commissions/corporations-business-services/business-corporations"
       ],
       "production_readiness": "certified_portal_entry_observed",
+      "protocol_discovery_method": "",
       "record_counts": {
         "annual_obligation": 1,
         "other_license": 2
@@ -4794,6 +4817,7 @@
         "http://www.michigan.gov/corpfileonline"
       ],
       "production_readiness": "operator_assisted_required",
+      "protocol_discovery_method": "",
       "record_counts": {
         "annual_obligation": 7,
         "dba_fbn": 1,
@@ -4909,6 +4933,7 @@
         "https://www.sos.state.mn.us/media/1576/llcstatementoftermination.pdf"
       ],
       "production_readiness": "operator_assisted_required",
+      "protocol_discovery_method": "",
       "record_counts": {
         "amendment": 1,
         "annual_obligation": 7,
@@ -5055,6 +5080,7 @@
         "https://bsd.sos.mo.gov/loginwelcome.aspx?lobID=0"
       ],
       "production_readiness": "operator_assisted_required",
+      "protocol_discovery_method": "",
       "record_counts": {
         "amendment": 1,
         "annual_obligation": 4,
@@ -5177,6 +5203,7 @@
         "https://www.sos.ms.gov/business-services/fees-forms-directory/registration-or-renewal-preneed-establishment"
       ],
       "production_readiness": "certified_portal_entry_observed",
+      "protocol_discovery_method": "",
       "record_counts": {
         "annual_obligation": 5,
         "formation": 5,
@@ -5311,6 +5338,7 @@
         "https://sosmt.gov"
       ],
       "production_readiness": "certified_portal_entry_observed",
+      "protocol_discovery_method": "",
       "record_counts": {
         "annual_obligation": 8,
         "foreign_authority": 2,
@@ -5438,6 +5466,7 @@
         "https://www.sosnc.gov/divisions/business_registration/Reinstatement_and_Requalification_Online"
       ],
       "production_readiness": "operator_assisted_required",
+      "protocol_discovery_method": "",
       "record_counts": {
         "dissolution": 1,
         "other_license": 1
@@ -5609,6 +5638,7 @@
         "https://www.sos.nd.gov/business/lien-filings-ucc/filing-lien/lien-types-and-fees"
       ],
       "production_readiness": "certified_portal_entry_observed",
+      "protocol_discovery_method": "",
       "record_counts": {
         "annual_obligation": 4,
         "dissolution": 1,
@@ -5953,6 +5983,7 @@
         "https://business.nebraska.gov/search/ucc"
       ],
       "production_readiness": "certified_portal_entry_observed",
+      "protocol_discovery_method": "",
       "record_counts": {
         "amendment": 2,
         "annual_obligation": 6,
@@ -6073,6 +6104,7 @@
         "https://quickstart.sos.nh.gov/online/Account/LoginPage?LoginType=ManageBusinessFiling"
       ],
       "production_readiness": "certified_portal_entry_observed",
+      "protocol_discovery_method": "",
       "record_counts": {
         "amendment": 6,
         "annual_obligation": 3,
@@ -6290,6 +6322,7 @@
         "https://www.njportal.com/DOR/BusinessRegistration"
       ],
       "production_readiness": "certified_portal_entry_observed",
+      "protocol_discovery_method": "",
       "record_counts": {
         "annual_obligation": 5,
         "formation": 3
@@ -6434,6 +6467,7 @@
         "https://enterprise.sos.nm.gov/forms/business"
       ],
       "production_readiness": "certified_portal_entry_observed",
+      "protocol_discovery_method": "",
       "record_counts": {
         "formation": 3
       },
@@ -6549,6 +6583,7 @@
         "https://nv.gov/business"
       ],
       "production_readiness": "certified_portal_entry_observed",
+      "protocol_discovery_method": "",
       "record_counts": {},
       "state": "NV",
       "state_name": "Nevada",
@@ -6708,6 +6743,7 @@
         "https://dos.ny.gov/e-corp-online-filing-system"
       ],
       "production_readiness": "operator_assisted_required",
+      "protocol_discovery_method": "",
       "record_counts": {
         "amendment": 4,
         "dba_fbn": 2,
@@ -6837,6 +6873,7 @@
         "https://www.ohiosos.gov/records/non-resident-alien-land-registration"
       ],
       "production_readiness": "operator_assisted_required",
+      "protocol_discovery_method": "",
       "record_counts": {
         "formation": 3,
         "other_license": 3
@@ -7029,6 +7066,7 @@
         "https://www.sos.ok.gov/corp/filing/Wizard.aspx?f=371"
       ],
       "production_readiness": "certified_portal_entry_observed",
+      "protocol_discovery_method": "",
       "record_counts": {
         "annual_obligation": 1,
         "foreign_authority": 1,
@@ -7152,6 +7190,7 @@
         "https://sos.oregon.gov/business/Pages/obr-fbc-registration.aspx"
       ],
       "production_readiness": "certified_portal_entry_observed",
+      "protocol_discovery_method": "",
       "record_counts": {
         "amendment": 1,
         "annual_obligation": 5,
@@ -7286,6 +7325,7 @@
         "https://www.pa.gov/agencies/dos/programs/business/information-services/special-processing"
       ],
       "production_readiness": "operator_assisted_required",
+      "protocol_discovery_method": "",
       "record_counts": {
         "annual_obligation": 6,
         "foreign_authority": 5,
@@ -7449,6 +7489,7 @@
         "https://business.sos.ri.gov/CORP_DRIVE1/2025/0129/000000000/7809/backup/202563404620_1.pdf"
       ],
       "production_readiness": "certified_portal_entry_observed",
+      "protocol_discovery_method": "",
       "record_counts": {
         "annual_obligation": 11,
         "dissolution": 1,
@@ -7598,6 +7639,7 @@
         "https://sos.sc.gov/online-filings/charities-pfrs-and-raffles/raffles"
       ],
       "production_readiness": "certified_portal_entry_observed",
+      "protocol_discovery_method": "",
       "record_counts": {
         "annual_obligation": 2
       },
@@ -7772,6 +7814,7 @@
         "https://sdsos.gov/docs/business/foreignllcannualreport20180215.pdf"
       ],
       "production_readiness": "certified_portal_entry_observed",
+      "protocol_discovery_method": "",
       "record_counts": {
         "annual_obligation": 15,
         "foreign_authority": 7,
@@ -7986,6 +8029,7 @@
         "https://tncab.tnsos.gov"
       ],
       "production_readiness": "certified_portal_entry_observed",
+      "protocol_discovery_method": "",
       "record_counts": {
         "annual_obligation": 2,
         "formation": 1,
@@ -8057,6 +8101,7 @@
         "https://dallastx.eforms.records.govos.com/48113/ANUnincorporated"
       ],
       "production_readiness": "production_ready_operator_supervised",
+      "protocol_discovery_method": "",
       "record_counts": {
         "amendment": 1,
         "annual_obligation": 9,
@@ -8296,6 +8341,7 @@
         "http://businessregistration.utah.gov"
       ],
       "production_readiness": "certified_portal_entry_observed",
+      "protocol_discovery_method": "",
       "record_counts": {
         "annual_obligation": 7,
         "foreign_authority": 2,
@@ -8469,6 +8515,7 @@
         "https://www.fincen.gov/boi"
       ],
       "production_readiness": "certified_portal_entry_observed",
+      "protocol_discovery_method": "",
       "record_counts": {
         "amendment": 2,
         "annual_obligation": 12,
@@ -8631,6 +8678,7 @@
         "https://bizfilings.vermont.gov/homepage"
       ],
       "production_readiness": "certified_portal_entry_observed",
+      "protocol_discovery_method": "",
       "record_counts": {
         "annual_obligation": 3,
         "foreign_authority": 3,
@@ -9051,6 +9099,7 @@
         "https://dor.wa.gov/manage-business/my-dor-help/renew-or-update-business-license"
       ],
       "production_readiness": "certified_portal_entry_observed",
+      "protocol_discovery_method": "",
       "record_counts": {
         "amendment": 1,
         "annual_obligation": 5,
@@ -9230,6 +9279,7 @@
         "https://dfi.wi.gov/Pages/Securities/Filings/FilingFees.aspx"
       ],
       "production_readiness": "certified_portal_entry_observed",
+      "protocol_discovery_method": "",
       "record_counts": {
         "annual_obligation": 6,
         "dissolution": 1,
@@ -9473,6 +9523,7 @@
         "https://www.wvsos.gov"
       ],
       "production_readiness": "certified_portal_entry_observed",
+      "protocol_discovery_method": "",
       "record_counts": {
         "annual_obligation": 7,
         "dissolution": 2,
@@ -9674,6 +9725,7 @@
         "https://sos.wyo.gov/Forms/Business/LLC/LLC-CertificateReinstatement.pdf"
       ],
       "production_readiness": "certified_portal_entry_observed",
+      "protocol_discovery_method": "",
       "record_counts": {
         "annual_obligation": 1,
         "foreign_authority": 2,
@@ -9689,31 +9741,31 @@
   ],
   "summary": {
     "by_automation_lane": {
-      "browser_profile_automation": 24,
-      "operator_assisted_browser_provider": 27
+      "browser_profile_automation": 25,
+      "operator_assisted_browser_provider": 26
     },
     "by_gate_status": {
       "customer_input_schema:complete": 50,
       "customer_input_schema:trusted_access_required": 1,
-      "document_collection:complete": 1,
-      "document_collection:pending": 50,
-      "payment_screen:complete": 1,
-      "payment_screen:pending": 50,
+      "document_collection:complete": 2,
+      "document_collection:pending": 49,
+      "payment_screen:complete": 2,
+      "payment_screen:pending": 49,
       "portal_entry:complete": 51,
       "review_screen:applicant_data_required": 9,
-      "review_screen:complete": 1,
+      "review_screen:complete": 2,
       "review_screen:login_required": 14,
       "review_screen:pending": 1,
       "review_screen:requires_registered_agent_intermediary": 1,
-      "review_screen:trusted_access_required": 25,
-      "status_polling:complete": 1,
-      "status_polling:pending": 50,
+      "review_screen:trusted_access_required": 24,
+      "status_polling:complete": 2,
+      "status_polling:pending": 49,
       "trusted_access_checkpoint:required": 14
     },
     "by_production_readiness": {
-      "certified_portal_entry_observed": 36,
+      "certified_portal_entry_observed": 35,
       "operator_assisted_required": 14,
-      "production_ready_operator_supervised": 1
+      "production_ready_operator_supervised": 2
     },
     "total_states": 51
   },
