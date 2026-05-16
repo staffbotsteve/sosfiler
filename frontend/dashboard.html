@@ -1245,15 +1245,16 @@ function renderDashboard(data) {
   }
 
   // State filing confirmation # (Plan v2.6 §4.2.5)
+  // SECURITY: operator-entered value, must be HTML-escaped before innerHTML.
   const confirmationEl = document.getElementById('filingConfirmation');
   if (confirmationEl) {
     const confirmation = data.filing_confirmation && data.filing_confirmation.value;
     if (confirmation) {
-      const issued = data.filing_confirmation.issued_at ? formatDate(data.filing_confirmation.issued_at) : '';
+      const issued = data.filing_confirmation.issued_at ? escapeHtml(formatDate(data.filing_confirmation.issued_at)) : '';
       confirmationEl.innerHTML = `
         <div class="ein-display">
           <div style="color: var(--muted); font-size: 14px;">State filing confirmation</div>
-          <div class="ein-number">${confirmation}</div>
+          <div class="ein-number">${escapeHtml(confirmation)}</div>
         </div>
         ${issued ? `<p style="font-size: 13px; color: var(--muted);">Issued ${issued}</p>` : ''}`;
       confirmationEl.parentElement.style.display = '';
