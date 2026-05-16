@@ -214,7 +214,12 @@ class SupabaseExecutionRepository:
                   portal_url = excluded.portal_url,
                   portal_blockers = excluded.portal_blockers,
                   evidence_required = excluded.evidence_required,
-                  filing_confirmation = excluded.filing_confirmation,
+                  -- Plan v2.6 PR5 codex round-1 P2 #2: COALESCE so callers
+                  -- that pass plain serialize_filing_job() (no _raw field)
+                  -- do not clobber an already-captured confirmation. A
+                  -- non-NULL excluded value still wins, so adapters that
+                  -- DO populate filing_confirmation_raw can update it.
+                  filing_confirmation = coalesce(excluded.filing_confirmation, public.execution_filing_jobs.filing_confirmation),
                   metadata = excluded.metadata,
                   updated_at = now()
                 """,
