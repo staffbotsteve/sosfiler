@@ -110,17 +110,52 @@ begin
 end;
 $$;
 
--- Plan v2.6 §4.2.4 step 4 / PR7 codex round-5 P2: revert to BEFORE UPDATE.
--- A BEFORE INSERT trigger creates a chicken-and-egg for recovery flows
--- (first-time mirror writes whose artifacts cannot exist yet under the
--- new UUID). The supported pattern is: every promotion to a terminal
--- status updates an existing execution_filing_jobs row. The backfill
--- route enforces this in app code (PR7 codex round-3) by skipping
--- terminal jobs in core-only mode and deferring terminal promotion
--- until artifacts are mirrored. App-layer + repository-layer code (PR4)
--- enforces the same predicate before any code path can write directly
--- in terminal status. The UPDATE trigger remains as belt-and-suspenders.
+-- Plan v2.6 §4.2.4 step 4 / PR7 codex round-6 P1: BEFORE INSERT is back,
+-- but as a status guard only — no artifact check. The chicken-and-egg
+-- with artifacts (round-5) is avoided by REJECTING any INSERT that
+-- lands in a terminal status. Every code path must:
+--   1. INSERT the job in a non-terminal status (ready_to_file etc.)
+--   2. INSERT the evidence artifacts (artifact INSERT looks up
+--      filing_job_id via legacy_job_id; succeeds because step 1 created
+--      the parent row).
+--   3. UPDATE the job to the terminal status (UPDATE trigger validates).
+-- The full artifact predicate lives on the UPDATE trigger.
+
 drop trigger if exists trg_execution_filing_jobs_evidence on public.execution_filing_jobs;
+drop trigger if exists trg_execution_filing_jobs_evidence_insert on public.execution_filing_jobs;
+
 create trigger trg_execution_filing_jobs_evidence
   before update on public.execution_filing_jobs
   for each row execute function public.enforce_filing_evidence_invariant();
+
+create or replace function public.reject_terminal_filing_job_insert()
+returns trigger language plpgsql as $$
+declare
+  pre_existing_id uuid;
+begin
+  -- PR7 codex round-7 P1: SupabaseExecutionRepository.upsert_filing_job uses
+  -- INSERT ... ON CONFLICT (legacy_job_id) DO UPDATE. Postgres fires this
+  -- BEFORE INSERT trigger before resolving the conflict, so a legitimate
+  -- update-path upsert would be rejected even when a non-terminal row
+  -- already exists. Look up the legacy_job_id ourselves; if the row exists,
+  -- this is the upsert-update path and the UPDATE trigger will validate.
+  -- Otherwise this is a true first-time INSERT and a terminal status here
+  -- means someone bypassed the two-phase pattern.
+  if new.status in ('submitted','submitted_to_state','approved','state_approved',
+                    'documents_collected','complete') then
+    select id into pre_existing_id
+      from public.execution_filing_jobs
+      where legacy_job_id = new.legacy_job_id
+      limit 1;
+    if pre_existing_id is null then
+      raise exception 'evidence_invariant: execution_filing_jobs cannot be INSERTed in a terminal status without a prior non-terminal row; INSERT non-terminal then UPDATE'
+        using errcode = '23514';
+    end if;
+  end if;
+  return new;
+end;
+$$;
+
+create trigger trg_execution_filing_jobs_evidence_insert
+  before insert on public.execution_filing_jobs
+  for each row execute function public.reject_terminal_filing_job_insert();
