@@ -2018,6 +2018,7 @@ State portal login: use the authorized filer account for the official portal; st
           <div class="summary">
             <div class="metric"><div class="label">Submitted Requires</div><div class="value">${h((evidence.submitted || []).join(", ") || "Official submission evidence")}</div></div>
             <div class="metric"><div class="label">Approved Requires</div><div class="value">${h((evidence.approved || []).join(", ") || "Official approval evidence")}</div></div>
+            <div class="metric"><div class="label">State Confirmation #</div><div class="value">${data.filing_confirmation?.value ? h(data.filing_confirmation.value) : "Not yet captured"}</div></div>
           </div>
           <div class="form-grid">
             <label>Artifact Type
@@ -2038,6 +2039,9 @@ State portal login: use the authorized filer account for the official portal; st
             </label>
             <label class="wide">Evidence File Path
               <input id="artifactPath" placeholder="/absolute/path/to/government-evidence.pdf" />
+            </label>
+            <label>State Confirmation #
+              <input id="artifactConfirmation" placeholder="L25000012345 / state-issued identifier" />
             </label>
             <label class="wide">Evidence Message
               <textarea id="artifactMessage" placeholder="Official receipt captured from state portal."></textarea>
@@ -2196,13 +2200,22 @@ State portal login: use the authorized filer account for the official portal; st
     }
 
     function evidencePayload() {
-      return {
+      const payload = {
         artifact_type: $("artifactType").value,
         filename: $("artifactFilename").value.trim(),
         file_path: $("artifactPath").value.trim(),
         message: $("artifactMessage").value.trim(),
         notify_customer: false,
       };
+      // Plan v2.6 §4.2.5: state-issued confirmation identifier. Required by
+      // mark-submitted / mark-approved / annual-report mark-complete when the
+      // order does not already carry one in orders.filing_confirmation.
+      const confirmation = $("artifactConfirmation")?.value.trim();
+      if (confirmation) {
+        payload.filing_confirmation = confirmation;
+        payload.filing_confirmation_source = "operator";
+      }
+      return payload;
     }
 
     async function addEvidence() {

@@ -444,6 +444,12 @@ a:hover { color: var(--accent); text-decoration: none; }
         </div>
       </div>
 
+      <!-- State Filing Confirmation # (Plan v2.6 §4.2.5) -->
+      <div class="card" id="filingConfirmationCard" style="display:none;">
+        <h3>State Filing Confirmation</h3>
+        <div id="filingConfirmation"></div>
+      </div>
+
       <!-- EIN -->
       <div class="card" id="einCard">
         <h3>EIN (Tax ID)</h3>
@@ -1236,6 +1242,25 @@ function renderDashboard(data) {
           <div class="time">${formatDate(item.created_at)}</div>
         </div>`;
     }).join('');
+  }
+
+  // State filing confirmation # (Plan v2.6 §4.2.5)
+  // SECURITY: operator-entered value, must be HTML-escaped before innerHTML.
+  const confirmationEl = document.getElementById('filingConfirmation');
+  if (confirmationEl) {
+    const confirmation = data.filing_confirmation && data.filing_confirmation.value;
+    if (confirmation) {
+      const issued = data.filing_confirmation.issued_at ? escapeHtml(formatDate(data.filing_confirmation.issued_at)) : '';
+      confirmationEl.innerHTML = `
+        <div class="ein-display">
+          <div style="color: var(--muted); font-size: 14px;">State filing confirmation</div>
+          <div class="ein-number">${escapeHtml(confirmation)}</div>
+        </div>
+        ${issued ? `<p style="font-size: 13px; color: var(--muted);">Issued ${issued}</p>` : ''}`;
+      confirmationEl.parentElement.style.display = '';
+    } else {
+      confirmationEl.parentElement.style.display = 'none';
+    }
   }
 
   // EIN

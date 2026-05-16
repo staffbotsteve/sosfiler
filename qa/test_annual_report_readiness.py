@@ -29,6 +29,14 @@ class AnnualReportReadinessTests(unittest.TestCase):
         server.init_db()
         self.client = TestClient(server.app)
         self.headers = {"x-admin-token": "test-admin"}
+        # Plan v2.6 PR4: insert_filing_artifact hashes evidence files; pre-
+        # create placeholders so the helper can produce a valid digest.
+        for placeholder in (
+            "/tmp/annual-report-receipt.pdf",
+            "/tmp/annual-report-accepted.pdf",
+            "/tmp/annual-report-complete.pdf",
+        ):
+            Path(placeholder).write_bytes(b"%PDF-1.4 plan-v2.6 placeholder")
 
     def tearDown(self):
         server.DB_PATH = self.old_db_path
@@ -142,6 +150,8 @@ class AnnualReportReadinessTests(unittest.TestCase):
                 "filename": "receipt.pdf",
                 "file_path": "/tmp/annual-report-receipt.pdf",
                 "message": "Annual report submitted.",
+                "filing_confirmation": "AR-2026-12345",
+                "filing_confirmation_source": "operator",
             },
         )
         self.assertEqual(submitted.status_code, 200, submitted.text)

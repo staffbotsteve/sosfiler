@@ -33,6 +33,8 @@ class EinQueueHardeningTests(unittest.TestCase):
         server.init_db()
         self.client = TestClient(server.app)
         self.headers = {"x-admin-token": "test-admin"}
+        # Plan v2.6 PR4: insert_filing_artifact hashes evidence files.
+        Path("/tmp/ein.pdf").write_bytes(b"%PDF-1.4 plan-v2.6 placeholder")
 
     def tearDown(self):
         server.DB_PATH = self.old_db_path

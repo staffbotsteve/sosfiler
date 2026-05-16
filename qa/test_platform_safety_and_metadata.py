@@ -50,6 +50,11 @@ class PlatformSafetyAndMetadataTests(unittest.TestCase):
         server.init_db()
         self.client = TestClient(server.app)
         self.headers = {"x-admin-token": "test-admin"}
+        # Plan v2.6 PR4: insert_filing_artifact now hashes evidence files at
+        # write time and 409s when unreadable. Pre-create the placeholder
+        # paths these tests POST so the helper can produce a valid digest.
+        for placeholder in ("/tmp/receipt.pdf", "/tmp/receipt-2.pdf", "/tmp/ra.pdf", "/tmp/authorization.pdf"):
+            Path(placeholder).write_bytes(b"%PDF-1.4 plan-v2.6 placeholder")
 
     def tearDown(self):
         server.DB_PATH = self.old_db_path
@@ -340,7 +345,12 @@ class PlatformSafetyAndMetadataTests(unittest.TestCase):
         submitted = self.client.post(
             f"/api/admin/filing-jobs/{job['id']}/mark-submitted",
             headers=self.headers,
-            json={"artifact_type": "submitted_receipt", "filename": "receipt.pdf", "file_path": "/tmp/receipt.pdf"},
+            json={
+                "artifact_type": "submitted_receipt",
+                "filename": "receipt.pdf",
+                "file_path": "/tmp/receipt.pdf",
+                "filing_confirmation": "PR4-RA-EVIDENCE-OK",
+            },
         )
         self.assertEqual(submitted.status_code, 200, submitted.text)
         duplicate = self.client.post(
@@ -429,7 +439,12 @@ class PlatformSafetyAndMetadataTests(unittest.TestCase):
         submitted = self.client.post(
             f"/api/admin/filing-jobs/{job['id']}/mark-submitted",
             headers=self.headers,
-            json={"artifact_type": "submitted_receipt", "filename": "receipt.pdf", "file_path": "/tmp/receipt.pdf"},
+            json={
+                "artifact_type": "submitted_receipt",
+                "filename": "receipt.pdf",
+                "file_path": "/tmp/receipt.pdf",
+                "filing_confirmation": "PR4-CAPTURE-OK",
+            },
         )
         self.assertEqual(submitted.status_code, 200, submitted.text)
 
