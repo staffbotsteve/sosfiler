@@ -8984,6 +8984,22 @@ async def get_admin_filing_job_detail(job_id: str, request: Request):
         artifact_payload,
     )
     payment_readiness = payment_execution_readiness(conn, dict(order_for_readiness), dict(row)) if order_for_readiness else None
+    # Plan v2.6 §4.2.5 + PR4: surface parsed filing_confirmation value + source
+    # so the operator cockpit can display the state-issued identifier.
+    confirmation_raw = order_payload.get("filing_confirmation") if order_payload else None
+    confirmation_value = read_filing_confirmation_value(confirmation_raw)
+    confirmation_meta = None
+    if confirmation_raw:
+        try:
+            parsed = json.loads(confirmation_raw)
+            if isinstance(parsed, dict):
+                confirmation_meta = {
+                    "value": confirmation_value,
+                    "source": parsed.get("source"),
+                    "issued_at": parsed.get("issued_at"),
+                }
+        except (ValueError, TypeError):
+            confirmation_meta = None
     conn.close()
     return {
         "job": job_payload,
@@ -8992,6 +9008,7 @@ async def get_admin_filing_job_detail(job_id: str, request: Request):
         "events": [dict(event) for event in events],
         "artifacts": artifact_payload,
         "automation_runs": run_payload,
+        "filing_confirmation": confirmation_meta,
     }
 
 
