@@ -753,10 +753,16 @@ def init_db():
         f"FOR EACH ROW WHEN {_evidence_states_filter} "
         f"BEGIN {_evidence_predicate_body} END"
     )
+    # Codex PR7 round-8 P2: SQLite BEFORE INSERT fires before ON CONFLICT
+    # resolution. INSERT ... ON CONFLICT DO UPDATE in upserts triggers this
+    # before checking if the row exists. Look up by id ourselves; if the
+    # row already exists, this is the upsert-update path (UPDATE trigger
+    # validates). Only true first-time INSERTs with terminal status abort.
     conn.execute(
         f"CREATE TRIGGER filing_jobs_evidence_invariant_insert BEFORE INSERT ON filing_jobs "
         f"FOR EACH ROW WHEN {_evidence_states_filter} "
-        f"BEGIN SELECT RAISE(ABORT, 'evidence_invariant: filing_jobs cannot be INSERTed in a terminal status; INSERT non-terminal then UPDATE'); END"
+        f"AND NOT EXISTS (SELECT 1 FROM filing_jobs WHERE id = NEW.id) "
+        f"BEGIN SELECT RAISE(ABORT, 'evidence_invariant: filing_jobs cannot be INSERTed in a terminal status without a prior non-terminal row; INSERT non-terminal then UPDATE'); END"
     )
     conn.commit()
     conn.close()
