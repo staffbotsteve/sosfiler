@@ -10047,13 +10047,21 @@ async def backfill_execution_persistence(payload: PersistenceBackfillRequest, re
         if not result.ok:
             errors.append({"table": "execution_quotes", "id": quote["quote_id"], "message": result.message})
 
+    # Plan v2.6 PR7 codex round-2 P2: insert filing_jobs into the mirror in
+    # a safe non-terminal status first. The evidence-invariant trigger now
+    # fires on INSERT, so a job that lands directly in submitted/approved/
+    # complete before its artifacts exist would be rejected. We promote each
+    # job to its real terminal status AFTER the artifacts pass below.
+    deferred_terminal_jobs: list[dict] = []
+    TERMINAL_STATUSES = {"submitted", "submitted_to_state", "approved", "state_approved",
+                         "documents_collected", "complete"}
     for row in conn.execute("SELECT * FROM filing_jobs ORDER BY created_at LIMIT ?", (payload.limit,)).fetchall():
-        # Plan v2.6 PR5 codex round-3 P2: backfill must carry the order's
-        # filing_confirmation so historical submitted/approved jobs land in
-        # the mirror with the same canonical JSON the local store holds.
-        # Without this, COALESCE on the upsert cannot recover the value
-        # later and the mirror evidence invariant has nothing to read.
+        # PR5 codex round-3 P2: carry orders.filing_confirmation forward.
         job = serialize_filing_job_with_confirmation(conn, row)
+        original_status = job.get("status")
+        if original_status in TERMINAL_STATUSES:
+            deferred_terminal_jobs.append({"job": dict(job), "terminal_status": original_status})
+            job["status"] = "ready_to_file"  # safe; promoted after artifacts
         result = execution_dual_write("upsert_filing_job", job)
         written["execution_filing_jobs"] += 1 if result.ok else 0
         if not result.ok:
@@ -10094,6 +10102,23 @@ async def backfill_execution_persistence(payload: PersistenceBackfillRequest, re
             written["execution_artifacts"] += 1 if result.ok else 0
             if not result.ok:
                 errors.append({"table": "filing_artifacts", "id": artifact["id"], "message": result.message})
+
+    # Plan v2.6 PR7 codex round-2 P2: promote deferred terminal-status jobs
+    # now that their artifacts are mirrored. The trigger sees a fully-formed
+    # evidence bundle and allows the status promotion. Only fires when
+    # include_append_only is true (otherwise the artifacts pass was skipped
+    # and we cannot safely promote).
+    if payload.include_append_only:
+        for entry in deferred_terminal_jobs:
+            job = entry["job"]
+            job["status"] = entry["terminal_status"]
+            result = execution_dual_write("upsert_filing_job", job)
+            if not result.ok:
+                errors.append({
+                    "table": "filing_jobs_promote",
+                    "id": job["id"],
+                    "message": result.message,
+                })
 
     conn.close()
     return {
