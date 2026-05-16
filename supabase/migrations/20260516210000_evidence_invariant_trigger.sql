@@ -110,7 +110,10 @@ begin
 end;
 $$;
 
+-- Plan v2.6 §4.2.4 step 4 / PR7 codex round-1 P2: fire on both INSERT and
+-- UPDATE so first-time mirror/backfill writes that land directly in a
+-- terminal status cannot bypass the predicate.
 drop trigger if exists trg_execution_filing_jobs_evidence on public.execution_filing_jobs;
 create trigger trg_execution_filing_jobs_evidence
-  before update on public.execution_filing_jobs
+  before insert or update on public.execution_filing_jobs
   for each row execute function public.enforce_filing_evidence_invariant();

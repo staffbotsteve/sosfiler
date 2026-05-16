@@ -666,18 +666,13 @@ def init_db():
     )
     # Plan v2.6 §4.2.4 step 3 / PR7 — evidence-invariant trigger.
     # Belt-and-suspenders enforcement: app/repo layers already validate the
-    # same predicate, but the trigger blocks ANY direct UPDATE that bypasses
-    # them. orders.filing_confirmation must be a JSON object with a
-    # non-empty string value. Submitted requires submitted_receipt + sha256;
-    # approved/complete adds action-aware terminal artifact.
-    conn.execute("DROP TRIGGER IF EXISTS filing_jobs_evidence_invariant")
-    conn.execute("""
-        CREATE TRIGGER filing_jobs_evidence_invariant
-        BEFORE UPDATE ON filing_jobs
-        FOR EACH ROW WHEN
-          NEW.status IN ('submitted','submitted_to_state','approved','state_approved',
-                         'documents_collected','complete')
-        BEGIN
+    # same predicate, but the trigger blocks ANY direct INSERT or UPDATE
+    # that bypasses them. orders.filing_confirmation must be a JSON object
+    # with a non-empty string value. Submitted requires submitted_receipt +
+    # sha256; approved/complete adds action-aware terminal artifact. SQLite
+    # does not support `BEFORE INSERT OR UPDATE`, so we install two
+    # triggers with identical predicate bodies.
+    _evidence_predicate_body = """
           SELECT CASE
             WHEN (SELECT filing_confirmation FROM orders WHERE id = NEW.order_id) IS NULL
                  OR NOT json_valid((SELECT filing_confirmation FROM orders WHERE id = NEW.order_id))
@@ -722,8 +717,23 @@ def init_db():
                       ))
               THEN RAISE(ABORT, 'evidence_invariant: approved status requires submitted_receipt and an action_type-appropriate terminal artifact')
           END;
-        END
-    """)
+    """
+    _evidence_states_filter = (
+        "NEW.status IN ('submitted','submitted_to_state','approved','state_approved',"
+        "'documents_collected','complete')"
+    )
+    conn.execute("DROP TRIGGER IF EXISTS filing_jobs_evidence_invariant")
+    conn.execute(
+        f"CREATE TRIGGER filing_jobs_evidence_invariant BEFORE UPDATE ON filing_jobs "
+        f"FOR EACH ROW WHEN {_evidence_states_filter} "
+        f"BEGIN {_evidence_predicate_body} END"
+    )
+    conn.execute("DROP TRIGGER IF EXISTS filing_jobs_evidence_invariant_insert")
+    conn.execute(
+        f"CREATE TRIGGER filing_jobs_evidence_invariant_insert BEFORE INSERT ON filing_jobs "
+        f"FOR EACH ROW WHEN {_evidence_states_filter} "
+        f"BEGIN {_evidence_predicate_body} END"
+    )
     conn.commit()
     conn.close()
 
