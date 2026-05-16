@@ -664,6 +664,66 @@ def init_db():
         "CREATE INDEX IF NOT EXISTS idx_filing_artifacts_job_type "
         "ON filing_artifacts(filing_job_id, artifact_type, is_evidence)"
     )
+    # Plan v2.6 §4.2.4 step 3 / PR7 — evidence-invariant trigger.
+    # Belt-and-suspenders enforcement: app/repo layers already validate the
+    # same predicate, but the trigger blocks ANY direct UPDATE that bypasses
+    # them. orders.filing_confirmation must be a JSON object with a
+    # non-empty string value. Submitted requires submitted_receipt + sha256;
+    # approved/complete adds action-aware terminal artifact.
+    conn.execute("DROP TRIGGER IF EXISTS filing_jobs_evidence_invariant")
+    conn.execute("""
+        CREATE TRIGGER filing_jobs_evidence_invariant
+        BEFORE UPDATE ON filing_jobs
+        FOR EACH ROW WHEN
+          NEW.status IN ('submitted','submitted_to_state','approved','state_approved',
+                         'documents_collected','complete')
+        BEGIN
+          SELECT CASE
+            WHEN (SELECT filing_confirmation FROM orders WHERE id = NEW.order_id) IS NULL
+                 OR NOT json_valid((SELECT filing_confirmation FROM orders WHERE id = NEW.order_id))
+                 OR json_type((SELECT filing_confirmation FROM orders WHERE id = NEW.order_id), '$.value') != 'text'
+                 OR coalesce(length(json_extract((SELECT filing_confirmation FROM orders WHERE id = NEW.order_id), '$.value')), 0) = 0
+              THEN RAISE(ABORT, 'evidence_invariant: missing or malformed filing_confirmation')
+            WHEN NEW.status IN ('submitted','submitted_to_state')
+                 AND NOT EXISTS (
+                   SELECT 1 FROM filing_artifacts
+                   WHERE filing_job_id = NEW.id
+                     AND artifact_type = 'submitted_receipt'
+                     AND is_evidence = 1
+                     AND sha256_hex IS NOT NULL
+                 )
+              THEN RAISE(ABORT, 'evidence_invariant: missing submitted_receipt artifact')
+            WHEN NEW.status IN ('approved','state_approved','documents_collected','complete')
+                 AND (NOT EXISTS (
+                        SELECT 1 FROM filing_artifacts
+                        WHERE filing_job_id = NEW.id
+                          AND artifact_type = 'submitted_receipt'
+                          AND is_evidence = 1
+                          AND sha256_hex IS NOT NULL
+                      )
+                      OR NOT EXISTS (
+                        SELECT 1 FROM filing_artifacts
+                        WHERE filing_job_id = NEW.id
+                          AND is_evidence = 1
+                          AND sha256_hex IS NOT NULL
+                          AND (
+                            (NEW.action_type = 'formation' AND artifact_type = 'approved_certificate')
+                            OR (NEW.action_type = 'annual_report'
+                                AND artifact_type IN ('approved_certificate','state_correspondence',
+                                                      'state_acknowledgment','state_filed_document'))
+                            OR (NEW.action_type IN ('amendment','foreign_qualification','dissolution',
+                                                    'reinstatement','certificate_of_good_standing')
+                                AND artifact_type IN ('approved_certificate','state_filed_document'))
+                            OR (NEW.action_type NOT IN ('formation','annual_report','amendment',
+                                                        'foreign_qualification','dissolution',
+                                                        'reinstatement','certificate_of_good_standing')
+                                AND artifact_type = 'approved_certificate')
+                          )
+                      ))
+              THEN RAISE(ABORT, 'evidence_invariant: approved status requires submitted_receipt and an action_type-appropriate terminal artifact')
+          END;
+        END
+    """)
     conn.commit()
     conn.close()
 
