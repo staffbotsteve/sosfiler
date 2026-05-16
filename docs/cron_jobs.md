@@ -100,6 +100,66 @@ Dry run:
 cd /root/.openclaw/workspace/builds/sosfiler && /usr/bin/python3 backend/filing_status_listener.py --dry-run --json
 ```
 
+## California BizFile Worker
+
+Purpose: run California formation status checks and, after live certification, California LLC-1 submission from a trusted SOSFiler BizFile browser profile. This is the non-operator path for California: the worker owns navigation, status polling, evidence capture, and dashboard updates. It escalates only if the official portal presents a login/MFA/access checkpoint, raw card-entry screen, portal layout break, rejection, or missing approval document.
+
+Protocol-first migration:
+
+- Run `backend/ca_bizfile_worker.py --operation discover` from the trusted profile after any BizFile portal change or after a successful live filing.
+- The discover operation is read-only. It observes official BizFile network calls, redacts OAuth/session-shaped query values, and writes `data/portal_maps/ca_bizfile_protocol_manifest.json`.
+- Promote stable API/report/document endpoints from that manifest only after legal/provider approval that the use is permitted by California's terms; otherwise keep it as a diagnostic for portal changes.
+- Keep browser-profile navigation as the fallback for protected submission/payment checkpoints until California exposes a documented filing API or SOSFiler contracts a partner API.
+- See `docs/ca_llc_no_playwright_automation.md`.
+
+Required worker environment:
+
+```bash
+CA_BIZFILE_EMAIL=admin@sosfiler.com
+CA_BIZFILE_PASSWORD=...
+CA_BIZFILE_PROFILE_DIR=/var/lib/sosfiler/ca-bizfile-profile
+CA_BIZFILE_PAYMENT_MODE=saved_portal_method
+```
+
+Do not configure raw card variables such as `CA_BIZFILE_CARD_NUMBER` or `CA_BIZFILE_CARD_CVV`. The worker deliberately blocks those. Use a saved BizFile portal payment method or a PCI-compliant vault/token integration.
+
+Status polling command:
+
+```bash
+cd /root/.openclaw/workspace/builds/sosfiler && /usr/bin/python3 backend/ca_bizfile_worker.py --operation status --limit 25 --json >> logs/ca_bizfile_worker.log 2>&1
+```
+
+Suggested schedule:
+
+```cron
+*/15 * * * * cd /root/.openclaw/workspace/builds/sosfiler && /usr/bin/python3 backend/ca_bizfile_worker.py --operation status --limit 25 --json >> logs/ca_bizfile_worker.log 2>&1
+```
+
+Behavior:
+
+- Selects active California filings in `submitted_to_state`, `submitted`, `awaiting_state`, `pending_state_review`, or `received_needs_sosdirect_check`.
+- Opens BizFile using the persistent trusted browser profile.
+- Clicks `My Work Queue`, matches each order by legal entity name, and stores the raw displayed portal status.
+- Captures screenshots under `data/filing_listener_runs/ca_bizfile/<order_id>/`.
+- Updates jobs to `pending_state_review` when BizFile shows `Pending Review`.
+- Moves jobs to `operator_review` when BizFile shows rejection/correction language.
+- Marks `state_approved` only after approval evidence is captured; if BizFile appears approved but no certificate/document is captured, it records `ca_bizfile_approved_needs_document` and leaves EIN blocked.
+
+Dry run:
+
+```bash
+cd /root/.openclaw/workspace/builds/sosfiler && /usr/bin/python3 backend/ca_bizfile_worker.py --operation status --dry-run --json
+```
+
+Live California submission is intentionally off until the trusted worker profile and payment method are certified:
+
+```bash
+CA_BIZFILE_ENABLE_LIVE_SUBMIT=true \
+cd /root/.openclaw/workspace/builds/sosfiler && /usr/bin/python3 backend/ca_bizfile_worker.py --operation submit --order-id CA-... --json
+```
+
+The submit operation fills the LLC-1 flow, clicks `File Online`, captures the payment cart, and only submits payment if BizFile exposes a compliant saved portal payment method. If BizFile asks for raw card details, the worker blocks and records evidence instead of handling card data in `.env`.
+
 ## Texas SOSDirect Authenticated Document Retriever
 
 Purpose: log into the SOSFiler Texas SOSDirect account, inspect Briefcase for active Texas filings, download matching filed/approval documents, attach them to the customer portal, and mark the order `state_approved` when approval evidence is captured.

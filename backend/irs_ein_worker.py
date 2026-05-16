@@ -40,6 +40,8 @@ def redacted_queue_summary(path: Path, payload: dict) -> dict:
     ss4 = payload.get("ss4_data", {})
     responsible = ss4.get("responsible_party", {})
     ssn_digits = re.sub(r"\D", "", str(responsible.get("ssn", "")))
+    ssn_vault_id = responsible.get("ssn_vault_id", "")
+    ssn_last4 = responsible.get("ssn_last4", "")
     return {
         "queue_file": str(path),
         "order_id": payload.get("order_id"),
@@ -48,8 +50,9 @@ def redacted_queue_summary(path: Path, payload: dict) -> dict:
         "entity_type": ss4.get("entity_type"),
         "formation_state": ss4.get("state"),
         "responsible_party_name": responsible.get("name"),
-        "has_full_ssn": bool(re.fullmatch(r"\d{9}", ssn_digits)),
-        "ssn_last4": ssn_digits[-4:] if re.fullmatch(r"\d{9}", ssn_digits) else "",
+        "has_full_ssn": bool(re.fullmatch(r"\d{9}", ssn_digits) or ssn_vault_id),
+        "has_ssn_vault_ref": bool(ssn_vault_id),
+        "ssn_last4": ssn_last4 or (ssn_digits[-4:] if re.fullmatch(r"\d{9}", ssn_digits) else ""),
         "business_city": (ss4.get("business_address") or {}).get("city"),
         "business_state": (ss4.get("business_address") or {}).get("state"),
     }

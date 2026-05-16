@@ -1,0 +1,119 @@
+SOSFiler Competitor Intelligence Process
+
+Purpose
+
+Competitor intelligence is a secondary research lane. It identifies services that LegalZoom, Northwest Registered Agent, CorpNet, ZenBusiness, Bizee, InCorp, Harbor Compliance, Rocket Lawyer, Swyft Filings, Incorporate.com, BetterLegal, and similar providers offer that SOSFiler should consider.
+
+It has two uses:
+
+1. Find product gaps, such as registered agent service, annual report filing, foreign qualification, business license discovery, DBA filing, trademark services, corporate kits, stock certificates, state tax IDs, seller permits, and ongoing compliance calendars.
+2. Help unblock SOSFiler research by showing which filings competitors sell, then sending the official-source research agent back to the government authority to verify fee, requirement, process, turnaround, and automation path.
+
+Source Rule
+
+Competitor pages are not authoritative for government requirements. They may be used for packaging, feature discovery, price comparison, and customer expectation research. They must not be used to mark a government filing record verified_official.
+
+Every filing record must still be verified against official government or government-linked portal sources before it can drive checkout, automation, status checks, or customer notifications.
+
+Storage
+
+Competitor seed targets live in:
+
+data/regulatory/competitor_research_targets.json
+
+Supabase tables:
+
+regulatory_competitors stores competitor identity.
+regulatory_competitor_offerings stores advertised services, pricing text, feature list, and source URL.
+regulatory_competitor_gap_signals stores gaps or blocked-filing hints that should trigger official-source follow-up.
+sosfiler_services stores the SOSFiler service catalog.
+sosfiler_service_prices stores SOSFiler service pricing and billing interval.
+sosfiler_service_competitor_benchmarks stores competitor price benchmarks tied to SOSFiler services.
+
+SOSFiler service catalog seed:
+
+data/regulatory/sosfiler_service_catalog.json
+
+Initial Competitors
+
+LegalZoom
+Northwest Registered Agent
+CorpNet
+ZenBusiness
+Bizee / Incfile
+InCorp
+Harbor Compliance
+Rocket Lawyer
+Swyft Filings
+Incorporate.com
+BetterLegal
+
+Initial Product Gap Categories
+
+registered_agent_service
+registered_agent_change
+annual_report_filing
+business_license_discovery
+business_license_filing
+dba_fbn_assumed_name
+foreign_qualification
+articles_of_amendment
+entity_conversion
+dissolution
+reinstatement
+certificate_of_good_standing
+certified_copy
+operating_agreement
+bylaws
+initial_resolutions
+corporate_minutes
+stock_certificate
+corporate_kit
+ein
+state_tax_id
+seller_permit
+trademark_search
+trademark_filing
+trademark_monitoring
+trademark_maintenance
+copyright
+patent_search
+provisional_patent
+design_patent
+utility_patent
+boi_foreign_reporting_company
+
+BOI Rule
+
+FinCEN guidance changed in 2025. Domestic U.S.-created entities and U.S. persons are exempt from BOI reporting under the interim final rule. BOI should only be offered or reminded when the official FinCEN rule applies, currently foreign entities formed outside the United States that register to do business in a U.S. state or tribal jurisdiction and do not qualify for an exemption.
+
+Blocked-Filing Workflow
+
+When a state, county, city, or federal filing is blocked:
+
+1. Search competitor targets for the blocked filing category and jurisdiction.
+2. Record competitor offerings as product or process signals only.
+3. Add a competitor gap signal with official_verification_required = true.
+4. Re-run authority-led research against the official government filing office, official forms, official fee schedule, or official portal.
+5. If official verification succeeds, update or create the SOSFiler filing record.
+6. If official verification still fails, keep the filing in needs_operator_review or blocked and attach the competitor gap signal as context.
+
+Pricing Workflow
+
+Competitor service prices may inform SOSFiler markup strategy but must not overwrite government fees. Store competitor price text separately from official government fees. SOSFiler checkout pricing should combine:
+
+official government fees
+official processing or convenience fees
+optional expedite fees
+SOSFiler service fee
+registered agent or partner service fee where applicable
+
+Research Commands
+
+The competitor intelligence runner is not implemented yet. Until it exists, use the seed file as a queue for Firecrawl or manual source extraction. The first implementation should:
+
+1. Crawl each seed URL.
+2. Extract offerings into regulatory_competitor_offerings.
+3. Compare offering categories against SOSFiler regulatory_filing_records and document-template inventory.
+4. Create regulatory_competitor_gap_signals for missing SOSFiler capabilities or blocked filings that competitors appear to support.
+5. Never mark a government filing verified from competitor data alone.

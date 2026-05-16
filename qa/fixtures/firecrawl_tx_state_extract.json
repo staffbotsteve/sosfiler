@@ -1,0 +1,82 @@
+{
+  "success": true,
+  "status": "completed",
+  "data": {
+    "filing_records": [
+      {
+        "filing_id": "tx_llc_certificate_of_formation_verified",
+        "filing_category": "formation",
+        "entity_types": ["LLC"],
+        "filing_name": "Certificate of Formation - Limited Liability Company",
+        "authority": "Texas Secretary of State",
+        "domestic_or_foreign": "domestic",
+        "form_number": "205",
+        "form_name": "Certificate of Formation - Limited Liability Company",
+        "portal_name": "SOSDirect",
+        "portal_url": "https://direct.sos.state.tx.us/acct/acct-login.asp",
+        "submission_channels": ["web_portal"],
+        "required_customer_inputs": ["entity_name", "registered_agent", "registered_office", "governing_authority", "organizer"],
+        "required_documents": [],
+        "output_documents": ["certificate_of_filing", "filed_certificate_of_formation", "receipt"],
+        "expected_turnaround": "Varies by SOSDirect review queue.",
+        "fee_components": [
+          {
+            "code": "state_filing_fee",
+            "label": "State filing fee",
+            "amount_cents": 30000,
+            "fee_type": "fixed",
+            "required": true,
+            "source_url": "https://www.sos.state.tx.us/corp/forms/205_boc.doc"
+          }
+        ],
+        "processing_fee": {
+          "code": "credit_card_convenience_fee",
+          "label": "Credit card convenience fee",
+          "amount_cents": null,
+          "fee_type": "formula",
+          "formula": "2.7% of total fees",
+          "required": true,
+          "source_url": "https://direct.sos.state.tx.us/acct/acct-login.asp"
+        },
+        "process_steps": [
+          {
+            "step": 1,
+            "actor": "sosfiler",
+            "title": "Search entity name availability",
+            "evidence_output": ["name_search_result"]
+          },
+          {
+            "step": 2,
+            "actor": "sosfiler",
+            "title": "Submit Form 205 through SOSDirect",
+            "evidence_output": ["submission_receipt"],
+            "status_after_step": "submitted"
+          },
+          {
+            "step": 3,
+            "actor": "sosfiler",
+            "title": "Download approved filing package",
+            "evidence_output": ["certificate_of_filing", "filed_certificate_of_formation"],
+            "status_after_step": "approved"
+          }
+        ],
+        "source_citations": [
+          {
+            "url": "https://www.sos.state.tx.us/corp/forms_boc.shtml",
+            "title": "Business Organizations Code Forms",
+            "authority": "Texas Secretary of State",
+            "source_type": "official"
+          }
+        ],
+        "notes": "Mocked fixture for Texas LLC formation extraction."
+      }
+    ]
+  },
+  "sources": [
+    {
+      "url": "https://www.sos.state.tx.us/corp/forms_boc.shtml",
+      "title": "Business Organizations Code Forms",
+      "markdown": "Certificate of Formation - Limited Liability Company. Filing fee $300."
+    }
+  ]
+}

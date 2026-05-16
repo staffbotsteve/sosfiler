@@ -1,0 +1,644 @@
+{
+  "authorities": [
+    {
+      "authority_id": "tx_state_sos",
+      "authority_name": "Texas Secretary of State",
+      "authority_type": "state_filing_office",
+      "batch_id": "tx_state_filings",
+      "blockers": [],
+      "filing_focus": [
+        "formation",
+        "foreign_authority",
+        "amendment",
+        "registered_agent_change",
+        "address_change",
+        "annual_obligation",
+        "dissolution",
+        "reinstatement",
+        "certificate_copy"
+      ],
+      "jurisdiction_level": "state",
+      "jurisdiction_name": "Texas",
+      "last_run_at": "",
+      "notes": "State source set is official-only. State batch replacement should be used carefully.",
+      "priority": 10,
+      "record_ids": [
+        "tx_llc_certificate_of_formation",
+        "tx_state_filings_abandonment_of_assumed_name_certificate_504",
+        "tx_state_filings_amendment_to_registration_for_a_foreign_limited_liability_partnership_407",
+        "tx_state_filings_annual_report",
+        "tx_state_filings_annual_report_instructions",
+        "tx_state_filings_annual_report_pir_oir",
+        "tx_state_filings_annual_statement_for_professional_association_803",
+        "tx_state_filings_application_for_registration_for_a_foreign_nonprofit_corporation_or_cooperative_association_302",
+        "tx_state_filings_application_for_registration_for_a_foreign_professional_corporation_303",
+        "tx_state_filings_application_for_registration_for_a_foreign_professional_corporation_303_2",
+        "tx_state_filings_application_for_registration_of_a_foreign_for_profit_corporation_301",
+        "tx_state_filings_application_for_registration_of_a_foreign_limited_liability_partnership_307",
+        "tx_state_filings_application_for_reinstatement_and_request_to_set_aside_tax_forfeiture_801",
+        "tx_state_filings_application_for_reinstatement_of_limited_liability_partnership_status_816",
+        "tx_state_filings_application_for_reservation_or_renewal_of_reservation_of_an_entity_name_501",
+        "tx_state_filings_certificate_of_amendment_424",
+        "tx_state_filings_certificate_of_conversion_of_a_corporation_converting_to_a_real_estate_investment_trust_634",
+        "tx_state_filings_certificate_of_conversion_of_a_limited_partnership_converting_to_a_corporation_643",
+        "tx_state_filings_certificate_of_conversion_of_a_professional_association_converting_to_a_professional_limited_liability_company_645",
+        "tx_state_filings_certificate_of_formation_201",
+        "tx_state_filings_certificate_of_formation_201_2",
+        "tx_state_filings_certificate_of_formation_205",
+        "tx_state_filings_certificate_of_formation_for_a_for_profit_corporation_201",
+        "tx_state_filings_certificate_of_formation_for_a_limited_liability_company_205",
+        "tx_state_filings_certificate_of_formation_for_a_limited_liability_company_205_2",
+        "tx_state_filings_certificate_of_formation_for_a_limited_liability_company_205_3",
+        "tx_state_filings_certificate_of_formation_for_a_nonprofit_corporation_202",
+        "tx_state_filings_certificate_of_formation_limited_partnership_207",
+        "tx_state_filings_certificate_of_formation_nonprofit_corporation_202",
+        "tx_state_filings_for_profit_corporation_application_for_registration_301",
+        "tx_state_filings_franchise_tax_ownership_information_report_oir_05_167",
+        "tx_state_filings_franchise_tax_report_05_102",
+        "tx_state_filings_franchise_tax_report_05_102_2",
+        "tx_state_filings_franchise_tax_report_05_102_3",
+        "tx_state_filings_franchise_tax_report_05_158",
+        "tx_state_filings_franchise_tax_report_05_158_2",
+        "tx_state_filings_franchise_tax_report_05_158_3",
+        "tx_state_filings_franchise_tax_report_2026",
+        "tx_state_filings_llc_formation_form_205",
+        "tx_state_filings_no_tax_due_report_05_163",
+        "tx_state_filings_no_tax_due_report_05_163_2",
+        "tx_state_filings_periodic_report_of_a_nonprofit_corporation_802",
+        "tx_state_filings_public_information_report_05_102",
+        "tx_state_filings_public_information_report_05_102_2",
+        "tx_state_filings_public_information_report_05_102_3",
+        "tx_state_filings_public_information_report_pir_and_ownership_information_report_oir_05_102_05_167",
+        "tx_state_filings_registration_of_a_limited_liability_partnership_701",
+        "tx_state_filings_reinstatement_of_business_entity_05_391",
+        "tx_state_filings_reinstatement_of_business_entity_05_391_2",
+        "tx_state_filings_reinstatement_of_business_entity_05_391_3",
+        "tx_state_filings_texas_franchise_tax_public_information_report_05_102",
+        "tx_state_filings_texas_franchise_tax_public_information_report_05_102_2",
+        "tx_state_filings_texas_franchise_tax_public_information_report_pir_05_102"
+      ],
+      "source_urls": [
+        "https://www.sos.state.tx.us/corp/forms_boc.shtml",
+        "https://www.sos.state.tx.us/corp/filingandothergeneralfaqs.shtml",
+        "https://direct.sos.state.tx.us/acct/acct-login.asp",
+        "https://www.sos.state.tx.us/corp/sosda/index.shtml",
+        "https://webservices.sos.state.tx.us/filing-status/status.aspx",
+        "https://comptroller.texas.gov/taxes/franchise/",
+        "https://comptroller.texas.gov/taxes/franchise/pir-oir-filing-req.php"
+      ],
+      "state": "TX",
+      "status": "needs_review"
+    },
+    {
+      "authority_id": "tx_county_harris_clerk",
+      "authority_name": "Harris County Clerk",
+      "authority_type": "county_clerk",
+      "batch_id": "tx_local_filings",
+      "blockers": [],
+      "filing_focus": [
+        "dba_fbn",
+        "business_license",
+        "business_tax",
+        "home_occupation",
+        "renewal",
+        "amendment",
+        "closure"
+      ],
+      "jurisdiction_level": "county",
+      "jurisdiction_name": "Harris County",
+      "last_run_at": "2026-05-08T01:18:10+00:00",
+      "notes": "",
+      "priority": 20,
+      "record_ids": [
+        "tx_local_filings_harris_county_clerk_assumed_name_dba_filing"
+      ],
+      "source_urls": [
+        "https://www.cclerk.hctx.net/PersonalRecords.aspx"
+      ],
+      "state": "TX",
+      "status": "verified"
+    },
+    {
+      "authority_id": "tx_county_dallas_clerk",
+      "authority_name": "Dallas County Clerk",
+      "authority_type": "county_clerk",
+      "batch_id": "tx_local_filings",
+      "blockers": [],
+      "filing_focus": [
+        "dba_fbn",
+        "business_license",
+        "business_tax",
+        "home_occupation",
+        "renewal",
+        "amendment",
+        "closure"
+      ],
+      "jurisdiction_level": "county",
+      "jurisdiction_name": "Dallas County",
+      "last_run_at": "2026-05-08T01:30:05+00:00",
+      "notes": "",
+      "priority": 30,
+      "record_ids": [
+        "tx_local_filings_dallas_county_clerk_assumed_name_application"
+      ],
+      "source_urls": [
+        "https://www.dallascounty.org/government/county-clerk/recording/assumed-names/assumed-names-procedures.php"
+      ],
+      "state": "TX",
+      "status": "verified"
+    },
+    {
+      "authority_id": "tx_county_tarrant_clerk",
+      "authority_name": "Tarrant County Clerk",
+      "authority_type": "county_clerk",
+      "batch_id": "tx_local_filings",
+      "blockers": [],
+      "filing_focus": [
+        "dba_fbn",
+        "business_license",
+        "business_tax",
+        "home_occupation",
+        "renewal",
+        "amendment",
+        "closure"
+      ],
+      "jurisdiction_level": "county",
+      "jurisdiction_name": "Tarrant County",
+      "last_run_at": "2026-05-08T01:37:55+00:00",
+      "notes": "",
+      "priority": 40,
+      "record_ids": [
+        "tx_local_filings_tarrant_county_clerk_assumed_name_dba_filing"
+      ],
+      "source_urls": [
+        "https://www.tarrantcountytx.gov/en/county-clerk/vital-records/assumed-names.html",
+        "https://www.tarrantcountytx.gov/en/county-clerk/vital-records/assumed-names/fee-schedules.html",
+        "https://www.tarrantcountytx.gov/en/county-clerk/vital-records/assumed-names/certified-copy-of-assumed-name-application-certificate.html"
+      ],
+      "state": "TX",
+      "status": "verified"
+    },
+    {
+      "authority_id": "tx_county_bexar_clerk",
+      "authority_name": "Bexar County Clerk",
+      "authority_type": "county_clerk",
+      "batch_id": "tx_local_filings",
+      "blockers": [],
+      "filing_focus": [
+        "dba_fbn",
+        "business_license",
+        "business_tax",
+        "home_occupation",
+        "renewal",
+        "amendment",
+        "closure"
+      ],
+      "jurisdiction_level": "county",
+      "jurisdiction_name": "Bexar County",
+      "last_run_at": "2026-05-08T01:38:47+00:00",
+      "notes": "",
+      "priority": 50,
+      "record_ids": [
+        "tx_local_filings_bexar_county_clerk_assumed_business_name_registration"
+      ],
+      "source_urls": [
+        "https://www.bexar.org/2958/Assumed-Business-NamesDBAs",
+        "https://www.bexar.org/3038/Frequently-Asked-Questions",
+        "https://www.bexar.org/FAQ.aspx?QID=549"
+      ],
+      "state": "TX",
+      "status": "verified"
+    },
+    {
+      "authority_id": "tx_county_travis_clerk",
+      "authority_name": "Travis County Clerk",
+      "authority_type": "county_clerk",
+      "batch_id": "tx_local_filings",
+      "blockers": [],
+      "filing_focus": [
+        "dba_fbn",
+        "business_license",
+        "business_tax",
+        "home_occupation",
+        "renewal",
+        "amendment",
+        "closure"
+      ],
+      "jurisdiction_level": "county",
+      "jurisdiction_name": "Travis County",
+      "last_run_at": "",
+      "notes": "",
+      "priority": 60,
+      "record_ids": [
+        "tx_local_filings_travis_county_clerk_assumed_name_dba_filing"
+      ],
+      "source_urls": [
+        "https://countyclerk.traviscountytx.gov/departments/recording/dbas/"
+      ],
+      "state": "TX",
+      "status": "verified"
+    },
+    {
+      "authority_id": "tx_county_collin_clerk",
+      "authority_name": "Collin County Clerk",
+      "authority_type": "county_clerk",
+      "batch_id": "tx_local_filings",
+      "blockers": [],
+      "filing_focus": [
+        "dba_fbn",
+        "business_license",
+        "business_tax",
+        "home_occupation",
+        "renewal",
+        "amendment",
+        "closure"
+      ],
+      "jurisdiction_level": "county",
+      "jurisdiction_name": "Collin County",
+      "last_run_at": "2026-05-08T01:39:28+00:00",
+      "notes": "",
+      "priority": 70,
+      "record_ids": [
+        "tx_local_filings_collin_county_clerk_assumed_name_certificate"
+      ],
+      "source_urls": [
+        "https://www.collincountytx.gov/county-clerk/assumed-names",
+        "https://www.collincountytx.gov/County-Clerk/Pages/Assumed-Names.aspx",
+        "https://www.collincountytx.gov/County-Clerk/faq",
+        "https://www.collincountytx.gov/County-Clerk/forms-and-documents"
+      ],
+      "state": "TX",
+      "status": "verified"
+    },
+    {
+      "authority_id": "tx_county_denton_clerk",
+      "authority_name": "Denton County Clerk",
+      "authority_type": "county_clerk",
+      "batch_id": "tx_local_filings",
+      "blockers": [],
+      "filing_focus": [
+        "dba_fbn",
+        "business_license",
+        "business_tax",
+        "home_occupation",
+        "renewal",
+        "amendment",
+        "closure"
+      ],
+      "jurisdiction_level": "county",
+      "jurisdiction_name": "Denton County",
+      "last_run_at": "",
+      "notes": "",
+      "priority": 80,
+      "record_ids": [
+        "tx_local_filings_denton_county_clerk_assumed_name_dba_filing"
+      ],
+      "source_urls": [
+        "https://www.dentoncounty.gov/277/Assumed-Names-DBAs"
+      ],
+      "state": "TX",
+      "status": "verified"
+    },
+    {
+      "authority_id": "tx_county_fort_bend_clerk",
+      "authority_name": "Fort Bend County Clerk",
+      "authority_type": "county_clerk",
+      "batch_id": "tx_local_filings",
+      "blockers": [],
+      "filing_focus": [
+        "dba_fbn",
+        "business_license",
+        "business_tax",
+        "home_occupation",
+        "renewal",
+        "amendment",
+        "closure"
+      ],
+      "jurisdiction_level": "county",
+      "jurisdiction_name": "Fort Bend County",
+      "last_run_at": "2026-05-08T01:31:09+00:00",
+      "notes": "",
+      "priority": 90,
+      "record_ids": [
+        "tx_local_filings_fort_bend_county_clerk_assumed_name_certificate_dba",
+        "tx_local_filings_fort_bend_county_clerk_assumed_name_dba_filing"
+      ],
+      "source_urls": [
+        "https://www.fortbendcountytx.gov/government/departments/county-clerk/dba-assumed-name"
+      ],
+      "state": "TX",
+      "status": "verified"
+    },
+    {
+      "authority_id": "tx_county_williamson_clerk",
+      "authority_name": "Williamson County Clerk",
+      "authority_type": "county_clerk",
+      "batch_id": "tx_local_filings",
+      "blockers": [],
+      "filing_focus": [
+        "dba_fbn",
+        "business_license",
+        "business_tax",
+        "home_occupation",
+        "renewal",
+        "amendment",
+        "closure"
+      ],
+      "jurisdiction_level": "county",
+      "jurisdiction_name": "Williamson County",
+      "last_run_at": "2026-05-08T01:42:53+00:00",
+      "notes": "",
+      "priority": 100,
+      "record_ids": [
+        "tx_local_filings_williamson_county_clerk_assumed_name_certificate_filing"
+      ],
+      "source_urls": [
+        "https://www.wilcotx.gov/311/Assumed-Name-Certificates",
+        "https://www.wilcotx.gov/DocumentCenter/View/1287/Assumed-Name-DBA-Filing-Instructions-PDF",
+        "https://www.wilcotx.gov/DocumentCenter/View/8554"
+      ],
+      "state": "TX",
+      "status": "verified"
+    },
+    {
+      "authority_id": "tx_county_ector_clerk",
+      "authority_name": "Ector County Clerk",
+      "authority_type": "county_clerk",
+      "batch_id": "tx_local_filings",
+      "blockers": [],
+      "filing_focus": [
+        "dba_fbn",
+        "business_license",
+        "business_tax",
+        "home_occupation",
+        "renewal",
+        "amendment",
+        "closure"
+      ],
+      "jurisdiction_level": "county",
+      "jurisdiction_name": "Ector County",
+      "last_run_at": "2026-05-08T01:31:39+00:00",
+      "notes": "",
+      "priority": 110,
+      "record_ids": [
+        "tx_local_filings_ector_county_clerk_assumed_name_certificate"
+      ],
+      "source_urls": [
+        "https://newtools.cira.state.tx.us/page/ector.AssumedName"
+      ],
+      "state": "TX",
+      "status": "verified"
+    },
+    {
+      "authority_id": "tx_county_rockwall_clerk",
+      "authority_name": "Rockwall County Clerk",
+      "authority_type": "county_clerk",
+      "batch_id": "tx_local_filings",
+      "blockers": [],
+      "filing_focus": [
+        "dba_fbn",
+        "business_license",
+        "business_tax",
+        "home_occupation",
+        "renewal",
+        "amendment",
+        "closure"
+      ],
+      "jurisdiction_level": "county",
+      "jurisdiction_name": "Rockwall County",
+      "last_run_at": "",
+      "notes": "",
+      "priority": 120,
+      "record_ids": [
+        "tx_local_filings_rockwall_county_clerk_assumed_name_dba_filing"
+      ],
+      "source_urls": [
+        "https://www.rockwallcountytexas.com/658/Assumed-Name-DBA"
+      ],
+      "state": "TX",
+      "status": "verified"
+    },
+    {
+      "authority_id": "tx_county_ellis_clerk",
+      "authority_name": "Ellis County Clerk",
+      "authority_type": "county_clerk",
+      "batch_id": "tx_local_filings",
+      "blockers": [],
+      "filing_focus": [
+        "dba_fbn",
+        "business_license",
+        "business_tax",
+        "home_occupation",
+        "renewal",
+        "amendment",
+        "closure"
+      ],
+      "jurisdiction_level": "county",
+      "jurisdiction_name": "Ellis County",
+      "last_run_at": "2026-05-08T01:44:21+00:00",
+      "notes": "",
+      "priority": 130,
+      "record_ids": [
+        "tx_local_filings_ellis_county_clerk_assumed_name_dba_filing"
+      ],
+      "source_urls": [
+        "https://elliscountytx.gov/819/Assumed-Names",
+        "https://elliscountytx.gov/DocumentCenter/View/10783/RECORDING-FEE-SCHEDULE",
+        "https://elliscountytx.gov/822/Alcohol-Beverage-Permits"
+      ],
+      "state": "TX",
+      "status": "verified"
+    },
+    {
+      "authority_id": "tx_city_houston_permitting",
+      "authority_name": "Houston Permitting Center",
+      "authority_type": "city_permitting",
+      "batch_id": "tx_local_filings",
+      "blockers": [],
+      "filing_focus": [
+        "dba_fbn",
+        "business_license",
+        "business_tax",
+        "home_occupation",
+        "renewal",
+        "amendment",
+        "closure"
+      ],
+      "jurisdiction_level": "city",
+      "jurisdiction_name": "Houston",
+      "last_run_at": "2026-05-08T01:32:23+00:00",
+      "notes": "Refined from landing page to official certificate of occupancy and commercial permitting pages.",
+      "priority": 200,
+      "record_ids": [
+        "tx_local_filings_houston_permitting_center_certificate_of_occupancy_ce_1045a_ce_1045b",
+        "tx_local_filings_houston_permitting_center_credit_access_business_certificate_of_registration"
+      ],
+      "source_urls": [
+        "https://www.houstonpermittingcenter.org/hpwcode1106",
+        "https://www.houstonpermittingcenter.org/building-code-enforcement/occupancy-inspections",
+        "https://www.houstonpermittingcenter.org/aracpe1066",
+        "https://www.houstonpermittingcenter.org/commercial-permitting-and-enforcement"
+      ],
+      "state": "TX",
+      "status": "verified"
+    },
+    {
+      "authority_id": "tx_city_san_antonio_dsd",
+      "authority_name": "City of San Antonio Development Services",
+      "authority_type": "city_permitting",
+      "batch_id": "tx_local_filings",
+      "blockers": [],
+      "filing_focus": [
+        "dba_fbn",
+        "business_license",
+        "business_tax",
+        "home_occupation",
+        "renewal",
+        "amendment",
+        "closure"
+      ],
+      "jurisdiction_level": "city",
+      "jurisdiction_name": "San Antonio",
+      "last_run_at": "2026-05-08T01:14:21+00:00",
+      "notes": "Refined from DSD landing page to official business, licensing, certificate of occupancy, and BuildSA pages.",
+      "priority": 210,
+      "record_ids": [
+        "tx_local_filings_city_of_san_antonio_development_services_certificate_of_occupancy_cofo_application",
+        "tx_local_filings_city_of_san_antonio_development_services_food_establishment_permit_1"
+      ],
+      "source_urls": [
+        "https://www.sa.gov/Business/Permits-Licensing",
+        "https://www.sa.gov/Directory/Departments/DSD/Resources/Getting-Started",
+        "https://www.sa.gov/Directory/Departments/DSD/Constructing/Business-Commercial/Certificate-of-Occupancy",
+        "https://www.sa.gov/Directory/Departments/DSD/BuildSA",
+        "https://www.sa.gov/Directory/Departments/SAMHD/Licenses-Food-Permits/Food-Establishment-License"
+      ],
+      "state": "TX",
+      "status": "verified"
+    },
+    {
+      "authority_id": "tx_city_dallas_licenses",
+      "authority_name": "City of Dallas Special Collections",
+      "authority_type": "city_license_office",
+      "batch_id": "tx_local_filings",
+      "blockers": [],
+      "filing_focus": [
+        "dba_fbn",
+        "business_license",
+        "business_tax",
+        "home_occupation",
+        "renewal",
+        "amendment",
+        "closure"
+      ],
+      "jurisdiction_level": "city",
+      "jurisdiction_name": "Dallas",
+      "last_run_at": "2026-05-08T01:33:15+00:00",
+      "notes": "",
+      "priority": 220,
+      "record_ids": [
+        "tx_local_filings_city_of_dallas_bonded_warehouse_permit_liquor_permits_jjd",
+        "tx_local_filings_city_of_dallas_distiller_s_or_reefler_s_permit_liquor_permits_d",
+        "tx_local_filings_city_of_dallas_local_distributor_s_permit_liquor_permits_lp",
+        "tx_local_filings_city_of_dallas_package_store_permit_liquor_permits_p",
+        "tx_local_filings_city_of_dallas_special_collections_amusement_center_license",
+        "tx_local_filings_city_of_dallas_special_collections_beer_license",
+        "tx_local_filings_city_of_dallas_special_collections_billiard_hall_license",
+        "tx_local_filings_city_of_dallas_special_collections_coin_operated_machines_license",
+        "tx_local_filings_city_of_dallas_special_collections_dance_hall_license",
+        "tx_local_filings_city_of_dallas_special_collections_liquor_license",
+        "tx_local_filings_city_of_dallas_special_collections_precious_metal_vendor_license",
+        "tx_local_filings_city_of_dallas_special_collections_sexually_oriented_business_license",
+        "tx_local_filings_city_of_dallas_wine_package_store_liquor_permits_q"
+      ],
+      "source_urls": [
+        "https://dallascityhall.com/departments/procurement/Pages/special_collections_licenses.aspx"
+      ],
+      "state": "TX",
+      "status": "verified"
+    },
+    {
+      "authority_id": "tx_city_austin_dsd",
+      "authority_name": "Austin Development Services",
+      "authority_type": "city_permitting",
+      "batch_id": "tx_local_filings",
+      "blockers": [],
+      "filing_focus": [
+        "dba_fbn",
+        "business_license",
+        "business_tax",
+        "home_occupation",
+        "renewal",
+        "amendment",
+        "closure"
+      ],
+      "jurisdiction_level": "city",
+      "jurisdiction_name": "Austin",
+      "last_run_at": "2026-05-08T01:48:20+00:00",
+      "notes": "Refined from DSD landing page to official Austin business permit and licensing pages.",
+      "priority": 230,
+      "record_ids": [
+        "tx_local_filings_austin_development_services_alcoholic_beverage_permits",
+        "tx_local_filings_austin_development_services_event_planning_guide_permit",
+        "tx_local_filings_austin_development_services_fixed_food_establishments",
+        "tx_local_filings_austin_development_services_operating_authority_license",
+        "tx_local_filings_austin_development_services_temporary_use_of_outdoor_sound_equipment_permit",
+        "tx_local_filings_austin_development_services_temporary_use_permit"
+      ],
+      "source_urls": [
+        "https://www.austintexas.gov/development-services/types-permits",
+        "https://www.austintexas.gov/department/permits",
+        "https://www.austintexas.gov/services/apply-operating-authority-license",
+        "https://www.austintexas.gov/health/programs/fixed-food-establishments",
+        "https://www.austintexas.gov/arts-culture/alcoholic-beverage-permits",
+        "https://www.austintexas.gov/page/temporary-use-permit",
+        "https://www.austintexas.gov/page/temporary-sound-permit",
+        "https://www.austintexas.gov/development-services/land-use-assistance",
+        "https://www.austintexas.gov/sites/default/files/files/ACE/ACE_Fee_Schedule_2026.pdf",
+        "https://www.austintexas.gov/sites/default/files/files/Fire/Prevention/FY26-Approved-Fee-Schedule.pdf",
+        "https://www.austintexas.gov/vi-vn/ace/event-planning-guide"
+      ],
+      "state": "TX",
+      "status": "needs_review"
+    },
+    {
+      "authority_id": "tx_city_fort_worth_dsd",
+      "authority_name": "Fort Worth Development Services",
+      "authority_type": "city_permitting",
+      "batch_id": "tx_local_filings",
+      "blockers": [],
+      "filing_focus": [
+        "dba_fbn",
+        "business_license",
+        "business_tax",
+        "home_occupation",
+        "renewal",
+        "amendment",
+        "closure"
+      ],
+      "jurisdiction_level": "city",
+      "jurisdiction_name": "Fort Worth",
+      "last_run_at": "2026-05-08T01:39:59+00:00",
+      "notes": "Refined from DSD landing page to official business, certificate of occupancy, licensing, and Accela permit pages.",
+      "priority": 240,
+      "record_ids": [
+        "tx_local_filings_fort_worth_environmental_services_department_consumer_health_division_alcohol_permit"
+      ],
+      "source_urls": [
+        "https://www.fortworthtexas.gov/business/starting-business",
+        "https://www.fortworthtexas.gov/departments/development-services/permits",
+        "https://www.fortworthtexas.gov/departments/development-services/permits/certificate-of-occupancy",
+        "https://www.fortworthtexas.gov/departments/tpw/services/valet",
+        "https://www.fortworthtexas.gov/departments/environmental-services/consumer-health/alcohol-permit",
+        "https://www.fortworthtexas.gov/files/assets/public/v/1/environmental-services/health/documents/envd-consumer-health-alcohol-permmit-fee-schedule-2025.pdf",
+        "https://www.fortworthtexas.gov/departments/tpw/parking/commercial"
+      ],
+      "state": "TX",
+      "status": "verified"
+    }
+  ],
+  "coverage_goal": "Research state filing offices first, then each county/city official authority for DBA, license, renewal, amendment, and closure filings.",
+  "method": "authority_led_official_sources_only",
+  "updated_at": "2026-05-08T01:48:20+00:00",
+  "version": 1
+}

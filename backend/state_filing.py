@@ -79,8 +79,8 @@ STATE_PORTALS = {
         "method": "online",
         "form": "LLC-1 (Articles of Organization)",
         "required_fields": ["llc_name", "purpose", "registered_agent_name", "registered_agent_address", "management_type", "organizer_name"],
-        "fee": 70,
-        "notes": "$800 annual franchise tax. File Statement of Information (LLC-12) within 90 days."
+        "fee": 90,
+        "notes": "$70 Articles of Organization plus $20 initial Statement of Information (LLC-12) within 90 days. Separate $800 FTB annual tax applies."
     },
     "CO": {
         "name": "Colorado",
@@ -280,7 +280,8 @@ STATE_PORTALS = {
         "method": "online",
         "form": "Articles of Organization",
         "required_fields": ["llc_name", "registered_agent_name", "registered_agent_address", "organizer_name"],
-        "fee": 70
+        "fee": 35,
+        "notes": "Annual report is required; timely filing is currently no fee, with a late fee after the deadline."
     },
     "NE": {
         "name": "Nebraska",
@@ -656,7 +657,7 @@ class StateFiler:
     async def _flow_california(self, data: dict, order_id: str, portal: dict) -> dict:
         """
         California – bizfileonline.sos.ca.gov
-        Flow: Home → File → LLC → LLC-1 → Fill fields → Pay $70 → Confirm
+        Flow: Home -> File -> LLC -> LLC-1 -> Fill fields -> Pay required state fees -> Confirm
         """
         try:
             from playwright.async_api import async_playwright
@@ -674,13 +675,13 @@ class StateFiler:
                     await page.screenshot(path=str(ss))
                     # Production: click "File" → select "LLC" → "Articles of Organization (LLC-1)"
                     # Fill: LLC name, agent name/address, management type, organizer
-                    # Pay $70 via platform card
+                    # Pay $70 Articles fee, then handle the $20 initial Statement of Information.
                     # Capture confirmation number
                     return {
                         "success": False, "needs_human_review": True,
                         "reason": "CA portal accessed. Data prepared for filing.",
                         "portal_url": portal["portal_url"], "form": "LLC-1",
-                        "state_fee": 70, "screenshot": str(ss),
+                        "state_fee": 90, "screenshot": str(ss),
                     }
                 finally:
                     await browser.close()

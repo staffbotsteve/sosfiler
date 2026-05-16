@@ -162,6 +162,334 @@
       "next_actions": [
         "Map exact official fees and processing fees for formation, foreign registrations, annual report, amendments, registered agent/address/governing-person changes, dissolution/withdrawal, certificates, copies, assumed names, county/city business licenses."
       ]
+    },
+    "AL": {
+      "priority": 11,
+      "status": "not_started",
+      "reason": "Phase 2 state added after top-ten blockers were logged so research can continue toward 50-state coverage.",
+      "next_actions": [
+        "Map exact official fees and processing fees for AL formations, foreign registrations, annual/periodic reports, amendments, registered agent/address/governing-person changes, dissolution/withdrawal, certificates, copies, state DBA/assumed-name paths, and state tax/business gateway dependencies."
+      ]
+    },
+    "AK": {
+      "priority": 12,
+      "status": "not_started",
+      "reason": "Phase 2 state added after top-ten blockers were logged so research can continue toward 50-state coverage.",
+      "next_actions": [
+        "Map exact official fees and processing fees for AK formations, foreign registrations, annual/periodic reports, amendments, registered agent/address/governing-person changes, dissolution/withdrawal, certificates, copies, state DBA/assumed-name paths, and state tax/business gateway dependencies."
+      ]
+    },
+    "AR": {
+      "priority": 13,
+      "status": "not_started",
+      "reason": "Phase 2 state added after top-ten blockers were logged so research can continue toward 50-state coverage.",
+      "next_actions": [
+        "Map exact official fees and processing fees for AR formations, foreign registrations, annual/periodic reports, amendments, registered agent/address/governing-person changes, dissolution/withdrawal, certificates, copies, state DBA/assumed-name paths, and state tax/business gateway dependencies."
+      ]
+    },
+    "CO": {
+      "priority": 14,
+      "status": "not_started",
+      "reason": "Phase 2 state added after top-ten blockers were logged so research can continue toward 50-state coverage.",
+      "next_actions": [
+        "Map exact official fees and processing fees for CO formations, foreign registrations, annual/periodic reports, amendments, registered agent/address/governing-person changes, dissolution/withdrawal, certificates, copies, state DBA/assumed-name paths, and state tax/business gateway dependencies."
+      ]
+    },
+    "CT": {
+      "priority": 15,
+      "status": "not_started",
+      "reason": "Phase 2 state added after top-ten blockers were logged so research can continue toward 50-state coverage.",
+      "next_actions": [
+        "Map exact official fees and processing fees for CT formations, foreign registrations, annual/periodic reports, amendments, registered agent/address/governing-person changes, dissolution/withdrawal, certificates, copies, state DBA/assumed-name paths, and state tax/business gateway dependencies."
+      ]
+    },
+    "DC": {
+      "priority": 16,
+      "status": "not_started",
+      "reason": "Phase 2 state added after top-ten blockers were logged so research can continue toward 50-state coverage.",
+      "next_actions": [
+        "Map exact official fees and processing fees for DC formations, foreign registrations, annual/periodic reports, amendments, registered agent/address/governing-person changes, dissolution/withdrawal, certificates, copies, state DBA/assumed-name paths, and state tax/business gateway dependencies."
+      ]
+    },
+    "HI": {
+      "priority": 17,
+      "status": "not_started",
+      "reason": "Phase 2 state added after top-ten blockers were logged so research can continue toward 50-state coverage.",
+      "next_actions": [
+        "Map exact official fees and processing fees for HI formations, foreign registrations, annual/periodic reports, amendments, registered agent/address/governing-person changes, dissolution/withdrawal, certificates, copies, state DBA/assumed-name paths, and state tax/business gateway dependencies."
+      ]
+    },
+    "ID": {
+      "priority": 18,
+      "status": "not_started",
+      "reason": "Phase 2 state added after top-ten blockers were logged so research can continue toward 50-state coverage.",
+      "next_actions": [
+        "Map exact official fees and processing fees for ID formations, foreign registrations, annual/periodic reports, amendments, registered agent/address/governing-person changes, dissolution/withdrawal, certificates, copies, state DBA/assumed-name paths, and state tax/business gateway dependencies."
+      ]
+    },
+    "IN": {
+      "priority": 19,
+      "status": "not_started",
+      "reason": "Phase 2 state added after top-ten blockers were logged so research can continue toward 50-state coverage.",
+      "next_actions": [
+        "Map exact official fees and processing fees for IN formations, foreign registrations, annual/periodic reports, amendments, registered agent/address/governing-person changes, dissolution/withdrawal, certificates, copies, state DBA/assumed-name paths, and state tax/business gateway dependencies."
+      ]
+    },
+    "IA": {
+      "priority": 20,
+      "status": "not_started",
+      "reason": "Phase 2 state added after top-ten blockers were logged so research can continue toward 50-state coverage.",
+      "next_actions": [
+        "Map exact official fees and processing fees for IA formations, foreign registrations, annual/periodic reports, amendments, registered agent/address/governing-person changes, dissolution/withdrawal, certificates, copies, state DBA/assumed-name paths, and state tax/business gateway dependencies."
+      ]
+    },
+    "KS": {
+      "priority": 21,
+      "status": "not_started",
+      "reason": "Phase 2 state added after top-ten blockers were logged so research can continue toward 50-state coverage.",
+      "next_actions": [
+        "Map exact official fees and processing fees for KS formations, foreign registrations, annual/periodic reports, amendments, registered agent/address/governing-person changes, dissolution/withdrawal, certificates, copies, state DBA/assumed-name paths, and state tax/business gateway dependencies."
+      ]
+    },
+    "KY": {
+      "priority": 22,
+      "status": "not_started",
+      "reason": "Phase 2 state added after top-ten blockers were logged so research can continue toward 50-state coverage.",
+      "next_actions": [
+        "Map exact official fees and processing fees for KY formations, foreign registrations, annual/periodic reports, amendments, registered agent/address/governing-person changes, dissolution/withdrawal, certificates, copies, state DBA/assumed-name paths, and state tax/business gateway dependencies."
+      ]
+    },
+    "LA": {
+      "priority": 23,
+      "status": "not_started",
+      "reason": "Phase 2 state added after top-ten blockers were logged so research can continue toward 50-state coverage.",
+      "next_actions": [
+        "Map exact official fees and processing fees for LA formations, foreign registrations, annual/periodic reports, amendments, registered agent/address/governing-person changes, dissolution/withdrawal, certificates, copies, state DBA/assumed-name paths, and state tax/business gateway dependencies."
+      ]
+    },
+    "ME": {
+      "priority": 24,
+      "status": "not_started",
+      "reason": "Phase 2 state added after top-ten blockers were logged so research can continue toward 50-state coverage.",
+      "next_actions": [
+        "Map exact official fees and processing fees for ME formations, foreign registrations, annual/periodic reports, amendments, registered agent/address/governing-person changes, dissolution/withdrawal, certificates, copies, state DBA/assumed-name paths, and state tax/business gateway dependencies."
+      ]
+    },
+    "MD": {
+      "priority": 25,
+      "status": "not_started",
+      "reason": "Phase 2 state added after top-ten blockers were logged so research can continue toward 50-state coverage.",
+      "next_actions": [
+        "Map exact official fees and processing fees for MD formations, foreign registrations, annual/periodic reports, amendments, registered agent/address/governing-person changes, dissolution/withdrawal, certificates, copies, state DBA/assumed-name paths, and state tax/business gateway dependencies."
+      ]
+    },
+    "MA": {
+      "priority": 26,
+      "status": "not_started",
+      "reason": "Phase 2 state added after top-ten blockers were logged so research can continue toward 50-state coverage.",
+      "next_actions": [
+        "Map exact official fees and processing fees for MA formations, foreign registrations, annual/periodic reports, amendments, registered agent/address/governing-person changes, dissolution/withdrawal, certificates, copies, state DBA/assumed-name paths, and state tax/business gateway dependencies."
+      ]
+    },
+    "MI": {
+      "priority": 27,
+      "status": "not_started",
+      "reason": "Phase 2 state added after top-ten blockers were logged so research can continue toward 50-state coverage.",
+      "next_actions": [
+        "Map exact official fees and processing fees for MI formations, foreign registrations, annual/periodic reports, amendments, registered agent/address/governing-person changes, dissolution/withdrawal, certificates, copies, state DBA/assumed-name paths, and state tax/business gateway dependencies."
+      ]
+    },
+    "MN": {
+      "priority": 28,
+      "status": "not_started",
+      "reason": "Phase 2 state added after top-ten blockers were logged so research can continue toward 50-state coverage.",
+      "next_actions": [
+        "Map exact official fees and processing fees for MN formations, foreign registrations, annual/periodic reports, amendments, registered agent/address/governing-person changes, dissolution/withdrawal, certificates, copies, state DBA/assumed-name paths, and state tax/business gateway dependencies."
+      ]
+    },
+    "MS": {
+      "priority": 29,
+      "status": "not_started",
+      "reason": "Phase 2 state added after top-ten blockers were logged so research can continue toward 50-state coverage.",
+      "next_actions": [
+        "Map exact official fees and processing fees for MS formations, foreign registrations, annual/periodic reports, amendments, registered agent/address/governing-person changes, dissolution/withdrawal, certificates, copies, state DBA/assumed-name paths, and state tax/business gateway dependencies."
+      ]
+    },
+    "MO": {
+      "priority": 30,
+      "status": "not_started",
+      "reason": "Phase 2 state added after top-ten blockers were logged so research can continue toward 50-state coverage.",
+      "next_actions": [
+        "Map exact official fees and processing fees for MO formations, foreign registrations, annual/periodic reports, amendments, registered agent/address/governing-person changes, dissolution/withdrawal, certificates, copies, state DBA/assumed-name paths, and state tax/business gateway dependencies."
+      ]
+    },
+    "MT": {
+      "priority": 31,
+      "status": "not_started",
+      "reason": "Phase 2 state added after top-ten blockers were logged so research can continue toward 50-state coverage.",
+      "next_actions": [
+        "Map exact official fees and processing fees for MT formations, foreign registrations, annual/periodic reports, amendments, registered agent/address/governing-person changes, dissolution/withdrawal, certificates, copies, state DBA/assumed-name paths, and state tax/business gateway dependencies."
+      ]
+    },
+    "NE": {
+      "priority": 32,
+      "status": "not_started",
+      "reason": "Phase 2 state added after top-ten blockers were logged so research can continue toward 50-state coverage.",
+      "next_actions": [
+        "Map exact official fees and processing fees for NE formations, foreign registrations, annual/periodic reports, amendments, registered agent/address/governing-person changes, dissolution/withdrawal, certificates, copies, state DBA/assumed-name paths, and state tax/business gateway dependencies."
+      ]
+    },
+    "NH": {
+      "priority": 33,
+      "status": "not_started",
+      "reason": "Phase 2 state added after top-ten blockers were logged so research can continue toward 50-state coverage.",
+      "next_actions": [
+        "Map exact official fees and processing fees for NH formations, foreign registrations, annual/periodic reports, amendments, registered agent/address/governing-person changes, dissolution/withdrawal, certificates, copies, state DBA/assumed-name paths, and state tax/business gateway dependencies."
+      ]
+    },
+    "NJ": {
+      "priority": 34,
+      "status": "not_started",
+      "reason": "Phase 2 state added after top-ten blockers were logged so research can continue toward 50-state coverage.",
+      "next_actions": [
+        "Map exact official fees and processing fees for NJ formations, foreign registrations, annual/periodic reports, amendments, registered agent/address/governing-person changes, dissolution/withdrawal, certificates, copies, state DBA/assumed-name paths, and state tax/business gateway dependencies."
+      ]
+    },
+    "NM": {
+      "priority": 35,
+      "status": "not_started",
+      "reason": "Phase 2 state added after top-ten blockers were logged so research can continue toward 50-state coverage.",
+      "next_actions": [
+        "Map exact official fees and processing fees for NM formations, foreign registrations, annual/periodic reports, amendments, registered agent/address/governing-person changes, dissolution/withdrawal, certificates, copies, state DBA/assumed-name paths, and state tax/business gateway dependencies."
+      ]
+    },
+    "NC": {
+      "priority": 36,
+      "status": "not_started",
+      "reason": "Phase 2 state added after top-ten blockers were logged so research can continue toward 50-state coverage.",
+      "next_actions": [
+        "Map exact official fees and processing fees for NC formations, foreign registrations, annual/periodic reports, amendments, registered agent/address/governing-person changes, dissolution/withdrawal, certificates, copies, state DBA/assumed-name paths, and state tax/business gateway dependencies."
+      ]
+    },
+    "ND": {
+      "priority": 37,
+      "status": "not_started",
+      "reason": "Phase 2 state added after top-ten blockers were logged so research can continue toward 50-state coverage.",
+      "next_actions": [
+        "Map exact official fees and processing fees for ND formations, foreign registrations, annual/periodic reports, amendments, registered agent/address/governing-person changes, dissolution/withdrawal, certificates, copies, state DBA/assumed-name paths, and state tax/business gateway dependencies."
+      ]
+    },
+    "OH": {
+      "priority": 38,
+      "status": "not_started",
+      "reason": "Phase 2 state added after top-ten blockers were logged so research can continue toward 50-state coverage.",
+      "next_actions": [
+        "Map exact official fees and processing fees for OH formations, foreign registrations, annual/periodic reports, amendments, registered agent/address/governing-person changes, dissolution/withdrawal, certificates, copies, state DBA/assumed-name paths, and state tax/business gateway dependencies."
+      ]
+    },
+    "OK": {
+      "priority": 39,
+      "status": "not_started",
+      "reason": "Phase 2 state added after top-ten blockers were logged so research can continue toward 50-state coverage.",
+      "next_actions": [
+        "Map exact official fees and processing fees for OK formations, foreign registrations, annual/periodic reports, amendments, registered agent/address/governing-person changes, dissolution/withdrawal, certificates, copies, state DBA/assumed-name paths, and state tax/business gateway dependencies."
+      ]
+    },
+    "OR": {
+      "priority": 40,
+      "status": "not_started",
+      "reason": "Phase 2 state added after top-ten blockers were logged so research can continue toward 50-state coverage.",
+      "next_actions": [
+        "Map exact official fees and processing fees for OR formations, foreign registrations, annual/periodic reports, amendments, registered agent/address/governing-person changes, dissolution/withdrawal, certificates, copies, state DBA/assumed-name paths, and state tax/business gateway dependencies."
+      ]
+    },
+    "PA": {
+      "priority": 41,
+      "status": "not_started",
+      "reason": "Phase 2 state added after top-ten blockers were logged so research can continue toward 50-state coverage.",
+      "next_actions": [
+        "Map exact official fees and processing fees for PA formations, foreign registrations, annual/periodic reports, amendments, registered agent/address/governing-person changes, dissolution/withdrawal, certificates, copies, state DBA/assumed-name paths, and state tax/business gateway dependencies."
+      ]
+    },
+    "RI": {
+      "priority": 42,
+      "status": "not_started",
+      "reason": "Phase 2 state added after top-ten blockers were logged so research can continue toward 50-state coverage.",
+      "next_actions": [
+        "Map exact official fees and processing fees for RI formations, foreign registrations, annual/periodic reports, amendments, registered agent/address/governing-person changes, dissolution/withdrawal, certificates, copies, state DBA/assumed-name paths, and state tax/business gateway dependencies."
+      ]
+    },
+    "SC": {
+      "priority": 43,
+      "status": "not_started",
+      "reason": "Phase 2 state added after top-ten blockers were logged so research can continue toward 50-state coverage.",
+      "next_actions": [
+        "Map exact official fees and processing fees for SC formations, foreign registrations, annual/periodic reports, amendments, registered agent/address/governing-person changes, dissolution/withdrawal, certificates, copies, state DBA/assumed-name paths, and state tax/business gateway dependencies."
+      ]
+    },
+    "SD": {
+      "priority": 44,
+      "status": "not_started",
+      "reason": "Phase 2 state added after top-ten blockers were logged so research can continue toward 50-state coverage.",
+      "next_actions": [
+        "Map exact official fees and processing fees for SD formations, foreign registrations, annual/periodic reports, amendments, registered agent/address/governing-person changes, dissolution/withdrawal, certificates, copies, state DBA/assumed-name paths, and state tax/business gateway dependencies."
+      ]
+    },
+    "TN": {
+      "priority": 45,
+      "status": "not_started",
+      "reason": "Phase 2 state added after top-ten blockers were logged so research can continue toward 50-state coverage.",
+      "next_actions": [
+        "Map exact official fees and processing fees for TN formations, foreign registrations, annual/periodic reports, amendments, registered agent/address/governing-person changes, dissolution/withdrawal, certificates, copies, state DBA/assumed-name paths, and state tax/business gateway dependencies."
+      ]
+    },
+    "UT": {
+      "priority": 46,
+      "status": "not_started",
+      "reason": "Phase 2 state added after top-ten blockers were logged so research can continue toward 50-state coverage.",
+      "next_actions": [
+        "Map exact official fees and processing fees for UT formations, foreign registrations, annual/periodic reports, amendments, registered agent/address/governing-person changes, dissolution/withdrawal, certificates, copies, state DBA/assumed-name paths, and state tax/business gateway dependencies."
+      ]
+    },
+    "VT": {
+      "priority": 47,
+      "status": "not_started",
+      "reason": "Phase 2 state added after top-ten blockers were logged so research can continue toward 50-state coverage.",
+      "next_actions": [
+        "Map exact official fees and processing fees for VT formations, foreign registrations, annual/periodic reports, amendments, registered agent/address/governing-person changes, dissolution/withdrawal, certificates, copies, state DBA/assumed-name paths, and state tax/business gateway dependencies."
+      ]
+    },
+    "VA": {
+      "priority": 48,
+      "status": "not_started",
+      "reason": "Phase 2 state added after top-ten blockers were logged so research can continue toward 50-state coverage.",
+      "next_actions": [
+        "Map exact official fees and processing fees for VA formations, foreign registrations, annual/periodic reports, amendments, registered agent/address/governing-person changes, dissolution/withdrawal, certificates, copies, state DBA/assumed-name paths, and state tax/business gateway dependencies."
+      ]
+    },
+    "WA": {
+      "priority": 49,
+      "status": "not_started",
+      "reason": "Phase 2 state added after top-ten blockers were logged so research can continue toward 50-state coverage.",
+      "next_actions": [
+        "Map exact official fees and processing fees for WA formations, foreign registrations, annual/periodic reports, amendments, registered agent/address/governing-person changes, dissolution/withdrawal, certificates, copies, state DBA/assumed-name paths, and state tax/business gateway dependencies."
+      ]
+    },
+    "WV": {
+      "priority": 50,
+      "status": "not_started",
+      "reason": "Phase 2 state added after top-ten blockers were logged so research can continue toward 50-state coverage.",
+      "next_actions": [
+        "Map exact official fees and processing fees for WV formations, foreign registrations, annual/periodic reports, amendments, registered agent/address/governing-person changes, dissolution/withdrawal, certificates, copies, state DBA/assumed-name paths, and state tax/business gateway dependencies."
+      ]
+    },
+    "WI": {
+      "priority": 51,
+      "status": "not_started",
+      "reason": "Phase 2 state added after top-ten blockers were logged so research can continue toward 50-state coverage.",
+      "next_actions": [
+        "Map exact official fees and processing fees for WI formations, foreign registrations, annual/periodic reports, amendments, registered agent/address/governing-person changes, dissolution/withdrawal, certificates, copies, state DBA/assumed-name paths, and state tax/business gateway dependencies."
+      ]
     }
   },
   "remaining_states": [

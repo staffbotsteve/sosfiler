@@ -2,500 +2,516 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<link rel="icon" type="image/png" href="/favicon.png">
+<link rel="icon" type="image/png" href="favicon.png">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Switch Your Registered Agent to SOSFiler — $49/yr | Cancel LegalZoom, ZenBusiness & More</title>
+<title>Switch Your Registered Agent — $49/yr · Cancel LegalZoom, ZenBusiness · SOSFiler</title>
 <meta name="description" content="Ditch your $249/yr registered agent. Switch to SOSFiler for $49/yr — same service, same compliance, 80% less. We handle the Change of Agent filing free.">
 <meta name="keywords" content="switch registered agent, cancel LegalZoom registered agent, cheapest registered agent service, change registered agent, registered agent $49, cancel ZenBusiness registered agent">
-<meta property="og:title" content="Switch Your Registered Agent to SOSFiler — $49/yr">
+<meta property="og:title" content="Switch Your Registered Agent — $49/yr">
 <meta property="og:description" content="Same service. Same compliance. 80% less. No auto-renewals, no retention departments, no guilt trips.">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://sosfiler.com/ra-rescue.html">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Switch Your Registered Agent to SOSFiler — $49/yr">
-<meta name="twitter:description" content="Ditch your expensive registered agent. SOSFiler is $49/yr flat — we file the change for free.">
 <link rel="canonical" href="https://sosfiler.com/ra-rescue.html">
 <link rel="manifest" href="/manifest.json">
 <meta name="theme-color" content="#CCFF00">
-<link rel="apple-touch-icon" href="/icon-192.png">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="stylesheet" href="chat-widget.css">
 <style>
 :root {
   --bg: #0A0A0A;
+  --bg-tint: #0E0E0E;
   --surface: #141414;
-  --border: #1E1E1E;
+  --surface-2: #1A1A1A;
+  --border: #1F1F1F;
+  --border-strong: #2A2A2A;
   --text: #FFFFFF;
-  --text-secondary: #999999;
-  --text-body: #CCCCCC;
+  --muted: #9A9A9A;
+  --muted-2: #6B6B6B;
+  --body: #D0D0D0;
   --accent: #CCFF00;
-  --accent2: #39FF14;
   --cyan: #00FFE5;
   --green: #39FF14;
   --red: #FF3366;
-  --yellow: #FF6B00;
-  --glow: rgba(204,255,0,0.4);
-  --glow-sm: rgba(204,255,0,0.15);
-  --gradient: linear-gradient(135deg, #CCFF00, #39FF14);
+  --amber: #FFB23F;
+  --glow: rgba(204,255,0,0.35);
+  --glow-sm: rgba(204,255,0,0.12);
+
+  --font-display: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Inter Display', system-ui, sans-serif;
+  --font-body:    -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Inter', system-ui, sans-serif;
+  --font-mono:    'JetBrains Mono', 'IBM Plex Mono', ui-monospace, Menlo, monospace;
 }
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { scroll-behavior: smooth; }
 body {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family: var(--font-body);
   background: var(--bg);
   color: var(--text);
-  line-height: 1.6;
+  line-height: 1.55;
   -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
-a { color: var(--cyan); text-decoration: none; transition: color 0.2s ease; }
-a:hover { color: var(--accent); text-decoration: none; }
-
-::-webkit-scrollbar { width: 6px; }
+a { color: inherit; text-decoration: none; transition: color .15s ease; }
+::selection { background: var(--accent); color: #000; }
+::-webkit-scrollbar { width: 8px; }
 ::-webkit-scrollbar-track { background: var(--bg); }
-::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
+::-webkit-scrollbar-thumb { background: #2A2A2A; border-radius: 2px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+img { max-width: 100%; display: block; }
 
-.container { max-width: 1100px; margin: 0 auto; padding: 0 20px; }
-section { padding: 80px 0; }
+.container { max-width: 1240px; margin: 0 auto; padding: 0 24px; }
+.container-narrow { max-width: 980px; margin: 0 auto; padding: 0 24px; }
+section { padding: 96px 0; position: relative; }
+@media (max-width: 760px) { section { padding: 64px 0; } }
 
-/* Navigation */
-nav {
-  position: sticky; top: 0; z-index: 100;
-  background: rgba(10,10,10,0.92);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-  border-bottom: 1px solid var(--border);
-  padding: 16px 0;
+h1, h2, h3, h4, h5 { font-family: var(--font-display); font-weight: 900; letter-spacing: -0.03em; line-height: 1.02; color: #fff; }
+h2 { font-size: clamp(34px, 5.4vw, 64px); }
+h3 { font-size: clamp(22px, 2.6vw, 30px); }
+h4 { font-size: 18px; letter-spacing: -0.01em; line-height: 1.3; }
+p { color: var(--body); }
+.lede { font-size: clamp(17px, 1.6vw, 20px); color: var(--muted); max-width: 64ch; line-height: 1.55; }
+.mono { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
 }
-nav .container { display: flex; justify-content: space-between; align-items: center; }
-nav .logo { font-size: 22px; font-weight: 800; color: #fff; }
-nav .logo span { color: var(--accent); }
-nav .nav-links { display: flex; gap: 24px; align-items: center; }
-nav .nav-links a { color: var(--text-secondary); font-size: 14px; font-weight: 500; transition: color 0.2s ease; }
-nav .nav-links a:hover { color: #fff; text-decoration: none; }
+.eyebrow::before { content: ''; width: 18px; height: 1px; background: var(--accent); display: inline-block; }
+.kicker {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--accent);
+  padding: 5px 10px;
+  border: 1px solid rgba(204,255,0,0.3);
+  border-radius: 999px;
+  margin-bottom: 18px;
+  font-weight: 600;
+}
 
 .btn {
-  display: inline-block; padding: 14px 32px;
+  display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+  padding: 16px 28px;
   background: var(--accent);
-  color: #000; font-weight: 700; border-radius: 8px;
-  border: none; cursor: pointer; font-size: 15px;
-  transition: all 0.2s ease;
-  min-height: 44px;
+  color: #000;
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 15px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  min-height: 48px;
+  letter-spacing: -0.005em;
+  transition: transform .12s ease, box-shadow .15s ease, background .15s ease;
 }
-.btn:hover { box-shadow: 0 0 20px var(--glow), 0 8px 30px rgba(204,255,0,0.2); transform: translateY(-1px); text-decoration: none; color: #000; }
-.btn-outline {
-  background: transparent; border: 2px solid var(--accent);
-  color: var(--accent); padding: 12px 30px;
-}
-.btn-outline:hover { background: var(--accent); color: #000; }
+.btn:hover { background: #DBFF33; box-shadow: 0 0 0 6px var(--glow-sm), 0 14px 40px rgba(204,255,0,0.18); transform: translateY(-1px); color: #000; }
+.btn:active { transform: translateY(0); }
+.btn-lg { padding: 20px 36px; font-size: 17px; min-height: 56px; }
+.btn-ghost { background: transparent; color: var(--text); border: 1px solid var(--border-strong); }
+.btn-ghost:hover { background: var(--surface); border-color: var(--accent); color: var(--accent); box-shadow: none; transform: none; }
+.btn .arrow { transition: transform .15s ease; }
+.btn:hover .arrow { transform: translateX(3px); }
 
-/* Hero */
+nav {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(10,10,10,0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  padding: 14px 0;
+}
+nav .container { display: flex; justify-content: space-between; align-items: center; gap: 24px; }
+nav .brand { display: flex; align-items: center; gap: 12px; }
+nav .brand img { height: 56px; width: auto; }
+nav .brand-mark { font-family: var(--font-display); font-size: 20px; font-weight: 900; letter-spacing: -0.02em; }
+nav .brand-mark .dot { color: var(--accent); }
+nav .nav-links { display: flex; gap: 28px; align-items: center; }
+nav .nav-links a { color: var(--muted); font-size: 14px; font-weight: 500; }
+nav .nav-links a:hover { color: #fff; }
+nav .nav-cta { padding: 10px 18px; font-size: 13px; min-height: 40px; border-radius: 6px; }
+.hamburger { display: none; background: none; border: 1px solid var(--border-strong); color: #fff; cursor: pointer; min-width: 44px; min-height: 44px; border-radius: 6px; font-size: 18px; }
+@media (max-width: 880px) {
+  .hamburger { display: flex; align-items: center; justify-content: center; }
+  nav .nav-links { display: none; position: absolute; top: 60px; left: 0; right: 0; background: rgba(10,10,10,0.98); backdrop-filter: blur(20px); border-bottom: 1px solid var(--border); flex-direction: column; padding: 24px; gap: 18px; }
+  nav .nav-links.open { display: flex; align-items: stretch; }
+  nav .nav-links a { padding: 10px 0; font-size: 16px; border-bottom: 1px solid var(--border); }
+}
+
+/* HERO */
 .hero {
-  padding: 120px 0 80px;
-  text-align: center;
-  background: radial-gradient(ellipse at top center, rgba(204,255,0,0.06) 0%, transparent 55%);
+  padding: 96px 0 80px;
+  border-bottom: 1px solid var(--border);
   position: relative;
+  overflow: hidden;
 }
-.hero::after {
-  content: '';
-  position: absolute; bottom: 0; left: 0; right: 0; height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(204,255,0,0.2), transparent);
+.hero::before {
+  content: ''; position: absolute; inset: -40% 30% auto auto;
+  width: 800px; height: 800px;
+  background: radial-gradient(circle at center, rgba(204,255,0,0.10), transparent 60%);
+  pointer-events: none;
+  filter: blur(20px);
 }
-.hero h1 {
-  font-size: clamp(32px, 6vw, 52px);
+.hero .container { position: relative; z-index: 1; }
+.hero-grid { display: grid; grid-template-columns: 1.15fr 1fr; gap: 64px; align-items: start; }
+.hero-headline {
+  font-size: clamp(40px, 6.2vw, 84px);
   font-weight: 900;
-  line-height: 1.1;
-  margin-bottom: 20px;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.04em;
+  line-height: 0.98;
+  margin: 22px 0 24px;
 }
-.hero h1 .price { color: var(--accent); text-shadow: 0 0 30px var(--glow-sm); }
-.hero h1 .old-price { color: var(--red); }
-.hero .subtitle {
-  font-size: clamp(16px, 2.5vw, 20px);
-  color: var(--text-secondary);
-  max-width: 650px;
-  margin: 0 auto 32px;
-  font-weight: 400;
+.hero-headline .strike { color: var(--muted-2); text-decoration: line-through; text-decoration-color: var(--red); text-decoration-thickness: 4px; font-weight: 800; }
+.hero-headline .accent-block {
+  display: inline-block;
+  background: var(--accent);
+  color: #000;
+  padding: 0 14px;
+  margin-left: -4px;
+  transform: skew(-4deg);
 }
+.hero-sub { font-size: clamp(16px, 1.7vw, 19px); color: var(--body); max-width: 56ch; margin-bottom: 30px; }
+.hero-cta-row { display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 22px; }
+.hero-trust { display: flex; gap: 24px; flex-wrap: wrap; font-family: var(--font-mono); font-size: 11px; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; }
+.hero-trust span { display: inline-flex; align-items: center; gap: 8px; }
+.hero-trust .dot { width: 6px; height: 6px; background: var(--accent); border-radius: 50%; }
 
-/* Section titles */
-.section-title { text-align: center; margin-bottom: 48px; }
-.section-title h2 { font-size: clamp(24px, 4vw, 40px); font-weight: 800; margin-bottom: 12px; }
-.section-title p { color: var(--text-secondary); font-size: 18px; max-width: 600px; margin: 0 auto; }
-
-/* Calculator */
-.calculator-section { background: rgba(204,255,0,0.015); }
-.calculator {
+/* Hero calculator panel */
+.hero-calc {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-top: 2px solid var(--accent);
-  border-radius: 16px;
-  padding: 32px;
-  max-width: 620px;
-  margin: 0 auto;
-  text-align: left;
-  transition: box-shadow 0.2s ease;
+  border-radius: 12px;
+  padding: 28px;
+  position: relative;
+  overflow: hidden;
 }
-.calculator:hover { box-shadow: 0 0 30px rgba(204,255,0,0.05); }
-.calculator h3 { font-size: 18px; margin-bottom: 16px; color: #fff; font-weight: 700; }
-.calculator select {
-  width: 100%;
-  padding: 14px;
-  background: #1A1A1A;
+.hero-calc::before {
+  content: 'SAVE $1,000+'; position: absolute; top: 14px; right: -36px;
+  background: var(--accent); color: #000;
+  padding: 4px 40px; font-family: var(--font-mono); font-size: 10px; font-weight: 700;
+  letter-spacing: 0.15em; transform: rotate(38deg); transform-origin: center;
+}
+.hero-calc-head { font-family: var(--font-mono); font-size: 11px; color: var(--muted-2); letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 8px; }
+.hero-calc h3 { font-size: 20px; margin-bottom: 18px; }
+.hero-calc select {
+  width: 100%; padding: 14px 16px;
+  background: var(--bg);
   color: var(--text);
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  font-size: 16px;
-  font-family: 'Inter', sans-serif;
-  margin-bottom: 16px;
+  border: 1px solid var(--border-strong);
+  border-radius: 6px;
+  font-size: 15px;
+  font-family: var(--font-body);
+  margin-bottom: 18px;
+  appearance: none;
+  background-image: linear-gradient(45deg, transparent 50%, var(--muted) 50%), linear-gradient(135deg, var(--muted) 50%, transparent 50%);
+  background-position: calc(100% - 16px) 50%, calc(100% - 12px) 50%;
+  background-size: 4px 4px;
+  background-repeat: no-repeat;
+  padding-right: 32px;
   cursor: pointer;
-  transition: border-color 0.2s ease;
-  min-height: 44px;
+  min-height: 48px;
 }
-.calculator select:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 2px rgba(204,255,0,0.15); }
+.hero-calc select:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(204,255,0,0.12); }
 
-/* Comparison bars */
-.cost-comparison { margin-top: 24px; display: none; }
-.cost-bar-wrap { margin-bottom: 16px; }
-.cost-bar-label {
-  display: flex; justify-content: space-between; align-items: baseline;
-  margin-bottom: 6px; font-size: 14px;
-}
-.cost-bar-label .name { color: var(--text-secondary); font-weight: 500; }
-.cost-bar-label .amount { font-weight: 700; }
+.cost-comparison { display: none; }
+.cost-bar-wrap { margin-bottom: 14px; }
+.cost-bar-label { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px; font-size: 13px; }
+.cost-bar-label .name { color: var(--muted); font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; }
+.cost-bar-label .name.us { color: var(--accent); }
+.cost-bar-label .amount { font-family: var(--font-mono); font-weight: 700; font-variant-numeric: tabular-nums; }
 .cost-bar-label .amount.theirs { color: var(--red); }
 .cost-bar-label .amount.ours { color: var(--accent); }
-.cost-bar {
-  height: 32px;
-  border-radius: 6px;
-  transition: width 0.6s ease;
-  position: relative;
-}
-.cost-bar.theirs { background: linear-gradient(90deg, var(--red), #cc2952); }
-.cost-bar.ours { background: var(--gradient); }
+.cost-bar { height: 14px; border-radius: 2px; transition: width .6s ease; }
+.cost-bar.theirs { background: var(--red); opacity: 0.85; }
+.cost-bar.ours { background: var(--accent); }
 
 .savings-callout {
-  margin-top: 24px;
-  padding: 20px;
-  background: rgba(204,255,0,0.06);
-  border: 1px solid rgba(204,255,0,0.15);
-  border-radius: 12px;
-  text-align: center;
+  margin-top: 22px; padding-top: 22px;
+  border-top: 1px solid var(--border);
   display: none;
+  text-align: center;
 }
+.savings-callout .savings-label-top { font-family: var(--font-mono); font-size: 10px; color: var(--muted-2); letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 6px; }
 .savings-callout .savings-amount {
-  font-size: 36px;
-  font-weight: 900;
-  color: var(--accent);
-  text-shadow: 0 0 20px var(--glow-sm);
+  font-family: var(--font-display); font-size: 48px; font-weight: 900; letter-spacing: -0.04em;
+  color: var(--accent); line-height: 1;
 }
-.savings-callout .savings-label {
-  color: var(--text-secondary);
-  font-size: 14px;
-  margin-top: 4px;
-}
+.savings-callout .savings-sub { color: var(--muted); font-size: 13px; margin-top: 6px; }
+
+/* Section headers */
+.section-head { max-width: 780px; margin-bottom: 48px; }
+.section-head h2 { margin-top: 14px; margin-bottom: 14px; }
+.section-head.center { text-align: center; margin-left: auto; margin-right: auto; }
+.section-head.center .eyebrow { justify-content: center; }
+.section-head p { color: var(--muted); }
+.section-alt { background: var(--bg-tint); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
 
 /* Steps */
-.steps {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 24px;
-  margin-top: 40px;
-}
+.steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+@media (max-width: 760px) { .steps { grid-template-columns: 1fr; } }
 .step {
+  padding: 32px 28px;
   background: var(--surface);
-  border: 1px solid var(--border);
-  border-top: 2px solid var(--accent);
-  border-radius: 16px;
-  padding: 32px 24px;
-  text-align: center;
-  position: relative;
+  border-right: 1px solid var(--border);
 }
-.step .number {
-  width: 48px; height: 48px;
-  background: var(--gradient);
-  color: #000;
-  font-weight: 900;
-  font-size: 20px;
-  border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  margin: 0 auto 16px;
-}
-.step h4 { font-size: 18px; font-weight: 700; margin-bottom: 8px; color: #fff; }
-.step p { color: var(--text-secondary); font-size: 14px; line-height: 1.6; }
+.step:last-child { border-right: none; }
+@media (max-width: 760px) { .step { border-right: none; border-bottom: 1px solid var(--border); } .step:last-child { border-bottom: none; } }
+.step .num { font-family: var(--font-mono); font-size: 11px; color: var(--muted-2); letter-spacing: 0.15em; display: block; margin-bottom: 14px; }
+.step h4 { margin-bottom: 10px; font-size: 22px; }
+.step p { color: var(--muted); font-size: 14px; line-height: 1.6; }
+.step strong { color: var(--accent); font-weight: 700; }
 
 /* Cancellation cards */
-.cancel-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 20px;
-  margin-top: 40px;
-}
+.cancel-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+@media (max-width: 760px) { .cancel-grid { grid-template-columns: 1fr; } }
 .cancel-card {
   background: var(--surface);
   border: 1px solid var(--border);
-  border-radius: 16px;
-  padding: 24px;
-}
-.cancel-card h4 {
-  font-size: 16px;
-  font-weight: 700;
-  margin-bottom: 10px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.cancel-card h4 .dot {
-  width: 8px; height: 8px;
-  border-radius: 50%;
-  display: inline-block;
-}
-.cancel-card p { color: var(--text-secondary); font-size: 13px; line-height: 1.6; }
-.cancel-card .contact { color: var(--cyan); font-weight: 600; font-size: 14px; }
-.cancel-card .warning { color: var(--yellow); font-size: 12px; font-style: italic; margin-top: 8px; }
-
-/* FAQ */
-.faq-list { max-width: 700px; margin: 0 auto; }
-.faq-item {
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  margin-bottom: 12px;
-  overflow: hidden;
-  background: var(--surface);
-  cursor: pointer;
-  transition: border-color 0.2s ease;
-}
-.faq-item:hover { border-color: #333; }
-.faq-q {
-  padding: 20px 24px;
-  font-weight: 600;
-  font-size: 15px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-.faq-q::after { content: '+'; color: var(--accent); font-size: 20px; transition: transform 0.2s ease; }
-.faq-item.open .faq-q::after { content: '−'; transform: rotate(180deg); }
-.faq-a {
-  max-height: 0; overflow: hidden;
-  transition: max-height 0.3s ease;
-  padding: 0 24px;
-  color: var(--text-secondary);
-  font-size: 14px;
-  line-height: 1.7;
-}
-.faq-item.open .faq-a { max-height: 300px; padding-bottom: 20px; }
-
-/* CTA */
-.cta-section {
-  text-align: center;
-  background: radial-gradient(ellipse at bottom center, rgba(204,255,0,0.06) 0%, transparent 55%);
-  position: relative;
-}
-.cta-section::before {
-  content: '';
-  position: absolute; top: 0; left: 0; right: 0; height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(204,255,0,0.2), transparent);
-}
-.cta-section h2 { font-size: clamp(24px, 4vw, 40px); margin-bottom: 16px; font-weight: 800; }
-.cta-section p { color: var(--text-secondary); font-size: 18px; margin-bottom: 32px; }
-
-/* Footer */
-footer {
-  border-top: 1px solid var(--border);
-  padding: 40px 0;
-  text-align: center;
-  color: var(--text-secondary);
-  font-size: 13px;
-}
-footer a { color: var(--cyan); }
-
-/* Pro tip box */
-.pro-tip {
-  max-width: 700px;
-  margin: 32px auto 0;
-  padding: 16px 20px;
-  background: rgba(57,255,20,0.06);
-  border: 1px solid rgba(57,255,20,0.15);
   border-radius: 10px;
-  text-align: center;
+  padding: 24px;
+  transition: border-color .15s ease;
+}
+.cancel-card:hover { border-color: var(--border-strong); }
+.cancel-card .ccompany { font-family: var(--font-mono); font-size: 11px; color: var(--muted-2); letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 6px; }
+.cancel-card h4 { margin-bottom: 14px; }
+.cancel-card .contact { font-family: var(--font-mono); color: var(--cyan); font-size: 13px; font-weight: 600; margin-bottom: 10px; word-break: break-word; }
+.cancel-card p { color: var(--muted); font-size: 13px; line-height: 1.6; }
+.cancel-card .warning { color: var(--amber); font-size: 12px; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border); }
+
+.pro-tip {
+  margin-top: 32px;
+  padding: 20px 24px;
+  background: rgba(57,255,20,0.04);
+  border: 1px solid rgba(57,255,20,0.18);
+  border-radius: 8px;
   font-size: 14px;
   color: var(--green);
-  font-weight: 500;
+  display: flex; align-items: flex-start; gap: 12px;
 }
+.pro-tip .label { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--green); margin-right: 6px; flex-shrink: 0; padding-top: 2px; }
+.pro-tip strong { color: #fff; }
 
-/* Mobile */
-.hamburger { display: none; background: none; border: none; color: #fff; font-size: 24px; cursor: pointer; min-width: 44px; min-height: 44px; }
-@media (max-width: 768px) {
-  .hamburger { display: flex; align-items: center; justify-content: center; }
-  nav .nav-links { display: none; position: absolute; top: 60px; left: 0; right: 0; background: rgba(10,10,10,0.98); backdrop-filter: blur(24px); border-bottom: 1px solid var(--border); flex-direction: column; padding: 20px; gap: 16px; }
-  nav .nav-links.open { display: flex; }
-  nav .nav-links a { min-height: 44px; display: flex; align-items: center; }
-  section { padding: 60px 0; }
-  .hero { padding: 80px 0 60px; }
-  .savings-callout .savings-amount { font-size: 28px; }
+/* FAQ */
+.faq-list { max-width: 880px; }
+.faq-item {
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
 }
+.faq-q {
+  padding: 22px 0;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 18px;
+  letter-spacing: -0.01em;
+  display: flex; justify-content: space-between; align-items: center; gap: 18px;
+  color: #fff;
+}
+.faq-q::after { content: '+'; color: var(--accent); font-size: 22px; transition: transform .2s ease; flex-shrink: 0; font-weight: 400; }
+.faq-item.open .faq-q::after { content: '−'; }
+.faq-a { max-height: 0; overflow: hidden; transition: max-height .3s ease; color: var(--muted); font-size: 15px; line-height: 1.65; }
+.faq-item.open .faq-a { max-height: 400px; padding-bottom: 22px; }
+
+/* Final CTA */
+.final-cta { text-align: center; padding: 120px 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); position: relative; overflow: hidden; }
+.final-cta::before {
+  content: ''; position: absolute; inset: 0;
+  background: radial-gradient(ellipse at center, rgba(204,255,0,0.08) 0%, transparent 60%);
+  pointer-events: none;
+}
+.final-cta .container { position: relative; z-index: 1; }
+.final-cta h2 { margin-bottom: 18px; font-size: clamp(36px, 6vw, 72px); }
+.final-cta h2 .accent-block { display: inline-block; background: var(--accent); color: #000; padding: 0 14px; transform: skew(-4deg); }
+.final-cta p { color: var(--muted); font-size: 18px; margin-bottom: 36px; }
+.final-cta .trust-row { display: flex; gap: 28px; justify-content: center; flex-wrap: wrap; margin-top: 24px; font-family: var(--font-mono); font-size: 11px; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; }
+.final-cta .trust-row span { display: inline-flex; align-items: center; gap: 8px; }
+.final-cta .trust-row .dot { width: 6px; height: 6px; background: var(--accent); border-radius: 50%; }
+
+/* footer */
+footer { border-top: 1px solid var(--border); padding: 56px 0 32px; color: var(--muted); font-size: 13px; }
+.footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 48px; margin-bottom: 40px; }
+.footer-brand h5 { font-size: 22px; }
+.footer-brand h5 span { color: var(--accent); }
+.footer-brand p { font-size: 13px; color: var(--muted); max-width: 36ch; line-height: 1.6; margin-top: 12px; }
+.footer-col h6 { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted-2); margin-bottom: 18px; font-weight: 600; }
+.footer-col ul { list-style: none; }
+.footer-col li { margin-bottom: 10px; }
+.footer-col a { color: var(--body); font-size: 14px; }
+.footer-col a:hover { color: var(--accent); }
+.footer-bottom { border-top: 1px solid var(--border); padding-top: 24px; display: flex; justify-content: space-between; align-items: center; font-family: var(--font-mono); font-size: 11px; color: var(--muted-2); letter-spacing: 0.04em; flex-wrap: wrap; gap: 12px; }
+@media (max-width: 760px) { .footer-grid { grid-template-columns: 1fr 1fr; gap: 32px; } .footer-bottom { flex-direction: column; align-items: flex-start; } .hero-grid { grid-template-columns: 1fr; gap: 40px; } }
+
+/* Structured data */
 </style>
 
-<!-- Structured data for SEO -->
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
   "@type": "Service",
   "name": "SOSFiler Registered Agent Service",
-  "description": "Registered agent service for $49/yr with free Change of Agent filing. Switch from LegalZoom, ZenBusiness, and other expensive providers.",
-  "provider": {
-    "@type": "Organization",
-    "name": "SOSFiler",
-    "url": "https://sosfiler.com"
-  },
-  "offers": {
-    "@type": "Offer",
-    "price": "49",
-    "priceCurrency": "USD",
-    "priceSpecification": {
-      "@type": "UnitPriceSpecification",
-      "billingDuration": "P1Y"
-    }
-  }
+  "description": "Registered agent service for $49/yr with free Change of Agent filing.",
+  "provider": { "@type": "Organization", "name": "SOSFiler", "url": "https://sosfiler.com" },
+  "offers": { "@type": "Offer", "price": "49", "priceCurrency": "USD" }
 }
 </script>
 </head>
 <body>
 
-<!-- Navigation -->
 <nav>
   <div class="container">
-    <a href="/" class="logo"><img src="/logo.png" alt="SOSFiler" style="height:36px;vertical-align:middle;"></a>
-    <button class="hamburger" onclick="document.querySelector('.nav-links').classList.toggle('open')" aria-label="Menu"><span style="font-size:24px;line-height:1;">&#8801;</span></button>
+    <a href="index.html" class="brand">
+      <img src="logo.png" alt="SOSFiler" onerror="this.style.display='none';this.nextElementSibling.style.display='inline-flex';">
+      <span class="brand-mark" style="display:none;">SOS<span class="dot">Filer</span></span>
+    </a>
+    <button class="hamburger" onclick="document.querySelector('.nav-links').classList.toggle('open')" aria-label="Menu">≡</button>
     <div class="nav-links">
-      <a href="/#included">What's Included</a>
-      <a href="/#compare">Compare</a>
-      <a href="/#how">How It Works</a>
-      <a href="/licenses.html">Licenses</a>
-      <a href="/app.html" class="btn" style="padding: 10px 24px; font-size: 14px;">Start My Business →</a>
+      <a href="index.html#pricing">Pricing</a>
+      <a href="index.html#compare">Compare</a>
+      <a href="#how-to-switch">How to switch</a>
+      <a href="#faq">FAQ</a>
+      <a href="licenses.html">Licenses</a>
+      <a href="app.html" class="btn nav-cta">Switch for $49/yr <span class="arrow">→</span></a>
     </div>
   </div>
 </nav>
 
-<!-- Hero -->
+<!-- HERO -->
 <section class="hero">
   <div class="container">
-    <h1>Ditch Your <span class="old-price">$249/yr</span> Registered Agent.<br>Switch to SOSFiler for <span class="price">$49/yr.</span></h1>
-    <p class="subtitle">Same service. Same compliance. 80% less. No auto-renewals, no retention departments, no guilt trips.</p>
-    <a href="/app.html" class="btn" style="font-size: 18px; padding: 18px 48px;">Switch My Registered Agent — $49/yr →</a>
-    <p style="color: var(--green); margin-top: 16px; font-size: 14px; font-weight: 500;">— Free Change of Agent filing included &nbsp; — No auto-renewals &nbsp; — Cancel online anytime</p>
+    <div class="hero-grid">
+      <div>
+        <span class="kicker">Registered agent rescue · $49/yr flat</span>
+        <h1 class="hero-headline">
+          LegalZoom: <span class="strike">$249/yr</span>.<br>
+          SOSFiler: <span class="accent-block">$49</span>.<br>
+          Same service.
+        </h1>
+        <p class="hero-sub">Same compliance. 80% less. No auto-renewals. No retention departments. No guilt trips. We file the Change of Agent for free — and tell you exactly how to cancel your old one.</p>
+        <div class="hero-cta-row">
+          <a href="app.html" class="btn btn-lg">Switch for $49/yr <span class="arrow">→</span></a>
+          <a href="#how-to-switch" class="btn btn-ghost btn-lg">How it works</a>
+        </div>
+        <div class="hero-trust">
+          <span><span class="dot"></span>Free Change of Agent filing</span>
+          <span><span class="dot"></span>No auto-renewals</span>
+          <span><span class="dot"></span>Cancel online anytime</span>
+        </div>
+      </div>
+      <div class="hero-calc">
+        <div class="hero-calc-head">/ SAVINGS CALCULATOR</div>
+        <h3>How much are you overpaying?</h3>
+        <select id="agentSelect" onchange="updateComparison()">
+          <option value="">Select your current agent…</option>
+          <option value="legalzoom">LegalZoom — $249/yr</option>
+          <option value="zenbusiness">ZenBusiness — $199/yr</option>
+          <option value="swyft">Swyft Filings — $596/yr (!!)</option>
+          <option value="northwest">Northwest — $125/yr</option>
+          <option value="bizee">Bizee / Incfile — $119/yr</option>
+          <option value="other">Other ($100+/yr)</option>
+        </select>
+
+        <div class="cost-comparison" id="costComparison">
+          <div class="cost-bar-wrap">
+            <div class="cost-bar-label">
+              <span class="name" id="compName">Their service</span>
+              <span class="amount theirs" id="compCost">$249/yr</span>
+            </div>
+            <div class="cost-bar theirs" id="compBar" style="width: 100%;"></div>
+          </div>
+          <div class="cost-bar-wrap">
+            <div class="cost-bar-label">
+              <span class="name us">SOSFiler</span>
+              <span class="amount ours">$49/yr</span>
+            </div>
+            <div class="cost-bar ours" id="ourBar" style="width: 20%;"></div>
+          </div>
+        </div>
+
+        <div class="savings-callout" id="savingsCallout">
+          <div class="savings-label-top">/ 5-YEAR SAVINGS</div>
+          <div class="savings-amount" id="savingsAmount">$1,000</div>
+          <div class="savings-sub" id="savingsLabel">switching from LegalZoom</div>
+        </div>
+      </div>
+    </div>
   </div>
 </section>
 
-<!-- Calculator: What You're Probably Paying -->
-<section class="calculator-section">
-  <div class="container">
-    <div class="section-title">
-      <h2>What You're <span style="color: var(--red);">Probably Paying</span></h2>
-      <p>Select your current registered agent to see how much you'll save.</p>
-    </div>
-
-    <div class="calculator">
-      <h3>Who is your current registered agent?</h3>
-      <select id="agentSelect" onchange="updateComparison()">
-        <option value="">Select your provider...</option>
-        <option value="legalzoom">LegalZoom ($249/yr)</option>
-        <option value="zenbusiness">ZenBusiness ($199/yr)</option>
-        <option value="swyft">Swyft Filings ($149/quarter = $596/yr!)</option>
-        <option value="northwest">Northwest ($125/yr)</option>
-        <option value="bizee">Bizee / Incfile ($119/yr)</option>
-        <option value="other">Other ($100+/yr)</option>
-      </select>
-
-      <div class="cost-comparison" id="costComparison">
-        <div class="cost-bar-wrap">
-          <div class="cost-bar-label">
-            <span class="name" id="compName">Their service</span>
-            <span class="amount theirs" id="compCost">$249/yr</span>
-          </div>
-          <div class="cost-bar theirs" id="compBar" style="width: 100%;"></div>
-        </div>
-        <div class="cost-bar-wrap">
-          <div class="cost-bar-label">
-            <span class="name" style="color: var(--accent); font-weight: 700;">SOSFiler</span>
-            <span class="amount ours">$49/yr</span>
-          </div>
-          <div class="cost-bar ours" id="ourBar" style="width: 20%;"></div>
-        </div>
-      </div>
-
-      <div class="savings-callout" id="savingsCallout">
-        <div class="savings-amount" id="savingsAmount">$1,000</div>
-        <div class="savings-label" id="savingsLabel">saved over 5 years by switching from LegalZoom</div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- How to Switch — 3 Steps -->
+<!-- How to switch -->
 <section id="how-to-switch">
   <div class="container">
-    <div class="section-title">
-      <h2>How to <span style="color: var(--accent);">Switch</span></h2>
-      <p>Three steps. We handle the hard part.</p>
+    <div class="section-head center">
+      <span class="eyebrow">How to switch</span>
+      <h2>Three steps. We do the hard one.</h2>
+      <p>You point. We file. You cancel. Total time: under 5 minutes.</p>
     </div>
     <div class="steps">
       <div class="step">
-        <div class="number">1</div>
-        <h4>Sign Up with SOSFiler</h4>
-        <p>Register SOSFiler as your new registered agent. It takes 2 minutes and costs $49/yr — flat, forever. No hidden fees.</p>
+        <span class="num">/ STEP 01</span>
+        <h4>Sign up</h4>
+        <p>Register SOSFiler as your new RA. Two minutes. <strong>$49/yr flat, forever.</strong> No hidden fees, no introductory rates that balloon.</p>
       </div>
       <div class="step">
-        <div class="number">2</div>
-        <h4>We File the Change</h4>
-        <p>We file the Change of Agent form with your state — <strong style="color:var(--accent);">included free</strong>. You don't have to touch any paperwork or call any government office.</p>
+        <span class="num">/ STEP 02</span>
+        <h4>We file the change</h4>
+        <p>We file the Change of Agent form with your state — <strong>included free.</strong> You don't touch a single piece of paperwork.</p>
       </div>
       <div class="step">
-        <div class="number">3</div>
-        <h4>Cancel Your Old Agent</h4>
-        <p>Once your new agent is on file, cancel your old one. We give you the exact cancellation link, phone number, and what to say.</p>
+        <span class="num">/ STEP 03</span>
+        <h4>Cancel the old one</h4>
+        <p>Once your new agent is on file, cancel your old one. We give you the exact phone number, link, and script to use.</p>
       </div>
     </div>
   </div>
 </section>
 
-<!-- Competitor Cancellation Quick Links -->
-<section style="background: rgba(204,255,0,0.015);">
+<!-- Cancellation playbook -->
+<section class="section-alt">
   <div class="container">
-    <div class="section-title">
-      <h2>How to Cancel <span style="color: var(--red);">Your Old Agent</span></h2>
-      <p>We've done the research so you don't have to. Here's exactly how to cancel each provider.</p>
+    <div class="section-head">
+      <span class="eyebrow">Cancellation playbook</span>
+      <h2>How to cancel your old agent.</h2>
+      <p>We did the research. Here's exactly how to leave each provider — and what tricks they'll pull to stop you.</p>
     </div>
 
     <div class="cancel-grid">
       <div class="cancel-card">
-        <h4><span class="dot" style="background: #3b82f6;"></span> LegalZoom</h4>
-        <p class="contact">Call 800-773-0888 or email support</p>
-        <p>Ask to cancel Registered Agent service ONLY. Be specific — they'll try to retain you and bundle other services. Stand firm.</p>
-        <p class="warning">⚠ They'll offer discounts. You're still overpaying.</p>
+        <div class="ccompany">/ LEGALZOOM · $249/YR</div>
+        <h4>The hardest to leave.</h4>
+        <p class="contact">📞 800-773-0888 · support@legalzoom.com</p>
+        <p>Ask to cancel <strong style="color:#fff;">Registered Agent only</strong>. Be specific — they'll try to bundle other services and "save" you with a retention discount.</p>
+        <p class="warning">⚠ They'll offer you 50% off. Still 5× our price. Hold the line.</p>
       </div>
       <div class="cancel-card">
-        <h4><span class="dot" style="background: #f59e0b;"></span> ZenBusiness</h4>
-        <p class="contact">Log in → Account → Manage Subscription → Cancel Registered Agent</p>
-        <p>You can do it online. If that doesn't work, email support and request cancellation of RA service in writing.</p>
+        <div class="ccompany">/ ZENBUSINESS · $199/YR</div>
+        <h4>Cancel online — mostly.</h4>
+        <p class="contact">⚙ Account → Manage Subscription → Cancel RA</p>
+        <p>Their dashboard supports self-serve cancellation. If the page hides the button, email support and request RA cancellation in writing.</p>
       </div>
       <div class="cancel-card">
-        <h4><span class="dot" style="background: #8b5cf6;"></span> Bizee (Incfile)</h4>
-        <p class="contact">Email support@incfile.com or call 844-830-8267</p>
-        <p>Request cancellation of Registered Agent service. Get a confirmation email for your records.</p>
+        <div class="ccompany">/ BIZEE / INCFILE · $119/YR</div>
+        <h4>Email or call.</h4>
+        <p class="contact">✉ support@incfile.com · 📞 844-830-8267</p>
+        <p>Request RA service cancellation in writing. Demand a confirmation email — verbal cancellation is not enough.</p>
       </div>
       <div class="cancel-card">
-        <h4><span class="dot" style="background: #ec4899;"></span> Swyft Filings</h4>
-        <p class="contact">Email support@swyftfilings.com</p>
-        <p>Request cancellation in writing. Ask for written confirmation that the service has been cancelled and no further charges will be made.</p>
-        <p class="warning">⚠ Confirm in writing — verbal cancellation isn't enough.</p>
+        <div class="ccompany">/ SWYFT FILINGS · $596/YR</div>
+        <h4>The quarterly trap.</h4>
+        <p class="contact">✉ support@swyftfilings.com</p>
+        <p>Email cancellation in writing. Get written confirmation that the service is cancelled and no further quarterly charges will hit your card.</p>
+        <p class="warning">⚠ $149/quarter = $596/yr. The worst RA deal we've found.</p>
       </div>
     </div>
 
     <div class="pro-tip">
-      💡 <strong>Pro tip:</strong> Cancel your old agent AFTER we confirm your new agent is on file with your state. This ensures zero gap in coverage.
+      <span class="label">/ PRO TIP</span>
+      <div><strong>Cancel your old agent only AFTER we confirm the new agent is on file with your state.</strong> Sequence matters — keeps your compliance gap-free.</div>
     </div>
   </div>
 </section>
@@ -503,60 +519,93 @@ footer a { color: var(--cyan); }
 <!-- FAQ -->
 <section id="faq">
   <div class="container">
-    <div class="section-title">
-      <h2>Frequently Asked Questions</h2>
+    <div class="section-head">
+      <span class="eyebrow">FAQ</span>
+      <h2>Questions, answered.</h2>
     </div>
     <div class="faq-list">
       <div class="faq-item" onclick="this.classList.toggle('open')">
         <div class="faq-q">Will my LLC be affected during the switch?</div>
-        <div class="faq-a">No. We ensure there's overlap between your old agent and your new agent. Your LLC stays in good standing the entire time. The state simply updates which registered agent is on file — your business continues operating normally.</div>
+        <div class="faq-a">No. We sequence the switch so your old agent and new agent overlap — your LLC stays in good standing the whole time. The state just updates which RA is on file.</div>
       </div>
       <div class="faq-item" onclick="this.classList.toggle('open')">
         <div class="faq-q">How long does the switch take?</div>
-        <div class="faq-a">Typically 1–3 business days. Once you sign up, we file the Change of Agent form with your state immediately. Most states process the change within a few business days. We'll notify you as soon as it's confirmed.</div>
+        <div class="faq-a">Typically 1–3 business days. We file the Change of Agent immediately after you sign up; most states process within a few business days. We email you the moment it's confirmed.</div>
       </div>
       <div class="faq-item" onclick="this.classList.toggle('open')">
         <div class="faq-q">Do I need to notify my state?</div>
-        <div class="faq-a">Nope — we handle the Change of Agent filing for you, completely free. That's one of the things included with your $49/yr. You don't need to call anyone or fill out any forms.</div>
+        <div class="faq-a">No. We handle the Change of Agent filing free — that's part of your $49/yr. You don't call anyone, fill out anything, or mail anything.</div>
       </div>
       <div class="faq-item" onclick="this.classList.toggle('open')">
-        <div class="faq-q">What about my existing legal documents?</div>
-        <div class="faq-a">Your old registered agent is required to forward any documents they've received on your behalf. Once the switch is complete, all new legal documents and state correspondence will come to SOSFiler, and we'll notify you immediately via email.</div>
+        <div class="faq-q">What about existing legal documents?</div>
+        <div class="faq-a">Your old agent is legally required to forward anything they've already received. After the switch, every new legal document and state correspondence comes to SOSFiler — we email it to you the same day.</div>
       </div>
       <div class="faq-item" onclick="this.classList.toggle('open')">
         <div class="faq-q">Why is SOSFiler so much cheaper?</div>
-        <div class="faq-a">We don't have call centers, massive ad budgets, or aggressive upsell funnels. Our software handles the compliance monitoring and document forwarding automatically. Same service, fraction of the overhead — and we pass those savings to you.</div>
+        <div class="faq-a">No call centers. No TV ads. No retention departments. Our software handles compliance monitoring and document forwarding. Same service, fraction of the overhead — passed through to you.</div>
       </div>
       <div class="faq-item" onclick="this.classList.toggle('open')">
         <div class="faq-q">Will the price go up later?</div>
-        <div class="faq-a">No. $49/yr is our price. Period. No introductory rates that balloon after year one. No "premium tier" you get tricked into. And no auto-renewals — we remind you before renewal and you actively choose to continue.</div>
+        <div class="faq-a">No. $49/yr is the price. No introductory rate that balloons. No "premium tier" you get tricked into. And no auto-renewals — we remind you before renewal and you actively choose to continue.</div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- Bottom CTA -->
-<section class="cta-section">
+<!-- Final CTA -->
+<section class="final-cta">
   <div class="container">
-    <h2>Stop Overpaying. <span style="color: var(--accent);">Switch Today.</span></h2>
-    <p>Same registered agent service. Same compliance. $49/yr — that's it.</p>
-    <a href="/app.html" class="btn" style="font-size: 18px; padding: 18px 48px;">Switch My Registered Agent — $49/yr →</a>
-    <p style="color: var(--green); margin-top: 16px; font-size: 14px; font-weight: 500;">— Free Change of Agent filing &nbsp; — No auto-renewals &nbsp; — Cancel online anytime &nbsp; — $49/yr forever</p>
+    <span class="kicker">Stop overpaying</span>
+    <h2>Switch today. <span class="accent-block">$49</span>/yr forever.</h2>
+    <p>Same registered agent service. Same compliance. One-fifth the price.</p>
+    <a href="app.html" class="btn btn-lg">Switch my registered agent <span class="arrow">→</span></a>
+    <div class="trust-row">
+      <span><span class="dot"></span>Free Change of Agent filing</span>
+      <span><span class="dot"></span>No auto-renewals</span>
+      <span><span class="dot"></span>Cancel anytime online</span>
+      <span><span class="dot"></span>$49/yr forever</span>
+    </div>
   </div>
 </section>
 
-<!-- Footer -->
 <footer>
   <div class="container">
-    <p style="margin-bottom: 8px;">SOSFiler — Honest business formation.</p>
-    <p>
-      <a href="/app.html">Start Your Business</a> · 
-      <a href="/dashboard.html">Dashboard</a> · 
-      <a href="/terms.html">Terms of Service</a> · 
-      <a href="/privacy.html">Privacy Policy</a> · 
-      <a href="mailto:s.swan@providence.aero">Contact</a>
-    </p>
-    <p style="margin-top: 16px;">© 2026 SOSFiler. Not a law firm. We provide document preparation and filing services.</p>
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <h5>SOS<span>Filer</span></h5>
+        <p>The honest LLC. Flat fees, no upsells, no auto-renewals. Same paperwork the $300 services file.</p>
+      </div>
+      <div class="footer-col">
+        <h6>Product</h6>
+        <ul>
+          <li><a href="app.html">Start a filing</a></li>
+          <li><a href="dashboard.html">Dashboard</a></li>
+          <li><a href="licenses.html">Licenses</a></li>
+          <li><a href="ra-rescue.html">RA rescue</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h6>Company</h6>
+        <ul>
+          <li><a href="index.html#faq">FAQ</a></li>
+          <li><a href="terms.html">Terms</a></li>
+          <li><a href="privacy.html">Privacy</a></li>
+          <li><a href="mailto:support@sosfiler.com">Contact</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h6>Disclosure</h6>
+        <ul>
+          <li><span style="color: var(--muted-2);">Not a law firm</span></li>
+          <li><span style="color: var(--muted-2);">Document prep service</span></li>
+          <li><span style="color: var(--muted-2);">No legal advice</span></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 SOSFILER · ALL RIGHTS RESERVED</span>
+      <span>PRICES REVIEWED 2026-05-11</span>
+    </div>
   </div>
 </footer>
 
@@ -569,43 +618,29 @@ const competitors = {
   bizee: { name: 'Bizee / Incfile', yearly: 119 },
   other: { name: 'Your provider', yearly: 150 }
 };
-
 const sosfilerCost = 49;
 
 function updateComparison() {
   const val = document.getElementById('agentSelect').value;
   const comparison = document.getElementById('costComparison');
   const callout = document.getElementById('savingsCallout');
-
-  if (!val) {
-    comparison.style.display = 'none';
-    callout.style.display = 'none';
-    return;
-  }
-
+  if (!val) { comparison.style.display = 'none'; callout.style.display = 'none'; return; }
   const comp = competitors[val];
   comparison.style.display = 'block';
   callout.style.display = 'block';
-
-  // Update labels
   document.getElementById('compName').textContent = comp.name;
   document.getElementById('compCost').textContent = '$' + comp.yearly + '/yr';
-
-  // Update bars (proportional)
-  const maxCost = Math.max(comp.yearly, sosfilerCost);
   document.getElementById('compBar').style.width = '100%';
   document.getElementById('ourBar').style.width = Math.round((sosfilerCost / comp.yearly) * 100) + '%';
-
-  // 5-year savings
   const fiveYearSavings = (comp.yearly - sosfilerCost) * 5;
   document.getElementById('savingsAmount').textContent = '$' + fiveYearSavings.toLocaleString();
-  document.getElementById('savingsLabel').textContent = 'saved over 5 years by switching from ' + comp.name;
+  document.getElementById('savingsLabel').textContent = 'switching from ' + comp.name;
 }
 
-// PWA
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('/sw.js').catch(() => {});
 }
 </script>
+<script src="chat-widget.js"></script>
 </body>
 </html>

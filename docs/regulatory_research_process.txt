@@ -1,0 +1,175 @@
+SOSFiler Regulatory Research Process
+
+Purpose
+
+SOSFiler's regulatory research program exists to build a machine-actionable filing database for every state, county, and city filing we may sell. The output is not a narrative report. The output is a verified record that can drive checkout, pricing, operator work, browser automation, status monitoring, document retrieval, and customer portal updates.
+
+Source of Truth
+
+Official government sources are authoritative. Secretary of State, Corporation Commission, Department of State, county clerk, recorder, city clerk, finance department, licensing department, tax department, official forms, official fee schedules, official statutes, and official portal pages are primary sources. Commercial competitors may be used only to discover likely product categories or compare packaging. Fees, rules, required fields, turnaround, and process steps must be verified against official or government-linked portal sources before a filing is marked ready.
+
+Competitor Intelligence Rule
+
+LegalZoom, Northwest Registered Agent, CorpNet, ZenBusiness, Bizee, InCorp, Harbor Compliance, Rocket Lawyer, Swyft Filings, Incorporate.com, BetterLegal, and similar providers should be researched as a separate competitor-intelligence lane. This lane may identify product gaps, blocked-filing hints, customer portal expectations, service packaging, and competitor service prices. It must not change official filing fees or verification status by itself. Competitor offerings and gap signals belong in data/regulatory/competitor_research_targets.json and the Supabase competitor tables. Any competitor-discovered filing must be routed back to authority-led official research before SOSFiler can sell or automate it.
+
+Required Coverage
+
+For each state plus the District of Columbia, the research agent must identify all entity and operating-authority filings SOSFiler can reasonably support, including LLC formation, corporation formation, nonprofit formation, LP, LLP, professional entities where offered, foreign LLC authority, foreign corporation authority, foreign nonprofit authority, amendments, registered-agent changes, address changes, governing-person changes where state-filed, annual or biennial reports, renewal filings, franchise/public information reports, beneficial ownership information reports and update/correction filings where applicable, USPTO trademark filing and maintenance workflows, USPTO patent filing and maintenance workflows, dissolution, withdrawal, reinstatement, certificates, certified copies, name reservations, assumed names, state tax registrations, and state general business licenses where applicable.
+
+For each county and city, the research agent must identify DBA, FBN, assumed-name filings, general business licenses, local business tax certificates, local business tax receipts, home occupation permits, zoning-clearance dependencies, renewal filings, license renewals, amendments, closures, late fees, publication rules, and any other generally required local operating authority.
+
+Output Fields
+
+Every filing record must include jurisdiction, filing category, entity types, filing name, authority, form number if any, portal name, portal URL, submission channels, required customer inputs, required documents, output documents, annual or renewal rule, deadline rule, reminder rules, expected turnaround, required government fees, processing fees, expedite options, ordered process steps, automation method, status-check method, document-collection method, source citations, price confidence, verification status, and last verified date.
+
+Reminder Rule
+
+Every recurring filing must include reminder metadata. Recurring filings include annual reports, biennial reports, license renewals, DBA/FBN renewals where applicable, BOI update/correction deadlines, USPTO trademark maintenance/renewal deadlines, USPTO patent maintenance fees, local business license renewals, and any state or local filing with a due date or expiration date. Default customer reminder offsets are 90, 60, 30, and 7 days before the due date unless an official source requires a different schedule. The research scaffold stores reminder rules only; customer notification design and delivery is a later dashboard/status-notification task.
+
+Pricing Rule
+
+The database must separate government fees from SOSFiler service fees. Government fees include filing fees, card or convenience fees, e-check fees, portal processing fees, required publication fees, certified copy fees, certificate fees, annual report fees, amendment fees, reinstatement fees, penalties, and expedite fees. If an official fee is variable, the record must store the formula and mark pricing as quote-required or formula-verified. Never show a fixed customer price unless the official source supports the underlying government fee.
+
+Automation Rule
+
+Each filing must be classified into one automation lane: direct API, partner API, Playwright portal automation, email/upload, mail only, operator assisted, or unsupported. The classification must explain the account strategy, submission strategy, status query strategy, document collection strategy, and blockers. A filing is not automation-ready until process steps, status evidence, and document retrieval are mapped.
+
+Batching Rule
+
+Do not run one national NotebookLM prompt and trust the result. Use state-sized and local-jurisdiction shards. The initial scaffold creates two batches per state: state filing map and local filing map. Local maps later expand into county-by-county and city-by-city jobs once official directories are discovered.
+
+Local Discovery Rule
+
+Local batches run in two stages. First, SOSFiler builds an official county/city source candidate set from curated high-volume jurisdictions and Firecrawl web discovery. The source set must prioritize county clerk, recorder, tax collector, treasurer, finance, licensing, permitting, and zoning pages. Second, Firecrawl extracts filing records from those candidate URLs. Local records should remain jurisdiction-specific whenever fees, portals, turnaround, forms, or process steps differ by county or city. If the system cannot verify a local fee or process path from an official source, the record stays needs_operator_review.
+
+Authority-Led Research Rule
+
+The preferred research method is authority-led, not broad-search-led. SOSFiler must first inventory the official authority for a jurisdiction, then run extraction only against that authority's official URLs. For state filings, the authority is the Secretary of State, Department of State, Corporation Commission, or equivalent filing office plus any official tax or annual-report authority. For county filings, the authority is usually the county clerk, recorder, tax collector, or licensing office. For city filings, the authority is usually the city clerk, finance department, tax/licensing department, permitting center, or zoning/development services department.
+
+The authority manifest at data/regulatory/authority_manifest.json is the research queue for this method. Each entry stores the state, jurisdiction level, jurisdiction name, authority name, official source URLs, filing focus, current status, last run timestamp, and filing record IDs produced by that authority. Discovery tools may propose candidate official URLs, but they must not become the source of truth until they are added to the authority manifest and run as an official-authority job.
+
+Authority statuses mean:
+not_started: official authority is queued but has not been extracted yet.
+verified: authority produced filing records that passed official citation and completeness gates.
+needs_review: authority produced incomplete records or no records and needs a human/narrower URL.
+blocked: runner could not execute the authority because of a provider, portal, or guardrail issue.
+
+Texas is the first authority-led execution target. The initial Texas manifest includes the Texas Secretary of State, high-volume county clerks, and high-volume city licensing/permitting authorities. Once Texas is stable, the same authority manifest shape should be generated state by state: state filing office first, then every county, then every city or municipality with business license/DBA authority.
+
+Local batches are intentionally throttled with REGULATORY_LOCAL_SOURCE_LIMIT, defaulting to 8 source candidates per pass. This keeps Firecrawl jobs short, avoids provider URL limits, and lets SOSFiler expand county/city coverage incrementally. Increase the limit only after the prior local slice produces usable records.
+
+When the Firecrawl structured extraction pass returns no records for a local slice, the runner may scrape the same official pages through Firecrawl and apply conservative official-HTML extraction. This fallback is allowed only for official source pages and must keep uncertain fees or process paths in needs_operator_review. It exists because many city and county pages are old CMS/SharePoint pages that are readable but do not reliably produce structured JSON from the first extraction pass.
+
+Trusted Access Rule
+
+Some government portals may require a verified operator account, cyber/trusted-access enrollment, or identity verification before SOSFiler can submit for customers. Steven's Trusted Access for Cyber verification should be treated as an internal SOSFiler operator credential asset where a portal accepts that class of verified access. This is an internal automation prerequisite and should be recorded in automation blockers, account strategy, or operator notes, not exposed as a customer requirement unless the customer must personally perform that verification.
+
+National State Automation Rule
+
+SOSFiler's target operating model is full automation for every state where it is legally and technically possible. Research is not enough. Every state must receive a state_automation_profile that proves how SOSFiler will submit filings, pay fees, check status, and retrieve completed documents.
+
+For each state, certification must test the actual filing endpoint, not just public informational pages. The automation profile must classify the state into one of these production lanes:
+direct_api: official API or partner interface can submit, poll status, and collect documents.
+playwright_persistent_browser: browser automation can complete the workflow from a controlled SOSFiler machine.
+playwright_persistent_browser_with_trusted_access_operator: browser automation can complete most of the workflow, but a verified SOSFiler operator must clear a protected login, identity, or challenge checkpoint before automation resumes.
+email_or_upload_packet: automation generates the packet and submits through an official upload/email channel.
+mail_packet: automation generates the packet and shipping/work-order instructions, but final submission is mail only.
+unsupported_or_not_ready: official data or portal access is insufficient to sell safely.
+
+For every state, the automation profile must document:
+account strategy, including whether SOSFiler can use a master filer account.
+customer authorization strategy, including filing-consent letter requirements.
+required customer data and documents.
+portal URL and actual filing URLs.
+payment strategy, including credit card, ACH, prefunded account, convenience fees, and receipt capture.
+status-check strategy, including portal briefcase, email acknowledgment, entity search, API, or order lookup.
+document-collection strategy, including portal download, email zip link, PDF retrieval, certificate/copy ordering, or mail receipt.
+human challenge behavior and the trusted-access/operator fallback.
+test evidence, screenshots, timestamps, and source URLs.
+
+If a state can be automated with Playwright, that is the preferred production path until a direct API or partner API is available. Operator-assisted does not mean manual filing; it means automation pauses only at the unavoidable protected checkpoint and resumes immediately afterward.
+
+Phase Rule
+
+Research runs in two phases. The top-ten phase is Texas, California, Florida, Delaware, Nevada, Arizona, New York, Wyoming, Georgia, and Illinois. Each state has one state filing map batch and one local filing map batch, so the top-ten phase contains 20 active batches. The remaining_40_plus_dc phase contains the other 82 batches and must stay queued until the top-ten phase is complete, unless Steven or an operator explicitly overrides the gate.
+
+NotebookLM Role
+
+NotebookLM is a synthesis notebook and source-review aid. It is not the production research engine or database. The system of record is SOSFiler's regulatory data, built from official source citations and validated records.
+
+Research Provider Rule
+
+The research pipeline must not depend on a single vendor. Firecrawl is the active phase-one provider for structured extraction, but every runner path should go through the ResearchProvider interface. Provider slots exist for Tavily discovery, Exa content retrieval, Apify scheduled crawlers, Accela direct civic-platform integrations, and Browserbase/Playwright portal automation. A provider may be configured before it is operational; until its implementation is complete, it must report capabilities and configuration status without being treated as the system of record.
+
+Provider Roles
+
+Firecrawl: active structured extraction from official URLs, PDFs, and source pages.
+Tavily: planned source discovery and official URL finding for county/city pages.
+Exa: planned clean content retrieval and source expansion.
+Apify: planned scheduled official-site crawling and dataset export.
+Accela: planned direct integration for local business license and permit systems where supported.
+Browserbase: planned portal automation for submission, status polling, and document retrieval.
+
+Firecrawl Runner Commands
+
+Run one active top-ten batch without writing files:
+
+python3 -m backend.regulatory.research_runner run --phase top_ten --limit 1 --dry-run
+
+Run one active top-ten batch for real:
+
+python3 -m backend.regulatory.research_runner run --phase top_ten --limit 1
+
+Run one active local batch without the discovery pre-pass:
+
+python3 -m backend.regulatory.research_runner run --phase top_ten --batch-id tx_local_filings --skip-local-discovery
+
+Run a small local slice:
+
+python3 -m backend.regulatory.research_runner run --phase top_ten --batch-id tx_local_filings --local-source-limit 5
+
+Run the next local slice:
+
+python3 -m backend.regulatory.research_runner run --phase top_ten --batch-id tx_local_filings --local-source-limit 5 --local-source-offset 5
+
+Run exact official local source URLs, bypassing broad discovery:
+
+python3 -m backend.regulatory.research_runner run --phase top_ten --batch-id tx_local_filings --local-source-url https://www.dentoncounty.gov/277/Assumed-Names-DBAs --local-source-url https://www.collincountytx.gov/County-Clerk/Pages/Assumed-Names.aspx
+
+Seed the official-authority manifest:
+
+python3 -m backend.regulatory.research_runner seed-authority-manifest --state TX
+
+Show official-authority manifest status:
+
+python3 -m backend.regulatory.research_runner authority-status --state TX
+
+Show official authorities that need narrower URLs or operator review:
+
+python3 -m backend.regulatory.research_runner authority-review --state TX
+
+Run the next official county authorities for Texas:
+
+python3 -m backend.regulatory.research_runner run-authorities --state TX --level county --status not_started --limit 3
+
+Run the next official city authorities for Texas:
+
+python3 -m backend.regulatory.research_runner run-authorities --state TX --level city --status not_started --limit 3
+
+Run all active top-ten batches:
+
+python3 -m backend.regulatory.research_runner run --phase top_ten --all
+
+Show runner status:
+
+python3 -m backend.regulatory.research_runner status
+
+Validate extracted filing records:
+
+python3 -m backend.regulatory.research_runner validate-records
+
+Unlock remaining_40_plus_dc after top-ten completion:
+
+python3 -m backend.regulatory.research_runner unlock-next-phase
+
+The runner requires FIRECRAWL_API_KEY for live extraction. Without a key, live runs return a clear configuration error and do not alter batch status.

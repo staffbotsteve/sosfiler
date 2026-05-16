@@ -1,0 +1,2834 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SOSFiler Operator Cockpit</title>
+  <style>
+    :root {
+      --bg: #0A0A0A;
+      --bg-tint: #0E0E0E;
+      --surface: #141414;
+      --surface-soft: #1A1A1A;
+      --ink: #FFFFFF;
+      --body: #D0D0D0;
+      --muted: #9A9A9A;
+      --muted-2: #6B6B6B;
+      --line: #2A2A2A;
+      --line-soft: #1F1F1F;
+      --accent: #CCFF00;
+      --accent-strong: #DBFF33;
+      --blue: #00FFE5;
+      --amber: #FFB23F;
+      --red: #FF3366;
+      --green: #39FF14;
+      --shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+      --font-display: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Inter Display', system-ui, sans-serif;
+      --font-body:    -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Inter', system-ui, sans-serif;
+      --font-mono:    'JetBrains Mono', 'IBM Plex Mono', ui-monospace, Menlo, monospace;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: var(--font-body);
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+    }
+    h1, h2, h3 { font-family: var(--font-display); font-weight: 900; letter-spacing: -0.02em; color: var(--ink); }
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: #2A2A2A; border-radius: 2px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+    ::selection { background: var(--accent); color: #000; }
+
+    button, input, select, textarea {
+      font: inherit;
+    }
+
+    button {
+      border: 1px solid var(--line);
+      background: var(--surface);
+      color: var(--ink);
+      border-radius: 6px;
+      padding: 9px 14px;
+      cursor: pointer;
+      font-weight: 600;
+      font-family: var(--font-body);
+      transition: border-color .15s ease, background .15s ease, color .15s ease;
+    }
+
+    button:hover { border-color: var(--accent); color: var(--accent); }
+    button.primary {
+      background: var(--accent);
+      color: #000;
+      border-color: var(--accent);
+      font-weight: 700;
+    }
+    button.primary:hover { background: var(--accent-strong); color: #000; }
+    button.danger { color: var(--red); border-color: rgba(255,51,102,0.4); }
+    button.danger:hover { color: var(--red); border-color: var(--red); }
+    button:disabled { opacity: 0.45; cursor: not-allowed; }
+
+    input, select, textarea {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: var(--bg);
+      color: var(--ink);
+      padding: 9px 12px;
+      min-height: 38px;
+      font-family: var(--font-body);
+      transition: border-color .15s ease, box-shadow .15s ease;
+    }
+    input:focus, select:focus, textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 2px rgba(204,255,0,0.12); }
+
+    textarea {
+      min-height: 74px;
+      resize: vertical;
+    }
+
+    .shell {
+      min-height: 100vh;
+      display: grid;
+      grid-template-rows: auto 1fr;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 5;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 14px 24px;
+      background: rgba(10, 10, 10, 0.85);
+      border-bottom: 1px solid var(--line);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      min-width: 280px;
+    }
+
+    .mark {
+      width: 34px;
+      height: 34px;
+      border-radius: 6px;
+      display: grid;
+      place-items: center;
+      background: var(--accent);
+      color: #000;
+      font-weight: 900;
+      font-family: var(--font-display);
+      letter-spacing: 0;
+    }
+
+    .brand h1 {
+      margin: 0;
+      font-size: 15px;
+      line-height: 1.1;
+      font-family: var(--font-display);
+      font-weight: 900;
+      letter-spacing: -0.02em;
+    }
+
+    .brand span {
+      display: block;
+      color: var(--muted-2);
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin-top: 4px;
+    }
+
+    .auth {
+      display: grid;
+      grid-template-columns: repeat(6, auto);
+      gap: 8px;
+      align-items: center;
+    }
+
+    .session-label {
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      white-space: nowrap;
+    }
+
+    .admin-auth-panel {
+      max-width: 560px;
+      margin: 28px auto 16px;
+      padding: 22px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
+      display: grid;
+      gap: 14px;
+      align-items: start;
+      align-self: start;
+    }
+
+    .admin-auth-panel h2 {
+      margin: 0 0 6px;
+      font-size: 17px;
+      letter-spacing: 0;
+    }
+
+    .admin-auth-panel p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .admin-auth-form {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 8px;
+      align-items: stretch;
+    }
+
+    .admin-auth-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 0;
+    }
+
+    .admin-auth-form input {
+      min-width: 0;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(360px, 42%) 1fr;
+      gap: 16px;
+      padding: 16px;
+      min-height: 0;
+    }
+
+    .panel {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      min-height: 0;
+      overflow: hidden;
+    }
+
+    .panel-head {
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      background: var(--bg-tint);
+    }
+
+    .panel-head h2 {
+      margin: 0;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .filters {
+      display: grid;
+      grid-template-columns: 82px 1fr 1fr;
+      gap: 8px;
+      padding: 12px 14px;
+      background: var(--bg-tint);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .queue {
+      max-height: calc(100vh - 176px);
+      overflow: auto;
+    }
+
+    .job {
+      width: 100%;
+      text-align: left;
+      border: 0;
+      border-bottom: 1px solid var(--line-soft);
+      border-radius: 0;
+      padding: 14px 16px;
+      display: grid;
+      gap: 8px;
+      background: var(--surface);
+      color: var(--ink);
+      font-family: var(--font-body);
+      transition: background .15s ease;
+    }
+    .job:hover { background: var(--surface-soft); border-color: var(--line-soft); }
+
+    .job.active {
+      background: var(--surface-soft);
+      box-shadow: inset 3px 0 0 var(--accent);
+    }
+
+    .job-title {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: start;
+    }
+
+    .job-name {
+      font-family: var(--font-display);
+      font-weight: 800;
+      letter-spacing: -0.01em;
+      line-height: 1.25;
+      color: var(--ink);
+    }
+
+    .job-sub {
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      margin-top: 4px;
+    }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      padding: 4px 8px;
+      background: var(--bg);
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      max-width: 100%;
+    }
+
+    .chip.green { color: var(--green); border-color: rgba(57,255,20,0.3); background: rgba(57,255,20,0.06); }
+    .chip.amber { color: var(--amber); border-color: rgba(255,178,63,0.3); background: rgba(255,178,63,0.06); }
+    .chip.red { color: var(--red); border-color: rgba(255,51,102,0.3); background: rgba(255,51,102,0.06); }
+    .chip.blue { color: var(--blue); border-color: rgba(0,255,229,0.3); background: rgba(0,255,229,0.06); }
+
+    .detail {
+      max-height: calc(100vh - 91px);
+      overflow: auto;
+      padding: 14px;
+    }
+
+    .empty {
+      color: var(--muted);
+      padding: 20px;
+      border: 1px dashed var(--line);
+      border-radius: 8px;
+      background: var(--bg-tint);
+    }
+
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 0;
+      margin-bottom: 16px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .metric {
+      padding: 14px 16px;
+      background: var(--surface);
+      border-right: 1px solid var(--line);
+      min-width: 0;
+    }
+    .metric:last-child { border-right: none; }
+
+    .metric .label {
+      color: var(--muted-2);
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      margin-bottom: 8px;
+    }
+
+    .metric .value {
+      font-family: var(--font-display);
+      font-weight: 900;
+      font-size: 20px;
+      letter-spacing: -0.02em;
+      color: var(--ink);
+      font-variant-numeric: tabular-nums;
+      overflow-wrap: anywhere;
+    }
+
+    .section {
+      border-top: 1px solid var(--line);
+      padding-top: 16px;
+      margin-top: 18px;
+    }
+
+    .section h3 {
+      margin: 0 0 12px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .form-grid .wide {
+      grid-column: 1 / -1;
+    }
+
+    label {
+      display: grid;
+      gap: 6px;
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .feed {
+      display: grid;
+      gap: 8px;
+    }
+
+    .entry {
+      border: 1px solid var(--line-soft);
+      border-radius: 6px;
+      padding: 12px;
+      background: var(--surface-soft);
+    }
+
+    .entry-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 6px;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    .entry-body {
+      font-size: 13px;
+      line-height: 1.45;
+      overflow-wrap: anywhere;
+      white-space: pre-wrap;
+    }
+
+    .blockers {
+      display: grid;
+      gap: 8px;
+    }
+
+    .status {
+      min-height: 20px;
+      color: var(--muted);
+      font-size: 13px;
+      padding: 0 14px 10px;
+    }
+
+    .toast {
+      position: fixed;
+      right: 16px;
+      bottom: 16px;
+      max-width: 420px;
+      background: var(--accent);
+      color: #000;
+      border-radius: 6px;
+      padding: 14px 18px;
+      box-shadow: 0 8px 30px rgba(204,255,0,0.25);
+      display: none;
+      z-index: 10;
+      font-family: var(--font-body);
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    @media (max-width: 980px) {
+      .layout { grid-template-columns: 1fr; }
+      .queue, .detail { max-height: none; }
+      .summary { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .auth { grid-template-columns: 1fr auto; }
+      .auth button:last-child { grid-column: 1 / -1; }
+      .admin-auth-panel { grid-template-columns: 1fr; }
+      .admin-auth-form { grid-template-columns: 1fr 1fr; }
+      .admin-auth-form button { grid-column: 1 / -1; }
+    }
+
+    @media (max-width: 640px) {
+      .topbar { align-items: stretch; flex-direction: column; }
+      .auth { grid-template-columns: 1fr; }
+      .admin-auth-form { grid-template-columns: 1fr; }
+      .filters, .form-grid, .summary { grid-template-columns: 1fr; }
+      .layout { padding: 10px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header class="topbar">
+      <div class="brand">
+        <a href="index.html" style="text-decoration:none;"><img src="logo.png" alt="SOSFiler" style="height:56px;width:auto;display:block;" onerror="this.outerHTML='<div class=\'mark\'>S</div>';"></a>
+        <div>
+          <h1>Operator Cockpit</h1>
+          <span>/ Queue · Tickets · Automation · Evidence</span>
+        </div>
+      </div>
+      <div class="auth">
+        <span id="operatorSessionLabel" class="session-label">Not signed in</span>
+        <button id="logoutBtn" data-admin-action type="button">Logout</button>
+        <button id="healthBtn" data-admin-action type="button">DB Health</button>
+        <button id="syncBtn" data-admin-action type="button">Sync</button>
+        <button id="slackConfigBtn" data-admin-action type="button">Slack</button>
+        <button id="emailConfigBtn" data-admin-action type="button">Email</button>
+        <button id="refreshBtn" data-admin-action class="primary" type="button">Refresh</button>
+      </div>
+    </header>
+
+    <section id="adminAuthPanel" class="admin-auth-panel">
+      <div>
+        <h2>Operator Sign In</h2>
+        <p>Continue with Google. If your account is authorized, SOSFiler will send a one-time code before opening operator tools.</p>
+      </div>
+      <div class="admin-auth-form">
+        <input id="adminMfaCode" inputmode="numeric" maxlength="6" placeholder="6-digit code" autocomplete="one-time-code" style="display:none;" />
+        <button id="saveTokenBtn" class="primary" type="button">Continue with Google</button>
+      </div>
+    </section>
+
+    <main class="layout" id="operatorLayout">
+      <section class="panel">
+        <div class="panel-head">
+          <h2>System Health</h2>
+          <button id="systemHealthBtn" type="button">Check</button>
+        </div>
+        <div id="systemHealthStatus" class="status"></div>
+        <div id="systemHealthSummary" style="margin-bottom:14px;"></div>
+
+        <div class="panel-head" style="border-top:1px solid var(--line-soft);">
+          <h2>Launch Readiness</h2>
+          <span id="launchReadinessCount" class="chip">0 states</span>
+        </div>
+        <div class="filters" style="grid-template-columns: 1fr 1fr auto;">
+          <select id="launchCategoryFilter" aria-label="Launch readiness category">
+            <option value="">All categories</option>
+            <option value="fully_automated_sellable">Fully automated</option>
+            <option value="operator_assisted_sellable">Operator assisted</option>
+            <option value="customer_data_intake_sellable">Customer data intake</option>
+            <option value="trusted_access_operator_sellable">Trusted access operator</option>
+            <option value="partner_intermediary_sellable">Partner/intermediary</option>
+            <option value="unavailable_pending_official_access">Unavailable</option>
+          </select>
+          <select id="launchOfferFilter" aria-label="Customer offer status">
+            <option value="">All offers</option>
+            <option value="available_automated">Available automated</option>
+            <option value="available_operator_assisted">Available operator assisted</option>
+            <option value="not_available">Not available</option>
+          </select>
+          <button id="launchReadinessBtn" type="button">Load</button>
+        </div>
+        <div id="launchReadinessStatus" class="status"></div>
+        <div id="launchReadinessList" class="queue" style="max-height: 360px;"></div>
+
+        <div class="panel-head" style="border-top:1px solid var(--line-soft);">
+          <h2>State Metadata</h2>
+          <span id="stateMetadataCount" class="chip">0 states</span>
+        </div>
+        <div class="filters" style="grid-template-columns: 1fr 1fr auto;">
+          <select id="metadataEntityType">
+            <option value="LLC">LLC</option>
+            <option value="Corp">Corp</option>
+            <option value="Nonprofit">Nonprofit</option>
+          </select>
+          <select id="metadataActionType">
+            <option value="formation">Formation</option>
+            <option value="annual_report">Annual report</option>
+          </select>
+          <button id="stateMetadataBtn" type="button">Load</button>
+        </div>
+        <div id="stateMetadataStatus" class="status"></div>
+        <div id="stateMetadataList" class="queue" style="max-height: 330px;"></div>
+
+        <div class="panel-head" style="border-top:1px solid var(--line-soft);">
+          <h2>Adapter Matrix</h2>
+          <span id="adapterMatrixCount" class="chip">0 states</span>
+        </div>
+        <div class="filters" style="grid-template-columns: 1fr 1fr auto;">
+          <select id="matrixEntityType">
+            <option value="LLC">LLC</option>
+            <option value="Corp">Corp</option>
+            <option value="Nonprofit">Nonprofit</option>
+          </select>
+          <select id="matrixActionType">
+            <option value="formation">Formation</option>
+            <option value="annual_report">Annual report</option>
+          </select>
+          <button id="adapterMatrixBtn" type="button">Run</button>
+        </div>
+        <div id="adapterMatrixStatus" class="status"></div>
+        <div id="adapterMatrixList" class="queue" style="max-height: 330px;"></div>
+
+        <div class="panel-head" style="border-top:1px solid var(--line-soft);">
+          <h2>EIN Queue</h2>
+          <span id="einQueueCount" class="chip">0 items</span>
+        </div>
+        <div class="filters" style="grid-template-columns: 1fr auto;">
+          <input id="einOrderFilter" placeholder="Order ID" />
+          <button id="einQueueBtn" type="button">Load</button>
+        </div>
+        <div id="einQueueStatus" class="status"></div>
+        <div id="einQueueList" class="queue" style="max-height: 330px;"></div>
+
+        <div class="panel-head" style="border-top:1px solid var(--line-soft);">
+          <h2>Payment Readiness</h2>
+          <span id="paymentReadinessCount" class="chip">0 orders</span>
+        </div>
+        <div class="filters">
+          <input id="paymentStateFilter" maxlength="2" placeholder="State" />
+          <select id="paymentReadinessFilter">
+            <option value="">All readiness</option>
+            <option value="needs_filing_prep">Needs filing prep</option>
+            <option value="needs_reconciliation">Needs reconciliation</option>
+            <option value="ready_to_file">Ready to file</option>
+            <option value="blocked">Blocked</option>
+          </select>
+          <button id="paymentReadinessBtn" type="button">Load</button>
+        </div>
+        <div id="paymentReadinessStatus" class="status"></div>
+        <div id="paymentReadinessList" class="queue" style="max-height: 360px;"></div>
+
+        <div class="panel-head" style="border-top:1px solid var(--line-soft);">
+          <h2>Filing Jobs</h2>
+          <span id="jobCount" class="chip">0 jobs</span>
+        </div>
+        <div class="filters">
+          <input id="stateFilter" maxlength="2" placeholder="State" />
+          <select id="statusFilter">
+            <option value="">All statuses</option>
+            <option value="ready_to_file">Ready to file</option>
+            <option value="automation_started">Automation started</option>
+            <option value="operator_required">Operator required</option>
+            <option value="submitted">Submitted</option>
+            <option value="pending_government_review">Pending government review</option>
+            <option value="approved">Approved</option>
+            <option value="documents_collected">Documents collected</option>
+            <option value="complete">Complete</option>
+            <option value="pending_payment">Pending payment</option>
+            <option value="paid">Paid</option>
+            <option value="submitted_to_state">Submitted to state</option>
+            <option value="state_approved">State approved</option>
+          </select>
+          <select id="laneFilter">
+            <option value="">All lanes</option>
+            <option value="browser_automation">Browser automation</option>
+            <option value="browser_automation_candidate">Browser candidate</option>
+            <option value="browser_profile_automation">Browser profile</option>
+            <option value="operator_assisted_browser_provider">Operator browser provider</option>
+            <option value="operator_assisted">Operator assisted</option>
+          </select>
+        </div>
+        <div id="queueStatus" class="status"></div>
+        <div id="jobList" class="queue"></div>
+
+        <div class="panel-head" style="border-top:1px solid var(--line-soft);">
+          <h2>Operator Tickets</h2>
+          <span id="ticketCount" class="chip">0 tickets</span>
+        </div>
+        <div class="filters" style="grid-template-columns: 1fr 1fr;">
+          <select id="ticketStatusFilter">
+            <option value="open">Open</option>
+            <option value="">All tickets</option>
+            <option value="approved">Approved</option>
+            <option value="closed">Closed</option>
+          </select>
+          <select id="ticketPriorityFilter">
+            <option value="">All priorities</option>
+            <option value="urgent">Urgent</option>
+            <option value="high">High</option>
+            <option value="normal">Normal</option>
+            <option value="low">Low</option>
+          </select>
+        </div>
+        <div id="ticketStatus" class="status"></div>
+        <div id="ticketList" class="queue" style="max-height: 330px;"></div>
+
+        <div class="filters" style="grid-template-columns: 1fr auto; border-top:1px solid var(--line-soft);">
+          <input id="testTicketPrompt" placeholder="Create test enhancement ticket..." value="Please add an operator-visible checklist for annual report filing readiness." />
+          <button id="createTestTicketBtn" type="button">Create</button>
+        </div>
+
+        <div class="panel-head" style="border-top:1px solid var(--line-soft);">
+          <h2>Engineering Queue</h2>
+          <span id="engineeringCount" class="chip">0 jobs</span>
+        </div>
+        <div class="filters" style="grid-template-columns: 1fr auto;">
+          <select id="engineeringStatusFilter">
+            <option value="">All engineering jobs</option>
+            <option value="approved">Approved</option>
+            <option value="in_progress">In progress</option>
+            <option value="tests_failed">Tests failed</option>
+            <option value="blocked">Blocked</option>
+            <option value="ready_to_deploy">Ready to deploy</option>
+            <option value="deployed">Deployed</option>
+            <option value="stop_requested">Stop requested</option>
+          </select>
+          <button id="engineeringBackfillBtn" type="button">Backfill</button>
+        </div>
+        <div id="engineeringStatus" class="status"></div>
+        <div id="engineeringList" class="queue" style="max-height: 330px;"></div>
+      </section>
+
+      <section class="panel">
+        <div id="detail" class="detail">
+          <div class="empty">Select a filing job to inspect its route, run automation preflight, upload evidence references, or transition status.</div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div id="toast" class="toast"></div>
+
+  <script>
+    const state = {
+      jobs: [],
+      tickets: [],
+      engineeringJobs: [],
+      launchReadiness: [],
+      launchReadinessSummary: null,
+      stateMetadata: [],
+      stateMetadataSummary: null,
+      adapterMatrix: [],
+      adapterMatrixSummary: null,
+      einQueue: [],
+      paymentReadiness: [],
+      paymentReadinessSummary: null,
+      selectedEinOrderId: "",
+      selectedJobId: "",
+      selectedTicketId: "",
+      selectedEngineeringRunId: "",
+      detail: null,
+      systemHealth: null,
+      busy: false,
+      adminSessionToken: sessionStorage.getItem("sosfiler_admin_session_token") || "",
+      adminSessionId: sessionStorage.getItem("sosfiler_admin_session_id") || "",
+      adminMfaChallengeId: sessionStorage.getItem("sosfiler_admin_mfa_challenge_id") || "",
+      adminEmail: sessionStorage.getItem("sosfiler_admin_mfa_email") || "",
+      adminAccountToken: localStorage.getItem("sosfiler_token") || "",
+      operator: localStorage.getItem("sosfiler_operator_name") || "operator",
+    };
+    window.__sosfilerOperatorState = state;
+
+    const $ = (id) => document.getElementById(id);
+    const GOOGLE_CLIENT_ID = "137294630475-e1o2o3ddpud3jkt12d7hrvul1uuaj1jb.apps.googleusercontent.com";
+    const GOOGLE_IDENTITY_SCRIPT_ID = "google-identity-services";
+    let googleIdentityScriptPromise = null;
+
+    function adminHeaders(extra = {}) {
+      const headers = { ...extra };
+      if (state.adminSessionToken) {
+        headers.Authorization = `Bearer ${state.adminSessionToken}`;
+        headers["x-operator-id"] = state.operator;
+      }
+      return headers;
+    }
+
+    function accountHeaders(extra = {}) {
+      const token = localStorage.getItem("sosfiler_token") || state.adminAccountToken;
+      return token ? { ...extra, Authorization: `Bearer ${token}` } : { ...extra };
+    }
+
+    function signedInUser() {
+      try {
+        return JSON.parse(localStorage.getItem("sosfiler_user") || "{}") || {};
+      } catch (_) {
+        return {};
+      }
+    }
+
+    function toast(message) {
+      const el = $("toast");
+      el.textContent = message;
+      el.style.display = "block";
+      clearTimeout(window.__toastTimer);
+      window.__toastTimer = setTimeout(() => { el.style.display = "none"; }, 3600);
+    }
+
+    function hasAdminAccess() {
+      return Boolean(state.adminSessionToken);
+    }
+
+    function updateAdminAuthUI() {
+      const signedIn = hasAdminAccess();
+      if ($("adminAuthPanel")) $("adminAuthPanel").style.display = signedIn ? "none" : "grid";
+      if ($("operatorLayout")) $("operatorLayout").style.display = signedIn ? "grid" : "none";
+      document.querySelectorAll("[data-admin-action]").forEach((button) => {
+        button.style.display = signedIn ? "" : "none";
+      });
+      if ($("operatorSessionLabel")) {
+        $("operatorSessionLabel").textContent = signedIn ? `Admin: ${state.operator}` : "Not signed in";
+      }
+      if ($("adminMfaCode")) {
+        $("adminMfaCode").style.display = (!signedIn && state.adminMfaChallengeId) ? "" : "none";
+      }
+      if ($("saveTokenBtn")) {
+        $("saveTokenBtn").disabled = false;
+        $("saveTokenBtn").textContent = state.adminMfaChallengeId ? "Verify 2FA" : "Continue with Google";
+      }
+    }
+
+    function persistAdminMfaChallenge(payload) {
+      state.adminMfaChallengeId = payload.challenge_id || "";
+      state.adminEmail = payload.email || "";
+      if (state.adminEmail) {
+        state.operator = state.adminEmail;
+        localStorage.setItem("sosfiler_operator_name", state.operator);
+      }
+      if (state.adminMfaChallengeId) {
+        sessionStorage.setItem("sosfiler_admin_mfa_challenge_id", state.adminMfaChallengeId);
+        sessionStorage.setItem("sosfiler_admin_mfa_email", state.adminEmail);
+      }
+    }
+
+    function clearAdminMfaChallenge() {
+      state.adminMfaChallengeId = "";
+      state.adminEmail = "";
+      sessionStorage.removeItem("sosfiler_admin_mfa_challenge_id");
+      sessionStorage.removeItem("sosfiler_admin_mfa_email");
+    }
+
+    function clearAdminSession() {
+      state.adminSessionToken = "";
+      state.adminSessionId = "";
+      clearAdminMfaChallenge();
+      sessionStorage.removeItem("sosfiler_admin_session_token");
+      sessionStorage.removeItem("sosfiler_admin_session_id");
+      if ($("adminMfaCode")) $("adminMfaCode").style.display = "none";
+      if ($("adminMfaCode")) $("adminMfaCode").value = "";
+      if ($("saveTokenBtn")) $("saveTokenBtn").textContent = "Continue with Google";
+      updateAdminAuthUI();
+    }
+
+    function label(value) {
+      return (value || "")
+        .replace(/_/g, " ")
+        .replace(/\b\w/g, (letter) => letter.toUpperCase()) || "None";
+    }
+
+    function h(value) {
+      return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+
+    function money(cents) {
+      return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format((Number(cents) || 0) / 100);
+    }
+
+    function fmtDate(value) {
+      if (!value) return "Pending";
+      const date = new Date(value);
+      if (Number.isNaN(date.getTime())) return value;
+      return date.toLocaleString();
+    }
+
+    function chipClass(value) {
+      if (["approved", "complete", "state_approved", "documents_collected", "dry_run_complete", "deployed", "ready_to_deploy", "ready", "payment_captured", "ein_received", "ready_for_browser_submission", "available_automated", "fully_automated_sellable", "published"].includes(value)) return "green";
+      if (["operator_required", "pending_payment", "rejected_or_needs_correction", "tests_failed", "needs_review", "pending", "metadata_incomplete", "blocked_outside_irs_hours", "needs_reconciliation", "needs_filing_prep", "available_operator_assisted", "operator_assisted_sellable", "customer_data_intake_sellable", "partner_intermediary_sellable"].includes(value)) return "amber";
+      if (["hard", "operator_assisted_browser_provider", "stop_requested", "blocked", "not_available", "unavailable_pending_official_access"].includes(value)) return "red";
+      if (["automation_started", "browser_automation", "browser_profile_automation", "submitted", "submitted_to_state", "in_progress", "ein_pending", "dry_run_ready", "trusted_access_operator_sellable"].includes(value)) return "blue";
+      return "";
+    }
+
+    function renderSystemHealth() {
+      const health = state.systemHealth;
+      const target = $("systemHealthSummary");
+      if (!health) {
+        target.innerHTML = `<div class="entry"><div class="entry-body">Start an operator session to load system health.</div></div>`;
+        $("systemHealthStatus").textContent = "";
+        return;
+      }
+      const components = health.components || [];
+      $("systemHealthStatus").textContent = `${health.status || "unknown"} ${health.checked_at ? `at ${fmtDate(health.checked_at)}` : ""}`;
+      target.innerHTML = `
+        <div class="summary">
+          <div class="metric"><div class="label">Overall</div><div class="value"><span class="chip ${health.ok ? "green" : "red"}">${h(label(health.status))}</span></div></div>
+          <div class="metric"><div class="label">Service</div><div class="value">${h(health.service || "SOSFiler")}</div></div>
+          <div class="metric"><div class="label">Public URL</div><div class="value">${h(health.public_base_url || "")}</div></div>
+          <div class="metric"><div class="label">Failures</div><div class="value">${h((health.failing_components || []).length)}</div></div>
+        </div>
+        <div class="feed" style="margin-top:10px;">
+          ${components.map((component) => `
+            <div class="entry">
+              <div class="entry-head"><span>${h(label(component.name))}</span><span class="chip ${component.ok ? "green" : "red"}">${h(component.status)}</span></div>
+              <div class="entry-body">${h(component.message || "")}</div>
+            </div>
+          `).join("") || `<div class="entry"><div class="entry-body">No health components returned.</div></div>`}
+        </div>
+      `;
+    }
+
+    function filteredLaunchReadiness() {
+      const category = $("launchCategoryFilter").value;
+      const offer = $("launchOfferFilter").value;
+      return state.launchReadiness.filter((item) => {
+        if (category && item.launch_category !== category) return false;
+        if (offer && item.customer_offer_status !== offer) return false;
+        return true;
+      });
+    }
+
+    function renderLaunchReadiness() {
+      const list = $("launchReadinessList");
+      const summary = state.launchReadinessSummary || {};
+      const records = filteredLaunchReadiness();
+      $("launchReadinessCount").textContent = `${records.length || 0} states`;
+      const categorySummary = Object.entries(summary.by_launch_category || {})
+        .map(([key, value]) => `${label(key)}: ${value}`)
+        .join(" · ");
+      $("launchReadinessStatus").textContent = state.launchReadiness.length
+        ? `${summary.sellable_now || 0}/${summary.total_jurisdictions || 0} sellable now${categorySummary ? ` · ${categorySummary}` : ""}`
+        : "Load the launch plan to inspect sellable coverage, SLA, pricing, and next operator actions.";
+      list.innerHTML = records.map((item) => {
+        const pricing = item.pricing || {};
+        const lifecycle = item.lifecycle_support || {};
+        const appSteps = item.application_handled_steps || [];
+        const operatorSteps = item.operator_exception_steps || [];
+        const supportedLifecycle = Object.entries(lifecycle)
+          .filter(([, value]) => value !== "operator_research_required")
+          .slice(0, 5);
+        return `
+          <div class="job" style="cursor:default;">
+            <div class="job-title">
+              <div>
+                <div class="job-name">${h(item.state)} · ${h(item.state_name)}</div>
+                <div class="job-sub">${h((item.next_actions || [])[0] || "No next action recorded.")}</div>
+              </div>
+              <span class="chip ${chipClass(item.launch_category)}">${h(label(item.launch_category))}</span>
+            </div>
+            <div class="chips">
+              <span class="chip ${chipClass(item.customer_offer_status)}">${h(label(item.customer_offer_status))}</span>
+              <span class="chip">${h(item.operator_sla_hours ? `${item.operator_sla_hours}h SLA` : "No SLA")}</span>
+              <span class="chip ${chipClass(item.pricing?.pricing_status)}">${h(label(item.pricing?.pricing_status))}</span>
+              <span class="chip">${h(money(pricing.estimated_total_cents))} est.</span>
+              <span class="chip ${chipClass(item.automation_lane)}">${h(label(item.automation_lane))}</span>
+              <span class="chip blue">${h(item.operator_touch_target_minutes ?? 0)}m operator target</span>
+            </div>
+            <div class="entry-body">
+              Official fee: ${h(money(pricing.official_government_fee_cents))} · SOSFiler fee: ${h(money(pricing.sosfiler_fee_cents))}
+            </div>
+            <div class="entry-body">
+              <strong>App handles:</strong> ${h(appSteps.slice(0, 3).join(" · ") || "No application steps recorded.")}
+            </div>
+            <div class="entry-body">
+              <strong>Operator only:</strong> ${h(operatorSteps.slice(0, 2).join(" · ") || "No operator exception steps recorded.")}
+            </div>
+            <div class="chips">
+              ${supportedLifecycle.map(([key, value]) => `<span class="chip ${value === "supported" ? "green" : "blue"}">${h(label(key))}</span>`).join("")}
+              ${supportedLifecycle.length ? "" : `<span class="chip amber">Lifecycle research required</span>`}
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function renderStateMetadata() {
+      const list = $("stateMetadataList");
+      const summary = state.stateMetadataSummary || {};
+      $("stateMetadataCount").textContent = `${state.stateMetadata.length || 0} states`;
+      $("stateMetadataStatus").textContent = state.stateMetadata.length
+        ? `${summary.dry_run_ready || 0} dry-run ready · ${summary.operator_fallback_required || 0} operator fallback · ${summary.metadata_incomplete || 0} incomplete`
+        : "Load state metadata to inspect lanes, blockers, portals, evidence gates, and readiness.";
+      list.innerHTML = state.stateMetadata.map((record) => {
+        const readiness = record.automation_readiness || {};
+        const evidence = record.evidence_requirements || {};
+        return `
+          <div class="job" style="cursor:default;">
+            <div class="job-title">
+              <div>
+                <div class="job-name">${h(record.state)} · ${h(record.state_name)}</div>
+                <div class="job-sub">${h(record.portal_name || "No portal name")} ${record.portal_url ? `· ${h(record.portal_url)}` : ""}</div>
+              </div>
+              <span class="chip ${chipClass(readiness.status)}">${h(label(readiness.status))}</span>
+            </div>
+            <div class="chips">
+              <span class="chip ${chipClass(record.filing_lane)}">${h(label(record.filing_lane))}</span>
+              <span class="chip ${chipClass(record.automation_difficulty)}">${h(label(record.automation_difficulty))}</span>
+              <span class="chip ${chipClass(record.blocker_level)}">${h(label(record.blocker_level))} blockers</span>
+            </div>
+            <div class="entry-body">
+              Submitted: ${h((evidence.submitted || []).join(", "))}<br>
+              Approved: ${h((evidence.approved || []).join(", "))}
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function renderAdapterMatrix() {
+      const list = $("adapterMatrixList");
+      const summary = state.adapterMatrixSummary || {};
+      $("adapterMatrixCount").textContent = `${state.adapterMatrix.length || 0} states`;
+      $("adapterMatrixStatus").textContent = state.adapterMatrix.length
+        ? `${summary.preflight_passed || 0} pass · ${summary.operator_required || 0} operator · ${summary.metadata_incomplete || 0} incomplete`
+        : "Run the dry-run matrix to test all state routes without touching portals.";
+      list.innerHTML = state.adapterMatrix.map((record) => `
+        <div class="job" style="cursor:default;">
+          <div class="job-title">
+            <div>
+              <div class="job-name">${h(record.state)} · ${h(record.state_name)}</div>
+              <div class="job-sub">${h(record.dry_run_message || "")}</div>
+            </div>
+            <span class="chip ${chipClass(record.dry_run_status)}">${h(label(record.dry_run_status))}</span>
+          </div>
+          <div class="chips">
+            <span class="chip ${record.preflight_passed ? "green" : "amber"}">${record.preflight_passed ? "Preflight pass" : "Preflight blocked"}</span>
+            <span class="chip ${chipClass(record.filing_lane)}">${h(label(record.filing_lane))}</span>
+            ${(record.blocking_issue_codes || []).map((code) => `<span class="chip red">${h(label(code))}</span>`).join("")}
+            ${(record.warning_codes || []).map((code) => `<span class="chip amber">${h(label(code))}</span>`).join("")}
+          </div>
+        </div>
+      `).join("");
+    }
+
+    function renderEinQueue() {
+      const list = $("einQueueList");
+      $("einQueueCount").textContent = `${state.einQueue.length || 0} items`;
+      $("einQueueStatus").textContent = state.einQueue.length ? "" : "No EIN queue items match the current filter.";
+      list.innerHTML = state.einQueue.map((item) => `
+        <button class="job ${item.order_id === state.selectedEinOrderId ? "active" : ""}" type="button" onclick="selectEinOrder(decodeURIComponent('${encodeURIComponent(item.order_id)}'))">
+          <div class="job-title">
+            <div>
+              <div class="job-name">${h(item.business_name || item.order_id)}</div>
+              <div class="job-sub">${h(item.order_id)} · ${h(item.state || "")}</div>
+            </div>
+            <span class="chip ${chipClass(item.status)}">${h(label(item.status))}</span>
+          </div>
+          <div class="chips">
+            <span class="chip ${item.has_ssn_vault_ref ? "green" : "amber"}">${item.has_ssn_vault_ref ? "SSN vault ready" : "Needs SSN vault"}</span>
+            <span class="chip ${item.ein_received ? "green" : "blue"}">${item.ein_received ? "EIN received" : "Pending EIN"}</span>
+          </div>
+        </button>
+      `).join("");
+    }
+
+    function renderPaymentReadiness() {
+      const list = $("paymentReadinessList");
+      const summary = state.paymentReadinessSummary || {};
+      $("paymentReadinessCount").textContent = `${state.paymentReadiness.length || 0} orders`;
+      $("paymentReadinessStatus").textContent = state.paymentReadiness.length
+        ? `${summary.ready_to_file || 0} ready · ${summary.needs_filing_prep || 0} prep · ${summary.needs_reconciliation || 0} reconcile · ${summary.blocked || 0} blocked`
+        : "No paid or authorized orders match the current filters.";
+      list.innerHTML = state.paymentReadiness.map((item) => {
+        const blocked = (item.checks || []).filter((check) => check.status === "blocked").slice(0, 3);
+        const review = (item.checks || []).filter((check) => check.status === "needs_review").slice(0, 2);
+        return `
+          <div class="job" style="cursor:default;">
+            <div class="job-title">
+              <div>
+                <div class="job-name">${h(item.business_name || item.order_id)}</div>
+                <div class="job-sub">${h(item.order_id)} · ${h(item.email || "")}</div>
+              </div>
+              <span class="chip ${chipClass(item.readiness_status)}">${h(label(item.readiness_status))}</span>
+            </div>
+            <div class="chips">
+              <span class="chip">${h(item.state)} ${h(item.entity_type)}</span>
+              <span class="chip ${chipClass(item.order_status)}">${h(label(item.order_status))}</span>
+              ${item.job_status ? `<span class="chip ${chipClass(item.job_status)}">${h(label(item.job_status))}</span>` : `<span class="chip red">No filing job</span>`}
+              <span class="chip ${item.ledger_count ? "green" : "amber"}">${h(item.ledger_count)} ledger</span>
+              <span class="chip ${item.quote_count ? "green" : "amber"}">${h(item.quote_count)} quote</span>
+            </div>
+            ${(blocked.length || review.length) ? `
+              <div class="entry-body">${h([...blocked, ...review].map((check) => `${check.label}: ${check.message}`).join(" "))}</div>
+            ` : ""}
+            <div class="actions">
+              <button class="primary" type="button" onclick="prepareFiling(decodeURIComponent('${encodeURIComponent(item.order_id)}'), decodeURIComponent('${encodeURIComponent(item.job_id || "")}'))">Prepare Filing</button>
+              ${item.job_id ? `<button type="button" onclick="selectJob(decodeURIComponent('${encodeURIComponent(item.job_id)}'))">Open Job</button>` : ""}
+            </div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    async function loadStateMetadata() {
+      if (!hasAdminAccess()) {
+        $("stateMetadataStatus").textContent = "Start an operator session to load state metadata.";
+        return;
+      }
+      $("stateMetadataStatus").textContent = "Loading state metadata...";
+      const params = new URLSearchParams({
+        entity_type: $("metadataEntityType").value,
+        action_type: $("metadataActionType").value,
+      });
+      try {
+        const payload = await api(`/api/admin/state-metadata?${params.toString()}`);
+        state.stateMetadata = payload.records || [];
+        state.stateMetadataSummary = payload.summary || {};
+        renderStateMetadata();
+      } catch (error) {
+        $("stateMetadataStatus").textContent = error.message;
+      }
+    }
+
+    async function loadLaunchReadiness() {
+      if (!hasAdminAccess()) {
+        $("launchReadinessStatus").textContent = "Start an operator session to load launch readiness.";
+        return;
+      }
+      $("launchReadinessStatus").textContent = "Loading launch readiness...";
+      try {
+        const payload = await api("/api/admin/launch-readiness");
+        state.launchReadiness = payload.states || [];
+        state.launchReadinessSummary = payload.summary || {};
+        renderLaunchReadiness();
+      } catch (error) {
+        $("launchReadinessStatus").textContent = error.message;
+      }
+    }
+
+    async function loadAdapterMatrix() {
+      if (!hasAdminAccess()) {
+        $("adapterMatrixStatus").textContent = "Start an operator session to run the adapter matrix.";
+        return;
+      }
+      $("adapterMatrixStatus").textContent = "Running dry-run matrix...";
+      const params = new URLSearchParams({
+        entity_type: $("matrixEntityType").value,
+        action_type: $("matrixActionType").value,
+      });
+      try {
+        const payload = await api(`/api/admin/adapter-matrix?${params.toString()}`);
+        state.adapterMatrix = payload.records || [];
+        state.adapterMatrixSummary = payload.summary || {};
+        renderAdapterMatrix();
+      } catch (error) {
+        $("adapterMatrixStatus").textContent = error.message;
+      }
+    }
+
+    async function loadEinQueue() {
+      if (!hasAdminAccess()) {
+        $("einQueueStatus").textContent = "Start an operator session to load EIN queue.";
+        return;
+      }
+      $("einQueueStatus").textContent = "Loading EIN queue...";
+      try {
+        const payload = await api("/api/admin/ein-queue");
+        const filter = $("einOrderFilter").value.trim();
+        state.einQueue = filter ? (payload.queue || []).filter((item) => item.order_id.includes(filter)) : (payload.queue || []);
+        renderEinQueue();
+      } catch (error) {
+        $("einQueueStatus").textContent = error.message;
+      }
+    }
+
+    async function selectEinOrder(orderId) {
+      state.selectedEinOrderId = orderId;
+      state.selectedJobId = "";
+      state.selectedTicketId = "";
+      state.selectedEngineeringRunId = "";
+      renderEinQueue();
+      try {
+        const payload = await api(`/api/admin/ein-queue/${encodeURIComponent(orderId)}`);
+        renderEinDetail(payload);
+      } catch (error) {
+        $("detail").innerHTML = `<div class="empty">${h(error.message)}</div>`;
+      }
+    }
+
+    function renderEinDetail(payload) {
+      const item = payload.queue || {};
+      const access = payload.access_events || [];
+      $("detail").innerHTML = `
+        <div class="summary">
+          <div class="metric"><div class="label">Order</div><div class="value">${h(item.order_id)}</div></div>
+          <div class="metric"><div class="label">Status</div><div class="value">${h(label(item.status))}</div></div>
+          <div class="metric"><div class="label">IRS Window</div><div class="value"><span class="chip ${item.irs_availability?.open ? "green" : "amber"}">${item.irs_availability?.open ? "Open" : "Closed"}</span></div></div>
+          <div class="metric"><div class="label">SSN Vault</div><div class="value">${item.has_ssn_vault_ref ? `Ready ${h(item.ssn_last4 ? `••••${item.ssn_last4}` : "")}` : "Missing"}</div></div>
+        </div>
+        <div class="section">
+          <h3>EIN Actions</h3>
+          <div class="form-grid">
+            <label>Operator
+              <input id="einActor" value="${h(state.operator || "operator")}" />
+            </label>
+            <label>EIN
+              <input id="einValue" placeholder="12-3456789" />
+            </label>
+            <label>Evidence Filename
+              <input id="einFilename" placeholder="irs-ein-confirmation.pdf" />
+            </label>
+            <label>Evidence File Path
+              <input id="einFilePath" placeholder="/absolute/path/to/cp575.pdf" />
+            </label>
+            <label class="wide">Message
+              <textarea id="einMessage" placeholder="Official EIN confirmation captured."></textarea>
+            </label>
+            <div class="actions wide">
+              <button class="primary" type="button" onclick="prepareEinSubmission()">Prepare Submission</button>
+              <button type="button" onclick="completeEinQueue()">Complete EIN</button>
+            </div>
+          </div>
+        </div>
+        <div class="section">
+          <h3>PII Access Audit</h3>
+          <div class="feed">
+            ${access.length ? access.map((event) => `
+              <div class="entry">
+                <div class="entry-head"><span>${h(event.actor)}</span><span>${h(fmtDate(event.created_at))}</span></div>
+                <div class="entry-body">${h(event.purpose || "")}</div>
+              </div>
+            `).join("") : `<div class="entry"><div class="entry-body">No SSN vault access recorded.</div></div>`}
+          </div>
+        </div>
+      `;
+    }
+
+    async function api(path, options = {}) {
+      const headers = adminHeaders(options.headers || {});
+      if (options.body && !(options.body instanceof FormData)) {
+        headers["Content-Type"] = "application/json";
+      }
+      const res = await fetch(path, { ...options, headers });
+      if (!res.ok) {
+        let message = `${res.status} ${res.statusText}`;
+        try {
+          const payload = await res.json();
+          message = payload.detail || message;
+        } catch (_) {}
+        if (res.status === 401) clearAdminSession();
+        throw new Error(message);
+      }
+      return res.json();
+    }
+
+    async function loadJobs() {
+      if (!hasAdminAccess()) {
+        $("queueStatus").textContent = "Start an operator session to load the queue.";
+        $("ticketStatus").textContent = "Start an operator session to load Slack tickets.";
+        $("engineeringStatus").textContent = "Start an operator session to load engineering jobs.";
+        return;
+      }
+      $("queueStatus").textContent = "Loading filing jobs...";
+      const params = new URLSearchParams();
+      const stateValue = $("stateFilter").value.trim().toUpperCase();
+      const statusValue = $("statusFilter").value;
+      if (stateValue) params.set("state", stateValue);
+      if (statusValue) params.set("status", statusValue);
+      try {
+        const payload = await api(`/api/admin/filing-jobs?${params.toString()}`);
+        const lane = $("laneFilter").value;
+        state.jobs = lane ? payload.jobs.filter((job) => job.automation_lane === lane) : payload.jobs;
+        $("jobCount").textContent = `${state.jobs.length} jobs`;
+        $("queueStatus").textContent = state.jobs.length ? "" : "No filing jobs match the current filters.";
+        renderJobs();
+        if (state.selectedJobId && state.jobs.some((job) => job.id === state.selectedJobId)) {
+          await loadDetail(state.selectedJobId);
+        }
+      } catch (error) {
+        $("queueStatus").textContent = error.message;
+      }
+    }
+
+    async function loadPaymentReadiness() {
+      if (!hasAdminAccess()) {
+        $("paymentReadinessStatus").textContent = "Start an operator session to load payment readiness.";
+        return;
+      }
+      $("paymentReadinessStatus").textContent = "Loading paid-order readiness...";
+      const params = new URLSearchParams();
+      const stateValue = $("paymentStateFilter").value.trim().toUpperCase();
+      const statusValue = $("paymentReadinessFilter").value;
+      if (stateValue) params.set("state", stateValue);
+      if (statusValue) params.set("status", statusValue);
+      try {
+        const payload = await api(`/api/admin/payment-readiness?${params.toString()}`);
+        state.paymentReadiness = payload.orders || [];
+        state.paymentReadinessSummary = payload.summary || {};
+        renderPaymentReadiness();
+      } catch (error) {
+        $("paymentReadinessStatus").textContent = error.message;
+      }
+    }
+
+    async function loadTickets() {
+      if (!hasAdminAccess()) {
+        $("ticketStatus").textContent = "Start an operator session to load operator tickets.";
+        return;
+      }
+      $("ticketStatus").textContent = "Syncing filing-action tickets...";
+      const params = new URLSearchParams();
+      const status = $("ticketStatusFilter").value;
+      const priority = $("ticketPriorityFilter").value;
+      if (status) params.set("status", status);
+      if (priority) params.set("priority", priority);
+      try {
+        const payload = await api(`/api/admin/slack/tickets?${params.toString()}`);
+        state.tickets = payload.tickets || [];
+        state.ticketSync = payload.sync || {};
+        $("ticketCount").textContent = `${state.tickets.length} tickets`;
+        $("ticketStatus").textContent = state.tickets.length ? "" : "No tickets match the current filters.";
+        renderTickets();
+      } catch (error) {
+        $("ticketStatus").textContent = error.message;
+      }
+    }
+
+    async function loadEngineeringJobs() {
+      if (!hasAdminAccess()) {
+        $("engineeringStatus").textContent = "Start an operator session to load engineering jobs.";
+        return;
+      }
+      $("engineeringStatus").textContent = "Loading engineering jobs...";
+      const params = new URLSearchParams();
+      const status = $("engineeringStatusFilter").value;
+      if (status) params.set("status", status);
+      try {
+        const payload = await api(`/api/admin/engineering-jobs?${params.toString()}`);
+        state.engineeringJobs = payload.jobs || [];
+        $("engineeringCount").textContent = `${state.engineeringJobs.length} jobs`;
+        $("engineeringStatus").textContent = state.engineeringJobs.length ? "" : "No engineering jobs match the current filters.";
+        renderEngineeringJobs();
+      } catch (error) {
+        $("engineeringStatus").textContent = error.message;
+      }
+    }
+
+    async function loadSystemHealth() {
+      if (!hasAdminAccess()) {
+        $("systemHealthStatus").textContent = "Start an operator session to load system health.";
+        renderSystemHealth();
+        return;
+      }
+      $("systemHealthStatus").textContent = "Checking system health...";
+      try {
+        state.systemHealth = await api("/api/admin/health/deep");
+        renderSystemHealth();
+      } catch (error) {
+        $("systemHealthStatus").textContent = error.message;
+      }
+    }
+
+    async function createTestTicket() {
+      if (state.busy) return;
+      const message = $("testTicketPrompt").value.trim();
+      if (!message) {
+        toast("Enter a test enhancement prompt first.");
+        return;
+      }
+      state.busy = true;
+      toast("Creating test ticket...");
+      try {
+        const payload = await fetch("/api/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            message,
+            session_id: `operator-test-${Date.now()}`,
+            context: {
+              email: "operator-test@sosfiler.com",
+              product_type: "support",
+            },
+          }),
+        });
+        if (!payload.ok) {
+          let messageText = `${payload.status} ${payload.statusText}`;
+          try {
+            const errorPayload = await payload.json();
+            messageText = errorPayload.detail || messageText;
+          } catch (_) {}
+          throw new Error(messageText);
+        }
+        const result = await payload.json();
+        toast(result.ticket_id ? `Created ${result.ticket_id}.` : "Chat answered without escalation; try a more operational enhancement prompt.");
+        await loadTickets();
+      } catch (error) {
+        toast(error.message);
+      } finally {
+        state.busy = false;
+      }
+    }
+
+    function renderJobs() {
+      const list = $("jobList");
+      list.innerHTML = state.jobs.map((job) => `
+        <button class="job ${job.id === state.selectedJobId ? "active" : ""}" type="button" onclick="selectJob(decodeURIComponent('${encodeURIComponent(job.id)}'))">
+          <div class="job-title">
+            <div>
+              <div class="job-name">${h(job.business_name || job.order_id)}</div>
+              <div class="job-sub">${h(job.id)} · ${h(job.email || "")}</div>
+            </div>
+            <span class="chip ${chipClass(job.status)}">${h(label(job.status))}</span>
+          </div>
+          <div class="chips">
+            <span class="chip">${h(job.state)} ${h(job.entity_type)}</span>
+            <span class="chip ${chipClass(job.automation_lane)}">${h(label(job.automation_lane))}</span>
+            <span class="chip ${chipClass(job.automation_difficulty)}">${h(label(job.automation_difficulty))}</span>
+            <span class="chip">${money(job.total_government_cents)}</span>
+          </div>
+        </button>
+      `).join("");
+    }
+
+    function isFilingTicket(ticket) {
+      return ["filing_action", "filing_intervention"].includes(ticket.ticket_type || "");
+    }
+
+    function ticketFilingJobId(ticket) {
+      if (!ticket) return "";
+      if (ticket.filing_job_id) return ticket.filing_job_id;
+      return (ticket.session_id || "").startsWith("FIL-") ? ticket.session_id : "";
+    }
+
+    function renderTickets() {
+      const list = $("ticketList");
+      list.innerHTML = state.tickets.map((ticket) => `
+        <button class="job ${ticket.id === state.selectedTicketId ? "active" : ""}" type="button" onclick="selectTicket(decodeURIComponent('${encodeURIComponent(ticket.id)}'))">
+          <div class="job-title">
+            <div>
+              <div class="job-name">${h(ticket.question || ticket.id)}</div>
+              <div class="job-sub">${h(ticket.id)} · ${h(ticket.customer_email || ticketFilingJobId(ticket) || ticket.session_id || "")}</div>
+            </div>
+            <span class="chip ${chipClass(ticket.status)}">${h(label(ticket.status))}</span>
+          </div>
+          <div class="chips">
+            <span class="chip ${ticket.priority === "urgent" || ticket.priority === "high" ? "red" : "amber"}">${h(label(ticket.priority))}</span>
+            <span class="chip ${isFilingTicket(ticket) ? "blue" : ""}">${h(label(ticket.ticket_type || "support"))}</span>
+            <span class="chip">${h(ticket.state || "NA")} ${h(ticket.product_type || "support")}</span>
+            ${ticket.order_id ? `<span class="chip">${h(ticket.order_id)}</span>` : ""}
+          </div>
+        </button>
+      `).join("");
+    }
+
+    function renderEngineeringJobs() {
+      const list = $("engineeringList");
+      list.innerHTML = state.engineeringJobs.map((job) => {
+        const ticket = job.ticket || {};
+        const title = ticket.question || job.ticket_id || job.id;
+        const latest = (job.redacted_log || []).slice(-1)[0] || {};
+        return `
+          <button class="job ${job.id === state.selectedEngineeringRunId ? "active" : ""}" type="button" onclick="selectEngineeringJob(decodeURIComponent('${encodeURIComponent(job.id)}'))">
+            <div class="job-title">
+              <div>
+                <div class="job-name">${h(title)}</div>
+                <div class="job-sub">${h(job.id)} · ${h(job.ticket_id || "no ticket")}</div>
+              </div>
+              <span class="chip ${chipClass(job.status)}">${h(label(job.status))}</span>
+            </div>
+            <div class="chips">
+              <span class="chip ${job.stop_requested ? "red" : "blue"}">${job.stop_requested ? "Stop requested" : "Engineering"}</span>
+              ${ticket.priority ? `<span class="chip">${h(label(ticket.priority))}</span>` : ""}
+              ${latest.actor ? `<span class="chip">${h(latest.actor)}</span>` : ""}
+            </div>
+          </button>
+        `;
+      }).join("");
+    }
+
+    async function selectJob(jobId) {
+      state.selectedJobId = jobId;
+      state.selectedTicketId = "";
+      state.selectedEngineeringRunId = "";
+      state.selectedEinOrderId = "";
+      renderJobs();
+      renderTickets();
+      renderEngineeringJobs();
+      await loadDetail(jobId);
+    }
+
+    function selectTicket(ticketId) {
+      state.selectedTicketId = ticketId;
+      state.selectedJobId = "";
+      state.selectedEngineeringRunId = "";
+      state.selectedEinOrderId = "";
+      renderJobs();
+      renderTickets();
+      renderEngineeringJobs();
+      const ticket = state.tickets.find((item) => item.id === ticketId);
+      renderTicketDetail(ticket);
+    }
+
+    function openTicketFilingJob(jobId) {
+      if (!jobId) {
+        toast("This ticket is not linked to a filing job.");
+        return;
+      }
+      selectJob(jobId);
+    }
+
+    function selectEngineeringJob(runId) {
+      state.selectedEngineeringRunId = runId;
+      state.selectedJobId = "";
+      state.selectedTicketId = "";
+      state.selectedEinOrderId = "";
+      renderJobs();
+      renderTickets();
+      renderEngineeringJobs();
+      const job = state.engineeringJobs.find((item) => item.id === runId);
+      renderEngineeringDetail(job);
+    }
+
+    function renderOperatorFulfillmentPacket(packet) {
+      if (!packet) return "";
+      const summary = packet.summary || {};
+      const customer = packet.customer_filing_data || {};
+      const business = customer.business || {};
+      const ra = customer.registered_agent || {};
+      const people = customer.people || [];
+      const route = packet.official_route || {};
+      const pricing = packet.pricing || {};
+      const evidence = packet.required_evidence || {};
+      const actions = packet.operator_actions || [];
+      const portalSteps = packet.portal_steps || [];
+      const safeStops = packet.safe_stop_conditions || [];
+      const completion = packet.completion_criteria || [];
+      return `
+        <div class="section">
+          <h3>Operator Fulfillment Packet</h3>
+          <div class="summary">
+            <div class="metric"><div class="label">Goal</div><div class="value">${h(packet.operator_goal || "Complete filing with evidence.")}</div></div>
+            <div class="metric"><div class="label">Launch Lane</div><div class="value"><span class="chip ${chipClass(packet.launch_category)}">${h(label(packet.launch_category || summary.automation_lane))}</span></div></div>
+            <div class="metric"><div class="label">Operator Rule</div><div class="value">${h(summary.operator_touch_target || "Operator by exception")}</div></div>
+            <div class="metric"><div class="label">Gov Total</div><div class="value">${money(pricing.official_total_government_cents)}</div></div>
+          </div>
+
+          <div class="section" style="margin-top:12px;">
+            <h3>Customer Filing Data</h3>
+            <div class="summary">
+              <div class="metric"><div class="label">Legal Name</div><div class="value">${h(business.legal_name || summary.business_name)}</div></div>
+              <div class="metric"><div class="label">Entity</div><div class="value">${h(business.entity_type || summary.entity_type)} · ${h(business.formation_state || summary.state)}</div></div>
+              <div class="metric"><div class="label">Purpose</div><div class="value">${h(business.purpose || "")}</div></div>
+              <div class="metric"><div class="label">Management</div><div class="value">${h(label(business.management_type || ""))}</div></div>
+              <div class="metric"><div class="label">Principal</div><div class="value">${h(business.principal_address || "")}</div></div>
+              <div class="metric"><div class="label">Mailing</div><div class="value">${h(business.mailing_address || "")}</div></div>
+              <div class="metric"><div class="label">Registered Agent</div><div class="value">${h(ra.name || ra.choice || "")}</div></div>
+              <div class="metric"><div class="label">RA Address</div><div class="value">${h(ra.address || "")}</div></div>
+            </div>
+            <div class="feed" style="margin-top:10px;">
+              ${people.length ? people.map((person) => `
+                <div class="entry">
+                  <div class="entry-head"><span>${h(person.name || "Unnamed person")}</span><span>${h(person.role || "Person")}</span></div>
+                  <div class="entry-body">${h(person.address || "")}${person.ownership_pct !== undefined && person.ownership_pct !== null ? `\nOwnership: ${h(person.ownership_pct)}%` : ""}${person.ssn_last4 ? `\nSSN last4: ${h(person.ssn_last4)}` : ""}</div>
+                </div>
+              `).join("") : `<div class="entry"><div class="entry-body">No member, owner, or manager data was supplied.</div></div>`}
+            </div>
+            <details style="margin-top:10px;">
+              <summary>All sanitized customer intake</summary>
+              <pre style="white-space:pre-wrap;">${h(JSON.stringify(customer.all_customer_intake || {}, null, 2))}</pre>
+            </details>
+          </div>
+
+          <div class="section" style="margin-top:12px;">
+            <h3>Operator Steps</h3>
+            <div class="feed">
+              ${actions.map((action, index) => `
+                <div class="entry">
+                  <div class="entry-head"><span>${index + 1}. ${h(action.title || "Operator action")}</span><span>Required</span></div>
+                  <div class="entry-body">${h(action.detail || "")}</div>
+                </div>
+              `).join("")}
+            </div>
+          </div>
+
+          <div class="section" style="margin-top:12px;">
+            <h3>Official Route & Portal Pages</h3>
+            <div class="summary">
+              <div class="metric"><div class="label">Office</div><div class="value">${h(route.office || "")}</div></div>
+              <div class="metric"><div class="label">Form</div><div class="value">${h([route.form_name, route.form_number].filter(Boolean).join(" · "))}</div></div>
+              <div class="metric"><div class="label">Portal</div><div class="value">${h(route.portal_name || "")}</div></div>
+              <div class="metric"><div class="label">Timing</div><div class="value">${h(route.expected_processing_time || "")}</div></div>
+            </div>
+            <div class="feed" style="margin-top:10px;">
+              ${portalSteps.map((step) => `
+                <div class="entry">
+                  <div class="entry-head"><span>${h(step.step ? `${step.step}. ` : "")}${h(step.title || "Portal step")}</span><span>${h(step.actor || "")}</span></div>
+                  <div class="entry-body">${h(step.instruction || "")}${(step.required_inputs || []).length ? `\nInputs: ${h((step.required_inputs || []).join(", "))}` : ""}${step.portal_page ? `\nPage: ${h(step.portal_page)}` : ""}${(step.evidence_output || []).length ? `\nEvidence output: ${h((step.evidence_output || []).join(", "))}` : ""}</div>
+                </div>
+              `).join("") || `<div class="entry"><div class="entry-body">No state-specific portal steps are mapped; use the official route and customer filing data above.</div></div>`}
+            </div>
+          </div>
+
+          <div class="section" style="margin-top:12px;">
+            <h3>Evidence, Stops & Completion</h3>
+            <div class="entry">
+              <div class="entry-head"><span>Required evidence</span><span>Before status changes</span></div>
+              <div class="entry-body">Submitted: ${h((evidence.submitted || []).join(", "))}\nApproved: ${h((evidence.approved || []).join(", "))}${(evidence.outputs || []).length ? `\nOutputs: ${h((evidence.outputs || []).join(", "))}` : ""}</div>
+            </div>
+            <div class="feed" style="margin-top:10px;">
+              <div class="entry">
+                <div class="entry-head"><span>Safe-stop conditions</span><span>${safeStops.length}</span></div>
+                <div class="entry-body">${h(safeStops.map((item) => `- ${item}`).join("\n"))}</div>
+              </div>
+              <div class="entry">
+                <div class="entry-head"><span>Completion criteria</span><span>${completion.length}</span></div>
+                <div class="entry-body">${h(completion.map((item) => `- ${item}`).join("\n"))}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    async function loadDetail(jobId) {
+      const detail = $("detail");
+      detail.innerHTML = `<div class="empty">Loading job detail...</div>`;
+      try {
+        state.detail = await api(`/api/admin/filing-jobs/${encodeURIComponent(jobId)}`);
+        renderDetail();
+      } catch (error) {
+        detail.innerHTML = `<div class="empty">${error.message}</div>`;
+      }
+    }
+
+    function renderTicketDetail(ticket) {
+      if (!ticket) {
+        $("detail").innerHTML = `<div class="empty">Ticket not found.</div>`;
+        return;
+      }
+      const filing = isFilingTicket(ticket);
+      const jobId = ticketFilingJobId(ticket);
+      const jobArg = encodeURIComponent(jobId || "");
+      const primaryActions = filing
+        ? `${jobId ? `<button class="primary" type="button" onclick="openTicketFilingJob(decodeURIComponent('${jobArg}'))">Open Filing Job</button>` : ""}
+           <button type="button" onclick="closeTicket()">Close Ticket</button>`
+        : `<button class="primary" type="button" onclick="approveTicket()">Approve Enhancement</button>
+           <button type="button" onclick="closeTicket()">Close Ticket</button>`;
+      $("detail").innerHTML = `
+        <div class="summary">
+          <div class="metric"><div class="label">Ticket</div><div class="value">${h(ticket.id)}</div></div>
+          <div class="metric"><div class="label">Status</div><div class="value">${h(label(ticket.status))}</div></div>
+          <div class="metric"><div class="label">Priority</div><div class="value">${h(label(ticket.priority))}</div></div>
+          <div class="metric"><div class="label">Type</div><div class="value">${h(label(ticket.ticket_type || "support"))}</div></div>
+          <div class="metric"><div class="label">Context</div><div class="value">${h(ticket.state || "NA")} ${h(ticket.product_type || "support")}</div></div>
+          <div class="metric"><div class="label">Filing Job</div><div class="value">${h(jobId || "None")}</div></div>
+        </div>
+
+        <div class="section">
+          <h3>${filing ? "Operator Action" : "Question"}</h3>
+          <div class="entry"><div class="entry-body">${h(ticket.question || "")}</div></div>
+        </div>
+
+        <div class="section">
+          <h3>${filing ? "Filing Ticket" : "Review"}</h3>
+          <div class="summary">
+            <div class="metric"><div class="label">Customer</div><div class="value">${h(ticket.customer_email || "Unknown")}</div></div>
+            <div class="metric"><div class="label">Order</div><div class="value">${h(ticket.order_id || "None")}</div></div>
+            <div class="metric"><div class="label">Session</div><div class="value">${h(ticket.session_id || "None")}</div></div>
+            <div class="metric"><div class="label">Created</div><div class="value">${h(fmtDate(ticket.created_at))}</div></div>
+          </div>
+          <div class="entry">
+            <div class="entry-head"><span>Confidence reason</span><span>${h(ticket.ticket_type || "support")}</span></div>
+            <div class="entry-body">${h(ticket.confidence_reason || "")}</div>
+          </div>
+          <div class="entry" style="margin-top:8px;">
+            <div class="entry-head"><span>${filing ? "Operator filing steps" : "Suggested answer / enhancement"}</span><span>${h(ticket.approved_by ? `Approved by ${ticket.approved_by}` : "")}</span></div>
+            <div class="entry-body">${h(ticket.suggested_answer || "")}</div>
+          </div>
+          <div class="form-grid" style="margin-top:10px;">
+            <label>Operator
+              <input id="ticketOperator" value="operator" />
+            </label>
+            <label>Approval Note
+              <input id="ticketApprovalNote" placeholder="Why this is approved or closed" />
+            </label>
+            <div class="actions wide">
+              ${primaryActions}
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderEngineeringDetail(job) {
+      if (!job) {
+        $("detail").innerHTML = `<div class="empty">Engineering job not found.</div>`;
+        return;
+      }
+      const ticket = job.ticket || {};
+      const log = job.redacted_log || [];
+      const stopConditions = job.stop_conditions || [];
+      const plan = job.engineering_plan || {};
+      const workPlan = job.work_plan || {};
+      const executionPackage = job.execution_package || {};
+      const executionGates = job.execution_gates || [];
+      const latestTestRun = job.latest_test_run || {};
+      const latestDeployCheck = job.latest_deploy_check || {};
+      $("detail").innerHTML = `
+        <div class="summary">
+          <div class="metric"><div class="label">Engineering Job</div><div class="value">${h(job.id)}</div></div>
+          <div class="metric"><div class="label">Status</div><div class="value">${h(label(job.status))}</div></div>
+          <div class="metric"><div class="label">Ticket</div><div class="value">${h(job.ticket_id || "None")}</div></div>
+          <div class="metric"><div class="label">Updated</div><div class="value">${h(fmtDate(job.updated_at))}</div></div>
+        </div>
+
+        <div class="section">
+          <h3>Approved Enhancement</h3>
+          <div class="entry">
+            <div class="entry-head"><span>${h(ticket.customer_email || ticket.session_id || "Slack approval")}</span><span>${h(label(ticket.priority || "normal"))}</span></div>
+            <div class="entry-body">${h(ticket.question || "No ticket question attached.")}</div>
+          </div>
+          <div class="entry" style="margin-top:8px;">
+            <div class="entry-head"><span>Suggested behavior</span><span>${h(ticket.approved_by ? `Approved by ${ticket.approved_by}` : "")}</span></div>
+            <div class="entry-body">${h(ticket.suggested_answer || "Convert the approved ticket into a tested implementation plan.")}</div>
+          </div>
+        </div>
+
+        <div class="section">
+          <h3>Implementation Plan</h3>
+          <div class="entry">
+            <div class="entry-head"><span>Requested behavior</span><span>${h(plan.source_ticket_id || job.ticket_id || "")}</span></div>
+            <div class="entry-body">${h(plan.requested_behavior || ticket.suggested_answer || ticket.question || "")}</div>
+          </div>
+          <div class="summary" style="margin-top:10px;">
+            <div class="metric"><div class="label">Mode</div><div class="value">${h((plan.execution_modes || []).join(", ") || "plan_only")}</div></div>
+            <div class="metric"><div class="label">Deploy Target</div><div class="value">${h(plan.deployment_target || "Not set")}</div></div>
+            <div class="metric"><div class="label">State</div><div class="value">${h(plan.context?.state || "NA")}</div></div>
+            <div class="metric"><div class="label">Product</div><div class="value">${h(plan.context?.product_type || "support")}</div></div>
+          </div>
+          <div class="feed" style="margin-top:10px;">
+            <div class="entry">
+              <div class="entry-head"><span>Steps</span><span>${h((plan.implementation_plan || []).length)} items</span></div>
+              <div class="entry-body">${h((plan.implementation_plan || []).map((item, index) => `${index + 1}. ${item}`).join("\n") || "No plan generated yet.")}</div>
+            </div>
+            <div class="entry">
+              <div class="entry-head"><span>Acceptance Criteria</span><span>${h((plan.acceptance_criteria || []).length)} checks</span></div>
+              <div class="entry-body">${h((plan.acceptance_criteria || []).map((item, index) => `${index + 1}. ${item}`).join("\n") || "No acceptance criteria generated yet.")}</div>
+            </div>
+            <div class="entry">
+              <div class="entry-head"><span>Required Tests</span><span>${h((plan.required_tests || []).length)} commands</span></div>
+              <div class="entry-body">${h((plan.required_tests || []).join("\n") || "No tests specified yet.")}</div>
+            </div>
+          </div>
+          <div class="actions" style="margin-top:10px;">
+            <button type="button" onclick="refreshEngineeringPlan()">Refresh Plan</button>
+            <button class="primary" type="button" onclick="createEngineeringWorkPlan()">Create Work Plan</button>
+            <button type="button" onclick="prepareEngineeringExecution()">Prepare Execution</button>
+            <button type="button" onclick="runEngineeringTests()">Run Required Tests</button>
+            <button type="button" onclick="runEngineeringDeployCheck()">Run Deploy Check</button>
+          </div>
+        </div>
+
+        <div class="section">
+          <h3>Work Plan Artifact</h3>
+          <div class="entry">
+            <div class="entry-head"><span>${h(workPlan.filename || "No work plan artifact yet")}</span><span>${h(fmtDate(workPlan.created_at))}</span></div>
+            <div class="entry-body">${h(workPlan.file_path || "Create a Markdown work plan after reviewing the generated implementation plan.")}</div>
+          </div>
+        </div>
+
+        <div class="section">
+          <h3>Guarded Execution</h3>
+          <div class="entry">
+            <div class="entry-head"><span>${h(executionPackage.filename || "No execution package yet")}</span><span>${h(executionPackage.can_start ? "Ready" : "Not started")}</span></div>
+            <div class="entry-body">${h(executionPackage.file_path || "Prepare execution to create a guarded handoff package and move the job into implementation when gates pass.")}</div>
+          </div>
+          <div class="feed" style="margin-top:10px;">
+            ${executionGates.length ? executionGates.map((gate) => `
+              <div class="entry">
+                <div class="entry-head"><span>${h(gate.label)}</span><span class="chip ${chipClass(gate.status)}">${h(label(gate.status))}</span></div>
+                <div class="entry-body">${h(gate.detail || "")}</div>
+              </div>
+            `).join("") : `<div class="entry"><div class="entry-body">No execution gates generated yet.</div></div>`}
+          </div>
+        </div>
+
+        <div class="section">
+          <h3>Required Test Run</h3>
+          <div class="entry">
+            <div class="entry-head"><span>${h(latestTestRun.id || "No required test run yet")}</span><span class="chip ${chipClass(latestTestRun.passed ? "ready" : "needs_review")}">${h(latestTestRun.id ? (latestTestRun.passed ? "Passed" : "Failed") : "Pending")}</span></div>
+            <div class="entry-body">${h(latestTestRun.summary || "Run the declared required tests after guarded execution is prepared.")}</div>
+          </div>
+          <div class="feed" style="margin-top:10px;">
+            ${(latestTestRun.commands || []).map((result) => `
+              <div class="entry">
+                <div class="entry-head"><span>${h(result.command)}</span><span class="chip ${chipClass(result.passed ? "ready" : "blocked")}">${h(result.passed ? "Passed" : "Failed")}</span></div>
+                <div class="entry-body">${h([result.stdout, result.stderr].filter(Boolean).join("\n") || `Exit code: ${result.returncode}`)}</div>
+              </div>
+            `).join("")}
+          </div>
+        </div>
+
+        <div class="section">
+          <h3>Deploy Check</h3>
+          <div class="entry">
+            <div class="entry-head"><span>${h(latestDeployCheck.id || "No deploy check yet")}</span><span class="chip ${chipClass(latestDeployCheck.passed ? "ready" : "needs_review")}">${h(latestDeployCheck.id ? (latestDeployCheck.passed ? "Passed" : "Failed") : "Pending")}</span></div>
+            <div class="entry-body">${h(latestDeployCheck.summary || "Run production health checks after required tests pass.")}${latestDeployCheck.deployment_url ? `\n${h(latestDeployCheck.deployment_url)}` : ""}</div>
+          </div>
+          <div class="feed" style="margin-top:10px;">
+            ${(latestDeployCheck.checks || []).map((check) => `
+              <div class="entry">
+                <div class="entry-head"><span>${h(label(check.name))}</span><span class="chip ${chipClass(check.passed ? "ready" : "blocked")}">${h(check.passed ? "Passed" : "Failed")}</span></div>
+                <div class="entry-body">${h(check.url || "")}${check.status_code ? `\nHTTP ${h(check.status_code)}` : ""}${check.detail ? `\n${h(check.detail)}` : ""}</div>
+              </div>
+            `).join("")}
+          </div>
+        </div>
+
+        <div class="section">
+          <h3>Risk Flags</h3>
+          <div class="chips">
+            ${(plan.risk_flags || []).map((flag) => `<span class="chip amber">${h(label(flag))}</span>`).join("") || `<span class="chip">Standard Review</span>`}
+          </div>
+        </div>
+
+        <div class="section">
+          <h3>Stop Conditions</h3>
+          <div class="chips">
+            ${stopConditions.map((condition) => `<span class="chip red">${h(label(condition))}</span>`).join("")}
+          </div>
+        </div>
+
+        <div class="section">
+          <h3>Execution Status</h3>
+          <div class="form-grid">
+            <label>Target Status
+              <select id="engineeringTargetStatus">
+                <option value="in_progress">In progress</option>
+                <option value="tests_failed">Tests failed</option>
+                <option value="blocked">Blocked</option>
+                <option value="ready_to_deploy">Ready to deploy</option>
+                <option value="deployed">Deployed</option>
+              </select>
+            </label>
+            <label>Operator
+              <input id="engineeringActor" value="operator" />
+            </label>
+            <label class="wide">Test Command
+              <input id="engineeringTestCommand" placeholder=".venv312/bin/python -m unittest ..." />
+            </label>
+            <label class="wide">Deployment URL
+              <input id="engineeringDeploymentUrl" placeholder="https://ops.sosfiler.com/..." />
+            </label>
+            <label class="wide">Message
+              <textarea id="engineeringMessage" placeholder="What changed, what failed, or why this is ready."></textarea>
+            </label>
+            <div class="actions wide">
+              <button class="primary" type="button" onclick="transitionEngineeringJob()">Record Engineering Status</button>
+              <button class="danger" type="button" onclick="stopEngineeringJob()">Request Stop</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="section">
+          <h3>Audit Trail</h3>
+          <div class="feed">
+            ${log.length ? log.map((entry) => `
+              <div class="entry">
+                <div class="entry-head"><span>${h(label(entry.to_status || entry.message || "event"))}</span><span>${h(fmtDate(entry.at))}</span></div>
+                <div class="entry-body">${h(entry.message || "")}${entry.actor ? `\nActor: ${h(entry.actor)}` : ""}${entry.test_command ? `\nTests: ${h(entry.test_command)}` : ""}${entry.test_run?.summary ? `\nResult: ${h(entry.test_run.summary)}` : ""}${entry.deploy_check?.summary ? `\nDeploy check: ${h(entry.deploy_check.summary)}` : ""}${entry.deployment_url ? `\nDeploy: ${h(entry.deployment_url)}` : ""}${entry.work_plan?.file_path ? `\nWork plan: ${h(entry.work_plan.file_path)}` : ""}${entry.execution_package?.file_path ? `\nExecution package: ${h(entry.execution_package.file_path)}` : ""}</div>
+              </div>
+            `).join("") : `<div class="entry"><div class="entry-body">No engineering events yet.</div></div>`}
+          </div>
+        </div>
+      `;
+    }
+
+    function renderDetail() {
+      const data = state.detail;
+      if (!data) return;
+      const job = data.job;
+      const blockers = job.portal_blockers || [];
+      const evidence = job.required_evidence || {};
+      const readiness = job.readiness_checklist || [];
+      const paymentReadiness = data.payment_readiness || null;
+      const metadata = data.state_metadata || {};
+      const contract = job.adapter_contract || {};
+      const fulfillmentPacket = job.operator_fulfillment_packet || null;
+      const automationReadiness = metadata.automation_readiness || {};
+      const portalArg = encodeURIComponent(job.portal_url || "");
+      $("detail").innerHTML = `
+        <div class="summary">
+          <div class="metric"><div class="label">Order</div><div class="value">${h(job.order_id)}</div></div>
+          <div class="metric"><div class="label">Status</div><div class="value">${h(label(job.status))}</div></div>
+          <div class="metric"><div class="label">Lane</div><div class="value">${h(label(job.automation_lane))}</div></div>
+          <div class="metric"><div class="label">Government Total</div><div class="value">${money(job.total_government_cents)}</div></div>
+        </div>
+
+        ${renderOperatorFulfillmentPacket(fulfillmentPacket)}
+
+        ${paymentReadiness ? `
+        <div class="section">
+          <h3>Payment & Filing Prep</h3>
+          <div class="summary">
+            <div class="metric"><div class="label">Readiness</div><div class="value"><span class="chip ${chipClass(paymentReadiness.readiness_status)}">${h(label(paymentReadiness.readiness_status))}</span></div></div>
+            <div class="metric"><div class="label">Order Payment</div><div class="value">${h(label(paymentReadiness.order_status))}</div></div>
+            <div class="metric"><div class="label">Authorized</div><div class="value">${money(paymentReadiness.payment?.authorized_total_cents)}</div></div>
+            <div class="metric"><div class="label">Captured</div><div class="value">${money(paymentReadiness.payment?.captured_total_cents)}</div></div>
+          </div>
+          <div class="feed" style="margin-top:10px;">
+            ${(paymentReadiness.checks || []).map((check) => `
+              <div class="entry">
+                <div class="entry-head"><span>${h(check.label)}</span><span class="chip ${chipClass(check.status)}">${h(label(check.status))}</span></div>
+                <div class="entry-body">${h(check.message || "")}</div>
+              </div>
+            `).join("")}
+          </div>
+          <div class="actions" style="margin-top:10px;">
+            <button class="primary" type="button" onclick="prepareFiling(decodeURIComponent('${encodeURIComponent(job.order_id)}'), decodeURIComponent('${encodeURIComponent(job.id)}'))">Prepare Filing</button>
+          </div>
+        </div>` : ""}
+
+        <div class="section">
+          <h3>State Metadata</h3>
+          <div class="summary">
+            <div class="metric"><div class="label">Readiness</div><div class="value"><span class="chip ${chipClass(automationReadiness.status)}">${h(label(automationReadiness.status))}</span></div></div>
+            <div class="metric"><div class="label">Blocker Level</div><div class="value">${h(label(metadata.blocker_level || "unknown"))}</div></div>
+            <div class="metric"><div class="label">Adapter</div><div class="value">${h(metadata.adapter_key || job.adapter_key || "None")}</div></div>
+            <div class="metric"><div class="label">Sources</div><div class="value">${h((metadata.source_urls || []).length)}</div></div>
+          </div>
+          <div class="entry" style="margin-top:10px;">
+            <div class="entry-head"><span>Missing metadata gates</span><span>${h((automationReadiness.missing || []).length)}</span></div>
+            <div class="entry-body">${h((automationReadiness.missing || []).join(", ") || "No missing route metadata gates.")}</div>
+          </div>
+        </div>
+
+        <div class="section">
+          <h3>Route</h3>
+          <div class="summary">
+            <div class="metric"><div class="label">Business</div><div class="value">${h(job.business_name || "")}</div></div>
+            <div class="metric"><div class="label">Office</div><div class="value">${h(job.office || "")}</div></div>
+            <div class="metric"><div class="label">Form</div><div class="value">${h(job.form_name || "")}</div></div>
+            <div class="metric"><div class="label">Portal</div><div class="value">${h(job.portal_name || job.filing_method || "")}</div></div>
+          </div>
+          <div class="entry" style="margin-top:10px;">
+            <div class="entry-head"><span>Portal access</span><span>${h(job.portal_name || "Official portal")}</span></div>
+            <div class="entry-body">SOSFiler operator portal: sosfiler.com/operator.html
+Operator login: authorized SOSFiler admin/operator account plus email code.
+Official state portal: ${h(job.portal_url || "Not mapped")}
+State portal login: use the authorized filer account for the official portal; stop if login, access, terms, identity, CAPTCHA, or payment controls cannot be completed through authorized access.</div>
+          </div>
+          <div class="actions">
+            ${job.portal_url ? `<button type="button" onclick="openPortal('${portalArg}')">Open Portal</button>` : ""}
+            <button type="button" onclick="claimJob()">Claim</button>
+          </div>
+          <div class="blockers">
+            ${blockers.length ? blockers.map((blocker) => `
+              <div class="entry">
+                <div class="entry-head"><span>${h(blocker.code || "blocker")}</span><span>${h(blocker.source || "")}</span></div>
+                <div class="entry-body">${h(blocker.message || "")}</div>
+              </div>
+            `).join("") : `<div class="entry"><div class="entry-body">No portal blocker currently flagged from research.</div></div>`}
+          </div>
+        </div>
+
+        ${readiness.length ? renderReadinessChecklist(readiness, job.action_type === "annual_report" ? "Annual Report Readiness" : "Filing Readiness") : ""}
+
+        ${contract.contract_version ? `
+        <div class="section">
+          <h3>Adapter Contract</h3>
+          <div class="summary">
+            <div class="metric"><div class="label">Contract</div><div class="value">${h(contract.contract_version)}</div></div>
+            <div class="metric"><div class="label">Strategy</div><div class="value">${h(label(contract.submit_strategy || "dry_run_only"))}</div></div>
+            <div class="metric"><div class="label">Fallback</div><div class="value">${contract.operator_fallback ? "Operator available" : "Automation candidate"}</div></div>
+            <div class="metric"><div class="label">Steps</div><div class="value">${h((contract.portal_steps || []).length)}</div></div>
+          </div>
+          <div class="feed" style="margin-top:10px;">
+            <div class="entry">
+              <div class="entry-head"><span>Evidence plan</span><span>${h((contract.evidence_plan?.submitted || []).length + (contract.evidence_plan?.approved || []).length)} gates</span></div>
+              <div class="entry-body">Submitted: ${h((contract.evidence_plan?.submitted || []).join(", ") || "Official submission evidence")}\nApproved: ${h((contract.evidence_plan?.approved || []).join(", ") || "Official approval evidence")}</div>
+            </div>
+            <div class="entry">
+              <div class="entry-head"><span>Required inputs</span><span>${h((contract.required_customer_inputs || []).length)}</span></div>
+              <div class="entry-body">${h((contract.required_customer_inputs || []).slice(0, 18).join(", ") || "Covered by standard intake and operator verification.")}</div>
+            </div>
+            ${(contract.blocker_codes || []).length ? `<div class="entry">
+              <div class="entry-head"><span>Fallback triggers</span><span>${h((contract.blocker_codes || []).length)}</span></div>
+              <div class="entry-body">${h((contract.blocker_codes || []).join(", "))}</div>
+            </div>` : ""}
+          </div>
+        </div>` : ""}
+
+        ${job.action_type === "annual_report" ? `
+        <div class="section">
+          <h3>Annual Report Actions</h3>
+          <div class="actions">
+            <button class="primary" type="button" onclick="prepareAnnualReportPacket()">Prepare Packet</button>
+            <button type="button" onclick="markSubmitted()">Mark Submitted</button>
+            <button type="button" onclick="markApproved()">Mark Approved</button>
+            <button type="button" onclick="markAnnualReportComplete()">Mark Complete</button>
+          </div>
+          <div class="entry" style="margin-top:10px;">
+            <div class="entry-body">Annual reports stay operator-verified. Submitted, approved, and complete states require official portal evidence.</div>
+          </div>
+        </div>` : ""}
+
+        <div class="section">
+          <h3>Automation</h3>
+          <div class="actions">
+            <button class="primary" type="button" onclick="runAutomation('preflight')">Dry-Run Preflight</button>
+            <button type="button" onclick="runLivePreflight()">Portal Preflight</button>
+            <button type="button" onclick="runAutomation('submit')">Dry-Run Submit</button>
+            <button type="button" onclick="runAutomation('check_status')">Dry-Run Status</button>
+            <button type="button" onclick="runAutomation('collect_documents')">Dry-Run Collect</button>
+            ${job.action_type === "formation" ? `<button type="button" onclick="reconcileRegisteredAgent()">Reconcile CorpNet RA</button>` : ""}
+          </div>
+          <div class="feed">
+            ${(data.automation_runs || []).length ? data.automation_runs.map(renderRun).join("") : `<div class="entry"><div class="entry-body">No automation runs yet.</div></div>`}
+          </div>
+        </div>
+
+        <div class="section">
+          <h3>Evidence</h3>
+          <div class="summary">
+            <div class="metric"><div class="label">Submitted Requires</div><div class="value">${h((evidence.submitted || []).join(", ") || "Official submission evidence")}</div></div>
+            <div class="metric"><div class="label">Approved Requires</div><div class="value">${h((evidence.approved || []).join(", ") || "Official approval evidence")}</div></div>
+          </div>
+          <div class="form-grid">
+            <label>Artifact Type
+              <select id="artifactType">
+                <option value="submitted_receipt">Submitted receipt</option>
+                <option value="approved_certificate">Approved certificate</option>
+                <option value="annual_report_packet">Annual report packet</option>
+                <option value="ein_confirmation_letter">EIN confirmation letter</option>
+                <option value="state_correspondence">State correspondence</option>
+                <option value="rejection_notice">Rejection notice</option>
+                <option value="registered_agent_consent">RA consent</option>
+                <option value="registered_agent_assignment">RA assignment</option>
+                <option value="filing_authorization">Filing authorization</option>
+              </select>
+            </label>
+            <label>Filename
+              <input id="artifactFilename" placeholder="receipt.pdf" />
+            </label>
+            <label class="wide">Evidence File Path
+              <input id="artifactPath" placeholder="/absolute/path/to/government-evidence.pdf" />
+            </label>
+            <label class="wide">Evidence Message
+              <textarea id="artifactMessage" placeholder="Official receipt captured from state portal."></textarea>
+            </label>
+            <div class="actions wide">
+              <button type="button" onclick="addEvidence()">Attach Evidence</button>
+              <button type="button" onclick="markSubmitted()">Mark Submitted</button>
+              <button type="button" onclick="markApproved()">Mark Approved</button>
+            </div>
+          </div>
+          <div class="feed" style="margin-top:10px;">
+            ${(data.artifacts || []).length ? data.artifacts.map(renderArtifact).join("") : `<div class="entry"><div class="entry-body">No evidence artifacts attached.</div></div>`}
+          </div>
+        </div>
+
+        <div class="section">
+          <h3>Transition</h3>
+          <div class="form-grid">
+            <label>Target Status
+              <select id="targetStatus">
+                <option value="ready_to_file">Ready to file</option>
+                <option value="automation_started">Automation started</option>
+                <option value="operator_required">Operator required</option>
+                <option value="submitted">Submitted</option>
+                <option value="pending_government_review">Pending government review</option>
+                <option value="rejected_or_needs_correction">Rejected or needs correction</option>
+                <option value="approved">Approved</option>
+                <option value="documents_collected">Documents collected</option>
+                <option value="customer_notified">Customer notified</option>
+                <option value="complete">Complete</option>
+              </select>
+            </label>
+            <label>Evidence Path
+              <input id="transitionEvidence" placeholder="/absolute/path/required-for-evidence-states.pdf" />
+            </label>
+            <label class="wide">Message
+              <textarea id="transitionMessage" placeholder="Explain why this transition is being recorded."></textarea>
+            </label>
+            <div class="actions wide">
+              <button class="primary" type="button" onclick="transitionJob()">Record Transition</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="section">
+          <h3>Audit Trail</h3>
+          <div class="feed">
+            ${(data.events || []).length ? data.events.map(renderEvent).join("") : `<div class="entry"><div class="entry-body">No filing events yet.</div></div>`}
+          </div>
+        </div>
+      `;
+    }
+
+    function renderReadinessChecklist(items, title = "Filing Readiness") {
+      const ready = items.filter((item) => item.status === "ready").length;
+      const blocked = items.filter((item) => item.status === "blocked").length;
+      const review = items.filter((item) => item.status === "needs_review" || item.status === "pending").length;
+      return `
+        <div class="section">
+          <h3>${h(title)}</h3>
+          <div class="chips" style="margin-bottom:10px;">
+            <span class="chip green">${ready} ready</span>
+            <span class="chip amber">${review} review</span>
+            <span class="chip red">${blocked} blocked</span>
+          </div>
+          <div class="feed">
+            ${items.map((item) => `
+              <div class="entry">
+                <div class="entry-head"><span>${h(item.label)}</span><span class="chip ${chipClass(item.status)}">${h(label(item.status))}</span></div>
+                <div class="entry-body">${h(item.detail || "")}</div>
+              </div>
+            `).join("")}
+          </div>
+        </div>
+      `;
+    }
+
+    function renderRun(run) {
+      const finalLog = (run.redacted_log || []).slice(-1)[0] || {};
+      const result = finalLog.result || {};
+      const preflight = result.metadata?.preflight;
+      const probe = result.metadata?.portal_probe;
+      const checks = preflight?.checks || [];
+      return `
+        <div class="entry">
+          <div class="entry-head">
+            <span>${h(run.id)} · ${h(label(run.status))}</span>
+            <span>${h(fmtDate(run.created_at))}</span>
+          </div>
+          <div class="entry-body">${h(result.message || finalLog.message || "Run recorded.")}</div>
+          ${probe ? `<div class="entry-body" style="margin-top:6px;color:var(--muted);">Portal probe: ${probe.ok ? "reachable" : "blocked"}${probe.status_code ? ` · HTTP ${h(probe.status_code)}` : ""}${probe.error ? ` · ${h(probe.error)}` : ""}</div>` : ""}
+          ${checks.length ? `<div class="chips" style="margin-top:8px;">${checks.map((check) => `
+            <span class="chip ${check.passed ? "green" : "amber"}">${h(check.label)}: ${check.passed ? "Pass" : "Block"}</span>
+          `).join("")}</div>` : ""}
+        </div>
+      `;
+    }
+
+    function renderArtifact(artifact) {
+      return `
+        <div class="entry">
+          <div class="entry-head">
+            <span>${h(label(artifact.artifact_type))} · ${h(artifact.filename)}</span>
+            <span>${h(fmtDate(artifact.created_at))}</span>
+          </div>
+          <div class="entry-body">${h(artifact.file_path)}</div>
+        </div>
+      `;
+    }
+
+    function renderEvent(event) {
+      return `
+        <div class="entry">
+          <div class="entry-head">
+            <span>${h(label(event.event_type))} · ${h(event.actor || "system")}</span>
+            <span>${h(fmtDate(event.created_at))}</span>
+          </div>
+          <div class="entry-body">${h(event.message || "")}${event.evidence_path ? `\n${h(event.evidence_path)}` : ""}</div>
+        </div>
+      `;
+    }
+
+    function openPortal(encodedUrl) {
+      const url = decodeURIComponent(encodedUrl || "");
+      if (!/^https?:\/\//i.test(url)) return;
+      window.open(url, "_blank", "noopener");
+    }
+
+    async function claimJob() {
+      await mutate("Claiming job...", () => api(`/api/admin/filing-jobs/${state.selectedJobId}/claim`, {
+        method: "POST",
+        body: JSON.stringify({ operator: "operator" }),
+      }));
+    }
+
+    async function runAutomation(operation) {
+      await mutate(`Running ${label(operation)}...`, () => api(`/api/admin/filing-jobs/${state.selectedJobId}/automation/run`, {
+        method: "POST",
+        body: JSON.stringify({ operation, dry_run: true, actor: "operator" }),
+      }));
+    }
+
+    async function runLivePreflight() {
+      await mutate("Running portal preflight...", () => api(`/api/admin/filing-jobs/${state.selectedJobId}/automation/run`, {
+        method: "POST",
+        body: JSON.stringify({ operation: "preflight", dry_run: false, actor: "operator" }),
+      }));
+    }
+
+    async function reconcileRegisteredAgent() {
+      const orderId = state.detail?.job?.order_id || "";
+      await mutate("Reconciling CorpNet RA status...", () => api("/api/admin/corpnet/registered-agent/reconcile", {
+        method: "POST",
+        body: JSON.stringify({ actor: "operator", order_id: orderId, limit: 25 }),
+      }));
+    }
+
+    function evidencePayload() {
+      return {
+        artifact_type: $("artifactType").value,
+        filename: $("artifactFilename").value.trim(),
+        file_path: $("artifactPath").value.trim(),
+        message: $("artifactMessage").value.trim(),
+        notify_customer: false,
+      };
+    }
+
+    async function addEvidence() {
+      await mutate("Attaching evidence...", () => api(`/api/admin/filing-jobs/${state.selectedJobId}/evidence`, {
+        method: "POST",
+        body: JSON.stringify(evidencePayload()),
+      }));
+    }
+
+    async function prepareAnnualReportPacket() {
+      await mutate("Preparing annual report packet...", () => api(`/api/admin/filing-jobs/${state.selectedJobId}/annual-report/prepare-packet`, {
+        method: "POST",
+        body: JSON.stringify({
+          actor: state.operator || "operator",
+          message: "Operator prepared annual report packet.",
+        }),
+      }));
+    }
+
+    async function markSubmitted() {
+      const payload = evidencePayload();
+      payload.artifact_type = "submitted_receipt";
+      await mutate("Marking submitted...", () => api(`/api/admin/filing-jobs/${state.selectedJobId}/mark-submitted`, {
+        method: "POST",
+        body: JSON.stringify(payload),
+      }));
+    }
+
+    async function markApproved() {
+      const payload = evidencePayload();
+      payload.artifact_type = "approved_certificate";
+      await mutate("Marking approved...", () => api(`/api/admin/filing-jobs/${state.selectedJobId}/mark-approved`, {
+        method: "POST",
+        body: JSON.stringify(payload),
+      }));
+    }
+
+    async function markAnnualReportComplete() {
+      const payload = evidencePayload();
+      if (!["approved_certificate", "state_correspondence"].includes(payload.artifact_type)) {
+        payload.artifact_type = "approved_certificate";
+      }
+      await mutate("Marking annual report complete...", () => api(`/api/admin/filing-jobs/${state.selectedJobId}/annual-report/mark-complete`, {
+        method: "POST",
+        body: JSON.stringify(payload),
+      }));
+    }
+
+    async function prepareEinSubmission() {
+      if (!state.selectedEinOrderId) return;
+      await mutateEin("Preparing EIN submission...", () => api(`/api/admin/ein-queue/${encodeURIComponent(state.selectedEinOrderId)}/prepare-submission`, {
+        method: "POST",
+        body: JSON.stringify({
+          actor: $("einActor")?.value || state.operator || "operator",
+          message: $("einMessage")?.value || "EIN queue prepared from operator cockpit.",
+        }),
+      }));
+    }
+
+    async function completeEinQueue() {
+      if (!state.selectedEinOrderId) return;
+      await mutateEin("Completing EIN queue item...", () => api(`/api/admin/ein-queue/${encodeURIComponent(state.selectedEinOrderId)}/complete`, {
+        method: "POST",
+        body: JSON.stringify({
+          actor: $("einActor")?.value || state.operator || "operator",
+          ein: $("einValue")?.value || "",
+          filename: $("einFilename")?.value || "ein-confirmation.pdf",
+          file_path: $("einFilePath")?.value || "",
+          message: $("einMessage")?.value || "Official EIN confirmation captured.",
+        }),
+      }));
+    }
+
+    async function transitionJob() {
+      await mutate("Recording transition...", () => api(`/api/admin/filing-jobs/${state.selectedJobId}/transition`, {
+        method: "POST",
+        body: JSON.stringify({
+          target_status: $("targetStatus").value,
+          message: $("transitionMessage").value.trim(),
+          evidence_path: $("transitionEvidence").value.trim(),
+          actor: "operator",
+          notify_customer: false,
+        }),
+      }));
+    }
+
+    async function approveTicket() {
+      await mutateTicket("Approving enhancement...", () => api(`/api/admin/slack/tickets/${state.selectedTicketId}/approve`, {
+        method: "POST",
+        body: JSON.stringify({
+          approved_by: $("ticketOperator").value.trim() || "operator",
+          approval_note: $("ticketApprovalNote").value.trim(),
+        }),
+      }));
+    }
+
+    async function closeTicket() {
+      await mutateTicket("Closing ticket...", () => api(`/api/admin/slack/tickets/${state.selectedTicketId}/close`, {
+        method: "POST",
+        body: JSON.stringify({
+          approved_by: $("ticketOperator").value.trim() || "operator",
+          approval_note: $("ticketApprovalNote").value.trim(),
+        }),
+      }));
+    }
+
+    async function transitionEngineeringJob() {
+      await mutateEngineering("Recording engineering status...", () => api(`/api/admin/engineering-jobs/${state.selectedEngineeringRunId}/transition`, {
+        method: "POST",
+        body: JSON.stringify({
+          target_status: $("engineeringTargetStatus").value,
+          actor: $("engineeringActor").value.trim() || "operator",
+          message: $("engineeringMessage").value.trim(),
+          test_command: $("engineeringTestCommand").value.trim(),
+          deployment_url: $("engineeringDeploymentUrl").value.trim(),
+        }),
+      }));
+    }
+
+    async function stopEngineeringJob() {
+      await mutateEngineering("Requesting stop...", () => api(`/api/admin/engineering-jobs/${state.selectedEngineeringRunId}/transition`, {
+        method: "POST",
+        body: JSON.stringify({
+          target_status: "stop_requested",
+          actor: $("engineeringActor").value.trim() || "operator",
+          message: $("engineeringMessage").value.trim() || "Operator requested stop before autonomous execution continued.",
+          test_command: $("engineeringTestCommand").value.trim(),
+          deployment_url: $("engineeringDeploymentUrl").value.trim(),
+        }),
+      }));
+    }
+
+    async function refreshEngineeringPlan() {
+      await mutateEngineering("Refreshing implementation plan...", () => api(`/api/admin/engineering-jobs/${state.selectedEngineeringRunId}/plan`, {
+        method: "POST",
+        body: JSON.stringify({
+          approved_by: $("engineeringActor")?.value?.trim() || "operator",
+          approval_note: "Operator refreshed implementation plan.",
+        }),
+      }));
+    }
+
+    async function createEngineeringWorkPlan() {
+      await mutateEngineering("Creating work plan artifact...", () => api(`/api/admin/engineering-jobs/${state.selectedEngineeringRunId}/work-plan`, {
+        method: "POST",
+        body: JSON.stringify({
+          approved_by: $("engineeringActor")?.value?.trim() || "operator",
+          approval_note: "Operator created engineering work plan artifact.",
+        }),
+      }));
+    }
+
+    async function prepareEngineeringExecution() {
+      await mutateEngineering("Preparing guarded execution...", () => api(`/api/admin/engineering-jobs/${state.selectedEngineeringRunId}/prepare-execution`, {
+        method: "POST",
+        body: JSON.stringify({
+          approved_by: $("engineeringActor")?.value?.trim() || "operator",
+          approval_note: "Operator prepared guarded engineering execution.",
+        }),
+      }));
+    }
+
+    async function runEngineeringTests() {
+      await mutateEngineering("Running required tests...", () => api(`/api/admin/engineering-jobs/${state.selectedEngineeringRunId}/run-tests`, {
+        method: "POST",
+        body: JSON.stringify({
+          actor: $("engineeringActor")?.value?.trim() || "operator",
+          test_command: $("engineeringTestCommand")?.value?.trim() || "",
+          timeout_seconds: 240,
+        }),
+      }));
+    }
+
+    async function runEngineeringDeployCheck() {
+      await mutateEngineering("Running deploy check...", () => api(`/api/admin/engineering-jobs/${state.selectedEngineeringRunId}/deploy-check`, {
+        method: "POST",
+        body: JSON.stringify({
+          actor: $("engineeringActor")?.value?.trim() || "operator",
+          deployment_url: $("engineeringDeploymentUrl")?.value?.trim() || "",
+          timeout_seconds: 15,
+        }),
+      }));
+    }
+
+    async function backfillEngineeringJobs() {
+      if (state.busy) return;
+      state.busy = true;
+      toast("Backfilling approved tickets...");
+      try {
+        const result = await api("/api/admin/engineering-jobs/backfill-approved", { method: "POST" });
+        toast(`Backfilled ${result.created_count || 0} approved tickets.`);
+        await loadEngineeringJobs();
+      } catch (error) {
+        toast(error.message);
+      } finally {
+        state.busy = false;
+      }
+    }
+
+    async function mutate(progress, action) {
+      if (!state.selectedJobId) return;
+      if (state.busy) return;
+      state.busy = true;
+      toast(progress);
+      try {
+        await action();
+        toast("Done.");
+        await loadDetail(state.selectedJobId);
+        await loadJobs();
+      } catch (error) {
+        toast(error.message);
+      } finally {
+        state.busy = false;
+      }
+    }
+
+    async function prepareFiling(orderId, jobId = "") {
+      if (!orderId || state.busy) return;
+      state.busy = true;
+      toast("Preparing filing...");
+      try {
+        const result = await api(`/api/admin/orders/${encodeURIComponent(orderId)}/prepare-filing`, {
+          method: "POST",
+          body: JSON.stringify({
+            actor: state.operator || "operator",
+            message: "Filing prep started from operator cockpit.",
+            generate_documents: true,
+          }),
+        });
+        const blockers = result.remaining_blockers || [];
+        toast(blockers.length ? `Prepared with ${blockers.length} blocker(s) remaining.` : "Filing prep complete.");
+        await loadPaymentReadiness();
+        await loadJobs();
+        const nextJobId = result.job?.id || jobId || state.selectedJobId;
+        if (nextJobId) {
+          state.selectedJobId = nextJobId;
+          await loadDetail(nextJobId);
+        }
+      } catch (error) {
+        toast(error.message);
+      } finally {
+        state.busy = false;
+      }
+    }
+
+    async function mutateTicket(progress, action) {
+      if (!state.selectedTicketId) return;
+      if (state.busy) return;
+      state.busy = true;
+      const ticketId = state.selectedTicketId;
+      toast(progress);
+      try {
+        await action();
+        toast("Done.");
+        await Promise.all([loadTickets(), loadEngineeringJobs()]);
+        const ticket = state.tickets.find((item) => item.id === ticketId);
+        if (ticket) {
+          state.selectedTicketId = ticketId;
+          renderTickets();
+          renderTicketDetail(ticket);
+        } else {
+          state.selectedTicketId = "";
+          $("detail").innerHTML = `<div class="empty">Ticket updated and hidden by the current filters.</div>`;
+        }
+      } catch (error) {
+        toast(error.message);
+      } finally {
+        state.busy = false;
+      }
+    }
+
+    async function mutateEngineering(progress, action) {
+      if (!state.selectedEngineeringRunId) return;
+      if (state.busy) return;
+      state.busy = true;
+      const runId = state.selectedEngineeringRunId;
+      toast(progress);
+      try {
+        await action();
+        toast("Done.");
+        await loadEngineeringJobs();
+        const job = state.engineeringJobs.find((item) => item.id === runId);
+        if (job) {
+          state.selectedEngineeringRunId = runId;
+          renderEngineeringJobs();
+          renderEngineeringDetail(job);
+        } else {
+          state.selectedEngineeringRunId = "";
+          $("detail").innerHTML = `<div class="empty">Engineering job updated and hidden by the current filters.</div>`;
+        }
+      } catch (error) {
+        toast(error.message);
+      } finally {
+        state.busy = false;
+      }
+    }
+
+    async function mutateEin(progress, action) {
+      if (!state.selectedEinOrderId || state.busy) return;
+      state.busy = true;
+      const orderId = state.selectedEinOrderId;
+      toast(progress);
+      try {
+        await action();
+        toast("Done.");
+        await loadEinQueue();
+        state.selectedEinOrderId = orderId;
+        await selectEinOrder(orderId);
+      } catch (error) {
+        toast(error.message);
+      } finally {
+        state.busy = false;
+      }
+    }
+
+    async function refreshAll() {
+      await Promise.all([loadSystemHealth(), loadLaunchReadiness(), loadStateMetadata(), loadEinQueue(), loadPaymentReadiness(), loadJobs(), loadTickets(), loadEngineeringJobs()]);
+    }
+
+    async function handleAdminSessionResponse(res) {
+      if (!res.ok) {
+        let message = `${res.status} ${res.statusText}`;
+        try {
+          const payload = await res.json();
+          message = payload.detail || message;
+        } catch (_) {}
+        throw new Error(message);
+      }
+      const payload = await res.json();
+      if (payload.mfa_required) {
+        persistAdminMfaChallenge(payload);
+        $("adminMfaCode").style.display = "";
+        $("adminMfaCode").focus();
+        $("saveTokenBtn").textContent = "Verify 2FA";
+        toast(payload.message || "Enter the 2FA code sent to your email. This prompt will stay if you leave and come back.");
+        updateAdminAuthUI();
+        return null;
+      }
+      state.adminSessionToken = payload.session_token;
+      state.adminSessionId = payload.session_id;
+      state.operator = payload.operator || state.operator;
+      sessionStorage.setItem("sosfiler_admin_session_token", payload.session_token);
+      sessionStorage.setItem("sosfiler_admin_session_id", payload.session_id);
+      clearAdminMfaChallenge();
+      $("adminMfaCode").style.display = "none";
+      $("adminMfaCode").value = "";
+      $("saveTokenBtn").textContent = "Continue with Google";
+      toast(`Operator session started for ${state.operator}.`);
+      updateAdminAuthUI();
+      await refreshAll();
+      return payload;
+    }
+
+    async function startAdminSessionFromAccount() {
+      const user = signedInUser();
+      state.operator = user.email || state.operator || "operator";
+      localStorage.setItem("sosfiler_operator_name", state.operator);
+      const token = localStorage.getItem("sosfiler_token") || state.adminAccountToken;
+      if (!token) {
+        openDashboardOAuth();
+        return;
+      }
+      try {
+        const res = await fetch("/api/admin/session/account", {
+          method: "POST",
+          headers: accountHeaders({ "Content-Type": "application/json" }),
+          body: JSON.stringify({ operator: state.operator }),
+        });
+        await handleAdminSessionResponse(res);
+      } catch (error) {
+        if (!state.adminMfaChallengeId) clearAdminSession();
+        toast(error.message);
+        updateAdminAuthUI();
+      }
+    }
+
+    function loadGoogleIdentityScript() {
+      if (window.google && window.google.accounts && window.google.accounts.oauth2) {
+        return Promise.resolve();
+      }
+      if (googleIdentityScriptPromise) return googleIdentityScriptPromise;
+      googleIdentityScriptPromise = new Promise((resolve, reject) => {
+        const existing = document.getElementById(GOOGLE_IDENTITY_SCRIPT_ID);
+        if (existing) {
+          existing.addEventListener("load", resolve, { once: true });
+          existing.addEventListener("error", () => reject(new Error("Google sign-in could not be loaded.")), { once: true });
+          return;
+        }
+        const script = document.createElement("script");
+        script.id = GOOGLE_IDENTITY_SCRIPT_ID;
+        script.src = "https://accounts.google.com/gsi/client";
+        script.async = true;
+        script.defer = true;
+        script.onload = resolve;
+        script.onerror = () => reject(new Error("Google sign-in could not be loaded."));
+        document.head.appendChild(script);
+      });
+      return googleIdentityScriptPromise;
+    }
+
+    async function completeGoogleOperatorOAuth(accessToken) {
+      const authRes = await fetch("/api/auth/google", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token: accessToken }),
+      });
+      const payload = await authRes.json().catch(() => ({}));
+      if (!authRes.ok || !payload.token) {
+        throw new Error(payload.detail || "Google sign-in failed.");
+      }
+      localStorage.setItem("sosfiler_token", payload.token);
+      localStorage.setItem("sosfiler_user", JSON.stringify(payload.user || {}));
+      state.adminAccountToken = payload.token;
+      state.operator = (payload.user || {}).email || state.operator || "operator";
+      localStorage.setItem("sosfiler_operator_name", state.operator);
+      await startAdminSessionFromAccount();
+    }
+
+    async function openDashboardOAuth() {
+      const button = $("saveTokenBtn");
+      if (button) {
+        button.disabled = true;
+        button.textContent = "Opening Google...";
+      }
+      try {
+        await loadGoogleIdentityScript();
+        const client = window.google.accounts.oauth2.initTokenClient({
+          client_id: GOOGLE_CLIENT_ID,
+          scope: "email profile",
+          prompt: "select_account",
+          callback: async (response) => {
+            try {
+              if (response.error) {
+                throw new Error(response.error_description || response.error);
+              }
+              if (!response.access_token) {
+                throw new Error("Google did not return an access token.");
+              }
+              await completeGoogleOperatorOAuth(response.access_token);
+            } catch (error) {
+              toast(error.message);
+            } finally {
+              if (button && !state.adminMfaChallengeId && !state.adminSessionToken) {
+                button.disabled = false;
+                button.textContent = "Continue with Google";
+              }
+            }
+          },
+        });
+        client.requestAccessToken();
+        window.setTimeout(() => {
+          if (button && button.disabled && !state.adminMfaChallengeId && !state.adminSessionToken) {
+            button.disabled = false;
+            button.textContent = "Continue with Google";
+          }
+        }, 30000);
+      } catch (error) {
+        toast(error.message);
+        if (button) {
+          button.disabled = false;
+          button.textContent = "Continue with Google";
+        }
+      }
+    }
+
+    function shouldAutoStartAdmin() {
+      const params = new URLSearchParams(window.location.search);
+      return params.get("start_admin") === "1";
+    }
+
+    async function startAdminSession() {
+      try {
+        let res;
+        if (state.adminMfaChallengeId) {
+          const code = $("adminMfaCode").value.trim();
+          if (!code) {
+            toast("Enter the 2FA code from your email.");
+            return;
+          }
+          res = await fetch("/api/admin/session/verify", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              challenge_id: state.adminMfaChallengeId,
+              code,
+              operator: state.operator,
+            }),
+          });
+        } else {
+          openDashboardOAuth();
+          return;
+        }
+        await handleAdminSessionResponse(res);
+      } catch (error) {
+        toast(error.message);
+        if (!state.adminMfaChallengeId) {
+          clearAdminSession();
+        } else {
+          updateAdminAuthUI();
+        }
+      }
+    }
+
+    async function logoutAdminSession() {
+      if (state.adminSessionToken) {
+        try {
+          await api("/api/admin/session", { method: "DELETE" });
+        } catch (_) {}
+      }
+      clearAdminSession();
+      $("jobCount").textContent = "0 jobs";
+      $("ticketCount").textContent = "0 tickets";
+      $("engineeringCount").textContent = "0 jobs";
+      $("launchReadinessCount").textContent = "0 states";
+      $("stateMetadataCount").textContent = "0 states";
+      $("adapterMatrixCount").textContent = "0 states";
+      $("einQueueCount").textContent = "0 items";
+      $("paymentReadinessCount").textContent = "0 orders";
+      state.launchReadiness = [];
+      state.launchReadinessSummary = null;
+      state.stateMetadata = [];
+      state.stateMetadataSummary = null;
+      state.adapterMatrix = [];
+      state.adapterMatrixSummary = null;
+      state.einQueue = [];
+      state.paymentReadiness = [];
+      state.paymentReadinessSummary = null;
+      state.systemHealth = null;
+      renderSystemHealth();
+      renderLaunchReadiness();
+      renderStateMetadata();
+      renderAdapterMatrix();
+      renderEinQueue();
+      renderPaymentReadiness();
+      $("queueStatus").textContent = "Start an operator session to load the queue.";
+      $("paymentReadinessStatus").textContent = "Start an operator session to load payment readiness.";
+      $("ticketStatus").textContent = "Start an operator session to load Slack tickets.";
+      $("engineeringStatus").textContent = "Start an operator session to load engineering jobs.";
+      $("launchReadinessStatus").textContent = "Start an operator session to load launch readiness.";
+      $("stateMetadataStatus").textContent = "Start an operator session to load state metadata.";
+      $("adapterMatrixStatus").textContent = "Start an operator session to run the adapter matrix.";
+      $("einQueueStatus").textContent = "Start an operator session to load EIN queue.";
+      toast("Operator session ended.");
+    }
+
+    $("saveTokenBtn").addEventListener("click", startAdminSession);
+    $("adminMfaCode").addEventListener("keydown", (event) => {
+      if (event.key === "Enter") startAdminSession();
+    });
+    $("logoutBtn").addEventListener("click", logoutAdminSession);
+    $("systemHealthBtn").addEventListener("click", loadSystemHealth);
+    $("refreshBtn").addEventListener("click", refreshAll);
+    $("healthBtn").addEventListener("click", async () => {
+      try {
+        const health = await api("/api/admin/persistence-health");
+        toast(`${health.mode}: ${health.message}`);
+      } catch (error) {
+        toast(error.message);
+      }
+    });
+    $("syncBtn").addEventListener("click", async () => {
+      try {
+        const sync = await api("/api/admin/persistence-sync-status");
+        const mismatch = Object.values(sync.deltas || {}).filter((item) => item.delta !== 0).length;
+        toast(`${sync.mode}: ${sync.message} ${mismatch ? `${mismatch} table count differences` : "counts aligned"}`);
+      } catch (error) {
+        toast(error.message);
+      }
+    });
+    $("slackConfigBtn").addEventListener("click", async () => {
+      try {
+        const config = await api("/api/admin/slack/config-status");
+        toast(config.message);
+      } catch (error) {
+        toast(error.message);
+      }
+    });
+    $("emailConfigBtn").addEventListener("click", async () => {
+      try {
+        const config = await api("/api/admin/email/config-status");
+        toast(`${label(config.mode)}: ${config.message}`);
+      } catch (error) {
+        toast(error.message);
+      }
+    });
+    $("statusFilter").addEventListener("change", loadJobs);
+    $("laneFilter").addEventListener("change", loadJobs);
+    $("launchReadinessBtn").addEventListener("click", loadLaunchReadiness);
+    $("launchCategoryFilter").addEventListener("change", renderLaunchReadiness);
+    $("launchOfferFilter").addEventListener("change", renderLaunchReadiness);
+    $("stateMetadataBtn").addEventListener("click", loadStateMetadata);
+    $("metadataEntityType").addEventListener("change", loadStateMetadata);
+    $("metadataActionType").addEventListener("change", loadStateMetadata);
+    $("adapterMatrixBtn").addEventListener("click", loadAdapterMatrix);
+    $("matrixEntityType").addEventListener("change", loadAdapterMatrix);
+    $("matrixActionType").addEventListener("change", loadAdapterMatrix);
+    $("einQueueBtn").addEventListener("click", loadEinQueue);
+    $("paymentReadinessBtn").addEventListener("click", loadPaymentReadiness);
+    $("paymentReadinessFilter").addEventListener("change", loadPaymentReadiness);
+    $("paymentStateFilter").addEventListener("input", () => {
+      clearTimeout(window.__paymentStateFilterTimer);
+      window.__paymentStateFilterTimer = setTimeout(loadPaymentReadiness, 300);
+    });
+    $("einOrderFilter").addEventListener("input", () => {
+      clearTimeout(window.__einFilterTimer);
+      window.__einFilterTimer = setTimeout(loadEinQueue, 300);
+    });
+    $("stateFilter").addEventListener("input", () => {
+      clearTimeout(window.__stateFilterTimer);
+      window.__stateFilterTimer = setTimeout(loadJobs, 300);
+    });
+    $("ticketStatusFilter").addEventListener("change", loadTickets);
+    $("ticketPriorityFilter").addEventListener("change", loadTickets);
+    $("createTestTicketBtn").addEventListener("click", createTestTicket);
+    $("engineeringStatusFilter").addEventListener("change", loadEngineeringJobs);
+    $("engineeringBackfillBtn").addEventListener("click", backfillEngineeringJobs);
+
+    $("adminMfaCode").value = "";
+    $("adminMfaCode").style.display = "none";
+    updateAdminAuthUI();
+    if (shouldAutoStartAdmin()) {
+      history.replaceState(null, "", window.location.pathname);
+      startAdminSessionFromAccount();
+    } else if (hasAdminAccess()) {
+      refreshAll();
+    }
+  </script>
+</body>
+</html>

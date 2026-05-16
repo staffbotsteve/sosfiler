@@ -16,7 +16,9 @@ generated_docs/
 
 # Filing receipts (contain PII)
 filing_receipts/
+data/browser_profiles/
 data/filing_listener_runs/
+data/portal_maps/ca_bizfile_protocol_manifest.json
 
 # Python
 __pycache__/
@@ -27,6 +29,27 @@ dist/
 build/
 venv/
 .venv/
+.venv312/
+
+# Local probes / one-off diagnostics
+_*probe*.py
+_sg_check.py
+
+# Local design snapshots / manual backups
+frontend/.design-backup-*/
+frontend/*.bak-*
+
+# Generated research/runtime outputs
+automations/
+data/research_jobs.json
+data/research_jobs.lock
+data/research_blockers.jsonl
+data/research_runs/
+data/regulatory/*.lock
+data/regulatory/research_runs/
+data/regulatory/source_snapshots/
+data/regulatory/automation_certification_screenshots/
+data/regulatory/review_certification_screenshots/
 
 # OS
 .DS_Store

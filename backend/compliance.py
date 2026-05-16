@@ -67,7 +67,7 @@ class ComplianceEngine:
         deadlines.append({
             "type": "registered_agent_renewal",
             "due_date": ra_renewal.strftime("%Y-%m-%d"),
-            "description": "Registered Agent renewal — $49/yr (SOSFiler). Your first year is included with formation.",
+            "description": "Registered agent renewal reminder. Registered-agent coverage is optional and priced separately when partner-assisted service is selected.",
             "state": state
         })
         
@@ -179,7 +179,7 @@ class ComplianceEngine:
             deadlines.append({
                 "type": "statement_of_information",
                 "due_date": si_date.strftime("%Y-%m-%d"),
-                "description": "California Statement of Information (LLC-12) — $20. Due within 90 days of formation, then every 2 years.",
+                "description": "California Statement of Information (LLC-12) — $20 included in SOSFiler's required state-fee pass-through. SOSFiler files the initial statement within 90 days of formation, then it recurs every 2 years.",
                 "state": "CA",
                 "fee": 20
             })

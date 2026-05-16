@@ -4,41 +4,51 @@
 <meta charset="UTF-8">
 <link rel="icon" type="image/png" href="/favicon.png">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Start Your Business — SOSFiler</title>
-<meta name="description" content="Start your LLC in minutes. Complete the wizard and we handle the rest.">
+<title>Start Your Filing - SOSFiler</title>
+<meta name="description" content="Start your LLC with automated document preparation, verified filing status, and operator backup when state portals require it.">
 <link rel="manifest" href="/manifest.json">
 <meta name="theme-color" content="#0A0A0A">
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
 :root {
   --bg: #0A0A0A;
+  --bg-tint: #0E0E0E;
   --surface: #141414;
+  --surface-2: #1A1A1A;
   --card: #141414;
-  --border: #1E1E1E;
+  --border: #1F1F1F;
+  --border-strong: #2A2A2A;
   --text: #FFFFFF;
-  --text-secondary: #999999;
-  --muted: #999999;
+  --text-secondary: #9A9A9A;
+  --muted: #9A9A9A;
+  --muted-2: #6B6B6B;
+  --body: #D0D0D0;
   --accent: #CCFF00;
   --accent2: #39FF14;
   --cyan: #00FFE5;
   --green: #39FF14;
   --red: #FF3366;
   --yellow: #FF6B00;
-  --glow: rgba(204,255,0,0.4);
-  --glow-sm: rgba(204,255,0,0.15);
+  --amber: #FFB23F;
+  --glow: rgba(204,255,0,0.35);
+  --glow-sm: rgba(204,255,0,0.12);
   --gradient: linear-gradient(135deg, #CCFF00, #39FF14);
+
+  --font-display: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Inter Display', system-ui, sans-serif;
+  --font-body:    -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Inter', system-ui, sans-serif;
+  --font-mono:    'JetBrains Mono', 'IBM Plex Mono', ui-monospace, Menlo, monospace;
 }
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 body {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family: var(--font-body);
   background: var(--bg);
   color: var(--text);
-  line-height: 1.6;
+  line-height: 1.55;
   -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
+h1, h2, h3, h4 { font-family: var(--font-display); font-weight: 900; letter-spacing: -0.03em; line-height: 1.05; color: #fff; }
+.mono { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
 a { color: var(--cyan); text-decoration: none; transition: color 0.2s ease; }
 a:hover { color: var(--accent); text-decoration: none; }
 
@@ -50,28 +60,43 @@ a:hover { color: var(--accent); text-decoration: none; }
 
 /* Nav */
 .topbar {
-  background: rgba(10,10,10,0.92);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
+  background: rgba(10,10,10,0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   border-bottom: 1px solid var(--border);
-  padding: 16px 20px;
+  padding: 14px 24px;
   display: flex;
   justify-content: space-between;
   align-items: center;
   position: sticky;
   top: 0;
   z-index: 100;
+  gap: 24px;
 }
-.topbar .logo { font-size: 20px; font-weight: 800; color: #fff; }
+.topbar .logo { display: flex; align-items: center; gap: 12px; font-family: var(--font-display); font-size: 20px; font-weight: 900; letter-spacing: -0.02em; color: #fff; }
 .topbar .logo span { color: var(--accent); }
+.topbar .logo img { height: 56px; width: auto; }
+.topbar-actions { display: flex; align-items: center; gap: 16px; }
+.topbar .back {
+  background: none;
+  border: 0;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  cursor: pointer;
+  padding: 0;
+}
+.topbar .back:hover { color: var(--accent); }
 
 /* Progress */
 .progress-wrap { padding: 20px; max-width: 700px; margin: 0 auto; }
 .progress-bar { height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
 .progress-fill { height: 100%; background: var(--gradient); border-radius: 3px; transition: width 0.4s ease; box-shadow: 0 0 10px var(--glow-sm); }
 .progress-steps { display: flex; justify-content: space-between; margin-top: 12px; }
-.progress-step { font-size: 11px; color: var(--muted); text-align: center; flex: 1; cursor: pointer; padding: 4px; transition: color 0.2s; }
-.progress-step.active { color: var(--accent); font-weight: 600; }
+.progress-step { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted-2); text-align: center; flex: 1; cursor: pointer; padding: 4px; transition: color 0.2s; }
+.progress-step.active { color: var(--accent); font-weight: 700; }
 .progress-step.done { color: var(--green); }
 
 /* Container */
@@ -84,14 +109,13 @@ a:hover { color: var(--accent); text-decoration: none; }
 .card {
   background: var(--card);
   border: 1px solid var(--border);
-  border-top: 2px solid var(--accent);
-  border-radius: 16px;
+  border-radius: 12px;
   padding: 32px;
   margin-bottom: 20px;
-  transition: box-shadow 0.2s ease;
+  transition: border-color 0.2s ease;
 }
-.card:hover { box-shadow: 0 0 30px rgba(204,255,0,0.05); }
-.card h2 { font-size: 24px; margin-bottom: 8px; font-weight: 800; }
+.card:hover { border-color: var(--border-strong); }
+.card h2 { font-family: var(--font-display); font-size: clamp(24px, 3vw, 32px); margin-bottom: 8px; font-weight: 900; letter-spacing: -0.025em; }
 .card .subtitle { color: var(--muted); font-size: 14px; margin-bottom: 24px; }
 
 /* Forms */
@@ -103,12 +127,12 @@ input, select, textarea {
   border: 1px solid var(--border);
   border-radius: 8px;
   font-size: 16px;
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-body);
   margin-bottom: 16px;
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 input:focus, select:focus, textarea:focus {
-  outline: none;
+  outline: 2px solid transparent;
   border-color: var(--accent);
   box-shadow: 0 0 0 2px rgba(204,255,0,0.15);
 }
@@ -127,13 +151,34 @@ textarea { resize: vertical; min-height: 80px; }
   padding: 20px;
   text-align: center;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
 }
 .option-card:hover { border-color: var(--accent); box-shadow: 0 0 15px rgba(204,255,0,0.08); }
 .option-card.selected { border-color: var(--accent); background: rgba(204,255,0,0.05); }
-.option-card .icon { font-size: 28px; margin-bottom: 8px; }
+.option-card.disabled,
+.option-card.disabled:hover {
+  cursor: not-allowed;
+  opacity: 0.55;
+  filter: grayscale(0.75);
+  border-color: var(--border);
+  box-shadow: none;
+  background: #171717;
+}
 .option-card .name { font-weight: 700; font-size: 15px; }
 .option-card .desc { font-size: 12px; color: var(--muted); margin-top: 4px; }
+.option-card .badge {
+  display: inline-block;
+  margin-bottom: 8px;
+  padding: 4px 8px;
+  border: 1px solid var(--border-strong);
+  border-radius: 999px;
+  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
 
 /* State recommendation */
 .recommendation { background: rgba(204,255,0,0.05); border: 1px solid rgba(204,255,0,0.2); border-radius: 8px; padding: 16px; margin: 16px 0; font-size: 14px; }
@@ -156,7 +201,7 @@ textarea { resize: vertical; min-height: 80px; }
   position: relative;
 }
 .member-block h4 { font-size: 16px; margin-bottom: 16px; }
-.member-block .remove-btn { position: absolute; top: 12px; right: 12px; background: none; border: none; color: var(--red); cursor: pointer; font-size: 20px; }
+.member-block .remove-btn { position: absolute; top: 12px; right: 12px; background: none; border: none; color: var(--red); cursor: pointer; font-size: 13px; font-weight: 700; }
 .add-member-btn {
   background: none;
   border: 2px dashed var(--border);
@@ -166,7 +211,7 @@ textarea { resize: vertical; min-height: 80px; }
   color: var(--muted);
   cursor: pointer;
   font-size: 14px;
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-body);
   transition: border-color 0.2s, color 0.2s;
   margin-bottom: 16px;
 }
@@ -178,9 +223,42 @@ textarea { resize: vertical; min-height: 80px; }
 .review-row { display: flex; justify-content: space-between; padding: 8px 0; font-size: 14px; }
 .review-row .label { color: var(--muted); }
 .review-row .value { color: #fff; font-weight: 500; text-align: right; max-width: 60%; }
+.cart-summary {
+  display: none;
+  background: #101510;
+  border: 1px solid rgba(204,255,0,0.22);
+  border-radius: 8px;
+  padding: 16px;
+  margin: 22px 0;
+}
+.cart-summary.active { display: block; }
+.cart-summary-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 10px; }
+.cart-summary-header h3 { font-size: 16px; margin: 0; color: #fff; }
+.cart-count { color: var(--accent); font-family: var(--font-mono); font-size: 12px; font-weight: 700; text-transform: uppercase; }
+.cart-item {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+  padding: 10px 0;
+  border-top: 1px solid rgba(255,255,255,0.06);
+}
+.cart-item:first-of-type { border-top: 0; }
+.cart-item-name { color: #fff; font-weight: 700; overflow-wrap: anywhere; }
+.cart-item-meta { color: var(--muted); font-size: 12px; margin-top: 2px; }
+.cart-remove {
+  background: transparent;
+  border: 1px solid var(--border-strong);
+  color: var(--muted);
+  border-radius: 8px;
+  padding: 7px 10px;
+  cursor: pointer;
+  font-size: 12px;
+}
+.cart-remove:hover { color: var(--accent); border-color: var(--accent); }
 
 /* Buttons */
-.btn-row { display: flex; gap: 12px; justify-content: space-between; margin-top: 24px; }
+.btn-row { display: flex; flex-wrap: wrap; gap: 12px; justify-content: space-between; margin-top: 24px; }
 .btn {
   padding: 14px 32px;
   border-radius: 8px;
@@ -188,8 +266,9 @@ textarea { resize: vertical; min-height: 80px; }
   font-weight: 700;
   cursor: pointer;
   border: none;
-  transition: all 0.2s ease;
-  font-family: 'Inter', sans-serif;
+  transition: box-shadow 0.2s ease, transform 0.2s ease, background 0.2s ease, color 0.2s ease;
+  font-family: var(--font-body);
+  flex: 1 1 150px;
 }
 .btn-primary {
   background: var(--accent);
@@ -237,8 +316,6 @@ textarea { resize: vertical; min-height: 80px; }
   .wizard-sidebar { position: static; order: -1; margin-bottom: 16px; }
   .info-sidebar { border-top: 2px solid var(--accent); }
   .sidebar-toggle { display: flex; justify-content: space-between; align-items: center; cursor: pointer; padding: 12px 0; }
-  .sidebar-toggle::after { content: ''; border: solid var(--muted); border-width: 0 2px 2px 0; display: inline-block; padding: 4px; transform: rotate(45deg); transition: transform 0.2s; }
-  .sidebar-toggle.collapsed::after { transform: rotate(-135deg); }
   .sidebar-body.collapsed { display: none; }
 }
 
@@ -261,13 +338,21 @@ textarea { resize: vertical; min-height: 80px; }
 .sidebar-section h4 { font-size: 13px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--muted); margin-bottom: 10px; }
 .fee-row { display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 4px; }
 .fee-total { border-top: 1px solid var(--border); margin-top: 8px; padding-top: 8px; font-weight: 700; color: var(--accent); }
-.checklist-item { display: flex; align-items: center; gap: 10px; font-size: 14px; margin-bottom: 8px; color: var(--text-secondary); }
+.checklist-item { display: flex; align-items: center; justify-content: space-between; gap: 10px; font-size: 14px; margin-bottom: 8px; color: var(--text-secondary); }
 .checklist-item.done { color: var(--text); }
-.chk-box { width: 16px; height: 16px; border: 2px solid var(--border); border-radius: 3px; flex-shrink: 0; display: inline-block; }
-.chk-done { width: 16px; height: 16px; background: var(--accent); border: 2px solid var(--accent); border-radius: 3px; flex-shrink: 0; display: inline-block; position: relative; }
-.chk-done::after { content: ''; position: absolute; left: 4px; top: 1px; width: 5px; height: 9px; border: solid #000; border-width: 0 2px 2px 0; transform: rotate(45deg); }
-.list-check { display: inline-block; width: 6px; height: 6px; background: var(--accent); border-radius: 50%; margin-right: 4px; vertical-align: middle; }
+.checklist-status { border: 1px solid var(--border); border-radius: 999px; color: var(--muted); flex-shrink: 0; font-size: 11px; font-weight: 700; padding: 2px 8px; text-transform: uppercase; }
+.checklist-status.done { background: rgba(204,255,0,0.12); border-color: rgba(204,255,0,0.4); color: var(--accent); }
 .sidebar-warning { background: var(--surface); border: 1px solid var(--border); border-left: 3px solid var(--accent); border-radius: 8px; padding: 12px; color: var(--text-secondary); font-size: 13px; margin-top: 10px; line-height: 1.5; }
+.fulfillment-card { background: #101010; border: 1px solid var(--border); border-radius: 8px; padding: 12px; }
+.fulfillment-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; margin-bottom: 8px; }
+.availability-pill { display: inline-flex; align-items: center; max-width: 100%; min-height: 24px; padding: 4px 8px; border-radius: 999px; background: rgba(204,255,0,0.08); color: var(--accent); border: 1px solid rgba(204,255,0,0.25); font-size: 11px; font-weight: 800; line-height: 1.25; text-transform: uppercase; }
+.availability-pill.operator { background: rgba(0,255,229,0.07); color: var(--cyan); border-color: rgba(0,255,229,0.25); }
+.availability-pill.partner { background: rgba(255,107,0,0.08); color: var(--yellow); border-color: rgba(255,107,0,0.25); }
+.fulfillment-sla { color: var(--text-secondary); font-size: 12px; line-height: 1.35; text-align: right; flex: 0 0 auto; }
+.fulfillment-message { color: var(--text-secondary); font-size: 13px; line-height: 1.5; }
+.fulfillment-timeline { color: #fff; font-size: 13px; font-weight: 650; line-height: 1.45; margin-top: 8px; }
+.fulfillment-workflows { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.workflow-chip { border: 1px solid var(--border); border-radius: 999px; color: var(--text-secondary); font-size: 11px; line-height: 1.2; padding: 4px 7px; }
 .skeleton { background: #1A1A1A; height: 16px; margin-bottom: 8px; border-radius: 4px; animation: pulse 1.5s infinite; }
 @keyframes pulse { 0% { opacity: 0.5; } 50% { opacity: 0.8; } 100% { opacity: 0.5; } }
 
@@ -277,10 +362,10 @@ textarea { resize: vertical; min-height: 80px; }
   bottom: 24px;
   right: 24px;
   z-index: 1000;
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-body);
 }
 .chat-btn {
-  width: 56px;
+  min-width: 72px;
   height: 56px;
   border-radius: 28px;
   background: var(--accent);
@@ -293,6 +378,8 @@ textarea { resize: vertical; min-height: 80px; }
   transition: transform 0.2s;
   border: none;
   position: relative;
+  font-weight: 800;
+  padding: 0 18px;
 }
 .chat-btn:hover { transform: scale(1.05); }
 .chat-notification {
@@ -366,8 +453,15 @@ textarea { resize: vertical; min-height: 80px; }
 <body>
 
 <div class="topbar">
-  <a href="/" class="logo"><img src="/logo.png" alt="SOSFiler" style="height:36px;vertical-align:middle;"></a>
-  <a href="/" style="color: var(--muted); font-size: 14px;">← Back to Home</a>
+  <a href="index.html" class="logo">
+    <img src="logo.png" alt="SOSFiler" onerror="this.style.display='none';this.nextElementSibling.style.display='inline';">
+    <span style="display:none;">SOS<span>Filer</span></span>
+  </a>
+  <div class="topbar-actions">
+    <button class="back" type="button" onclick="startNewFiling()">Start new filing</button>
+    <a href="dashboard.html" class="back">Customer login</a>
+    <a href="index.html" class="back">Back to home</a>
+  </div>
 </div>
 
 <!-- Progress Bar -->
@@ -418,7 +512,7 @@ textarea { resize: vertical; min-height: 80px; }
       </div>
       <div class="btn-row">
         <div></div>
-        <button class="btn btn-primary" onclick="nextStep()">Continue →</button>
+        <button class="btn btn-primary" onclick="nextStep()">Continue</button>
       </div>
     </div>
   </div>
@@ -444,8 +538,8 @@ textarea { resize: vertical; min-height: 80px; }
       <div id="stateFeeInfo" style="margin-top: 16px;"></div>
       
       <div class="btn-row">
-        <button class="btn btn-secondary" onclick="prevStep()">← Back</button>
-        <button class="btn btn-primary" onclick="nextStep()">Continue →</button>
+        <button class="btn btn-secondary" onclick="prevStep()">Back</button>
+        <button class="btn btn-primary" onclick="nextStep()">Continue</button>
       </div>
     </div>
   </div>
@@ -460,12 +554,12 @@ textarea { resize: vertical; min-height: 80px; }
       <input type="text" id="businessName" placeholder='e.g., Acme Solutions LLC' oninput="clearNameCheck()">
       <p class="field-hint">Must include "LLC", "L.L.C.", or "Limited Liability Company" for LLCs.</p>
       
-      <button class="btn btn-secondary" onclick="checkName()" style="margin-bottom: 16px;">Check Name Availability →</button>
+      <button class="btn btn-secondary" onclick="checkName()" style="margin-bottom: 16px;">Check Name Availability</button>
       <div id="nameCheckResult"></div>
       
       <div class="btn-row">
-        <button class="btn btn-secondary" onclick="prevStep()">← Back</button>
-        <button class="btn btn-primary" onclick="nextStep()">Continue →</button>
+        <button class="btn btn-secondary" onclick="prevStep()">Back</button>
+        <button class="btn btn-primary" onclick="nextStep()">Continue</button>
       </div>
     </div>
   </div>
@@ -505,8 +599,8 @@ textarea { resize: vertical; min-height: 80px; }
       </div>
       
       <div class="btn-row">
-        <button class="btn btn-secondary" onclick="prevStep()">← Back</button>
-        <button class="btn btn-primary" onclick="nextStep()">Continue →</button>
+        <button class="btn btn-secondary" onclick="prevStep()">Back</button>
+        <button class="btn btn-primary" onclick="nextStep()">Continue</button>
       </div>
     </div>
   </div>
@@ -523,10 +617,11 @@ textarea { resize: vertical; min-height: 80px; }
           <div class="desc">Use your own name and address. Must be a physical street address in <strong id="raStateName">the formation state</strong> (no PO boxes). You must be available during business hours.</div>
           <div style="margin-top: 12px; font-size: 20px; font-weight: 700; color: var(--green);">$0</div>
         </div>
-        <div class="option-card" data-ra="sosfiler" onclick="selectRA(this)">
-          <div class="name">SOSFiler Registered Agent</div>
-          <div class="desc">We provide a professional registered agent in your state. Your home address stays off public records. Instant document forwarding.</div>
-          <div style="margin-top: 12px; font-size: 20px; font-weight: 700; color: var(--accent);">$49<span style="font-size: 13px; font-weight: 400; color: var(--muted);">/year</span></div>
+        <div class="option-card disabled" data-ra="sosfiler" aria-disabled="true" onclick="selectRA(this)">
+          <div class="badge">Coming in June</div>
+          <div class="name">Partner-Assisted Registered Agent</div>
+          <div class="desc">This service is coming in June. For now, use your own name and physical street address in the formation state.</div>
+          <div style="margin-top: 12px; font-size: 20px; font-weight: 700; color: var(--muted);">$49<span style="font-size: 13px; font-weight: 400; color: var(--muted);">/year</span></div>
         </div>
       </div>
       
@@ -549,15 +644,15 @@ textarea { resize: vertical; min-height: 80px; }
       
       <div id="raSosFields" style="display: none; margin-top: 20px;">
         <div class="recommendation">
-          <strong>SOSFiler Registered Agent Service</strong><br>
-          We'll provide a professional registered agent at a commercial address in your formation state. All legal documents are scanned and forwarded to you instantly. Your personal address stays private.<br><br>
-          <span style="font-size: 13px; color: var(--muted);">Billed annually. First year included with your formation order. Cancel anytime.</span>
+          <strong>Partner-Assisted Registered Agent Service</strong><br>
+          SOSFiler can coordinate registered-agent coverage through an approved partner where available. Your dashboard will show registered-agent assignment evidence before the filing is submitted to the state.<br><br>
+          <span style="font-size: 13px; color: var(--muted);">Registered-agent coverage is optional and separate from the $29 formation fee. CorpNet credentials are pending, so this lane may require operator confirmation.</span>
         </div>
       </div>
       
       <div class="btn-row">
-        <button class="btn btn-secondary" onclick="prevStep()">← Back</button>
-        <button class="btn btn-primary" onclick="nextStep()">Continue →</button>
+        <button class="btn btn-secondary" onclick="prevStep()">Back</button>
+        <button class="btn btn-primary" onclick="nextStep()">Continue</button>
       </div>
     </div>
   </div>
@@ -608,8 +703,8 @@ textarea { resize: vertical; min-height: 80px; }
       </div>
       
       <div class="btn-row">
-        <button class="btn btn-secondary" onclick="prevStep()">← Back</button>
-        <button class="btn btn-primary" onclick="nextStep()">Continue →</button>
+        <button class="btn btn-secondary" onclick="prevStep()">Back</button>
+        <button class="btn btn-primary" onclick="nextStep()">Continue</button>
       </div>
     </div>
   </div>
@@ -656,8 +751,8 @@ textarea { resize: vertical; min-height: 80px; }
       </div>
       
       <div class="btn-row">
-        <button class="btn btn-secondary" onclick="prevStep()">← Back</button>
-        <button class="btn btn-primary" onclick="buildReview(); nextStep();">Review & Pay →</button>
+        <button class="btn btn-secondary" onclick="prevStep()">Back</button>
+        <button class="btn btn-primary" onclick="buildReview(); nextStep();">Review and Pay</button>
       </div>
     </div>
   </div>
@@ -669,15 +764,16 @@ textarea { resize: vertical; min-height: 80px; }
       <p class="subtitle">Please review everything carefully. This information will be used in all your formation documents.</p>
       
       <div id="reviewContent"></div>
+      <div id="cartSummary" class="cart-summary"></div>
       
       <div style="background: rgba(204,255,0,0.05); border: 1px solid rgba(204,255,0,0.2); border-radius: 12px; padding: 24px; margin: 24px 0;">
         <h3 style="font-size: 18px; margin-bottom: 16px;">Payment Summary</h3>
-        <div class="review-row"><span class="label">SOSFiler service fee</span><span class="value">$49.00</span></div>
-        <div class="review-row"><span class="label">State of <span id="reviewState"></span> filing fee <span style="font-size:12px;color:var(--muted);">(government charge)</span></span><span class="value" id="reviewStateFee">$0</span></div>
+        <div class="review-row"><span class="label" id="reviewServiceFeeLabel">SOSFiler service fee</span><span class="value" id="reviewServiceFee">$29.00</span></div>
+        <div class="review-row"><span class="label" id="reviewStateFeeLabel">State of <span id="reviewState"></span> filing fee <span style="font-size:12px;color:var(--muted);">(government charge)</span></span><span class="value" id="reviewStateFee">$0</span></div>
         <div style="font-size: 12px; color: var(--muted); padding: 4px 0 8px;">State filing fee is a government charge passed through at cost.</div>
-        <div class="review-row" id="raFeeRow" style="display:none;"><span class="label">Registered Agent service <span style="font-size:12px;color:var(--muted);">(1st year)</span></span><span class="value" id="reviewRAFee">$49.00</span></div>
+        <div class="review-row" id="raFeeRow" style="display:none;"><span class="label">Registered Agent service <span style="font-size:12px;color:var(--muted);">(partner-assisted)</span></span><span class="value" id="reviewRAFee">$49.00</span></div>
         <div class="review-row" style="border-top: 1px solid var(--border); padding-top: 12px; margin-top: 8px; font-size: 18px; font-weight: 700;">
-          <span class="label" style="color: #fff;">Total</span><span class="value" style="color: var(--accent);" id="reviewTotal">$49</span>
+          <span class="label" style="color: #fff;">Total</span><span class="value" style="color: var(--accent);" id="reviewTotal">$29</span>
         </div>
       </div>
       
@@ -697,8 +793,9 @@ textarea { resize: vertical; min-height: 80px; }
       </div>
       
       <div class="btn-row">
-        <button class="btn btn-secondary" onclick="prevStep()">← Back</button>
-        <button class="btn btn-primary" id="payBtn" onclick="submitAndPay()" disabled>Start My Business →</button>
+        <button class="btn btn-secondary" onclick="prevStep()">Back</button>
+        <button class="btn btn-secondary" id="addAnotherBtn" onclick="addCurrentFormationToCart()">Add Another LLC</button>
+        <button class="btn btn-primary" id="payBtn" onclick="submitAndPay()" disabled>Start My Business</button>
       </div>
     </div>
   </div>
@@ -726,7 +823,7 @@ textarea { resize: vertical; min-height: 80px; }
       <div class="sidebar-section">
         <h4>Fee Breakdown</h4>
         <div id="sidebarFees">
-          <div class="fee-row"><span>SOSFiler Fee</span><span>$49</span></div>
+          <div class="fee-row"><span>SOSFiler Fee</span><span>$29</span></div>
           <div class="fee-row"><span>State Filing Fee</span><span id="sidebarStateFee">--</span></div>
           <div class="fee-row" id="sidebarLicenseRow" style="display:none;"><span>State Business License</span><span id="sidebarLicenseFee">--</span></div>
           <div class="fee-row fee-total"><span>Total</span><span id="sidebarTotal">--</span></div>
@@ -738,14 +835,27 @@ textarea { resize: vertical; min-height: 80px; }
         <div id="sidebarTime" class="text-sm" style="font-size: 14px; color: var(--text-secondary);">--</div>
       </div>
 
+      <div class="sidebar-section" id="sidebarFulfillmentSection" style="display: none;">
+        <h4>Fulfillment</h4>
+        <div class="fulfillment-card" aria-live="polite">
+          <div class="fulfillment-top">
+            <span id="sidebarFulfillmentLane" class="availability-pill">--</span>
+            <span id="sidebarFulfillmentSla" class="fulfillment-sla">--</span>
+          </div>
+          <div id="sidebarFulfillmentHeadline" class="fulfillment-timeline">--</div>
+          <div id="sidebarFulfillmentMessage" class="fulfillment-message">--</div>
+          <div id="sidebarFulfillmentWorkflows" class="fulfillment-workflows"></div>
+        </div>
+      </div>
+
       <div class="sidebar-section">
         <h4>Requirements</h4>
         <div id="sidebarChecklist">
-          <div class="checklist-item" id="chk-state"><span class="status chk-box"></span> State selected</div>
-          <div class="checklist-item" id="chk-name"><span class="status chk-box"></span> Business name</div>
-          <div class="checklist-item" id="chk-address"><span class="status chk-box"></span> Business address</div>
-          <div class="checklist-item" id="chk-ra"><span class="status chk-box"></span> Registered agent</div>
-          <div class="checklist-item" id="chk-members"><span class="status chk-box"></span> Member details</div>
+          <div class="checklist-item" id="chk-state">State selected <span class="status checklist-status">Pending</span></div>
+          <div class="checklist-item" id="chk-name">Business name <span class="status checklist-status">Pending</span></div>
+          <div class="checklist-item" id="chk-address">Business address <span class="status checklist-status">Pending</span></div>
+          <div class="checklist-item" id="chk-ra">Registered agent <span class="status checklist-status">Pending</span></div>
+          <div class="checklist-item" id="chk-members">Member details <span class="status checklist-status">Pending</span></div>
         </div>
       </div>
 
@@ -758,11 +868,11 @@ textarea { resize: vertical; min-height: 80px; }
 
       <div class="sidebar-section">
         <h4>What's Included</h4>
-        <ul id="sidebarIncludes" style="font-size: 14px; color: var(--text-secondary); list-style: none;">
-          <li><span class="list-check"></span> Articles of Organization</li>
-          <li><span class="list-check"></span> Operating Agreement</li>
-          <li><span class="list-check"></span> EIN Confirmation (CP575)</li>
-          <li><span class="list-check"></span> Initial Resolutions</li>
+        <ul id="sidebarIncludes" style="font-size: 14px; color: var(--text-secondary); list-style: disc; padding-left: 18px;">
+          <li>Articles of Organization</li>
+          <li>Operating Agreement</li>
+          <li>EIN Confirmation (CP575)</li>
+          <li>Initial Resolutions</li>
         </ul>
       </div>
     </div>
@@ -778,17 +888,17 @@ textarea { resize: vertical; min-height: 80px; }
 <!-- Chat Widget -->
 <div class="chat-widget">
   <button class="chat-btn" id="chatToggle" onclick="toggleChat()">
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+    Help
     <div class="chat-notification" id="chatNotify"></div>
   </button>
   
   <div class="chat-panel" id="chatPanel">
     <div class="chat-header">
       <div class="chat-header-info">
-        <img src="/logo.png" alt="SOSFiler">
+        <img src="logo.png" alt="SOSFiler">
         <div style="font-weight: 700; font-size: 15px;">Filing Expert</div>
       </div>
-      <button onclick="toggleChat()" style="background:none; border:none; color:var(--muted); cursor:pointer; font-size:20px;">✕</button>
+      <button onclick="toggleChat()" style="background:none; border:none; color:var(--muted); cursor:pointer; font-size:13px; font-weight:700;">Close</button>
     </div>
     <div class="chat-messages" id="chatMessages">
       <!-- Welcome Message -->
@@ -798,7 +908,7 @@ textarea { resize: vertical; min-height: 80px; }
     <form class="chat-input-area" onsubmit="sendChatMessage(event)">
       <input type="text" id="chatInput" placeholder="Ask a question..." autocomplete="off">
       <button type="submit" class="btn btn-primary" style="padding: 10px 16px;">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+        Send
       </button>
     </form>
     <div class="chat-footer">Powered by SOSFiler AI</div>
@@ -809,6 +919,10 @@ textarea { resize: vertical; min-height: 80px; }
 // State
 let currentStep = 1;
 const totalSteps = 8;
+const REGISTERED_AGENT_SERVICE_AVAILABLE = false;
+const PROGRESS_KEY = 'sosfiler_progress';
+const LAST_ORDER_KEY = 'sosfiler_order';
+const CART_KEY = 'sosfiler_formation_cart';
 let formData = {
   entity_type: 'LLC',
   state: '',
@@ -818,7 +932,235 @@ let formData = {
 
 // State names
 const stateNames = {"AL":"Alabama","AK":"Alaska","AZ":"Arizona","AR":"Arkansas","CA":"California","CO":"Colorado","CT":"Connecticut","DE":"Delaware","DC":"District of Columbia","FL":"Florida","GA":"Georgia","HI":"Hawaii","ID":"Idaho","IL":"Illinois","IN":"Indiana","IA":"Iowa","KS":"Kansas","KY":"Kentucky","LA":"Louisiana","ME":"Maine","MD":"Maryland","MA":"Massachusetts","MI":"Michigan","MN":"Minnesota","MS":"Mississippi","MO":"Missouri","MT":"Montana","NE":"Nebraska","NV":"Nevada","NH":"New Hampshire","NJ":"New Jersey","NM":"New Mexico","NY":"New York","NC":"North Carolina","ND":"North Dakota","OH":"Ohio","OK":"Oklahoma","OR":"Oregon","PA":"Pennsylvania","RI":"Rhode Island","SC":"South Carolina","SD":"South Dakota","TN":"Tennessee","TX":"Texas","UT":"Utah","VT":"Vermont","VA":"Virginia","WA":"Washington","WV":"West Virginia","WI":"Wisconsin","WY":"Wyoming"};
-const stateFees = {"AL":200,"AK":250,"AZ":50,"AR":45,"CA":70,"CO":50,"CT":120,"DE":90,"DC":99,"FL":125,"GA":100,"HI":50,"ID":100,"IL":150,"IN":95,"IA":50,"KS":160,"KY":40,"LA":100,"ME":175,"MD":100,"MA":500,"MI":50,"MN":155,"MS":50,"MO":50,"MT":70,"NE":105,"NV":425,"NH":100,"NJ":125,"NM":50,"NY":200,"NC":125,"ND":135,"OH":99,"OK":100,"OR":100,"PA":125,"RI":150,"SC":110,"SD":150,"TN":300,"TX":300,"UT":54,"VT":125,"VA":100,"WA":200,"WV":100,"WI":130,"WY":100};
+const stateFees = {"AL":200,"AK":250,"AZ":50,"AR":45,"CA":90,"CO":50,"CT":120,"DE":90,"DC":99,"FL":125,"GA":100,"HI":50,"ID":100,"IL":150,"IN":95,"IA":50,"KS":160,"KY":40,"LA":100,"ME":175,"MD":100,"MA":500,"MI":50,"MN":155,"MS":50,"MO":50,"MT":35,"NE":105,"NV":425,"NH":100,"NJ":125,"NM":50,"NY":200,"NC":125,"ND":135,"OH":99,"OK":100,"OR":100,"PA":125,"RI":150,"SC":110,"SD":150,"TN":300,"TX":300,"UT":54,"VT":125,"VA":100,"WA":200,"WV":100,"WI":130,"WY":100};
+const stateFeeNotes = {
+  CA: 'California total includes the $70 Articles of Organization and the $20 initial Statement of Information (LLC-12) that SOSFiler handles after approval. The separate $800 FTB annual tax is not included.',
+  MT: 'Montana annual reports are required after formation. Timely annual report filing is currently no fee; late filings incur a state late fee.'
+};
+let formationAvailabilityByState = {};
+
+function formatCents(cents) {
+  const amount = Number(cents || 0) / 100;
+  return amount.toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: amount % 1 ? 2 : 0 });
+}
+
+function escapeHtml(value) {
+  return String(value ?? '').replace(/[&<>"']/g, char => ({
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#39;'
+  }[char]));
+}
+
+function apiUrl(path) {
+  return `${window.location.protocol === 'file:' ? 'https://sosfiler.com' : ''}${path}`;
+}
+
+function publicReturnUrl(path) {
+  return window.location.protocol === 'file:'
+    ? `https://sosfiler.com${path}`
+    : `${window.location.origin}${path}`;
+}
+
+function defaultFormData() {
+  return {
+    entity_type: 'LLC',
+    state: '',
+    business_name: '',
+    management_type: 'member-managed',
+    ra_choice: 'self'
+  };
+}
+
+function clearWizardDraft() {
+  localStorage.removeItem(PROGRESS_KEY);
+  localStorage.removeItem(LAST_ORDER_KEY);
+  localStorage.removeItem('sosfiler_orders');
+  localStorage.removeItem(CART_KEY);
+}
+
+function startNewFiling() {
+  clearWizardDraft();
+  const cleanPath = window.location.pathname || '/app.html';
+  window.location.href = `${cleanPath}?new=1`;
+}
+
+function consumeFreshStartFlag() {
+  const params = new URLSearchParams(window.location.search);
+  const wantsFreshStart = params.has('new') || params.has('reset') || params.has('start_over');
+  if (!wantsFreshStart) return false;
+  clearWizardDraft();
+  window.history.replaceState(null, '', window.location.pathname || '/app.html');
+  return true;
+}
+
+function lastOrderExists() {
+  try {
+    const order = JSON.parse(localStorage.getItem(LAST_ORDER_KEY) || 'null');
+    return !!(order && (order.order_id || order.id));
+  } catch (e) {
+    return false;
+  }
+}
+
+function readFormationCart() {
+  try {
+    const cart = JSON.parse(localStorage.getItem(CART_KEY) || '[]');
+    return Array.isArray(cart) ? cart.filter(item => item && item.payload) : [];
+  } catch (e) {
+    return [];
+  }
+}
+
+function writeFormationCart(cart) {
+  localStorage.setItem(CART_KEY, JSON.stringify(cart));
+}
+
+function removeCartItem(itemId) {
+  writeFormationCart(readFormationCart().filter(item => item.id !== itemId));
+  buildReview();
+}
+
+function checkoutEmail() {
+  try {
+    const user = JSON.parse(localStorage.getItem('sosfiler_user') || '{}');
+    return formData.email || user.email || '';
+  } catch (e) {
+    return formData.email || '';
+  }
+}
+
+function stateFeeForPayload(payload) {
+  return stateFees[payload?.state] ?? 0;
+}
+
+function cartDisplayItem(item, index) {
+  const payload = item.payload || item;
+  const name = escapeHtml(payload.business_name || `LLC ${index + 1}`);
+  const state = payload.state || '';
+  const stateName = stateNames[state] || state || 'State';
+  const total = 29 + stateFeeForPayload(payload);
+  return `
+    <div class="cart-item">
+      <div>
+        <div class="cart-item-name">${name}</div>
+        <div class="cart-item-meta">${escapeHtml(stateName)} ${escapeHtml(payload.entity_type || 'LLC')} filing - ${formatCents(total * 100)}</div>
+      </div>
+      ${item.id ? `<button type="button" class="cart-remove" onclick="removeCartItem('${escapeHtml(item.id)}')">Remove</button>` : '<span class="cart-count">Current</span>'}
+    </div>`;
+}
+
+function currentFormationPayload(emailOverride = '') {
+  [2, 3, 4, 5, 6, 7].forEach(step => collectStepData(step));
+  const responsibleParty = (formData.members || []).find(m => m.is_responsible_party) || (formData.members || [])[0] || {};
+  const raChoice = (formData.ra_choice === 'sosfiler' && REGISTERED_AGENT_SERVICE_AVAILABLE) ? 'sosfiler' : 'self';
+  return {
+    email: formData.email || emailOverride || checkoutEmail(),
+    entity_type: formData.entity_type || 'LLC',
+    state: formData.state,
+    business_name: formData.business_name,
+    purpose: formData.purpose || 'Any lawful purpose',
+    principal_address: formData.principal_address,
+    principal_city: formData.principal_city,
+    principal_state: formData.principal_state,
+    principal_zip: formData.principal_zip,
+    management_type: formData.management_type || 'member-managed',
+    ra_choice: raChoice,
+    ra_name: formData.ra_name || '',
+    ra_address: formData.ra_address || '',
+    ra_city: formData.ra_city || '',
+    ra_state: formData.ra_state || '',
+    ra_zip: formData.ra_zip || '',
+    members: formData.members || [],
+    oa_type: formData.oa_type || 'single',
+    profit_distribution: formData.profit_distribution || 'pro-rata',
+    voting_rights: formData.voting_rights || 'pro-rata',
+    dissolution_terms: formData.dissolution_terms || 'unanimous',
+    major_decision_threshold: formData.major_decision_threshold || 10000,
+    transfer_restrictions: formData.transfer_restrictions ?? true,
+    non_compete: formData.non_compete ?? false,
+    tax_distributions: formData.tax_distributions ?? true,
+    responsible_party_ssn: normalizeTaxId(responsibleParty.ssn_itin || ''),
+    fiscal_year_end: 'December'
+  };
+}
+
+function validateFormationPayloadForCheckout(payload) {
+  if (!payload.email) return { ok: false, step: 7, message: 'Please enter an email address for order updates.' };
+  if (!payload.state || !payload.business_name) return { ok: false, step: 2, message: 'Please finish the state and business name steps.' };
+  if (!payload.principal_address || !payload.principal_city || !payload.principal_state || !payload.principal_zip) return { ok: false, step: 3, message: 'Please complete the business address.' };
+  if (!payload.ra_name || !payload.ra_address || !payload.ra_city || !payload.ra_state || !payload.ra_zip) return { ok: false, step: 5, message: 'Please complete your registered agent name and physical street address.' };
+  if (!isValidTaxId(payload.responsible_party_ssn)) return { ok: false, step: 6, message: 'Please enter the full 9-digit SSN/ITIN for the responsible party before checkout.' };
+  return { ok: true };
+}
+
+async function apiErrorMessage(response, fallback) {
+  try {
+    const data = await response.json();
+    if (Array.isArray(data.detail)) {
+      const messages = data.detail.map(item => item.msg || item.message || JSON.stringify(item));
+      return messages.join('; ') || fallback;
+    }
+    return data.detail || data.message || fallback;
+  } catch (e) {
+    return fallback;
+  }
+}
+
+function fulfillmentClass(availability) {
+  const lane = `${availability?.fulfillment_lane || ''}`.toLowerCase();
+  if (lane.includes('partner')) return 'partner';
+  if (lane.includes('operator')) return 'operator';
+  return '';
+}
+
+function renderFormationAvailability(state) {
+  const section = document.getElementById('sidebarFulfillmentSection');
+  if (!section) return;
+  const availability = formationAvailabilityByState[state];
+  if (!state || !availability) {
+    section.style.display = 'none';
+    return;
+  }
+
+  section.style.display = 'block';
+  const lane = document.getElementById('sidebarFulfillmentLane');
+  const sla = document.getElementById('sidebarFulfillmentSla');
+  const headline = document.getElementById('sidebarFulfillmentHeadline');
+  const message = document.getElementById('sidebarFulfillmentMessage');
+  const workflows = document.getElementById('sidebarFulfillmentWorkflows');
+
+  lane.className = `availability-pill ${fulfillmentClass(availability)}`;
+  lane.textContent = availability.fulfillment_lane || 'Fulfillment available';
+  sla.textContent = availability.operator_sla_hours ? `${availability.operator_sla_hours}h target` : 'Timeline quoted';
+  headline.textContent = availability.timeline || availability.headline || '';
+  message.textContent = availability.message || '';
+  workflows.replaceChildren();
+  (availability.post_formation_workflows || []).slice(0, 4).forEach(workflow => {
+    const chip = document.createElement('span');
+    chip.className = 'workflow-chip';
+    chip.textContent = workflow.label;
+    workflows.appendChild(chip);
+  });
+}
+
+async function loadFormationAvailability() {
+  try {
+    const res = await fetch(apiUrl('/api/formation-availability'));
+    if (!res.ok) throw new Error('Availability unavailable');
+    const payload = await res.json();
+    formationAvailabilityByState = {};
+    (payload.states || []).forEach(item => {
+      if (item.state) formationAvailabilityByState[item.state] = item;
+    });
+    renderFormationAvailability(document.getElementById('formationState')?.value || formData.state);
+  } catch (err) {
+    formationAvailabilityByState = {};
+    renderFormationAvailability('');
+  }
+}
 
 // Init dropdowns
 function initDropdowns() {
@@ -863,6 +1205,9 @@ function goToStep(step) {
     const raStateInput = document.getElementById('raState');
     if (raStateInput && !raStateInput.value) raStateInput.value = formData.state;
   }
+  if (step === 8) {
+    buildReview();
+  }
   updateSidebarRequirements();
 }
 
@@ -905,7 +1250,7 @@ function onAuthSuccess(token, user) {
   // On redirect flows (especially mobile), the page reloads and DOM fields are empty.
   // We must pull from localStorage, not from the DOM.
   try {
-    const saved = JSON.parse(localStorage.getItem('sosfiler_progress'));
+    const saved = JSON.parse(localStorage.getItem(PROGRESS_KEY));
     if (saved && saved.data) {
       // Merge saved data into formData, preserving anything already set
       Object.keys(saved.data).forEach(key => {
@@ -979,7 +1324,7 @@ function triggerGoogleAuth() {
   
   if (isMobile) {
     // Mobile: use full redirect (popups are unreliable on mobile browsers)
-    const redirectUri = window.location.origin + '/app.html';
+    const redirectUri = publicReturnUrl('/app.html');
     const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${GOOGLE_CLIENT_ID}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=token&scope=${scope}&prompt=select_account`;
     window.location.href = authUrl;
   } else {
@@ -994,7 +1339,7 @@ function triggerGoogleAuth() {
     
     // If popup was blocked, fall back to redirect
     if (!popup || popup.closed || typeof popup.closed === 'undefined') {
-      const redirectUri2 = window.location.origin + '/app.html';
+      const redirectUri2 = publicReturnUrl('/app.html');
       const authUrl2 = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${GOOGLE_CLIENT_ID}&redirect_uri=${encodeURIComponent(redirectUri2)}&response_type=token&scope=${scope}&prompt=select_account`;
       window.location.href = authUrl2;
       return;
@@ -1026,7 +1371,7 @@ async function handleGoogleToken(accessToken) {
     const profile = await res.json();
     
     // Send to our backend
-    const authRes = await fetch('/api/auth/google', {
+    const authRes = await fetch(apiUrl('/api/auth/google'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ 
@@ -1086,7 +1431,7 @@ async function triggerAppleAuth() {
   saveProgress();
   
   const APPLE_SERVICE_ID = 'com.sosfiler.auth';
-  const redirectUri = window.location.origin + '/app.html';
+  const redirectUri = publicReturnUrl('/app.html');
   const state = Math.random().toString(36).substring(2, 15);
   
   // Store state for CSRF verification
@@ -1142,7 +1487,7 @@ function checkAppleRedirect() {
 
 async function handleAppleToken(idToken, userName) {
   try {
-    const res = await fetch('/api/auth/apple', {
+    const res = await fetch(apiUrl('/api/auth/apple'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ token: idToken, name: userName })
@@ -1166,7 +1511,7 @@ async function triggerFacebookAuth() {
   saveProgress();
   
   const FACEBOOK_APP_ID = '1502505134824359';
-  const redirectUri = window.location.origin + '/app.html';
+  const redirectUri = publicReturnUrl('/app.html');
   const state = Math.random().toString(36).substring(2, 15);
   
   localStorage.setItem('sosfiler_fb_state', state);
@@ -1212,7 +1557,7 @@ function checkFacebookRedirect() {
 
 async function handleFacebookToken(accessToken) {
   try {
-    const res = await fetch('/api/auth/facebook', {
+    const res = await fetch(apiUrl('/api/auth/facebook'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ token: accessToken })
@@ -1253,6 +1598,9 @@ function validateStep(step) {
       return true;
     case 5:
       // Registered Agent validation
+      if (formData.ra_choice === 'sosfiler' && !REGISTERED_AGENT_SERVICE_AVAILABLE) {
+        formData.ra_choice = 'self';
+      }
       if (!formData.ra_choice || formData.ra_choice === 'self') {
         const raName = document.getElementById('raName')?.value?.trim();
         const raAddr = document.getElementById('raAddress')?.value?.trim();
@@ -1322,6 +1670,9 @@ function collectStepData(step) {
     case 5:
       // Registered Agent
       if (!formData.ra_choice) formData.ra_choice = 'self';
+      if (formData.ra_choice === 'sosfiler' && !REGISTERED_AGENT_SERVICE_AVAILABLE) {
+        formData.ra_choice = 'self';
+      }
       if (formData.ra_choice === 'self') {
         setIfPresent('ra_name', document.getElementById('raName')?.value?.trim());
         setIfPresent('ra_address', document.getElementById('raAddress')?.value?.trim());
@@ -1392,6 +1743,18 @@ function selectMgmt(el) {
 
 // Registered Agent selection
 function selectRA(el) {
+  if (el.dataset.ra === 'sosfiler' && !REGISTERED_AGENT_SERVICE_AVAILABLE) {
+    formData.ra_choice = 'self';
+    const selfCard = document.querySelector('#step5 .option-card[data-ra="self"]');
+    if (selfCard) {
+      document.querySelectorAll('#step5 .option-card').forEach(c => c.classList.remove('selected'));
+      selfCard.classList.add('selected');
+    }
+    document.getElementById('raSelfFields').style.display = 'block';
+    document.getElementById('raSosFields').style.display = 'none';
+    updateSidebarRequirements();
+    return;
+  }
   document.querySelectorAll('#step5 .option-card').forEach(c => c.classList.remove('selected'));
   el.classList.add('selected');
   formData.ra_choice = el.dataset.ra;
@@ -1414,12 +1777,14 @@ async function fetchStateInfo() {
   if (!state || !entity) {
     document.getElementById('stateInfoSidebar').style.display = 'none';
     document.getElementById('sidebarPlaceholder').style.display = 'block';
+    renderFormationAvailability('');
     return;
   }
   
   document.getElementById('sidebarPlaceholder').style.display = 'none';
   const sidebar = document.getElementById('stateInfoSidebar');
   sidebar.style.display = 'block';
+  renderFormationAvailability(state);
   
   // Skeleton
   const title = document.getElementById('sidebarTitle');
@@ -1472,14 +1837,14 @@ async function fetchStateInfo() {
         licenseFeeEl.innerText = entity.toLowerCase() === 'corp' ? '$500' : '$200';
         licenseRow.style.display = 'flex';
         stateFee = entity.toLowerCase() === 'corp' ? 725 : 425;
-        sTotal.innerText = `$${49 + stateFee}`;
+        sTotal.innerText = `$${29 + stateFee}`;
       } else {
         licenseRow.style.display = 'none';
       }
 
       if (state !== 'NV') {
         sStateFee.innerText = `$${stateFee}`;
-        sTotal.innerText = `$${49 + stateFee + licenseFee}`;
+        sTotal.innerText = `$${29 + stateFee + licenseFee}`;
       }
 
       sTime.innerText = `Standard: ${data.standard_processing_time || '5-7 business days'}`;
@@ -1528,7 +1893,7 @@ async function fetchStateInfo() {
     } else {
       licenseRow.style.display = 'none';
     }
-    sTotal.innerText = `$${49 + fee + licenseFee}`;
+    sTotal.innerText = `$${29 + fee + licenseFee}`;
     sTime.innerText = 'Standard: 7-10 business days';
     sCompliance.innerText = `Annual report due each year. State fee applies.`;
     document.getElementById('sidebarWarning').style.display = 'none';
@@ -1541,8 +1906,8 @@ function updateSidebarRequirements() {
     if (!el) return;
     el.classList.toggle('done', done);
     const statusEl = el.querySelector('.status');
-    if (done) { statusEl.classList.add('chk-done'); statusEl.classList.remove('chk-box'); }
-    else { statusEl.classList.remove('chk-done'); statusEl.classList.add('chk-box'); }
+    statusEl.classList.toggle('done', done);
+    statusEl.textContent = done ? 'Done' : 'Pending';
   };
   
   check('chk-state', !!document.getElementById('formationState').value);
@@ -1550,9 +1915,8 @@ function updateSidebarRequirements() {
   check('chk-name', !!document.getElementById('businessName').value.trim() && nameConfirmed && nameConfirmed.checked);
   check('chk-address', !!document.getElementById('principalAddress').value.trim());
   
-  // RA check: either SOSFiler RA selected, or self with name+address filled
-  const raOk = formData.ra_choice === 'sosfiler' || 
-    (document.getElementById('raName')?.value?.trim() && document.getElementById('raAddress')?.value?.trim());
+  // RA check: registered-agent service is unavailable, so self/own-address details are required.
+  const raOk = document.getElementById('raName')?.value?.trim() && document.getElementById('raAddress')?.value?.trim();
   check('chk-ra', !!raOk);
   
   const members = collectMembers();
@@ -1584,11 +1948,20 @@ function updateStateRecommendation() {
   
   // Show fee info
   if (fState && stateFees[fState] !== undefined) {
+    const availability = formationAvailabilityByState[fState];
+    const pricing = availability?.pricing || {};
     const fee = stateFees[fState];
+    const governmentFee = pricing.official_government_fee_cents != null ? formatCents(pricing.official_government_fee_cents) : `$${fee}`;
+    const total = pricing.estimated_total_cents != null ? formatCents(pricing.estimated_total_cents) : `$${29 + fee}`;
+    const fulfillment = availability ? `
+        <div style="margin-top: 8px; color: var(--text-secondary);">${escapeHtml(availability.fulfillment_lane)}. ${escapeHtml(availability.timeline)}</div>` : '';
+    const feeNote = stateFeeNotes[fState] ? `<div style="margin-top: 8px; color: var(--text-secondary);">${escapeHtml(stateFeeNotes[fState])}</div>` : '';
     feeInfo.innerHTML = `
       <div class="recommendation">
         <div class="title">${stateNames[fState]} Filing Cost</div>
-        <div>$49 (SOSFiler) + $${fee} (state fee) = <strong>$${49 + fee} total</strong></div>
+        <div>$29 (SOSFiler) + ${governmentFee} (required state fees) = <strong>${total} total</strong></div>
+        ${feeNote}
+        ${fulfillment}
       </div>`;
   }
   
@@ -1780,7 +2153,7 @@ async function sendChatMessage(e) {
   typing.style.display = 'block';
 
   try {
-    const res = await fetch('/api/chat', {
+    const res = await fetch(apiUrl('/api/chat'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -1836,7 +2209,7 @@ function addMember() {
   block.dataset.index = memberCount - 1;
   block.innerHTML = `
     <h4>Member ${memberCount}</h4>
-    <button class="remove-btn" onclick="this.parentElement.remove(); memberCount--;">✕</button>
+    <button class="remove-btn" onclick="this.parentElement.remove(); memberCount--;">Remove</button>
     <div class="two-col">
       <div><label class="required">Full Legal Name</label><input type="text" class="m-name" placeholder="First and Last Name"></div>
       <div><label class="required">Ownership %</label><input type="number" class="m-pct" value="0" min="0" max="100"></div>
@@ -1870,13 +2243,67 @@ function addMember() {
   }
 }
 
+function renderCartSummary(cart, currentPayload) {
+  const summary = document.getElementById('cartSummary');
+  if (!summary) return;
+  const items = [...cart, { payload: currentPayload }];
+  if (items.length <= 1) {
+    summary.classList.remove('active');
+    summary.innerHTML = '';
+    return;
+  }
+  const currentLabel = currentPayload.business_name
+    ? `${escapeHtml(currentPayload.business_name)} will be included when you check out.`
+    : 'The current LLC will be included when you check out.';
+  summary.classList.add('active');
+  summary.innerHTML = `
+    <div class="cart-summary-header">
+      <h3>Checkout List</h3>
+      <span class="cart-count">${items.length} LLCs</span>
+    </div>
+    ${cart.map((item, index) => cartDisplayItem(item, index)).join('')}
+    ${cartDisplayItem({ payload: currentPayload }, cart.length)}
+    <div class="cart-item-meta" style="margin-top:8px;">${currentLabel}</div>`;
+}
+
+function addCurrentFormationToCart() {
+  const email = checkoutEmail() || prompt('Enter your email address for order updates:') || '';
+  const payload = currentFormationPayload(email);
+  const validation = validateFormationPayloadForCheckout(payload);
+  if (!validation.ok) {
+    alert(validation.message);
+    goToStep(validation.step);
+    return;
+  }
+  const cart = readFormationCart();
+  const duplicate = cart.find(item =>
+    (item.payload?.business_name || '').trim().toLowerCase() === payload.business_name.trim().toLowerCase()
+    && item.payload?.state === payload.state
+  );
+  const nextCart = duplicate
+    ? cart.map(item => item === duplicate ? { ...item, payload, updated_at: new Date().toISOString() } : item)
+    : [...cart, { id: `draft-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`, payload, added_at: new Date().toISOString() }];
+  writeFormationCart(nextCart);
+  localStorage.removeItem(PROGRESS_KEY);
+  formData = { ...defaultFormData(), email };
+  const cleanPath = window.location.pathname || '/app.html';
+  window.location.href = `${cleanPath}?cart=1`;
+}
+
 // Review
 function buildReview() {
-  collectStepData(7);
+  [2, 3, 4, 5, 6, 7].forEach(step => collectStepData(step));
   const members = formData.members || [];
-  const state = formData.state;
-  const fee = stateFees[state] || 0;
-  const raFee = formData.ra_choice === 'sosfiler' ? 49 : 0;
+  const state = document.getElementById('formationState')?.value || formData.state || '';
+  if (state) formData.state = state;
+  const fee = stateFees[state] ?? 0;
+  const raFee = 0;
+  const currentPayload = currentFormationPayload(checkoutEmail());
+  const cart = readFormationCart();
+  const checkoutPayloads = [...cart.map(item => item.payload), currentPayload];
+  const serviceFeeTotal = checkoutPayloads.length * 29;
+  const stateFeeTotal = checkoutPayloads.reduce((sum, payload) => sum + stateFeeForPayload(payload), 0);
+  const checkoutTotal = serviceFeeTotal + stateFeeTotal;
   
   let membersHtml = members.map((m, i) => `
     <div class="review-row"><span class="label">Member ${i+1}</span><span class="value">${m.name} (${m.ownership_pct}%)</span></div>
@@ -1885,9 +2312,9 @@ function buildReview() {
   
   // Build RA review section
   let raHtml = '';
-  if (formData.ra_choice === 'sosfiler') {
+  if (formData.ra_choice === 'sosfiler' && REGISTERED_AGENT_SERVICE_AVAILABLE) {
     raHtml = `
-      <div class="review-row"><span class="label">Service</span><span class="value">SOSFiler Registered Agent ($49/yr)</span></div>
+      <div class="review-row"><span class="label">Service</span><span class="value">Partner-assisted registered agent ($49/yr estimate)</span></div>
       <div class="review-row"><span class="label">Address</span><span class="value">Professional address provided in ${stateNames[state] || state}</span></div>`;
   } else {
     raHtml = `
@@ -1922,9 +2349,16 @@ function buildReview() {
       <div class="review-row"><span class="label">Transfer Restrictions</span><span class="value">${formData.transfer_restrictions ? 'Yes' : 'No'}</span></div>
     </div>`;
   
-  document.getElementById('reviewState').textContent = stateNames[state] || state;
-  document.getElementById('reviewStateFee').textContent = `$${fee}`;
-  document.getElementById('reviewTotal').textContent = `$${49 + fee + raFee}`;
+  renderCartSummary(cart, currentPayload);
+  document.getElementById('reviewServiceFeeLabel').textContent = checkoutPayloads.length > 1 ? `SOSFiler service fee (${checkoutPayloads.length} filings)` : 'SOSFiler service fee';
+  document.getElementById('reviewServiceFee').textContent = formatCents(serviceFeeTotal * 100);
+  document.getElementById('reviewStateFeeLabel').innerHTML = checkoutPayloads.length > 1
+    ? 'State filing fees <span style="font-size:12px;color:var(--muted);">(government charges)</span>'
+    : `State of <span id="reviewState">${escapeHtml(stateNames[state] || state)}</span> filing fee <span style="font-size:12px;color:var(--muted);">(government charge)</span>`;
+  const reviewStateEl = document.getElementById('reviewState');
+  if (reviewStateEl) reviewStateEl.textContent = stateNames[state] || state;
+  document.getElementById('reviewStateFee').textContent = formatCents((checkoutPayloads.length > 1 ? stateFeeTotal : fee) * 100);
+  document.getElementById('reviewTotal').textContent = formatCents((checkoutPayloads.length > 1 ? checkoutTotal : 29 + fee + raFee) * 100);
   
   // Show/hide RA fee line
   const raFeeRow = document.getElementById('raFeeRow');
@@ -1942,6 +2376,8 @@ function buildReview() {
   }
   document.getElementById('authorizeOrganizer').addEventListener('change', updatePayBtn);
   document.getElementById('agreeTerms').addEventListener('change', updatePayBtn);
+  document.getElementById('payBtn').textContent = checkoutPayloads.length > 1 ? `Checkout ${checkoutPayloads.length} LLCs` : 'Start My Business';
+  document.getElementById('addAnotherBtn').textContent = cart.length ? 'Add This LLC + Another' : 'Add Another LLC';
   
   // Set state name in authorization
   document.getElementById('authStateName').textContent = stateNames[state] || state;
@@ -1950,97 +2386,69 @@ function buildReview() {
 // Submit & pay
 async function submitAndPay() {
   if (!document.getElementById('agreeTerms').checked || !document.getElementById('authorizeOrganizer').checked) return;
-  
-  // Show loading
-  document.querySelectorAll('.step-panel').forEach(p => p.classList.remove('active'));
-  document.getElementById('stepLoading').classList.add('active');
-  
-  const responsibleParty = (formData.members || []).find(m => m.is_responsible_party) || (formData.members || [])[0] || {};
-
-  // Build payload
-  const payload = {
-    email: formData.email || (JSON.parse(localStorage.getItem('sosfiler_user') || '{}').email) || prompt('Enter your email address for order updates:') || '',
-    entity_type: formData.entity_type,
-    state: formData.state,
-    business_name: formData.business_name,
-    purpose: formData.purpose || 'Any lawful purpose',
-    principal_address: formData.principal_address,
-    principal_city: formData.principal_city,
-    principal_state: formData.principal_state,
-    principal_zip: formData.principal_zip,
-    management_type: formData.management_type,
-    ra_choice: formData.ra_choice || 'self',
-    ra_name: formData.ra_choice === 'sosfiler' ? 'SOSFiler Registered Agent' : (formData.ra_name || ''),
-    ra_address: formData.ra_choice === 'sosfiler' ? '' : (formData.ra_address || ''),
-    ra_city: formData.ra_choice === 'sosfiler' ? '' : (formData.ra_city || ''),
-    ra_state: formData.ra_choice === 'sosfiler' ? '' : (formData.ra_state || ''),
-    ra_zip: formData.ra_choice === 'sosfiler' ? '' : (formData.ra_zip || ''),
-    members: formData.members || [],
-    oa_type: formData.oa_type || 'single',
-    profit_distribution: formData.profit_distribution || 'pro-rata',
-    voting_rights: formData.voting_rights || 'pro-rata',
-    dissolution_terms: formData.dissolution_terms || 'unanimous',
-    major_decision_threshold: formData.major_decision_threshold || 10000,
-    transfer_restrictions: formData.transfer_restrictions ?? true,
-    non_compete: formData.non_compete ?? false,
-    tax_distributions: formData.tax_distributions ?? true,
-    responsible_party_ssn: normalizeTaxId(responsibleParty.ssn_itin || ''),
-    fiscal_year_end: 'December'
-  };
-  
-  if (!payload.email) {
-    goToStep(7);
+  const email = checkoutEmail() || prompt('Enter your email address for order updates:') || '';
+  const currentPayload = currentFormationPayload(email);
+  const validation = validateFormationPayloadForCheckout(currentPayload);
+  if (!validation.ok) {
+    alert(validation.message);
+    goToStep(validation.step);
+    return;
+  }
+  const cartItems = readFormationCart().map(item => ({ ...item.payload, email: item.payload.email || email }));
+  const payloads = [...cartItems, currentPayload].map(item => ({ ...item, email }));
+  const invalidSaved = payloads.find(item => !validateFormationPayloadForCheckout(item).ok);
+  if (invalidSaved) {
+    alert(`${invalidSaved.business_name || 'One saved LLC'} needs complete filing details before checkout.`);
     return;
   }
   
   try {
-    // Create order
-    const orderRes = await fetch('/api/formation', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    });
-    
-    if (!orderRes.ok) throw new Error('Failed to create order');
-    const order = await orderRes.json();
-    
-    // Save for later
-    localStorage.setItem('sosfiler_order', JSON.stringify(order));
-    
-    // Create checkout session
-    const checkoutRes = await fetch('/api/checkout', {
+    document.querySelectorAll('.step-panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('stepLoading').classList.add('active');
+
+    const checkoutRes = await fetch(apiUrl('/api/formations/checkout'), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        order_id: order.order_id,
-        success_url: window.location.origin + '/dashboard.html',
-        cancel_url: window.location.origin + '/app.html'
+        items: payloads,
+        success_url: publicReturnUrl('/dashboard.html'),
+        cancel_url: publicReturnUrl('/app.html')
       })
     });
     
-    if (!checkoutRes.ok) throw new Error('Failed to create checkout');
+    if (!checkoutRes.ok) throw new Error(await apiErrorMessage(checkoutRes, 'Failed to create checkout'));
     const checkout = await checkoutRes.json();
+    const firstOrder = (checkout.orders || [])[0];
+    if (firstOrder) localStorage.setItem(LAST_ORDER_KEY, JSON.stringify(firstOrder));
+    localStorage.setItem('sosfiler_orders', JSON.stringify(checkout.orders || []));
+    localStorage.removeItem(PROGRESS_KEY);
+    localStorage.removeItem(CART_KEY);
     
     // Redirect to Stripe
     window.location.href = checkout.checkout_url;
     
   } catch (e) {
     console.error('Checkout error:', e);
-    alert('There was an error processing your order. Please try again or contact support at support@sosfiler.com');
-    goToStep(7);
+    alert(`There was an error processing your order: ${e.message || 'Please try again or contact support at support@sosfiler.com'}`);
+    goToStep(8);
   }
 }
 
 // Save / restore progress
 function saveProgress() {
   try {
-    localStorage.setItem('sosfiler_progress', JSON.stringify({ step: currentStep, data: formData }));
+    if (lastOrderExists()) return;
+    localStorage.setItem(PROGRESS_KEY, JSON.stringify({ step: currentStep, data: formData, saved_at: new Date().toISOString() }));
   } catch (e) {}
 }
 
 function restoreProgress() {
   try {
-    const saved = JSON.parse(localStorage.getItem('sosfiler_progress'));
+    if (lastOrderExists()) {
+      localStorage.removeItem(PROGRESS_KEY);
+      return;
+    }
+    const saved = JSON.parse(localStorage.getItem(PROGRESS_KEY));
     if (saved && saved.data) {
       formData = { ...formData, ...saved.data };
       
@@ -2083,6 +2491,9 @@ function restoreProgress() {
       }
       
       // Restore registered agent choice
+      if (formData.ra_choice === 'sosfiler' && !REGISTERED_AGENT_SERVICE_AVAILABLE) {
+        formData.ra_choice = 'self';
+      }
       if (formData.ra_choice) {
         document.querySelectorAll('#step5 .option-card').forEach(c => {
           c.classList.toggle('selected', c.dataset.ra === formData.ra_choice);
@@ -2128,7 +2539,7 @@ function restoreProgress() {
         saveProgress();
         goToStep(3);
       } else if (saved.step && saved.step > 1 && isLoggedIn()) {
-        goToStep(saved.step);
+        goToStep(Math.min(saved.step, 7));
       }
     }
   } catch (e) { console.error('Restore error:', e); }
@@ -2142,9 +2553,32 @@ document.querySelectorAll('.progress-step').forEach(el => {
   });
 });
 
+function setupSidebarListeners() {
+  [
+    'formationState',
+    'businessName',
+    'principalAddress',
+    'raName',
+    'raAddress'
+  ].forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.addEventListener('input', updateSidebarRequirements);
+    el.addEventListener('change', updateSidebarRequirements);
+  });
+  document.querySelectorAll('.m-name, .m-pct, .m-responsible').forEach(el => {
+    el.addEventListener('input', updateSidebarRequirements);
+    el.addEventListener('change', updateSidebarRequirements);
+  });
+}
+
 // Init
+consumeFreshStartFlag();
+formData = { ...defaultFormData(), ...formData };
 initDropdowns();
+loadFormationAvailability();
 restoreProgress();
+if (formData.state || document.getElementById('formationState')?.value) fetchStateInfo();
 // Order matters: Apple returns id_token (checked first), Facebook and Google both return access_token.
 // Facebook check uses state to distinguish from Google.
 checkAppleRedirect() || checkFacebookRedirect() || checkGoogleRedirect();
@@ -2159,17 +2593,14 @@ setupSidebarListeners();
     
     <div class="auth-providers">
       <button class="auth-btn google-btn" onclick="triggerGoogleAuth()">
-        <svg width="20" height="20" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
         Continue with Google
       </button>
       
       <button class="auth-btn apple-btn" onclick="triggerAppleAuth()">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="#fff"><path d="M17.05 20.28c-.98.95-2.05.88-3.08.4-1.09-.5-2.08-.48-3.24 0-1.44.62-2.2.44-3.06-.4C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/></svg>
         Continue with Apple
       </button>
       
       <button class="auth-btn facebook-btn" onclick="triggerFacebookAuth()">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="#1877F2"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
         Continue with Facebook
       </button>
     </div>
@@ -2199,7 +2630,7 @@ setupSidebarListeners();
 .modal-content h2 { font-size: 22px; margin-bottom: 8px; }
 .modal-content > p { color: var(--muted); font-size: 14px; margin-bottom: 24px; }
 .auth-providers { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
-.auth-btn { display: flex; align-items: center; justify-content: center; gap: 10px; padding: 14px 20px; border: none; color: #fff; font-weight: 600; font-size: 15px; border-radius: 8px; cursor: pointer; transition: all 0.2s; font-family: 'Inter', sans-serif; min-height: 48px; }
+.auth-btn { display: flex; align-items: center; justify-content: center; gap: 10px; padding: 14px 20px; border: none; color: #fff; font-weight: 600; font-size: 15px; border-radius: 8px; cursor: pointer; transition: background 0.2s ease, box-shadow 0.2s ease, color 0.2s ease; font-family: var(--font-body); min-height: 48px; }
 .google-btn { background: #fff; color: #333; border: 1px solid #ddd; }
 .google-btn:hover { background: #f7f7f7; box-shadow: 0 2px 8px rgba(0,0,0,0.15); }
 .apple-btn { background: #000; color: #fff; border: 1px solid #333; }

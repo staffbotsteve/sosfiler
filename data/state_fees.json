@@ -25,10 +25,10 @@
       "notes": ""
     },
     "CA": {
-      "filing_fee": 70,
+      "filing_fee": 90,
       "name_reservation": 10,
       "expedited": 350,
-      "notes": "$800 annual franchise tax due within 3-4 months (exempt first year for LLCs formed 2021-2023)"
+      "notes": "Includes $70 Articles of Organization + $20 initial Statement of Information (LLC-12) that SOSFiler handles after approval. California's separate $800 FTB annual tax is not included and the 2021-2023 first-year exemption has expired."
     },
     "CO": {
       "filing_fee": 50,
@@ -157,10 +157,10 @@
       "notes": ""
     },
     "MT": {
-      "filing_fee": 70,
+      "filing_fee": 35,
       "name_reservation": 10,
       "expedited": null,
-      "notes": ""
+      "notes": "Annual report is required; timely filing is currently no fee, with a late fee after the deadline."
     },
     "NE": {
       "filing_fee": 105,
@@ -329,9 +329,10 @@
       "expedited": null
     },
     "CA": {
-      "filing_fee": 100,
+      "filing_fee": 125,
       "name_reservation": 10,
-      "expedited": 350
+      "expedited": 350,
+      "notes": "Includes $100 Articles of Incorporation + $25 initial Statement of Information (SI-550) that SOSFiler should handle after approval."
     },
     "CO": {
       "filing_fee": 50,
@@ -439,9 +440,10 @@
       "expedited": null
     },
     "MT": {
-      "filing_fee": 70,
+      "filing_fee": 35,
       "name_reservation": 10,
-      "expedited": null
+      "expedited": null,
+      "notes": "Annual report is required; timely filing is currently no fee, with a late fee after the deadline."
     },
     "NE": {
       "filing_fee": 60,
@@ -449,9 +451,10 @@
       "expedited": null
     },
     "NV": {
-      "filing_fee": 75,
+      "filing_fee": 725,
       "name_reservation": 25,
-      "expedited": 125
+      "expedited": 125,
+      "notes": "Minimum bundled corporation package: $75 Articles + $150 Initial List + $500 State Business License. Articles fee may increase with authorized stock."
     },
     "NH": {
       "filing_fee": 100,

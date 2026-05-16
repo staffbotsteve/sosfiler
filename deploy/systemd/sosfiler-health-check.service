@@ -1,0 +1,10 @@
+[Unit]
+Description=SOSFiler deep health check
+After=network-online.target sosfiler.service
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=root
+WorkingDirectory=/opt/sosfiler/app
+ExecStart=/opt/sosfiler/app/scripts/check_deep_health.sh

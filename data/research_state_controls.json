@@ -1,0 +1,25 @@
+{
+  "states": {
+    "GA": {
+      "blocked_streak": 2,
+      "cooldown_until": "2026-05-08T04:23:22+00:00",
+      "last_blocker_type": "source_error",
+      "last_reason": "Repeated blocked jobs (source_error)",
+      "updated_at": "2026-05-08T04:03:22+00:00"
+    },
+    "IL": {
+      "blocked_streak": 4,
+      "cooldown_until": "2026-05-08T04:23:22+00:00",
+      "last_blocker_type": "source_error",
+      "last_reason": "Repeated blocked jobs (source_error)",
+      "updated_at": "2026-05-08T04:03:22+00:00"
+    },
+    "NV": {
+      "blocked_streak": 25,
+      "cooldown_until": "2026-05-08T04:04:58+00:00",
+      "last_blocker_type": "source_error",
+      "last_reason": "Repeated Incapsula block pages detected on official seeds.",
+      "updated_at": "2026-05-08T04:13:22+00:00"
+    }
+  }
+}

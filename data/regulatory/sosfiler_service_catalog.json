@@ -1,0 +1,438 @@
+{
+  "status": "draft_seed",
+  "pricing_rule": "SOSFiler service prices exclude government fees, portal processing fees, publication costs, shipping, registered agent partner costs, and expedite fees unless explicitly stated.",
+  "services": [
+    {
+      "service_code": "entity_formation_llc",
+      "service_name": "LLC Formation",
+      "service_category": "formation",
+      "filing_category": "formation",
+      "entity_type_code": "llc",
+      "lifecycle_stage": "start",
+      "description": "Prepare and submit domestic LLC formation, collect state documents, and populate customer portal.",
+      "price": {"price_type": "flat", "amount_cents": 2900},
+      "competitor_benchmarks": [
+        {"competitor_code": "legalzoom", "competitor_price_text": "$0 + state fees basic LLC formation", "source_url": "https://www.legalzoom.com/business/business-formation/llc-pricing.html"},
+        {"competitor_code": "northwest_registered_agent", "competitor_price_cents": 3900, "competitor_price_text": "$39 + state fees", "source_url": "https://www.northwestregisteredagent.com/llc"},
+        {"competitor_code": "zenbusiness", "competitor_price_text": "$0 + state fees Starter; $199/year Pro; $399/year Premium", "source_url": "https://www.zenbusiness.com/pricing-formation-plans/"},
+        {"competitor_code": "bizee", "competitor_price_text": "$0 Basic + state fees; $199 Standard; $299 Premium", "source_url": "https://bizee.com/articles/bizee-basic-package/"},
+        {"competitor_code": "tailor_brands", "competitor_price_text": "$0 Lite + state fees; $199/year Essential; $249/year Elite", "source_url": "https://www.tailorbrands.com/product-pricing"},
+        {"competitor_code": "rocket_lawyer", "competitor_price_text": "$99.99 business registration or Legal+ membership", "source_url": "https://www.rocketlawyer.com/pricing"},
+        {"competitor_code": "corpnet", "competitor_price_cents": 9900, "competitor_price_text": "$99 Basic + state fees; $219 Deluxe; $269 Complete", "source_url": "https://www.corpnet.com/about/pricing/"}
+      ]
+    },
+    {
+      "service_code": "entity_formation_corporation",
+      "service_name": "Corporation Formation",
+      "service_category": "formation",
+      "filing_category": "formation",
+      "entity_type_code": "corporation",
+      "lifecycle_stage": "start",
+      "description": "Prepare and submit domestic for-profit corporation formation.",
+      "price": {"price_type": "flat", "amount_cents": 2900},
+      "competitor_benchmarks": [
+        {"competitor_code": "legalzoom", "competitor_price_text": "$149+ + state fees for S corp/C corp per NerdWallet", "source_url": "https://www.nerdwallet.com/business/legal/learn/legalzoom-review"},
+        {"competitor_code": "bizee", "competitor_price_text": "Formation packages vary by entity and state", "source_url": "https://bizee.com/bizee-business-services"}
+      ]
+    },
+    {
+      "service_code": "entity_formation_nonprofit",
+      "service_name": "Nonprofit Formation",
+      "service_category": "formation",
+      "filing_category": "formation",
+      "entity_type_code": "nonprofit_corporation",
+      "lifecycle_stage": "start",
+      "description": "Prepare and submit domestic nonprofit corporation formation.",
+      "price": {"price_type": "flat", "amount_cents": 2900},
+      "competitor_benchmarks": [
+        {"competitor_code": "legalzoom", "competitor_price_text": "$99+ + state fees for nonprofit per NerdWallet", "source_url": "https://www.nerdwallet.com/business/legal/learn/legalzoom-review"},
+        {"competitor_code": "bizee", "competitor_price_text": "Nonprofit formation offered", "source_url": "https://bizee.com/bizee-business-services"}
+      ]
+    },
+    {
+      "service_code": "foreign_qualification",
+      "service_name": "Foreign Qualification",
+      "service_category": "expansion",
+      "filing_category": "foreign_authority",
+      "lifecycle_stage": "expand",
+      "description": "Register an existing entity to do business in another state.",
+      "price": {"price_type": "flat", "amount_cents": 19900},
+      "competitor_benchmarks": [
+        {"competitor_code": "corpnet", "competitor_price_cents": 23900, "competitor_price_text": "$239 standard without RA; $388 with RA", "source_url": "https://www.corpnet.com/about/pricing/"},
+        {"competitor_code": "bizee", "competitor_price_text": "Foreign qualification offered", "source_url": "https://bizee.com/bizee-business-services"}
+      ]
+    },
+    {
+      "service_code": "registered_agent_service",
+      "service_name": "Registered Agent Service",
+      "service_category": "registered_agent",
+      "filing_category": "registered_agent_change",
+      "lifecycle_stage": "ongoing",
+      "description": "Provide or coordinate registered agent coverage and portal document delivery.",
+      "price": {"price_type": "flat", "amount_cents": 12500, "billing_interval": "year"},
+      "competitor_benchmarks": [
+        {"competitor_code": "northwest_registered_agent", "competitor_price_cents": 12500, "competitor_price_text": "$125/year", "source_url": "https://www.northwestregisteredagent.com/registered-agent/"},
+        {"competitor_code": "legalzoom", "competitor_price_cents": 24900, "competitor_price_text": "$249/year", "source_url": "https://www.legalzoom.com/business/business-operations/registered-agent-pricing.html"},
+        {"competitor_code": "harbor_compliance", "competitor_price_cents": 9900, "competitor_price_text": "$99 first year; renews at $149/year", "source_url": "https://www.harborcompliance.com/registered-agent-service?affiliate=1"},
+        {"competitor_code": "zenbusiness", "competitor_price_cents": 19900, "competitor_price_text": "$199/year renewal", "source_url": "https://help.zenbusiness.com/registered-agent-service/pricing"},
+        {"competitor_code": "bizee", "competitor_price_cents": 11900, "competitor_price_text": "Free first year, then $119/year", "source_url": "https://bizee.com/articles/bizee-basic-package/"},
+        {"competitor_code": "rocket_lawyer", "competitor_price_cents": 24999, "competitor_price_text": "$249.99/year, or $124.99/year with Legal+", "source_url": "https://www.rocketlawyer.com/pricing"},
+        {"competitor_code": "corpnet", "competitor_price_cents": 14900, "competitor_price_text": "$149/year", "source_url": "https://www.corpnet.com/about/pricing/"}
+      ]
+    },
+    {
+      "service_code": "registered_agent_change",
+      "service_name": "Registered Agent Change Filing",
+      "service_category": "registered_agent",
+      "filing_category": "registered_agent_change",
+      "lifecycle_stage": "change",
+      "description": "File a state registered agent change.",
+      "price": {"price_type": "flat", "amount_cents": 14900},
+      "competitor_benchmarks": [
+        {"competitor_code": "corpnet", "competitor_price_cents": 19900, "competitor_price_text": "$199 standard", "source_url": "https://www.corpnet.com/about/pricing/"}
+      ]
+    },
+    {
+      "service_code": "annual_report",
+      "service_name": "Annual or Periodic Report Filing",
+      "service_category": "compliance",
+      "filing_category": "annual_obligation",
+      "lifecycle_stage": "ongoing",
+      "description": "Prepare and submit state annual, biennial, statement of information, or periodic report.",
+      "price": {"price_type": "flat", "amount_cents": 2900},
+      "competitor_benchmarks": [
+        {"competitor_code": "legalzoom", "competitor_price_cents": 9900, "competitor_price_text": "$99 to $199/year annual report or compliance service", "source_url": "https://www.legalzoom.com/business/business-operations/certified-copies-pricing.html"},
+        {"competitor_code": "zenbusiness", "competitor_price_cents": 9900, "competitor_price_text": "Worry-Free Compliance starts at $99/year; formation-plan renewals can be $199/year", "source_url": "https://www.zenbusiness.com/pricing-formation-plans/"},
+        {"competitor_code": "bizee", "competitor_price_cents": 9900, "competitor_price_text": "$99 + state filing fees annual report service per public pricing reviews", "source_url": "https://www.forbes.com/advisor/business/incfile-review/"},
+        {"competitor_code": "corpnet", "competitor_price_cents": 9900, "competitor_price_text": "$99 standard", "source_url": "https://www.corpnet.com/about/pricing/"},
+        {"competitor_code": "northwest_registered_agent", "competitor_price_cents": 10000, "competitor_price_text": "$100 + state fee per public pricing reviews", "source_url": "https://www.forbes.com/advisor/business/services/northwest-registered-agent-review/"},
+        {"competitor_code": "harbor_compliance", "competitor_price_cents": 19900, "competitor_price_text": "$199 + state filing fee per public pricing reviews", "source_url": "https://www.forbes.com/advisor/business/harbor-compliance-review/"}
+      ]
+    },
+    {
+      "service_code": "compliance_subscription",
+      "service_name": "Compliance Subscription",
+      "service_category": "compliance",
+      "lifecycle_stage": "ongoing",
+      "description": "Ongoing compliance calendar, reminders, annual report coverage, and customer dashboard alerts.",
+      "price": {"price_type": "flat", "amount_cents": 14900, "billing_interval": "year"},
+      "competitor_benchmarks": [
+        {"competitor_code": "legalzoom", "competitor_price_cents": 19900, "competitor_price_text": "$199/year business compliance", "source_url": "https://www.legalzoom.com/business/business-operations/business-compliance-pricing.html"},
+        {"competitor_code": "zenbusiness", "competitor_price_text": "Worry-Free Compliance starts at $99/year; Pro renews at $199/year", "source_url": "https://www.zenbusiness.com/pricing-formation-plans/"},
+        {"competitor_code": "tailor_brands", "competitor_price_cents": 19900, "competitor_price_text": "$199/year Essential plan includes annual compliance", "source_url": "https://www.tailorbrands.com/product-pricing"}
+      ]
+    },
+    {
+      "service_code": "articles_of_amendment",
+      "service_name": "Articles of Amendment",
+      "service_category": "change_filing",
+      "filing_category": "amendment",
+      "lifecycle_stage": "change",
+      "description": "File state amendments for name, address, ownership, shares, management, or similar changes where supported.",
+      "price": {"price_type": "flat", "amount_cents": 14900},
+      "competitor_benchmarks": [
+        {"competitor_code": "corpnet", "competitor_price_cents": 19900, "competitor_price_text": "$199 standard", "source_url": "https://www.corpnet.com/about/pricing/"},
+        {"competitor_code": "bizee", "competitor_price_text": "Amendment service offered", "source_url": "https://bizee.com/bizee-business-services"}
+      ]
+    },
+    {
+      "service_code": "dba_fbn",
+      "service_name": "DBA, FBN, or Assumed Name Filing",
+      "service_category": "name_filing",
+      "filing_category": "dba_fbn",
+      "lifecycle_stage": "start",
+      "description": "Research and submit state, county, or city assumed-name filing.",
+      "price": {"price_type": "flat", "amount_cents": 9900},
+      "competitor_benchmarks": [
+        {"competitor_code": "corpnet", "competitor_price_cents": 9900, "competitor_price_text": "$99 standard", "source_url": "https://www.corpnet.com/about/pricing/"},
+        {"competitor_code": "bizee", "competitor_price_text": "DBA service offered", "source_url": "https://bizee.com/bizee-business-services"}
+      ]
+    },
+    {
+      "service_code": "business_license_research",
+      "service_name": "Business License Research",
+      "service_category": "license",
+      "filing_category": "business_license",
+      "lifecycle_stage": "start",
+      "description": "Identify likely federal, state, county, and city licenses for one business location.",
+      "price": {"price_type": "flat", "amount_cents": 9900},
+      "competitor_benchmarks": [
+        {"competitor_code": "legalzoom", "competitor_price_cents": 9900, "competitor_price_text": "$99/year business licenses", "source_url": "https://www.legalzoom.com/business/business-operations/certified-copies-pricing.html"},
+        {"competitor_code": "corpnet", "competitor_price_cents": 19900, "competitor_price_text": "$199 one location; $72 each additional", "source_url": "https://www.corpnet.com/about/pricing/"}
+      ]
+    },
+    {
+      "service_code": "business_license_filing_basic",
+      "service_name": "Basic Business License Filing",
+      "service_category": "license",
+      "filing_category": "business_license",
+      "lifecycle_stage": "start",
+      "description": "Prepare and submit a basic state/local business license application.",
+      "price": {"price_type": "starts_at", "minimum_amount_cents": 29900},
+      "competitor_benchmarks": [
+        {"competitor_code": "corpnet", "competitor_price_text": "Starting from $399", "source_url": "https://www.corpnet.com/about/pricing/"}
+      ]
+    },
+    {
+      "service_code": "business_license_filing_specialized",
+      "service_name": "Specialized Business License Filing",
+      "service_category": "license",
+      "filing_category": "other_license",
+      "lifecycle_stage": "start",
+      "description": "Prepare and submit a specialized regulated license application.",
+      "price": {"price_type": "starts_at", "minimum_amount_cents": 59900},
+      "competitor_benchmarks": [
+        {"competitor_code": "corpnet", "competitor_price_text": "Starting from $699 specialized; starting at $899 advanced", "source_url": "https://www.corpnet.com/about/pricing/"}
+      ]
+    },
+    {
+      "service_code": "business_license_renewal",
+      "service_name": "Business License Renewal",
+      "service_category": "license",
+      "filing_category": "renewal",
+      "lifecycle_stage": "renew",
+      "description": "Track and submit renewal for a state or local business license.",
+      "price": {"price_type": "range", "minimum_amount_cents": 14900, "maximum_amount_cents": 19900},
+      "competitor_benchmarks": [
+        {"competitor_code": "corpnet", "competitor_price_text": "$169-$199", "source_url": "https://www.corpnet.com/about/pricing/"}
+      ]
+    },
+    {
+      "service_code": "ein_online",
+      "service_name": "EIN Online Filing",
+      "service_category": "tax",
+      "lifecycle_stage": "start",
+      "description": "Submit IRS EIN application and place confirmation in customer portal.",
+      "price": {"price_type": "flat", "amount_cents": 6900},
+      "competitor_benchmarks": [
+        {"competitor_code": "legalzoom", "competitor_price_cents": 7900, "competitor_price_text": "$79", "source_url": "https://www.legalzoom.com/business/business-operations/certified-copies-pricing.html"},
+        {"competitor_code": "corpnet", "competitor_price_cents": 6900, "competitor_price_text": "$69 online standard", "source_url": "https://www.corpnet.com/about/pricing/"},
+        {"competitor_code": "northwest_registered_agent", "competitor_price_cents": 5000, "competitor_price_text": "$50 per third-party review", "source_url": "https://www.llc.org/review/northwest-registered-agent/"}
+      ]
+    },
+    {
+      "service_code": "state_tax_registration",
+      "service_name": "State Tax Registration",
+      "service_category": "tax",
+      "filing_category": "tax_registration",
+      "lifecycle_stage": "start",
+      "description": "Register for state tax accounts such as sales tax, withholding, unemployment, or corporate income tax.",
+      "price": {"price_type": "starts_at", "minimum_amount_cents": 19900},
+      "competitor_benchmarks": [
+        {"competitor_code": "corpnet", "competitor_price_text": "$199 standard for sales tax, SIT, SUI, or corporate income tax registrations", "source_url": "https://www.corpnet.com/about/pricing/"}
+      ]
+    },
+    {
+      "service_code": "s_corp_election",
+      "service_name": "S Corporation Election",
+      "service_category": "tax",
+      "lifecycle_stage": "change",
+      "description": "Prepare and submit IRS S corporation election.",
+      "price": {"price_type": "flat", "amount_cents": 9900},
+      "competitor_benchmarks": [
+        {"competitor_code": "corpnet", "competitor_price_cents": 9900, "competitor_price_text": "$99 standard", "source_url": "https://www.corpnet.com/about/pricing/"}
+      ]
+    },
+    {
+      "service_code": "boi_foreign_reporting_company",
+      "service_name": "BOI Report for Foreign Reporting Company",
+      "service_category": "federal_compliance",
+      "filing_category": "beneficial_ownership_report",
+      "lifecycle_stage": "start",
+      "description": "Beneficial ownership report only where FinCEN rules apply to a foreign reporting company.",
+      "price": {"price_type": "flat", "amount_cents": 14900},
+      "competitor_benchmarks": [
+        {"competitor_code": "corpnet", "competitor_price_cents": 19900, "competitor_price_text": "$199", "source_url": "https://www.corpnet.com/about/pricing/"},
+        {"competitor_code": "northwest_registered_agent", "competitor_price_text": "BOI reporting service offered", "source_url": "https://www.northwestregisteredagent.com/boi-reporting/beneficial-ownership-report-service"}
+      ]
+    },
+    {
+      "service_code": "operating_agreement",
+      "service_name": "Operating Agreement",
+      "service_category": "document",
+      "entity_type_code": "llc",
+      "lifecycle_stage": "start",
+      "description": "Generate LLC operating agreement and store in customer portal.",
+      "included": true,
+      "requires_official_filing_record": false,
+      "price": {"price_type": "flat", "amount_cents": 0},
+      "competitor_benchmarks": [
+        {"competitor_code": "legalzoom", "competitor_price_cents": 9900, "competitor_price_text": "$99", "source_url": "https://www.legalzoom.com/business/business-operations/certified-copies-pricing.html"},
+        {"competitor_code": "corpnet", "competitor_price_cents": 9900, "competitor_price_text": "$99 standard", "source_url": "https://www.corpnet.com/about/pricing/"}
+      ]
+    },
+    {
+      "service_code": "bylaws_and_minutes",
+      "service_name": "Corporate Bylaws and Minutes",
+      "service_category": "document",
+      "entity_type_code": "corporation",
+      "lifecycle_stage": "start",
+      "description": "Generate bylaws, initial minutes, and initial resolutions for corporations.",
+      "included": true,
+      "requires_official_filing_record": false,
+      "price": {"price_type": "flat", "amount_cents": 0},
+      "competitor_benchmarks": [
+        {"competitor_code": "corpnet", "competitor_price_cents": 9900, "competitor_price_text": "$99 standard custom bylaws and minutes", "source_url": "https://www.corpnet.com/about/pricing/"}
+      ]
+    },
+    {
+      "service_code": "stock_certificates",
+      "service_name": "Stock Certificates",
+      "service_category": "document",
+      "entity_type_code": "corporation",
+      "lifecycle_stage": "start",
+      "description": "Generate stock certificate templates or set of certificates for corporations.",
+      "requires_official_filing_record": false,
+      "price": {"price_type": "flat", "amount_cents": 2500},
+      "competitor_benchmarks": [
+        {"competitor_code": "corpnet", "competitor_price_cents": 2500, "competitor_price_text": "$25 standard for set of 25", "source_url": "https://www.corpnet.com/about/pricing/"}
+      ]
+    },
+    {
+      "service_code": "corporate_kit_and_seal",
+      "service_name": "Corporate or LLC Kit and Seal",
+      "service_category": "document",
+      "lifecycle_stage": "start",
+      "description": "Corporate or LLC kit, seal, certificates, and related organizational materials.",
+      "requires_official_filing_record": false,
+      "price": {"price_type": "flat", "amount_cents": 10000},
+      "competitor_benchmarks": [
+        {"competitor_code": "corpnet", "competitor_price_cents": 10000, "competitor_price_text": "$100 standard kit with embosser", "source_url": "https://www.corpnet.com/about/pricing/"}
+      ]
+    },
+    {
+      "service_code": "certificate_good_standing",
+      "service_name": "Certificate of Good Standing",
+      "service_category": "certificate",
+      "filing_category": "certificate_copy",
+      "lifecycle_stage": "ongoing",
+      "description": "Order certificate of good standing/status/existence from official authority.",
+      "price": {"price_type": "flat", "amount_cents": 6900},
+      "competitor_benchmarks": [
+        {"competitor_code": "corpnet", "competitor_price_cents": 6900, "competitor_price_text": "$69 standard", "source_url": "https://www.corpnet.com/about/pricing/"},
+        {"competitor_code": "bizee", "competitor_price_text": "Certificate of good standing service offered", "source_url": "https://bizee.com/bizee-business-services"}
+      ]
+    },
+    {
+      "service_code": "certified_copy",
+      "service_name": "Certified Copy",
+      "service_category": "certificate",
+      "filing_category": "certificate_copy",
+      "lifecycle_stage": "ongoing",
+      "description": "Order certified copies of formation or amendment documents.",
+      "price": {"price_type": "flat", "amount_cents": 9900},
+      "competitor_benchmarks": [
+        {"competitor_code": "corpnet", "competitor_price_cents": 9900, "competitor_price_text": "$99 standard", "source_url": "https://www.corpnet.com/about/pricing/"}
+      ]
+    },
+    {
+      "service_code": "apostille",
+      "service_name": "Apostille Certification",
+      "service_category": "certificate",
+      "lifecycle_stage": "ongoing",
+      "description": "Coordinate apostille certification for eligible business documents.",
+      "price": {"price_type": "flat", "amount_cents": 19900},
+      "competitor_benchmarks": [
+        {"competitor_code": "corpnet", "competitor_price_cents": 19900, "competitor_price_text": "$199 standard", "source_url": "https://www.corpnet.com/about/pricing/"}
+      ]
+    },
+    {
+      "service_code": "dissolution",
+      "service_name": "Dissolution or Cancellation",
+      "service_category": "closure",
+      "filing_category": "dissolution",
+      "lifecycle_stage": "close",
+      "description": "Prepare and submit state dissolution, cancellation, or termination filing.",
+      "price": {"price_type": "flat", "amount_cents": 24900},
+      "competitor_benchmarks": [
+        {"competitor_code": "corpnet", "competitor_price_cents": 29900, "competitor_price_text": "$299 standard", "source_url": "https://www.corpnet.com/about/pricing/"},
+        {"competitor_code": "bizee", "competitor_price_text": "Dissolution service offered", "source_url": "https://bizee.com/bizee-business-services"}
+      ]
+    },
+    {
+      "service_code": "reinstatement",
+      "service_name": "Entity Reinstatement",
+      "service_category": "recovery",
+      "filing_category": "reinstatement",
+      "lifecycle_stage": "recover",
+      "description": "Prepare and submit reinstatement or revival filings.",
+      "price": {"price_type": "starts_at", "minimum_amount_cents": 34900},
+      "competitor_benchmarks": [
+        {"competitor_code": "corpnet", "competitor_price_text": "Starting at $399 standard", "source_url": "https://www.corpnet.com/about/pricing/"},
+        {"competitor_code": "bizee", "competitor_price_text": "Reinstatement service offered", "source_url": "https://bizee.com/bizee-business-services"}
+      ]
+    },
+    {
+      "service_code": "entity_conversion",
+      "service_name": "Entity Conversion",
+      "service_category": "change_filing",
+      "filing_category": "amendment",
+      "lifecycle_stage": "change",
+      "description": "Coordinate conversion from one entity type to another where supported.",
+      "price": {"price_type": "starts_at", "minimum_amount_cents": 29900},
+      "competitor_benchmarks": [
+        {"competitor_code": "corpnet", "competitor_price_text": "Starting at $299 standard", "source_url": "https://www.corpnet.com/about/pricing/"}
+      ]
+    },
+    {
+      "service_code": "trademark_search",
+      "service_name": "Trademark Search",
+      "service_category": "intellectual_property",
+      "filing_category": "trademark",
+      "lifecycle_stage": "protect",
+      "description": "Federal trademark search report for word, logo, or combined mark.",
+      "price": {"price_type": "starts_at", "minimum_amount_cents": 24900},
+      "competitor_benchmarks": [
+        {"competitor_code": "corpnet", "competitor_price_text": "$299 word, $399 logo, $499 word + logo", "source_url": "https://www.corpnet.com/about/pricing/"}
+      ]
+    },
+    {
+      "service_code": "trademark_registration",
+      "service_name": "Trademark Registration",
+      "service_category": "intellectual_property",
+      "filing_category": "trademark",
+      "lifecycle_stage": "protect",
+      "description": "Prepare and file USPTO trademark application, excluding federal filing fees.",
+      "price": {"price_type": "starts_at", "minimum_amount_cents": 59900},
+      "competitor_benchmarks": [
+        {"competitor_code": "legalzoom", "competitor_price_text": "$899 + federal filing fees per NerdWallet", "source_url": "https://www.nerdwallet.com/business/legal/learn/legalzoom-review"},
+        {"competitor_code": "northwest_registered_agent", "competitor_price_text": "$599 per Forbes Advisor", "source_url": "https://www.forbes.com/advisor/business/services/northwest-registered-agent-review/"}
+      ]
+    },
+    {
+      "service_code": "copyright_application",
+      "service_name": "Copyright Application",
+      "service_category": "intellectual_property",
+      "lifecycle_stage": "protect",
+      "description": "Prepare and file copyright application, excluding federal filing fees.",
+      "price": {"price_type": "flat", "amount_cents": 11400},
+      "competitor_benchmarks": [
+        {"competitor_code": "legalzoom", "competitor_price_text": "$114 + federal filing fees per NerdWallet", "source_url": "https://www.nerdwallet.com/business/legal/learn/legalzoom-review"}
+      ]
+    },
+    {
+      "service_code": "provisional_patent",
+      "service_name": "Initial or Provisional Patent Application Support",
+      "service_category": "intellectual_property",
+      "filing_category": "patent",
+      "lifecycle_stage": "protect",
+      "description": "Initial patent application support, excluding federal filing fees and attorney drafting unless separately scoped.",
+      "price": {"price_type": "starts_at", "minimum_amount_cents": 29900},
+      "competitor_benchmarks": [
+        {"competitor_code": "legalzoom", "competitor_price_text": "$299 + federal filing fees per NerdWallet", "source_url": "https://www.nerdwallet.com/business/legal/learn/legalzoom-review"}
+      ]
+    },
+    {
+      "service_code": "virtual_address",
+      "service_name": "Virtual Business Address",
+      "service_category": "business_identity",
+      "lifecycle_stage": "start",
+      "description": "Provide or partner for virtual business address and mail scan service.",
+      "price": {"price_type": "flat", "amount_cents": 2900, "billing_interval": "month"},
+      "competitor_benchmarks": [
+        {"competitor_code": "legalzoom", "competitor_price_cents": 2900, "competitor_price_text": "$29/month virtual mail", "source_url": "https://www.legalzoom.com/business/business-operations/initial-reports-pricing.html"},
+        {"competitor_code": "northwest_registered_agent", "competitor_price_text": "Business address included with LLC package per Northwest LLC page", "source_url": "https://www.northwestregisteredagent.com/llc"}
+      ]
+    }
+  ]
+}

@@ -7,71 +7,196 @@
 <title>Terms of Service — SOSFiler</title>
 <meta name="description" content="SOSFiler Terms of Service — document preparation and filing service.">
 <link rel="manifest" href="/manifest.json">
-<meta name="theme-color" content="#CCFF00">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<meta name="theme-color" content="#0A0A0A">
+<link rel="apple-touch-icon" href="/icon-192.png">
+<link rel="stylesheet" href="/chat-widget.css">
 <style>
 :root {
   --bg: #0A0A0A;
+  --bg-tint: #0E0E0E;
   --surface: #141414;
-  --border: #1E1E1E;
+  --surface-2: #1A1A1A;
+  --border: #1F1F1F;
+  --border-strong: #2A2A2A;
   --text: #FFFFFF;
-  --text-secondary: #999999;
-  --text-body: #CCCCCC;
+  --muted: #9A9A9A;
+  --muted-2: #6B6B6B;
+  --body: #D0D0D0;
   --accent: #CCFF00;
-  --accent2: #39FF14;
   --cyan: #00FFE5;
   --green: #39FF14;
   --red: #FF3366;
-  --yellow: #FF6B00;
-  --glow-sm: rgba(204,255,0,0.15);
+  --yellow: #FFB23F;
+  --glow-sm: rgba(204,255,0,0.12);
+
+  --font-display: -apple-system, BlinkMacSystemFont, 'SF Pro Display', system-ui, sans-serif;
+  --font-body:    -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif;
+  --font-mono:    'JetBrains Mono', 'IBM Plex Mono', ui-monospace, Menlo, monospace;
 }
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; -webkit-font-smoothing: antialiased; }
-a { color: var(--cyan); text-decoration: none; transition: color 0.2s ease; }
-a:hover { color: var(--accent); text-decoration: underline; }
-
-::-webkit-scrollbar { width: 6px; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: var(--font-body);
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+a { color: var(--accent); text-decoration: none; border-bottom: 1px solid rgba(204,255,0,0.3); transition: border-color .15s ease, color .15s ease; }
+a:hover { border-bottom-color: var(--accent); color: #DBFF33; }
+::selection { background: var(--accent); color: #000; }
+::-webkit-scrollbar { width: 8px; }
 ::-webkit-scrollbar-track { background: var(--bg); }
-::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
+::-webkit-scrollbar-thumb { background: #2A2A2A; border-radius: 2px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--accent); }
 
-.topbar { background: rgba(10,10,10,0.92); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); border-bottom: 1px solid var(--border); padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
-.topbar .logo { font-size: 20px; font-weight: 800; color: #fff; }
-.topbar .logo span { color: var(--accent); }
-.container { max-width: 800px; margin: 0 auto; padding: 40px 20px 80px; }
-h1 { font-size: 32px; margin-bottom: 8px; font-weight: 800; }
-.last-updated { color: var(--text-secondary); font-size: 14px; margin-bottom: 40px; }
-h2 { font-size: 20px; margin-top: 40px; margin-bottom: 12px; color: var(--accent); font-weight: 700; }
-h3 { font-size: 16px; margin-top: 24px; margin-bottom: 8px; color: var(--accent); font-weight: 600; }
-p, li { font-size: 15px; color: var(--text-body); margin-bottom: 12px; }
+nav {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(10,10,10,0.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  padding: 14px 0;
+}
+.container { max-width: 800px; margin: 0 auto; padding: 0 24px; }
+.nav-inner { display: flex; justify-content: space-between; align-items: center; gap: 24px; }
+.brand { display: flex; align-items: center; gap: 12px; }
+.brand img { height: 56px; width: auto; }
+.brand-mark { font-family: var(--font-display); font-size: 18px; font-weight: 900; letter-spacing: -0.02em; }
+.brand-mark .dot { color: var(--accent); }
+.back-link { font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); border: none; }
+.back-link:hover { color: var(--accent); }
+.back-link::before { content: '← '; }
+
+.page { padding: 80px 0 96px; }
+@media (max-width: 760px) { .page { padding: 56px 0 72px; } }
+
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--accent);
+  font-weight: 600;
+  margin-bottom: 16px;
+  display: inline-flex; align-items: center; gap: 10px;
+}
+.eyebrow::before { content: ''; width: 18px; height: 1px; background: var(--accent); display: inline-block; }
+
+h1 {
+  font-family: var(--font-display);
+  font-size: clamp(40px, 6vw, 64px);
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  line-height: 1.02;
+  margin-bottom: 12px;
+}
+.last-updated {
+  font-family: var(--font-mono);
+  color: var(--muted-2);
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-bottom: 32px;
+}
+
+.warning {
+  background: rgba(255,178,63,0.06);
+  border-left: 3px solid var(--yellow);
+  padding: 20px 24px;
+  margin: 32px 0 48px;
+  font-size: 15.5px;
+  color: var(--body);
+}
+.warning strong { color: var(--yellow); font-weight: 700; }
+.warning ul { margin-top: 10px; }
+
+h2 {
+  font-family: var(--font-display);
+  font-size: 26px;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  margin: 56px 0 16px;
+  color: #fff;
+}
+h2::before {
+  content: attr(data-num);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--accent);
+  font-weight: 600;
+  display: block;
+  margin-bottom: 6px;
+  letter-spacing: 0.08em;
+}
+h3 {
+  font-family: var(--font-display);
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin: 28px 0 10px;
+  color: #fff;
+}
+p, li { font-size: 15.5px; color: var(--body); margin-bottom: 14px; }
 ul, ol { padding-left: 24px; margin-bottom: 16px; }
 li { margin-bottom: 6px; }
-.highlight { background: rgba(204,255,0,0.03); border: 1px solid rgba(204,255,0,0.1); border-radius: 8px; padding: 16px 20px; margin: 20px 0; font-size: 15px; }
+strong { color: #fff; font-weight: 600; }
+
+.highlight {
+  background: rgba(204,255,0,0.05);
+  border-left: 3px solid var(--accent);
+  padding: 16px 20px;
+  margin: 24px 0;
+  font-size: 15.5px;
+  color: var(--body);
+}
 .highlight strong { color: #fff; }
-.warning { background: rgba(255,107,0,0.06); border: 1px solid rgba(255,107,0,0.15); border-radius: 8px; padding: 16px 20px; margin: 20px 0; font-size: 15px; color: var(--yellow); }
-footer { border-top: 1px solid var(--border); padding: 40px 20px; text-align: center; color: var(--text-secondary); font-size: 13px; }
-footer a { color: var(--cyan); }
+
+footer {
+  border-top: 1px solid var(--border);
+  padding: 40px 0 56px;
+}
+footer .container { display: flex; justify-content: space-between; align-items: center; gap: 24px; flex-wrap: wrap; }
+footer .copyright {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted-2);
+}
+footer .footer-links { display: flex; gap: 20px; flex-wrap: wrap; }
+footer .footer-links a { color: var(--muted); font-size: 13px; border: none; }
+footer .footer-links a:hover { color: var(--accent); }
+@media (max-width: 600px) {
+  footer .container { flex-direction: column; align-items: flex-start; }
+}
 </style>
 </head>
 <body>
 
-<div class="topbar">
-  <a href="/" class="logo">📋 SOS<span>Filer</span></a>
-  <a href="/" style="color: var(--text-secondary); font-size: 14px; min-height: 44px; display: flex; align-items: center;">← Back to Home</a>
-</div>
+<nav>
+  <div class="container nav-inner">
+    <a class="brand" href="/" style="border:none;">
+      <img src="logo.png" alt="SOSFiler">
+      <span class="brand-mark">SOS<span class="dot">F</span>iler</span>
+    </a>
+    <a href="/" class="back-link">Back to home</a>
+  </div>
+</nav>
 
+<div class="page">
 <div class="container">
 
-<h1>Terms of Service</h1>
-<p class="last-updated">Last Updated: March 19, 2026</p>
+<div class="eyebrow">Legal · Terms</div>
+<h1>Terms of Service.</h1>
+<div class="last-updated">Last updated · March 19, 2026</div>
 
 <div class="warning">
-  <strong>IMPORTANT NOTICE:</strong> SOSFiler is a document preparation and filing service. We are NOT a law firm. We do NOT provide legal advice. We are NOT attorneys. If you need legal advice, please consult a licensed attorney in your jurisdiction.
+  <strong>IMPORTANT NOTICE.</strong> SOSFiler is a document preparation and filing service. We are NOT a law firm. We do NOT provide legal advice. We are NOT attorneys. If you need legal advice, please consult a licensed attorney in your jurisdiction.
 </div>
 
-<h2>1. Service Description</h2>
+<h2 data-num="01">Service description</h2>
 <p>SOSFiler ("Company," "we," "us," or "our") provides online document preparation and business formation filing services. When you use our services, we act as the <strong>Organizer</strong> for your limited liability company (LLC) or other business entity. This means we prepare, sign as Organizer, and submit formation documents to the appropriate state authorities on your behalf.</p>
 <p>Our services include:</p>
 <ul>
@@ -79,7 +204,7 @@ footer a { color: var(--cyan); }
   <li>Filing formation documents with the relevant Secretary of State</li>
   <li>Preparation of customized Operating Agreements</li>
   <li>Application for an Employer Identification Number (EIN) with the IRS</li>
-  <li>Registered Agent services (first year included; renewal available)</li>
+  <li>Optional partner-assisted registered agent coordination when available</li>
   <li>Compliance calendar setup and deadline reminders</li>
   <li>Preparation of supplementary formation documents (Initial Resolutions, Meeting Minutes, Membership Certificates)</li>
   <li>Generation of a Statement of Organizer transferring authority to Members upon formation approval</li>
@@ -87,7 +212,7 @@ footer a { color: var(--cyan); }
   <li>Business license research and filing assistance</li>
 </ul>
 
-<h2>2. Customer Authorization</h2>
+<h2 data-num="02">Customer authorization</h2>
 <p>By placing an order through SOSFiler and completing payment, you ("Customer," "you," or "your") expressly authorize SOSFiler to:</p>
 <ul>
   <li><strong>Act as Organizer</strong> for the formation of your business entity</li>
@@ -98,7 +223,7 @@ footer a { color: var(--cyan); }
 </ul>
 <p>This authorization is granted through a legally binding clickwrap agreement at checkout, where you must affirmatively check a box confirming your authorization before payment is processed.</p>
 
-<h2>3. Scope of Service — What We Are and Are NOT</h2>
+<h2 data-num="03">Scope of service — what we are and are NOT</h2>
 
 <div class="highlight">
   <strong>We ARE:</strong> A document preparation and filing service. We prepare formation documents based on the information you provide and file them with state authorities on your behalf.
@@ -106,7 +231,7 @@ footer a { color: var(--cyan); }
 
 <div class="warning">
   <strong>We are NOT:</strong>
-  <ul style="margin-top: 8px;">
+  <ul>
     <li>A law firm or legal services provider</li>
     <li>Licensed attorneys (none of our services constitute the practice of law)</li>
     <li>Tax advisors or certified public accountants</li>
@@ -124,19 +249,19 @@ footer a { color: var(--cyan); }
 </ul>
 <p>You acknowledge that all business decisions, including choice of entity type, state of formation, and operating agreement terms, are your own decisions. We strongly recommend consulting with a licensed attorney and/or CPA before forming a business entity.</p>
 
-<h2>4. Fee Structure</h2>
+<h2 data-num="04">Fee structure</h2>
 
-<h3>4.1 Service Fees</h3>
+<h3>4.1 Service fees</h3>
 <p>Our service fees are clearly displayed before you complete your order:</p>
 <ul>
-  <li><strong>LLC Formation Package:</strong> $49.00 (one-time) — includes Articles of Organization preparation and filing, Operating Agreement, EIN application, first year of Registered Agent service, compliance calendar, and all supplementary documents</li>
+  <li><strong>LLC Formation Package:</strong> $29.00 (one-time) plus official state fees — includes intake validation, formation package preparation, state filing routing, evidence tracking, and dashboard status</li>
   <li><strong>DBA Filing:</strong> $29.00 (one-time) — document preparation and filing</li>
   <li><strong>Business License Filing:</strong> $49.00–$99.00 depending on license type</li>
-  <li><strong>Registered Agent Renewal:</strong> $49.00/year (after included first year)</li>
-  <li><strong>Annual Report Filing Service:</strong> $25.00/year (optional)</li>
+  <li><strong>Registered Agent Service:</strong> optional partner-assisted service shown separately when available</li>
+  <li><strong>Annual Report Filing Service:</strong> $29.00 per filing plus official state fees (optional)</li>
 </ul>
 
-<h3>4.2 Government Filing Fees (Pass-Through)</h3>
+<h3>4.2 Government filing fees (pass-through)</h3>
 <p>In addition to our service fees, each filing requires a government fee paid to the relevant state authority. These fees:</p>
 <ul>
   <li>Are <strong>set by the government</strong> — we have no control over their amount</li>
@@ -146,26 +271,26 @@ footer a { color: var(--cyan); }
 </ul>
 <p>At checkout, you will see a clear breakdown: "SOSFiler service fee: $XX | State of [X] filing fee (government charge): $XX | Total: $XX."</p>
 
-<h3>4.3 No Hidden Fees</h3>
+<h3>4.3 No hidden fees</h3>
 <p>We do not charge hidden fees, processing fees, or surprise charges. The price shown at checkout is the price you pay. Period.</p>
 
-<h2>5. Refund Policy</h2>
+<h2 data-num="05">Refund policy</h2>
 <ul>
   <li><strong>Before filing submission:</strong> If we have not yet submitted your formation documents to the state, you may cancel for a <strong>full refund</strong> of all charges (service fee + government fee).</li>
-  <li><strong>After filing submission:</strong> Once documents have been submitted to the state, government filing fees are <strong>non-refundable</strong> (as the state has already received and processed the payment). Our $49 service fee is refundable if you are not satisfied — no questions asked.</li>
+  <li><strong>After filing submission:</strong> Once documents have been submitted to the state, government filing fees are <strong>non-refundable</strong> (as the state has already received and processed the payment). Our service fee is refundable if you are not satisfied — no questions asked.</li>
   <li><strong>Government fees:</strong> State filing fees paid to government authorities are non-refundable once submitted. This applies to all government agencies. We will clearly notify you before submitting any documents to a state authority.</li>
   <li><strong>Registered Agent refunds:</strong> Registered Agent renewal fees are refundable on a prorated basis for the remaining term if you transfer to another registered agent provider.</li>
 </ul>
-<p>To request a refund, email <a href="mailto:s.swan@providence.aero">Contact</a> with your Order ID.</p>
+<p>To request a refund, email <a href="mailto:support@sosfiler.com">support@sosfiler.com</a> with your Order ID.</p>
 
-<h2>6. Organizer Role and Statement of Organizer</h2>
+<h2 data-num="06">Organizer role and Statement of Organizer</h2>
 <p>When we file your formation documents, SOSFiler is listed as the <strong>Organizer</strong> of the LLC. This provides privacy benefits to you — your personal information does not appear as the organizer on public filings.</p>
 <p>Upon approval of your formation by the state, we automatically generate a <strong>Statement of Organizer</strong> that formally transfers all rights, duties, and authority from SOSFiler (as Organizer) to you (the Members) as identified in the Operating Agreement. This document is placed in your Document Vault in the dashboard.</p>
 <p>Our role as Organizer is purely administrative. We do not retain any ownership, management, or decision-making authority over your entity after the Statement of Organizer is executed.</p>
 
-<h2>7. Registered Agent Service</h2>
+<h2 data-num="07">Registered Agent service</h2>
 
-<h3>7.1 What's Included</h3>
+<h3>7.1 What's included</h3>
 <p>Your first year of Registered Agent service is included with your formation package at no additional cost. This includes:</p>
 <ul>
   <li>Designated registered agent address in your state of formation</li>
@@ -182,21 +307,21 @@ footer a { color: var(--cyan); }
   <li>We will never charge your payment method without your explicit consent for renewal.</li>
 </ul>
 
-<h3>7.3 Cancellation and Transfer</h3>
+<h3>7.3 Cancellation and transfer</h3>
 <p>You may cancel Registered Agent service at any time:</p>
 <ul>
-  <li>Email <a href="mailto:s.swan@providence.aero">Contact</a> or use the self-service option in your dashboard</li>
+  <li>Email <a href="mailto:support@sosfiler.com">support@sosfiler.com</a> or use the self-service option in your dashboard</li>
   <li>We will assist with transferring Registered Agent designation to your new provider</li>
   <li>If cancelled mid-term, you receive a prorated refund for the remaining period</li>
   <li>You must file a change of registered agent with your state — we provide instructions and can assist for no additional charge</li>
 </ul>
 
-<h2>8. Auto-Renewal Policy</h2>
+<h2 data-num="08">Auto-renewal policy</h2>
 <div class="highlight">
   <strong>We do not auto-renew any service without your explicit opt-in.</strong> Unlike many competitors, we will never silently charge your card. Every renewal requires your affirmative action. You can manage all renewals online in your dashboard or by contacting us.
 </div>
 
-<h2>9. Limitation of Liability</h2>
+<h2 data-num="09">Limitation of liability</h2>
 <p>TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW:</p>
 <ul>
   <li>SOSFiler's total liability to you for any claims arising from or related to our services shall not exceed the total fees you paid to SOSFiler (excluding government filing fees) in the twelve (12) months preceding the claim.</li>
@@ -206,7 +331,7 @@ footer a { color: var(--cyan); }
   <li>We are not liable for the legal sufficiency or enforceability of any documents we prepare — our documents are based on standard templates and the information you provide.</li>
 </ul>
 
-<h2>10. Privacy and Data Security</h2>
+<h2 data-num="10">Privacy and data security</h2>
 <p>We take the security of your personal information seriously. A summary of our data practices:</p>
 <ul>
   <li><strong>What we collect:</strong> Names, addresses, email addresses, and SSN/ITIN (for EIN filing only)</li>
@@ -216,44 +341,48 @@ footer a { color: var(--cyan); }
 </ul>
 <p>For complete details, see our <a href="/privacy.html">Privacy Policy</a>.</p>
 
-<h2>11. Data Retention and Deletion</h2>
+<h2 data-num="11">Data retention and deletion</h2>
 <ul>
   <li><strong>Formation documents:</strong> Retained in your Document Vault for as long as your account is active</li>
   <li><strong>SSN/ITIN data:</strong> Encrypted and retained only for the duration necessary to complete the EIN application, then permanently deleted within 90 days of EIN receipt</li>
   <li><strong>Payment information:</strong> Processed by Stripe — we do not store credit card numbers</li>
-  <li><strong>Deletion requests:</strong> You may request deletion of your personal data at any time by emailing <a href="mailto:s.swan@providence.aero">Contact</a>. We will comply within 30 days, except where retention is required by law.</li>
+  <li><strong>Deletion requests:</strong> You may request deletion of your personal data at any time by emailing <a href="mailto:support@sosfiler.com">support@sosfiler.com</a>. We will comply within 30 days, except where retention is required by law.</li>
 </ul>
 
-<h2>12. Accuracy of Information</h2>
+<h2 data-num="12">Accuracy of information</h2>
 <p>You are responsible for the accuracy of all information you provide. We prepare documents based on the information you enter in our wizard. Errors in your submitted information may result in filing rejections or incorrect documents. Please review all information carefully at checkout before authorizing us to file.</p>
 
-<h2>13. Governing Law and Dispute Resolution</h2>
+<h2 data-num="13">Governing law and dispute resolution</h2>
 <p>These Terms of Service are governed by and construed in accordance with the laws of the <strong>State of Nevada</strong>, without regard to its conflict of law provisions.</p>
 <p>Any dispute arising from or relating to these Terms or our services shall be resolved through binding arbitration administered by the American Arbitration Association (AAA) under its Commercial Arbitration Rules, conducted in Washoe County, Nevada. Each party shall bear its own costs and attorney's fees.</p>
 <p>You agree that any dispute resolution proceedings will be conducted only on an individual basis and not in a class, consolidated, or representative action.</p>
 
-<h2>14. Changes to These Terms</h2>
+<h2 data-num="14">Changes to these terms</h2>
 <p>We may update these Terms from time to time. When we do, we will update the "Last Updated" date at the top of this page. If we make material changes, we will notify you by email. Your continued use of our services after changes take effect constitutes acceptance of the updated Terms.</p>
 
-<h2>15. Contact</h2>
+<h2 data-num="15">Contact</h2>
 <p>If you have questions about these Terms of Service, contact us:</p>
 <ul>
-  <li><strong>Email:</strong> <a href="mailto:s.swan@providence.aero">Contact</a></li>
+  <li><strong>Email:</strong> <a href="mailto:support@sosfiler.com">support@sosfiler.com</a></li>
   <li><strong>Website:</strong> <a href="/">sosfiler.com</a></li>
 </ul>
 
 </div>
+</div>
 
 <footer>
-  <p>SOSFiler — Honest business formation.</p>
-  <p style="margin-top: 8px;">
-    <a href="/">Home</a> · 
-    <a href="/terms.html">Terms of Service</a> · 
-    <a href="/privacy.html">Privacy Policy</a> · 
-    <a href="mailto:s.swan@providence.aero">Contact</a>
-  </p>
-  <p style="margin-top: 12px;">© 2026 SOSFiler. Not a law firm. We provide document preparation and filing services.</p>
+  <div class="container">
+    <div class="copyright">© 2026 SOSFiler · Not a law firm</div>
+    <div class="footer-links">
+      <a href="/">Home</a>
+      <a href="/app.html">Start your LLC</a>
+      <a href="/terms.html">Terms</a>
+      <a href="/privacy.html">Privacy</a>
+      <a href="mailto:support@sosfiler.com">Contact</a>
+    </div>
+  </div>
 </footer>
 
+<script src="/chat-widget.js"></script>
 </body>
 </html>

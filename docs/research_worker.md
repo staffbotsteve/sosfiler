@@ -42,6 +42,17 @@ python3 backend/research_worker.py next --state TX --limit 5
 python3 backend/research_worker.py run --state TX --limit 2
 ```
 
+Run a targeted official-source fee pass when a missing fee is suspected:
+
+```bash
+python3 -m backend.regulatory.research_runner fee-audit --state CA --limit 25
+
+python3 -m backend.regulatory.research_runner run \
+  --batch-id ca_state_filings \
+  --source-url https://www.sos.ca.gov/business-programs/business-entities/service-options/ \
+  --source-url https://www.sos.ca.gov/business-programs/business-entities/processing-dates
+```
+
 After an operator or research agent extracts enough official evidence:
 
 ```bash
@@ -62,6 +73,16 @@ Only `verified` jobs should feed automatic pricing or filing promises.
 
 1. Work state by state through the Phase 1 list: AZ, TX, NV, CA, DE, FL, WY, NY, GA, IL.
 2. Complete state filings, state tax/business gateways, county directories, municipality directories, county/local filings, city/local filings, and productization jobs for each state.
-3. Record official URLs, forms, fees, processing fees, prerequisites, portal steps, customer options, evidence gates, and confidence levels.
-4. Convert verified outputs into `data/filing_actions.json` records and product/operator flows.
-5. Use NotebookLM only for small, deliberate official-source bundles where summarization helps.
+3. Treat these as mandatory nationwide service lanes in state filing maps: name reservation, foreign qualification/withdrawal, amendments, reinstatements, dissolution, certificates of good standing/certified copies, apostille/authentication, BOI touchpoints, payroll tax registration, and sales/use tax registration.
+4. Record official URLs, forms, fees, processing fees, prerequisites, portal steps, customer options, evidence gates, and confidence levels.
+5. For every filing lane, capture official cost components and compute SOSFiler price as `official cost + $9.00`.
+6. Convert verified outputs into `data/filing_actions.json` records and product/operator flows.
+7. Use NotebookLM only for small, deliberate official-source bundles where summarization helps.
+
+## NotebookLM Role (Optional Sidecar)
+
+NotebookLM can speed extraction when you have a tight official-source packet for one state/service lane. Keep it bounded:
+
+- One state + one service lane per task (for example, `CA certificates of status and certified copies`).
+- Only official source documents/URLs in the source set.
+- Output must still be validated and captured back into queue evidence before status can move to `verified`.

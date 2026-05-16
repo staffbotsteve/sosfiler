@@ -1,191 +1,708 @@
 {
-  "purpose": "Official source seeds for the queue-driven SOSFiler research worker. These URLs are starting points only; fee and process facts must still be verified and extracted into filing action records.",
+  "purpose": "Official source seeds for the queue-driven SOSFiler research worker. Canonical state portal URLs come from data/portal_maps/state_portals_research.json; task-specific local URLs are supplemental official sources only.",
   "states": {
-    "AZ": {
+    "AK": {
       "all": [
-        "https://azcc.gov/corporations",
-        "https://azcc.gov/corporations/forms",
-        "https://azcc.gov/corporations/fee-and-payment-info"
+        "https://www.commerce.alaska.gov/cbp/main/"
       ],
+      "county_directory": [],
+      "municipality_directory": [],
       "state_filing_map": [
-        "https://azcc.gov/corporations/forms/corporation-forms",
-        "https://azcc.gov/corporations/forms"
+        "https://www.commerce.alaska.gov/cbp/main/"
       ],
       "state_tax_gateway": [
-        "https://azdor.gov/business"
+        "https://www.commerce.alaska.gov/cbp/main/"
+      ]
+    },
+    "AL": {
+      "all": [
+        "https://www.alabamainteractive.org/sos/"
+      ],
+      "county_directory": [],
+      "municipality_directory": [],
+      "state_filing_map": [
+        "https://www.alabamainteractive.org/sos/"
+      ],
+      "state_tax_gateway": [
+        "https://www.alabamainteractive.org/sos/"
+      ]
+    },
+    "AR": {
+      "all": [
+        "https://sos-corpfilings.ark.org/"
+      ],
+      "county_directory": [],
+      "municipality_directory": [],
+      "state_filing_map": [
+        "https://sos-corpfilings.ark.org/"
+      ],
+      "state_tax_gateway": [
+        "https://sos-corpfilings.ark.org/"
+      ]
+    },
+    "AZ": {
+      "all": [
+        "https://abc.azcc.gov/"
       ],
       "county_directory": [
         "https://az.gov/counties"
       ],
       "municipality_directory": [
         "https://www.azleague.org"
-      ]
-    },
-    "TX": {
-      "all": [
-        "https://www.sos.texas.gov/corp/",
-        "https://direct.sos.state.tx.us/",
-        "https://webservices.sos.state.tx.us/filing-status/status.aspx"
       ],
       "state_filing_map": [
-        "https://www.sos.texas.gov/corp/forms_boc.shtml",
-        "https://www.sos.texas.gov/corp/sosda/index.shtml"
+        "https://abc.azcc.gov/"
       ],
       "state_tax_gateway": [
-        "https://comptroller.texas.gov/taxes/franchise/",
-        "https://comptroller.texas.gov/taxes/permit/"
-      ],
-      "county_directory": [
-        "https://www.county.org/County-Information/County-Websites"
-      ],
-      "municipality_directory": [
-        "https://www.tml.org/215/City-Officials-Directory"
-      ]
-    },
-    "NV": {
-      "all": [
-        "https://www.nvsos.gov/sos/businesses",
-        "https://www.nvsilverflume.gov/home"
-      ],
-      "state_filing_map": [
-        "https://www.nvsos.gov/sos/businesses/start-a-business"
-      ],
-      "state_tax_gateway": [
-        "https://tax.nv.gov/"
-      ],
-      "county_directory": [
-        "https://www.nvnaco.org/members/"
-      ],
-      "municipality_directory": [
-        "https://www.nvleague.org/"
+        "https://abc.azcc.gov/"
       ]
     },
     "CA": {
       "all": [
-        "https://www.sos.ca.gov/business-programs/business-entities",
         "https://bizfileonline.sos.ca.gov/"
-      ],
-      "state_filing_map": [
-        "https://www.sos.ca.gov/business-programs/business-entities/forms",
-        "https://www.sos.ca.gov/business-programs/business-entities/filing-tips"
-      ],
-      "state_tax_gateway": [
-        "https://www.ftb.ca.gov/file/business/",
-        "https://www.cdtfa.ca.gov/services/"
       ],
       "county_directory": [
         "https://www.counties.org/county-websites-profile-information"
       ],
       "municipality_directory": [
         "https://www.calcities.org"
+      ],
+      "state_filing_map": [
+        "https://bizfileonline.sos.ca.gov/"
+      ],
+      "state_tax_gateway": [
+        "https://bizfileonline.sos.ca.gov/"
+      ]
+    },
+    "CO": {
+      "all": [
+        "https://www.sos.state.co.us/biz/BusinessEntityCriteriaExt.do"
+      ],
+      "county_directory": [],
+      "municipality_directory": [],
+      "state_filing_map": [
+        "https://www.sos.state.co.us/biz/BusinessEntityCriteriaExt.do"
+      ],
+      "state_tax_gateway": [
+        "https://www.sos.state.co.us/biz/BusinessEntityCriteriaExt.do"
+      ]
+    },
+    "CT": {
+      "all": [
+        "https://business.ct.gov/"
+      ],
+      "county_directory": [],
+      "municipality_directory": [],
+      "state_filing_map": [
+        "https://business.ct.gov/"
+      ],
+      "state_tax_gateway": [
+        "https://business.ct.gov/"
+      ]
+    },
+    "DC": {
+      "all": [
+        "https://corponline.dcra.dc.gov/"
+      ],
+      "county_directory": [],
+      "municipality_directory": [],
+      "state_filing_map": [
+        "https://corponline.dcra.dc.gov/"
+      ],
+      "state_tax_gateway": [
+        "https://corponline.dcra.dc.gov/"
       ]
     },
     "DE": {
       "all": [
-        "https://corp.delaware.gov/",
-        "https://icis.corp.delaware.gov/ecorp/"
-      ],
-      "state_filing_map": [
-        "https://corp.delaware.gov/forms/",
-        "https://corp.delaware.gov/fees/"
-      ],
-      "state_tax_gateway": [
-        "https://revenue.delaware.gov/business-tax-forms/"
+        "https://icis.corp.delaware.gov/ecorp/logintax.aspx"
       ],
       "county_directory": [
         "https://delaware.gov/guides/counties/"
       ],
       "municipality_directory": [
         "https://stateplanning.delaware.gov/municipalities/"
+      ],
+      "state_filing_map": [
+        "https://icis.corp.delaware.gov/ecorp/logintax.aspx"
+      ],
+      "state_tax_gateway": [
+        "https://icis.corp.delaware.gov/ecorp/logintax.aspx"
       ]
     },
     "FL": {
       "all": [
-        "https://dos.myflorida.com/sunbiz/",
-        "https://dos.fl.gov/sunbiz/"
-      ],
-      "state_filing_map": [
-        "https://dos.myflorida.com/sunbiz/forms/",
-        "https://dos.myflorida.com/sunbiz/efile/"
-      ],
-      "state_tax_gateway": [
-        "https://floridarevenue.com/taxes/Pages/registration.aspx"
+        "https://efile.sunbiz.org/"
       ],
       "county_directory": [
         "https://www.fl-counties.com/counties/"
       ],
       "municipality_directory": [
         "https://www.floridaleagueofcities.com/research-resources/municipal-directory"
-      ]
-    },
-    "WY": {
-      "all": [
-        "https://sos.wyo.gov/Business/Default.aspx"
       ],
       "state_filing_map": [
-        "https://sos.wyo.gov/Forms/Default.aspx",
-        "https://sos.wyo.gov/Business/Fees.aspx"
+        "https://efile.sunbiz.org/"
       ],
       "state_tax_gateway": [
-        "https://revenue.wyo.gov/"
-      ],
-      "county_directory": [
-        "https://www.wyomingcountycommissioners.com/counties"
-      ],
-      "municipality_directory": [
-        "https://www.wyomuni.org/"
-      ]
-    },
-    "NY": {
-      "all": [
-        "https://dos.ny.gov/business"
-      ],
-      "state_filing_map": [
-        "https://dos.ny.gov/corporations",
-        "https://dos.ny.gov/certificate-status"
-      ],
-      "state_tax_gateway": [
-        "https://www.tax.ny.gov/bus/"
-      ],
-      "county_directory": [
-        "https://www.ny.gov/counties"
-      ],
-      "municipality_directory": [
-        "https://www.ny.gov/local-government"
+        "https://efile.sunbiz.org/"
       ]
     },
     "GA": {
       "all": [
-        "https://sos.ga.gov/page/georgia-business-forms"
+        "https://ecorp.sos.ga.gov/"
+      ],
+      "county_directory": [
+        "https://www.accg.org/county_government/index.php"
+      ],
+      "municipality_directory": [
+        "https://www.gacities.com/Resources/GMA-City-Search.aspx"
       ],
       "state_filing_map": [
         "https://ecorp.sos.ga.gov/"
       ],
       "state_tax_gateway": [
-        "https://dor.georgia.gov/taxes/business-taxes"
+        "https://ecorp.sos.ga.gov/"
+      ]
+    },
+    "HI": {
+      "all": [
+        "https://hbe.ehawaii.gov/"
       ],
-      "county_directory": [
-        "https://georgia.gov/counties"
+      "county_directory": [],
+      "municipality_directory": [],
+      "state_filing_map": [
+        "https://hbe.ehawaii.gov/"
       ],
-      "municipality_directory": [
-        "https://www.gacities.com/Resources/GMA-City-Search.aspx"
+      "state_tax_gateway": [
+        "https://hbe.ehawaii.gov/"
+      ]
+    },
+    "IA": {
+      "all": [
+        "https://sos.iowa.gov/file"
+      ],
+      "county_directory": [],
+      "municipality_directory": [],
+      "state_filing_map": [
+        "https://sos.iowa.gov/file"
+      ],
+      "state_tax_gateway": [
+        "https://sos.iowa.gov/file"
+      ]
+    },
+    "ID": {
+      "all": [
+        "https://sosbiz.idaho.gov/"
+      ],
+      "county_directory": [],
+      "municipality_directory": [],
+      "state_filing_map": [
+        "https://sosbiz.idaho.gov/"
+      ],
+      "state_tax_gateway": [
+        "https://sosbiz.idaho.gov/"
       ]
     },
     "IL": {
       "all": [
-        "https://www.ilsos.gov/departments/business_services/home.html"
-      ],
-      "state_filing_map": [
-        "https://www.ilsos.gov/departments/business_services/publications_and_forms/home.html"
-      ],
-      "state_tax_gateway": [
-        "https://tax.illinois.gov/businesses.html"
+        "https://apps.ilsos.gov/corporatellc/"
       ],
       "county_directory": [
         "https://www2.illinois.gov/sites/counties/Pages/default.aspx"
       ],
       "municipality_directory": [
         "https://www.iml.org/"
+      ],
+      "state_filing_map": [
+        "https://apps.ilsos.gov/corporatellc/"
+      ],
+      "state_tax_gateway": [
+        "https://apps.ilsos.gov/corporatellc/"
+      ]
+    },
+    "IN": {
+      "all": [
+        "https://inbiz.in.gov/"
+      ],
+      "county_directory": [],
+      "municipality_directory": [],
+      "state_filing_map": [
+        "https://inbiz.in.gov/"
+      ],
+      "state_tax_gateway": [
+        "https://inbiz.in.gov/"
+      ]
+    },
+    "KS": {
+      "all": [
+        "https://www.sos.ks.gov/businesses/register-a-business.html"
+      ],
+      "county_directory": [],
+      "municipality_directory": [],
+      "state_filing_map": [
+        "https://www.sos.ks.gov/businesses/register-a-business.html"
+      ],
+      "state_tax_gateway": [
+        "https://www.sos.ks.gov/businesses/register-a-business.html"
+      ]
+    },
+    "KY": {
+      "all": [
+        "https://www.sos.ky.gov/bus/business-filings/OnlineServices/Pages/default.aspx"
+      ],
+      "county_directory": [],
+      "municipality_directory": [],
+      "state_filing_map": [
+        "https://www.sos.ky.gov/bus/business-filings/OnlineServices/Pages/default.aspx"
+      ],
+      "state_tax_gateway": [
+        "https://www.sos.ky.gov/bus/business-filings/OnlineServices/Pages/default.aspx"
+      ]
+    },
+    "LA": {
+      "all": [
+        "https://coraweb.sos.la.gov/commercialsearch/commercialsearch.aspx"
+      ],
+      "county_directory": [],
+      "municipality_directory": [],
+      "state_filing_map": [
+        "https://coraweb.sos.la.gov/commercialsearch/commercialsearch.aspx"
+      ],
+      "state_tax_gateway": [
+        "https://coraweb.sos.la.gov/commercialsearch/commercialsearch.aspx"
+      ]
+    },
+    "MA": {
+      "all": [
+        "https://corp.sec.state.ma.us/corpweb/CorpSearch/CorpSearch.aspx"
+      ],
+      "county_directory": [],
+      "municipality_directory": [],
+      "state_filing_map": [
+        "https://corp.sec.state.ma.us/corpweb/CorpSearch/CorpSearch.aspx"
+      ],
+      "state_tax_gateway": [
+        "https://corp.sec.state.ma.us/corpweb/CorpSearch/CorpSearch.aspx"
+      ]
+    },
+    "MD": {
+      "all": [
+        "https://egov.maryland.gov/BusinessExpress/"
+      ],
+      "county_directory": [],
+      "municipality_directory": [],
+      "state_filing_map": [
+        "https://egov.maryland.gov/BusinessExpress/"
+      ],
+      "state_tax_gateway": [
+        "https://egov.maryland.gov/BusinessExpress/"
+      ]
+    },
+    "ME": {
+      "all": [
+        "https://apps3.web.maine.gov/nei-sos-icrs/ICRS"
+      ],
+      "county_directory": [],
+      "municipality_directory": [],
+      "state_filing_map": [
+        "https://apps3.web.maine.gov/nei-sos-icrs/ICRS"
+      ],
+      "state_tax_gateway": [
+        "https://apps3.web.maine.gov/nei-sos-icrs/ICRS"
+      ]
+    },
+    "MI": {
+      "all": [
+        "https://www.michigan.gov/lara/bureau-list/cscl/corps/mibrp"
+      ],
+      "county_directory": [],
+      "municipality_directory": [],
+      "state_filing_map": [
+        "https://www.michigan.gov/lara/bureau-list/cscl/corps/mibrp"
+      ],
+      "state_tax_gateway": [
+        "https://www.michigan.gov/lara/bureau-list/cscl/corps/mibrp"
+      ]
+    },
+    "MN": {
+      "all": [
+        "https://mblsportal.sos.state.mn.us/Business/Search"
+      ],
+      "county_directory": [],
+      "municipality_directory": [],
+      "state_filing_map": [
+        "https://mblsportal.sos.state.mn.us/Business/Search"
+      ],
+      "state_tax_gateway": [
+        "https://mblsportal.sos.state.mn.us/Business/Search"
+      ]
+    },
+    "MO": {
+      "all": [
+        "https://bsd.sos.mo.gov/BusinessEntity/BESearch.aspx"
+      ],
+      "county_directory": [],
+      "municipality_directory": [],
+      "state_filing_map": [
+        "https://bsd.sos.mo.gov/BusinessEntity/BESearch.aspx"
+      ],
+      "state_tax_gateway": [
+        "https://bsd.sos.mo.gov/BusinessEntity/BESearch.aspx"
+      ]
+    },
+    "MS": {
+      "all": [
+        "https://corp.sos.ms.gov/corp/portal/c/page/login"
+      ],
+      "county_directory": [],
+      "municipality_directory": [],
+      "state_filing_map": [
+        "https://corp.sos.ms.gov/corp/portal/c/page/login"
+      ],
+      "state_tax_gateway": [
+        "https://corp.sos.ms.gov/corp/portal/c/page/login"
+      ]
+    },
+    "MT": {
+      "all": [
+        "https://biz.sosmt.gov/"
+      ],
+      "county_directory": [],
+      "municipality_directory": [],
+      "state_filing_map": [
+        "https://biz.sosmt.gov/"
+      ],
+      "state_tax_gateway": [
+        "https://biz.sosmt.gov/"
+      ]
+    },
+    "NC": {
+      "all": [
+        "https://www.sosnc.gov/online_services/search/"
+      ],
+      "county_directory": [],
+      "municipality_directory": [],
+      "state_filing_map": [
+        "https://www.sosnc.gov/online_services/search/"
+      ],
+      "state_tax_gateway": [
+        "https://www.sosnc.gov/online_services/search/"
+      ]
+    },
+    "ND": {
+      "all": [
+        "https://firststop.sos.nd.gov/"
+      ],
+      "county_directory": [],
+      "municipality_directory": [],
+      "state_filing_map": [
+        "https://firststop.sos.nd.gov/"
+      ],
+      "state_tax_gateway": [
+        "https://firststop.sos.nd.gov/"
+      ]
+    },
+    "NE": {
+      "all": [
+        "https://www.nebraska.gov/corp_filing/filing/index.cgi"
+      ],
+      "county_directory": [],
+      "municipality_directory": [],
+      "state_filing_map": [
+        "https://www.nebraska.gov/corp_filing/filing/index.cgi"
+      ],
+      "state_tax_gateway": [
+        "https://www.nebraska.gov/corp_filing/filing/index.cgi"
+      ]
+    },
+    "NH": {
+      "all": [
+        "https://quickstart.sos.nh.gov/online/"
+      ],
+      "county_directory": [],
+      "municipality_directory": [],
+      "state_filing_map": [
+        "https://quickstart.sos.nh.gov/online/"
+      ],
+      "state_tax_gateway": [
+        "https://quickstart.sos.nh.gov/online/"
+      ]
+    },
+    "NJ": {
+      "all": [
+        "https://www.njportal.com/DOR/BusinessFormation/"
+      ],
+      "county_directory": [],
+      "municipality_directory": [],
+      "state_filing_map": [
+        "https://www.njportal.com/DOR/BusinessFormation/"
+      ],
+      "state_tax_gateway": [
+        "https://www.njportal.com/DOR/BusinessFormation/"
+      ]
+    },
+    "NM": {
+      "all": [
+        "https://enterprise.sos.nm.gov/"
+      ],
+      "county_directory": [],
+      "municipality_directory": [],
+      "state_filing_map": [
+        "https://enterprise.sos.nm.gov/"
+      ],
+      "state_tax_gateway": [
+        "https://enterprise.sos.nm.gov/"
+      ]
+    },
+    "NV": {
+      "all": [
+        "https://www.nvsilverflume.gov/"
+      ],
+      "county_directory": [
+        "https://www.nvnaco.org/members/"
+      ],
+      "municipality_directory": [
+        "https://tax.nv.gov/LocalGovt/Local-Government/"
+      ],
+      "state_filing_map": [
+        "https://www.nvsilverflume.gov/"
+      ],
+      "state_tax_gateway": [
+        "https://www.nvsilverflume.gov/"
+      ]
+    },
+    "NY": {
+      "all": [
+        "https://appext20.dos.ny.gov/nydav/default.aspx"
+      ],
+      "county_directory": [
+        "https://www.ny.gov/counties"
+      ],
+      "municipality_directory": [
+        "https://dos.ny.gov/about-local-government-services-0",
+        "https://dos.ny.gov/contact-local-government-specialists"
+      ],
+      "state_filing_map": [
+        "https://appext20.dos.ny.gov/nydav/default.aspx"
+      ],
+      "state_tax_gateway": [
+        "https://appext20.dos.ny.gov/nydav/default.aspx"
+      ]
+    },
+    "OH": {
+      "all": [
+        "https://bsportal.ohiosos.gov/"
+      ],
+      "county_directory": [],
+      "municipality_directory": [],
+      "state_filing_map": [
+        "https://bsportal.ohiosos.gov/"
+      ],
+      "state_tax_gateway": [
+        "https://bsportal.ohiosos.gov/"
+      ]
+    },
+    "OK": {
+      "all": [
+        "https://www.sos.ok.gov/business/default.aspx"
+      ],
+      "county_directory": [],
+      "municipality_directory": [],
+      "state_filing_map": [
+        "https://www.sos.ok.gov/business/default.aspx"
+      ],
+      "state_tax_gateway": [
+        "https://www.sos.ok.gov/business/default.aspx"
+      ]
+    },
+    "OR": {
+      "all": [
+        "https://sos.oregon.gov/business/Pages/register.aspx"
+      ],
+      "county_directory": [],
+      "municipality_directory": [],
+      "state_filing_map": [
+        "https://sos.oregon.gov/business/Pages/register.aspx"
+      ],
+      "state_tax_gateway": [
+        "https://sos.oregon.gov/business/Pages/register.aspx"
+      ]
+    },
+    "PA": {
+      "all": [
+        "https://file.dos.pa.gov/"
+      ],
+      "county_directory": [],
+      "municipality_directory": [],
+      "state_filing_map": [
+        "https://file.dos.pa.gov/"
+      ],
+      "state_tax_gateway": [
+        "https://file.dos.pa.gov/"
+      ]
+    },
+    "RI": {
+      "all": [
+        "https://www.sos.ri.gov/divisions/business-services"
+      ],
+      "county_directory": [],
+      "municipality_directory": [],
+      "state_filing_map": [
+        "https://www.sos.ri.gov/divisions/business-services"
+      ],
+      "state_tax_gateway": [
+        "https://www.sos.ri.gov/divisions/business-services"
+      ]
+    },
+    "SC": {
+      "all": [
+        "https://businessfilings.sc.gov/"
+      ],
+      "county_directory": [],
+      "municipality_directory": [],
+      "state_filing_map": [
+        "https://businessfilings.sc.gov/"
+      ],
+      "state_tax_gateway": [
+        "https://businessfilings.sc.gov/"
+      ]
+    },
+    "SD": {
+      "all": [
+        "https://sosenterprise.sd.gov/BusinessServices/Default.aspx"
+      ],
+      "county_directory": [],
+      "municipality_directory": [],
+      "state_filing_map": [
+        "https://sosenterprise.sd.gov/BusinessServices/Default.aspx"
+      ],
+      "state_tax_gateway": [
+        "https://sosenterprise.sd.gov/BusinessServices/Default.aspx"
+      ]
+    },
+    "TN": {
+      "all": [
+        "https://tnbear.tn.gov/NewBiz/"
+      ],
+      "county_directory": [],
+      "municipality_directory": [],
+      "state_filing_map": [
+        "https://tnbear.tn.gov/NewBiz/"
+      ],
+      "state_tax_gateway": [
+        "https://tnbear.tn.gov/NewBiz/"
+      ]
+    },
+    "TX": {
+      "all": [
+        "https://direct.sos.state.tx.us/"
+      ],
+      "county_directory": [
+        "https://www.county.org/County-Information/County-Websites"
+      ],
+      "municipality_directory": [
+        "https://www.tml.org/215/City-Officials-Directory"
+      ],
+      "state_filing_map": [
+        "https://direct.sos.state.tx.us/"
+      ],
+      "state_tax_gateway": [
+        "https://direct.sos.state.tx.us/"
+      ]
+    },
+    "UT": {
+      "all": [
+        "https://secure.utah.gov/bes/"
+      ],
+      "county_directory": [],
+      "municipality_directory": [],
+      "state_filing_map": [
+        "https://secure.utah.gov/bes/"
+      ],
+      "state_tax_gateway": [
+        "https://secure.utah.gov/bes/"
+      ]
+    },
+    "VA": {
+      "all": [
+        "https://cis.scc.virginia.gov/"
+      ],
+      "county_directory": [],
+      "municipality_directory": [],
+      "state_filing_map": [
+        "https://cis.scc.virginia.gov/"
+      ],
+      "state_tax_gateway": [
+        "https://cis.scc.virginia.gov/"
+      ]
+    },
+    "VT": {
+      "all": [
+        "https://bizfilings.vermont.gov/online/BusinessInquire"
+      ],
+      "county_directory": [],
+      "municipality_directory": [],
+      "state_filing_map": [
+        "https://bizfilings.vermont.gov/online/BusinessInquire"
+      ],
+      "state_tax_gateway": [
+        "https://bizfilings.vermont.gov/online/BusinessInquire"
+      ]
+    },
+    "WA": {
+      "all": [
+        "https://ccfs.sos.wa.gov/"
+      ],
+      "county_directory": [],
+      "municipality_directory": [],
+      "state_filing_map": [
+        "https://ccfs.sos.wa.gov/"
+      ],
+      "state_tax_gateway": [
+        "https://ccfs.sos.wa.gov/"
+      ]
+    },
+    "WI": {
+      "all": [
+        "https://onestop.wi.gov/"
+      ],
+      "county_directory": [],
+      "municipality_directory": [],
+      "state_filing_map": [
+        "https://onestop.wi.gov/"
+      ],
+      "state_tax_gateway": [
+        "https://onestop.wi.gov/"
+      ]
+    },
+    "WV": {
+      "all": [
+        "https://onestop.wv.gov/"
+      ],
+      "county_directory": [],
+      "municipality_directory": [],
+      "state_filing_map": [
+        "https://onestop.wv.gov/"
+      ],
+      "state_tax_gateway": [
+        "https://onestop.wv.gov/"
+      ]
+    },
+    "WY": {
+      "all": [
+        "https://wyobiz.wyo.gov/Business/Default.aspx"
+      ],
+      "county_directory": [
+        "https://www.wyomingcountycommissioners.com/counties"
+      ],
+      "municipality_directory": [
+        "https://www.wyomuni.org/"
+      ],
+      "state_filing_map": [
+        "https://wyobiz.wyo.gov/Business/Default.aspx"
+      ],
+      "state_tax_gateway": [
+        "https://wyobiz.wyo.gov/Business/Default.aspx"
       ]
     }
   }

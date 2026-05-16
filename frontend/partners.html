@@ -1,0 +1,325 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SOSFiler Partner API</title>
+  <meta name="description" content="Embed business formation, EIN, documents, and filing status into your product with the SOSFiler Partner API.">
+  <link rel="icon" type="image/png" href="/favicon.png">
+  <style>
+    :root {
+      --bg: #0A0A0A;
+      --surface: #141414;
+      --surface-2: #1A1A1A;
+      --line: #2A2A2A;
+      --line-soft: #1F1F1F;
+      --ink: #FFFFFF;
+      --body: #D0D0D0;
+      --muted: #9A9A9A;
+      --accent: #CCFF00;
+      --cyan: #00FFE5;
+      --red: #FF3366;
+      --font-display: -apple-system, BlinkMacSystemFont, "SF Pro Display", system-ui, sans-serif;
+      --font-body: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif;
+      --font-mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: var(--font-body);
+      -webkit-font-smoothing: antialiased;
+    }
+    a { color: inherit; text-decoration: none; }
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      padding: 14px 24px;
+      background: rgba(10,10,10,.88);
+      border-bottom: 1px solid var(--line-soft);
+      backdrop-filter: blur(20px);
+    }
+    .brand { display: flex; align-items: center; gap: 12px; font-weight: 900; letter-spacing: -.02em; }
+    .brand img { height: 44px; width: auto; }
+    .navlink { color: var(--muted); font-family: var(--font-mono); font-size: 11px; letter-spacing: .12em; text-transform: uppercase; }
+    .navlink:hover { color: var(--accent); }
+    main { max-width: 1180px; margin: 0 auto; padding: 56px 24px 80px; }
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 430px;
+      gap: 48px;
+      align-items: start;
+    }
+    .eyebrow {
+      color: var(--accent);
+      font-family: var(--font-mono);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+    }
+    h1 {
+      margin: 18px 0 20px;
+      max-width: 780px;
+      font-family: var(--font-display);
+      font-size: clamp(42px, 7vw, 84px);
+      line-height: .98;
+      letter-spacing: -.045em;
+    }
+    .lede {
+      max-width: 650px;
+      color: var(--body);
+      font-size: clamp(17px, 2vw, 20px);
+      line-height: 1.55;
+    }
+    .proof {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 34px;
+    }
+    .proof div, .form-card, .steps, .api-box {
+      background: var(--surface);
+      border: 1px solid var(--line-soft);
+      border-radius: 8px;
+    }
+    .proof div { padding: 16px; }
+    .proof strong { display: block; margin-bottom: 6px; font-size: 20px; }
+    .proof span { color: var(--muted); font-size: 13px; line-height: 1.45; }
+    .form-card { padding: 22px; }
+    .form-card h2 { margin: 0 0 6px; font-size: 22px; letter-spacing: -.02em; }
+    .form-card p { margin: 0 0 20px; color: var(--muted); font-size: 14px; }
+    label { display: block; margin-bottom: 6px; color: var(--body); font-size: 13px; font-weight: 700; }
+    input, select, textarea {
+      width: 100%;
+      margin-bottom: 14px;
+      padding: 12px 13px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: var(--surface-2);
+      color: var(--ink);
+      font: inherit;
+    }
+    textarea { min-height: 112px; resize: vertical; }
+    input:focus, select:focus, textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 2px rgba(204,255,0,.12); }
+    button {
+      width: 100%;
+      min-height: 48px;
+      border: 1px solid var(--accent);
+      border-radius: 6px;
+      background: var(--accent);
+      color: #000;
+      font: inherit;
+      font-weight: 800;
+      cursor: pointer;
+    }
+    button:hover { background: #DBFF33; }
+    button.secondary {
+      margin-top: 10px;
+      background: transparent;
+      color: var(--ink);
+      border-color: var(--line);
+    }
+    button.secondary:hover { color: var(--accent); border-color: var(--accent); background: transparent; }
+    button:disabled { opacity: .55; cursor: not-allowed; }
+    .status {
+      display: none;
+      margin-top: 14px;
+      padding: 12px;
+      border-radius: 6px;
+      background: rgba(204,255,0,.08);
+      border: 1px solid rgba(204,255,0,.25);
+      color: var(--body);
+      font-size: 13px;
+      line-height: 1.45;
+    }
+    .status.error { background: rgba(255,51,102,.08); border-color: rgba(255,51,102,.35); color: #FFD6DF; }
+    .lower {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+      margin-top: 28px;
+    }
+    .steps, .api-box { padding: 22px; }
+    .steps h2, .api-box h2 { margin: 0 0 16px; font-size: 20px; }
+    ol { margin: 0; padding-left: 20px; color: var(--body); }
+    li { margin: 10px 0; }
+    code, pre { font-family: var(--font-mono); }
+    pre {
+      overflow: auto;
+      margin: 0;
+      padding: 16px;
+      background: #050505;
+      border: 1px solid var(--line-soft);
+      border-radius: 6px;
+      color: var(--cyan);
+      font-size: 12px;
+      line-height: 1.55;
+    }
+    @media (max-width: 900px) {
+      .hero, .lower { grid-template-columns: 1fr; }
+      .proof { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="/"><img src="/logo.png" alt="SOSFiler"> Partner API</a>
+    <a class="navlink" href="/">Customer Site</a>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div>
+        <div class="eyebrow">Company formation infrastructure</div>
+        <h1>Launch business formation inside your product.</h1>
+        <p class="lede">Create quotes, submit formations, send customers to hosted checkout, track state filing progress, and retrieve finished documents through one API.</p>
+        <div class="proof">
+          <div><strong>$297</strong><span>Partner setup review and API onboarding.</span></div>
+          <div><strong>$29+</strong><span>SOSFiler service fee per formation, plus official fees.</span></div>
+          <div><strong>API + hosted</strong><span>Use pure API calls or hosted checkout while your integration matures.</span></div>
+        </div>
+      </div>
+
+      <form class="form-card" id="partnerForm">
+        <h2>Apply for API access</h2>
+        <p>After payment and approval, SOSFiler issues your API key once. Store it in your backend.</p>
+        <label for="company_name">Company</label>
+        <input id="company_name" name="company_name" autocomplete="organization" required>
+        <label for="contact_name">Contact name</label>
+        <input id="contact_name" name="contact_name" autocomplete="name" required>
+        <label for="contact_email">Work email</label>
+        <input id="contact_email" name="contact_email" type="email" autocomplete="email" required>
+        <label for="website">Website</label>
+        <input id="website" name="website" autocomplete="url" placeholder="https://">
+        <label for="expected_monthly_volume">Expected monthly volume</label>
+        <select id="expected_monthly_volume" name="expected_monthly_volume">
+          <option value="1-10">1-10 formations</option>
+          <option value="11-50">11-50 formations</option>
+          <option value="51-250">51-250 formations</option>
+          <option value="250+">250+ formations</option>
+        </select>
+        <label for="plan">Plan</label>
+        <select id="plan" name="plan">
+          <option value="starter">Starter</option>
+          <option value="growth">Growth</option>
+          <option value="platform">Platform</option>
+        </select>
+        <label for="use_case">Use case</label>
+        <textarea id="use_case" name="use_case" minlength="10" required placeholder="Tell us how you want to embed formation into your product."></textarea>
+        <button id="submitBtn" type="submit">Submit Application</button>
+        <button id="payBtn" class="secondary" type="button" hidden>Pay Setup Fee</button>
+        <div class="status" id="status"></div>
+      </form>
+    </section>
+
+    <section class="lower">
+      <div class="steps">
+        <h2>How access works</h2>
+        <ol>
+          <li>Submit your partner application.</li>
+          <li>Pay the setup fee or complete manual billing review.</li>
+          <li>SOSFiler approves the partner account.</li>
+          <li>Your one-time API key is issued and shown once.</li>
+          <li>Your backend calls the Partner API with a bearer token.</li>
+        </ol>
+      </div>
+      <div class="api-box">
+        <h2>First API call</h2>
+        <pre>curl https://sosfiler.com/api/v1/partners/formations \
+  -H "Authorization: Bearer sos_live_..." \
+  -H "Content-Type: application/json" \
+  -d '{
+    "external_order_id": "partner-order-123",
+    "formation": { "...": "..." },
+    "success_url": "https://yourapp.com/success",
+    "cancel_url": "https://yourapp.com/cancel"
+  }'</pre>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const form = document.getElementById('partnerForm');
+    const statusBox = document.getElementById('status');
+    const submitBtn = document.getElementById('submitBtn');
+    const payBtn = document.getElementById('payBtn');
+    let applicationId = new URLSearchParams(location.search).get('application_id') || '';
+
+    function showStatus(message, isError = false) {
+      statusBox.style.display = 'block';
+      statusBox.className = `status${isError ? ' error' : ''}`;
+      statusBox.textContent = message;
+    }
+
+    async function loadStatus() {
+      if (!applicationId) return;
+      const res = await fetch(`/api/partners/applications/${encodeURIComponent(applicationId)}`);
+      if (!res.ok) return;
+      const payload = await res.json();
+      const app = payload.application;
+      showStatus(`Application ${app.id}: ${app.status}. Payment: ${app.payment_status}.`);
+      if (app.payment_status !== 'paid' && app.payment_status !== 'waived') payBtn.hidden = false;
+    }
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      submitBtn.disabled = true;
+      payBtn.hidden = true;
+      const data = Object.fromEntries(new FormData(form).entries());
+      try {
+        const res = await fetch('/api/partners/applications', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+        const payload = await res.json();
+        if (!res.ok) throw new Error(payload.detail || 'Application failed');
+        applicationId = payload.application_id;
+        history.replaceState(null, '', `/partners.html?application_id=${encodeURIComponent(applicationId)}`);
+        showStatus(`${payload.message} Application ID: ${applicationId}`);
+        payBtn.hidden = false;
+      } catch (error) {
+        showStatus(error.message || 'Application failed', true);
+      } finally {
+        submitBtn.disabled = false;
+      }
+    });
+
+    payBtn.addEventListener('click', async () => {
+      if (!applicationId) return;
+      payBtn.disabled = true;
+      try {
+        const res = await fetch(`/api/partners/applications/${encodeURIComponent(applicationId)}/checkout`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            success_url: `${location.origin}/partners.html`,
+            cancel_url: `${location.origin}/partners.html`
+          })
+        });
+        const payload = await res.json();
+        if (!res.ok) throw new Error(payload.detail || 'Checkout failed');
+        if (payload.checkout_url) {
+          location.href = payload.checkout_url;
+          return;
+        }
+        showStatus(payload.message || `Payment status: ${payload.status}`);
+      } catch (error) {
+        showStatus(error.message || 'Checkout failed', true);
+      } finally {
+        payBtn.disabled = false;
+      }
+    });
+
+    loadStatus();
+  </script>
+</body>
+</html>
