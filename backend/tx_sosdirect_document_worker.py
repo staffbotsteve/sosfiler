@@ -492,8 +492,22 @@ async def process_job(page, conn: sqlite3.Connection, job: sqlite3.Row, order: s
         if not downloaded:
             continue
         message = f"Texas SOSDirect approval document captured from Briefcase for {order['business_name']}."
-        attach_approval_document(conn, job, downloaded.name, str(downloaded), message)
-        result["downloaded_documents"].append({"filename": downloaded.name, "path": str(downloaded)})
+        # Plan v2.6 §4.5 / PR6 codex round-1: extract document/filing number
+        # from the candidate row text + full page content before promotion.
+        # attach_approval_document still falls back to evidence_summary if
+        # nothing matches here.
+        from execution_platform import extract_filing_confirmation
+        candidate_haystack = f"{candidate.row_text}\n{candidate.text}\n{candidate.href}\n{content}"
+        extracted = extract_filing_confirmation(candidate_haystack, CONFIRMATION_NUMBER_REGEX)
+        attach_approval_document(
+            conn, job, downloaded.name, str(downloaded), message,
+            filing_confirmation=extracted,
+        )
+        result["downloaded_documents"].append({
+            "filename": downloaded.name,
+            "path": str(downloaded),
+            "filing_confirmation": extracted,
+        })
 
     if result["downloaded_documents"]:
         result["status"] = "state_approved" if not dry_run else "would_download"

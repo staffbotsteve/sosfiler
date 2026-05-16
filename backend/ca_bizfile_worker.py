@@ -870,7 +870,20 @@ async def check_status_job(page, conn: sqlite3.Connection, job: sqlite3.Row, ord
     elif classification == "approved":
         downloaded = await try_download_document(page, job["order_id"], business)
         if downloaded:
-            mark_approved(conn, job, f"California approval evidence captured for {business}.", downloaded)
+            from execution_platform import extract_filing_confirmation
+            try:
+                approval_text = await page.inner_text("body", timeout=5_000)
+            except Exception:
+                approval_text = ""
+            extracted = extract_filing_confirmation(approval_text, CONFIRMATION_NUMBER_REGEX)
+            mark_approved(
+                conn,
+                job,
+                f"California approval evidence captured for {business}.",
+                downloaded,
+                filing_confirmation=extracted,
+            )
+            result["filing_confirmation"] = extracted
             result["downloaded_document"] = downloaded
             result["status"] = "state_approved"
         else:
@@ -1163,12 +1176,22 @@ async def submit_job(page, conn: sqlite3.Connection, job: sqlite3.Row, order: sq
             "message": message,
         }
     message = f"California BizFile receipt captured after automated payment for {payload.business_name}."
-    mark_submitted(conn, job, receipt_path, message)
+    # Plan v2.6 §4.5 / PR6 codex round-1: extract state-issued File Number from
+    # the live receipt page before promotion so orders.filing_confirmation
+    # gets populated under the trigger-required JSON shape.
+    from execution_platform import extract_filing_confirmation
+    try:
+        receipt_text = await page.inner_text("body", timeout=5_000)
+    except Exception:
+        receipt_text = ""
+    extracted = extract_filing_confirmation(receipt_text, CONFIRMATION_NUMBER_REGEX)
+    mark_submitted(conn, job, receipt_path, message, filing_confirmation=extracted)
     return {
         "order_id": job["order_id"],
         "business_name": payload.business_name,
         "status": "submitted_to_state",
         "receipt_path": receipt_path,
+        "filing_confirmation": extracted,
         "message": message,
     }
 
