@@ -257,17 +257,28 @@ class SupabaseExecutionRepository:
 
     def insert_artifact(self, artifact: dict[str, Any]) -> None:
         with self.connect() as conn:
+            # Plan v2.6 §4.2.4 step 4 / PR5: persist evidence digest so
+            # mirror-side invariants see the same tamper-evident fields the
+            # local SQLite store carries.
+            #
+            # NOTE: SQLite filing_artifacts.superseded_by_artifact_id is a
+            # local INTEGER row id; the Postgres column is a UUID FK to
+            # execution_artifacts(id). Writing the integer directly would
+            # fail type checks in Postgres. We deliberately do NOT propagate
+            # the supersession link here until a separate workstream wires
+            # an INTEGER → UUID mapping (codex PR5 round-2 P2). The column
+            # stays in the schema so the future mapping can populate it.
             conn.execute(
                 """
                 insert into public.execution_artifacts (
                   order_id, filing_job_id, artifact_type, filename, storage_path,
                   issuer, source_url, visibility, is_evidence,
-                  sha256_hex, superseded_by_artifact_id
+                  sha256_hex
                 )
                 values (
                   %s,
                   (select id from public.execution_filing_jobs where legacy_job_id = %s limit 1),
-                  %s, %s, %s, %s, %s, %s, %s, %s, %s
+                  %s, %s, %s, %s, %s, %s, %s, %s
                 )
                 """,
                 (
@@ -275,10 +286,7 @@ class SupabaseExecutionRepository:
                     artifact["artifact_type"], artifact["filename"], artifact["file_path"],
                     artifact.get("issuer"), artifact.get("source_url"),
                     artifact.get("visibility", "customer"), bool(artifact.get("is_evidence")),
-                    # Plan v2.6 §4.2.4 step 4 / PR5: persist evidence digest +
-                    # supersede link so mirror-side invariants see the same
-                    # tamper-evident fields the local SQLite store carries.
-                    artifact.get("sha256_hex"), artifact.get("superseded_by_artifact_id"),
+                    artifact.get("sha256_hex"),
                 ),
             )
 
