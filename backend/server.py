@@ -10001,7 +10001,12 @@ async def backfill_execution_persistence(payload: PersistenceBackfillRequest, re
             errors.append({"table": "execution_quotes", "id": quote["quote_id"], "message": result.message})
 
     for row in conn.execute("SELECT * FROM filing_jobs ORDER BY created_at LIMIT ?", (payload.limit,)).fetchall():
-        job = serialize_filing_job(row)
+        # Plan v2.6 PR5 codex round-3 P2: backfill must carry the order's
+        # filing_confirmation so historical submitted/approved jobs land in
+        # the mirror with the same canonical JSON the local store holds.
+        # Without this, COALESCE on the upsert cannot recover the value
+        # later and the mirror evidence invariant has nothing to read.
+        job = serialize_filing_job_with_confirmation(conn, row)
         result = execution_dual_write("upsert_filing_job", job)
         written["execution_filing_jobs"] += 1 if result.ok else 0
         if not result.ok:
