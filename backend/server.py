@@ -733,24 +733,30 @@ def init_db():
         "NEW.status IN ('submitted','submitted_to_state','approved','state_approved',"
         "'documents_collected','complete')"
     )
-    # Codex PR7 round-5 P2: INSERT-time enforcement creates a chicken-and-egg
-    # for recovery flows. When a filing_artifact references a filing_job_id
-    # whose mirror row was lost / never created, the insert_artifact lookup
-    # leaves filing_job_id NULL; the first terminal upsert_filing_job then
-    # INSERTs a new UUID with no artifacts attached and the trigger ABORTs.
-    # The supported pattern is: every code path that promotes to a terminal
-    # status updates an EXISTING filing_jobs row. create_or_update_filing_job
-    # always inserts in ready_to_file; the backfill route (PR7 codex round-3)
-    # explicitly skips terminal jobs in core-only mode and defers terminal
-    # promotion until artifacts are mirrored. Drop the BEFORE INSERT trigger;
-    # rely on BEFORE UPDATE plus app-layer enforcement. Backfill bypass
-    # protection is enforced in the route, not the trigger.
+    # Codex PR7 round-6 P1: INSERT-time enforcement is back, but takes a
+    # different shape. The chicken-and-egg with artifacts (round-5) is
+    # avoided by REJECTING any INSERT that lands in a terminal status —
+    # without inspecting artifacts at all. Every code path must:
+    #   1. INSERT the job in a non-terminal status (ready_to_file etc.)
+    #   2. INSERT the evidence artifacts
+    #   3. UPDATE the job to the terminal status (UPDATE trigger validates)
+    # This is already the pattern in create_or_update_filing_job, mark_*
+    # routes, and the backfill route's deferred-promotion logic. The
+    # INSERT trigger blocks direct-terminal-INSERT bypass paths that
+    # codex flagged in rounds 1 + 6. The artifact check lives entirely
+    # on the UPDATE trigger so first-time recovery flows can still seed
+    # ready_to_file → artifacts → terminal.
     conn.execute("DROP TRIGGER IF EXISTS filing_jobs_evidence_invariant_insert")
     conn.execute("DROP TRIGGER IF EXISTS filing_jobs_evidence_invariant")
     conn.execute(
         f"CREATE TRIGGER filing_jobs_evidence_invariant BEFORE UPDATE ON filing_jobs "
         f"FOR EACH ROW WHEN {_evidence_states_filter} "
         f"BEGIN {_evidence_predicate_body} END"
+    )
+    conn.execute(
+        f"CREATE TRIGGER filing_jobs_evidence_invariant_insert BEFORE INSERT ON filing_jobs "
+        f"FOR EACH ROW WHEN {_evidence_states_filter} "
+        f"BEGIN SELECT RAISE(ABORT, 'evidence_invariant: filing_jobs cannot be INSERTed in a terminal status; INSERT non-terminal then UPDATE'); END"
     )
     conn.commit()
     conn.close()
@@ -4796,11 +4802,41 @@ def create_or_update_filing_job(order: dict, action_type: str = "formation", sta
         processing_fee_cents = calculate_processing_fee_cents(action, int(order.get("state_fee_cents") or 0))
     job_id = f"FIL-{order['id']}-{action_type}".replace("_", "-")
     job_status = status or order.get("status", "pending_payment")
+    # Plan v2.6 PR7 codex round-7 P2: when a fresh INSERT lands here with
+    # a terminal status (recovery / rehydration paths inherit order.status),
+    # the BEFORE INSERT trigger would abort. Seed the row first with a
+    # safe non-terminal status using INSERT OR IGNORE; the main upsert
+    # below then resolves as an UPDATE (which the UPDATE trigger
+    # validates).
+    TERMINAL_STATUSES = {"submitted", "submitted_to_state", "approved", "state_approved",
+                         "documents_collected", "complete"}
     required_evidence = {
         "submitted": action.get("required_evidence", {}).get("submitted", []),
         "approved": action.get("required_evidence", {}).get("approved", []),
     }
     conn = get_db()
+    # Codex PR7 round-7 P2: pre-seed a non-terminal row when callers ask
+    # for a terminal status. INSERT OR IGNORE is a no-op when the row
+    # already exists, so the main upsert below resolves as the UPDATE
+    # path and the BEFORE INSERT trigger never sees a terminal value.
+    if job_status in TERMINAL_STATUSES:
+        conn.execute(
+            """
+            INSERT OR IGNORE INTO filing_jobs (
+                id, order_id, action_type, state, entity_type, status, automation_level,
+                filing_method, state_fee_cents, processing_fee_cents, total_government_cents
+            )
+            VALUES (?, ?, ?, ?, ?, 'ready_to_file', ?, ?, ?, ?, ?)
+            """,
+            (
+                job_id, order["id"], action_type, order["state"], order["entity_type"],
+                action.get("automation_level", "operator_assisted"),
+                action.get("filing_method", "web_portal"),
+                int(order.get("state_fee_cents") or 0),
+                processing_fee_cents,
+                int(order.get("state_fee_cents") or 0) + processing_fee_cents,
+            ),
+        )
     conn.execute("""
         INSERT INTO filing_jobs (
             id, order_id, action_type, state, entity_type, status, automation_level,
