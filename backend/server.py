@@ -672,12 +672,21 @@ def init_db():
     # sha256; approved/complete adds action-aware terminal artifact. SQLite
     # does not support `BEFORE INSERT OR UPDATE`, so we install two
     # triggers with identical predicate bodies.
+    # Codex PR7 round-4 P2: SQLite does not guarantee short-circuit
+    # evaluation of OR within a single CASE WHEN. Calling json_type /
+    # json_extract on an invalid-JSON column raises a SQLite error before
+    # the intended RAISE(ABORT) fires. Split each precondition into its
+    # own CASE WHEN branch; CASE evaluates branches top-to-bottom and
+    # stops at the first match.
     _evidence_predicate_body = """
           SELECT CASE
             WHEN (SELECT filing_confirmation FROM orders WHERE id = NEW.order_id) IS NULL
-                 OR NOT json_valid((SELECT filing_confirmation FROM orders WHERE id = NEW.order_id))
-                 OR json_type((SELECT filing_confirmation FROM orders WHERE id = NEW.order_id), '$.value') != 'text'
-                 OR coalesce(length(json_extract((SELECT filing_confirmation FROM orders WHERE id = NEW.order_id), '$.value')), 0) = 0
+              THEN RAISE(ABORT, 'evidence_invariant: missing or malformed filing_confirmation')
+            WHEN NOT json_valid((SELECT filing_confirmation FROM orders WHERE id = NEW.order_id))
+              THEN RAISE(ABORT, 'evidence_invariant: missing or malformed filing_confirmation')
+            WHEN json_type((SELECT filing_confirmation FROM orders WHERE id = NEW.order_id), '$.value') != 'text'
+              THEN RAISE(ABORT, 'evidence_invariant: missing or malformed filing_confirmation')
+            WHEN coalesce(length(json_extract((SELECT filing_confirmation FROM orders WHERE id = NEW.order_id), '$.value')), 0) = 0
               THEN RAISE(ABORT, 'evidence_invariant: missing or malformed filing_confirmation')
             WHEN NEW.status IN ('submitted','submitted_to_state')
                  AND NOT EXISTS (
@@ -689,32 +698,34 @@ def init_db():
                  )
               THEN RAISE(ABORT, 'evidence_invariant: missing submitted_receipt artifact')
             WHEN NEW.status IN ('approved','state_approved','documents_collected','complete')
-                 AND (NOT EXISTS (
-                        SELECT 1 FROM filing_artifacts
-                        WHERE filing_job_id = NEW.id
-                          AND artifact_type = 'submitted_receipt'
-                          AND is_evidence = 1
-                          AND sha256_hex IS NOT NULL
-                      )
-                      OR NOT EXISTS (
-                        SELECT 1 FROM filing_artifacts
-                        WHERE filing_job_id = NEW.id
-                          AND is_evidence = 1
-                          AND sha256_hex IS NOT NULL
-                          AND (
-                            (NEW.action_type = 'formation' AND artifact_type = 'approved_certificate')
-                            OR (NEW.action_type = 'annual_report'
-                                AND artifact_type IN ('approved_certificate','state_correspondence',
-                                                      'state_acknowledgment','state_filed_document'))
-                            OR (NEW.action_type IN ('amendment','foreign_qualification','dissolution',
-                                                    'reinstatement','certificate_of_good_standing')
-                                AND artifact_type IN ('approved_certificate','state_filed_document'))
-                            OR (NEW.action_type NOT IN ('formation','annual_report','amendment',
-                                                        'foreign_qualification','dissolution',
-                                                        'reinstatement','certificate_of_good_standing')
-                                AND artifact_type = 'approved_certificate')
-                          )
-                      ))
+                 AND NOT EXISTS (
+                   SELECT 1 FROM filing_artifacts
+                   WHERE filing_job_id = NEW.id
+                     AND artifact_type = 'submitted_receipt'
+                     AND is_evidence = 1
+                     AND sha256_hex IS NOT NULL
+                 )
+              THEN RAISE(ABORT, 'evidence_invariant: approved status requires submitted_receipt and an action_type-appropriate terminal artifact')
+            WHEN NEW.status IN ('approved','state_approved','documents_collected','complete')
+                 AND NOT EXISTS (
+                   SELECT 1 FROM filing_artifacts
+                   WHERE filing_job_id = NEW.id
+                     AND is_evidence = 1
+                     AND sha256_hex IS NOT NULL
+                     AND (
+                       (NEW.action_type = 'formation' AND artifact_type = 'approved_certificate')
+                       OR (NEW.action_type = 'annual_report'
+                           AND artifact_type IN ('approved_certificate','state_correspondence',
+                                                 'state_acknowledgment','state_filed_document'))
+                       OR (NEW.action_type IN ('amendment','foreign_qualification','dissolution',
+                                               'reinstatement','certificate_of_good_standing')
+                           AND artifact_type IN ('approved_certificate','state_filed_document'))
+                       OR (NEW.action_type NOT IN ('formation','annual_report','amendment',
+                                                   'foreign_qualification','dissolution',
+                                                   'reinstatement','certificate_of_good_standing')
+                           AND artifact_type = 'approved_certificate')
+                     )
+                 )
               THEN RAISE(ABORT, 'evidence_invariant: approved status requires submitted_receipt and an action_type-appropriate terminal artifact')
           END;
     """
