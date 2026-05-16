@@ -24,6 +24,15 @@ SILVERFLUME_URL = "https://www.nvsilverflume.gov/home"
 RECEIPTS_DIR = Path(__file__).resolve().parent.parent / "filing_receipts"
 RECEIPTS_DIR.mkdir(exist_ok=True)
 
+# Plan v2.6 §4.5 / PR6: Nevada SilverFlume emits a numeric receipt #
+# on the bundle confirmation page (Articles + Initial List + Business
+# License). Best-effort regex; refine after the first live capture.
+# Whoever consumes the file_llc() result dict and persists status MUST
+# pass result["confirmation_number"] forward to
+# execution_platform.build_filing_confirmation_payload so the order's
+# filing_confirmation column gets populated before any status promotion.
+CONFIRMATION_NUMBER_REGEX = r"(?:Receipt|Confirmation|Filing)\s*(?:Number|No\.?|#)\s*[:\-—]?\s*([0-9]{6,12})"
+
 
 class SilverFlumeFiler:
     """Automate Nevada LLC filing through SilverFlume portal."""

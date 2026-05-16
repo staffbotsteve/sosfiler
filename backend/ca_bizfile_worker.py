@@ -510,8 +510,15 @@ def mark_rejected(conn: sqlite3.Connection, job: sqlite3.Row, message: str, evid
     insert_event(conn, job["id"], job["order_id"], "ca_bizfile_rejected_or_needs_correction", message, evidence_path)
 
 
-def mark_approved(conn: sqlite3.Connection, job: sqlite3.Row, message: str, evidence_path: str) -> None:
+def mark_approved(
+    conn: sqlite3.Connection,
+    job: sqlite3.Row,
+    message: str,
+    evidence_path: str,
+    filing_confirmation: str | None = None,
+) -> None:
     add_document(conn, job, "approved_certificate", Path(evidence_path).name, evidence_path)
+    _persist_filing_confirmation(conn, job["order_id"], filing_confirmation, "adapter")
     conn.execute(
         """
         UPDATE filing_jobs
@@ -1039,8 +1046,44 @@ async def submit_payment_if_configured(page, order_id: str) -> str:
     return str(receipt)
 
 
-def mark_submitted(conn: sqlite3.Connection, job: sqlite3.Row, evidence_path: str, message: str) -> None:
+# Plan v2.6 §4.5 / PR6: California bizfile portal emits a 12-digit File Number
+# on the receipt page following the "File Number" or "Filing Number" label.
+# Pattern is best-effort; tighten after the first live submission ships a
+# real DOM/PDF sample. The regex tolerates a colon, em dash, or whitespace
+# separator and captures the first 8-15 alphanumeric digit/letter run.
+CONFIRMATION_NUMBER_REGEX = r"(?:File|Filing|Confirmation)\s*(?:Number|No\.?|#)\s*[:\-—]?\s*([A-Z0-9]{8,15})"
+
+
+def _persist_filing_confirmation(conn: sqlite3.Connection, order_id: str, value: str | None, source: str) -> None:
+    """Write orders.filing_confirmation when the worker captured a value.
+
+    Worker flows may not always extract a confirmation (CA returns nothing on
+    declined payments, on session timeouts, etc.). Quiet no-op for missing
+    values keeps the worker fault-tolerant; the operator cockpit can fill the
+    gap via the manual input Steven approved in PR4.
+    """
+    if not value:
+        return
+    from execution_platform import build_filing_confirmation_payload
+    try:
+        payload = build_filing_confirmation_payload(value, source)
+    except ValueError:
+        return
+    conn.execute(
+        "UPDATE orders SET filing_confirmation = ?, updated_at = datetime('now') WHERE id = ?",
+        (payload, order_id),
+    )
+
+
+def mark_submitted(
+    conn: sqlite3.Connection,
+    job: sqlite3.Row,
+    evidence_path: str,
+    message: str,
+    filing_confirmation: str | None = None,
+) -> None:
     add_document(conn, job, "submitted_receipt", Path(evidence_path).name, evidence_path)
+    _persist_filing_confirmation(conn, job["order_id"], filing_confirmation, "adapter")
     conn.execute(
         """
         UPDATE filing_jobs
