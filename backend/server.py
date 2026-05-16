@@ -657,10 +657,21 @@ def init_db():
     _ensure_column(conn, "partner_applications", "stripe_payment_intent", "TEXT")
     _ensure_column(conn, "partner_applications", "partner_id", "TEXT")
     _ensure_column(conn, "partner_applications", "metadata", "TEXT NOT NULL DEFAULT '{}'")
+    # Plan v2.6 §4.2.2 — evidence-invariant precondition columns.
+    _ensure_column(conn, "filing_artifacts", "sha256_hex", "TEXT")
+    _ensure_column(conn, "filing_artifacts", "superseded_by_artifact_id", "INTEGER")
+    conn.execute(
+        "CREATE INDEX IF NOT EXISTS idx_filing_artifacts_job_type "
+        "ON filing_artifacts(filing_job_id, artifact_type, is_evidence)"
+    )
     conn.commit()
     conn.close()
 
-init_db()
+# Plan v2.6 / codex P2 #4: gate module-level init_db() so test imports don't
+# mutate the working SQLite file. Tests set SOSFILER_SKIP_INIT_DB=1; the
+# server entrypoint clears the env var and calls init_db() explicitly.
+if not os.getenv("SOSFILER_SKIP_INIT_DB"):
+    init_db()
 
 # --- Load state data ---
 STATE_DATA = {}
@@ -884,6 +895,12 @@ class FilingTransitionRequest(BaseModel):
     evidence_path: str = ""
     actor: str = "operator"
     notify_customer: bool = False
+    # Plan v2.6 §4.2.3 / §4.2.5: state-issued confirmation identifier captured at
+    # transition time. The trigger predicate requires the JSON shape
+    # {"value":"...","issued_at":"...","source":"regex|operator|adapter"}.
+    # Operators or adapters may pass the raw value; the route wraps it.
+    filing_confirmation: Optional[str] = None
+    filing_confirmation_source: str = "operator"
 
 class ClaimFilingJobRequest(BaseModel):
     operator: str = "operator"
@@ -972,7 +989,10 @@ class ChatRequest(BaseModel):
     context: Optional[dict] = None
 
 class FilingEvidenceRequest(BaseModel):
-    artifact_type: str = Field(..., pattern="^(submitted_receipt|submitted_document|approved_certificate|state_correspondence|rejection_notice|registered_agent_consent|registered_agent_assignment|filing_authorization|annual_report_packet|ein_confirmation_letter|other)$")
+    # Plan v2.6 §4.2.3.1: widened to include state_acknowledgment, state_filed_document,
+    # and registered_agent_partner_order so all action-aware terminal-evidence types
+    # can be uploaded through the public route.
+    artifact_type: str = Field(..., pattern="^(submitted_receipt|submitted_document|approved_certificate|state_correspondence|state_acknowledgment|state_filed_document|rejection_notice|registered_agent_consent|registered_agent_assignment|registered_agent_partner_order|filing_authorization|annual_report_packet|ein_confirmation_letter|other)$")
     filename: str
     file_path: str
     message: str = ""
@@ -1794,6 +1814,63 @@ def update_responsible_party_ssn(order_id: str, ssn_itin: str, user: dict | None
         return {"status": "ok", "ein_queue_ready": queue_path.exists()}
     finally:
         conn.close()
+
+
+def build_filing_confirmation_payload(value: str, source: str, issued_at: str | None = None) -> str:
+    """Build the canonical JSON shape stored in orders.filing_confirmation.
+
+    Plan v2.6 §4.2.5. The trigger predicate requires this exact shape:
+    `{"value":"<state-issued #>","issued_at":"<ISO8601>","source":"regex|operator|adapter"}`.
+    `value` must be a non-empty string; the trigger rejects malformed shapes.
+    """
+    if not isinstance(value, str) or not value.strip():
+        raise ValueError("filing_confirmation value must be a non-empty string")
+    allowed_sources = {"regex", "operator", "adapter"}
+    if source not in allowed_sources:
+        raise ValueError(f"filing_confirmation source must be one of {sorted(allowed_sources)}")
+    return json.dumps({
+        "value": value.strip(),
+        "issued_at": issued_at or datetime.now(timezone.utc).isoformat(),
+        "source": source,
+    })
+
+
+def read_filing_confirmation_value(raw: str | None) -> str | None:
+    """Extract `$.value` from the canonical JSON shape; tolerate legacy null/empty."""
+    if not raw:
+        return None
+    try:
+        parsed = json.loads(raw)
+    except (ValueError, TypeError):
+        return None
+    if isinstance(parsed, dict):
+        value = parsed.get("value")
+        if isinstance(value, str) and value.strip():
+            return value.strip()
+    return None
+
+
+def sha256_for_evidence_path(file_path: str) -> str | None:
+    """SHA-256 of an evidence artifact. Returns None when the file is missing.
+
+    Plan v2.6 §4.2.2: every evidence-bearing artifact must carry a hex digest
+    at write time. Missing files yield None so callers can decide between
+    rejecting the write and tolerating a placeholder during ingest backfills.
+    """
+    if not file_path:
+        return None
+    try:
+        resolved = resolve_document_path(file_path)
+    except Exception:
+        return None
+    try:
+        with open(resolved, "rb") as fh:
+            digest = hashlib.sha256()
+            for chunk in iter(lambda: fh.read(65536), b""):
+                digest.update(chunk)
+            return digest.hexdigest()
+    except (OSError, ValueError):
+        return None
 
 
 def add_customer_document_if_missing(
@@ -8896,10 +8973,23 @@ async def transition_filing_job(job_id: str, payload: FilingTransitionRequest, r
     if evidence_path:
         filename = Path(evidence_path).name
         artifact_type = "approved_certificate" if normalize_state(target) in {"approved", "complete", "documents_collected"} else "submitted_receipt"
+        sha256_hex = sha256_for_evidence_path(evidence_path)
+        # Plan v2.6 / codex P2 #2: refuse to advance into an evidence-required
+        # state when the supplied evidence file cannot be hashed. Missing /
+        # unreadable evidence must surface as a 4xx, not a silently-broken row.
+        if sha256_hex is None and normalize_state(target) in {"submitted", "approved", "documents_collected", "complete"}:
+            conn.close()
+            raise HTTPException(
+                status_code=409,
+                detail={
+                    "code": "EVIDENCE_FILE_UNREADABLE",
+                    "message": f"evidence_path {evidence_path!r} could not be hashed; refuse to record an evidence-required transition without a verifiable digest",
+                },
+            )
         conn.execute("""
-            INSERT INTO filing_artifacts (filing_job_id, order_id, artifact_type, filename, file_path, is_evidence)
-            VALUES (?, ?, ?, ?, ?, 1)
-        """, (job_id, job["order_id"], artifact_type, filename, evidence_path))
+            INSERT INTO filing_artifacts (filing_job_id, order_id, artifact_type, filename, file_path, is_evidence, sha256_hex)
+            VALUES (?, ?, ?, ?, ?, 1, ?)
+        """, (job_id, job["order_id"], artifact_type, filename, evidence_path, sha256_hex))
         execution_dual_write("insert_artifact", {
             "filing_job_id": job_id,
             "order_id": job["order_id"],
@@ -8907,8 +8997,41 @@ async def transition_filing_job(job_id: str, payload: FilingTransitionRequest, r
             "filename": filename,
             "file_path": evidence_path,
             "is_evidence": True,
+            "sha256_hex": sha256_hex,
         })
         add_customer_document_if_missing(conn, job["order_id"], artifact_type, filename, evidence_path)
+    # Plan v2.6 §4.2.5: write filing_confirmation when target enters an
+    # evidence-required state. Stored as canonical JSON; raw operator values get
+    # wrapped here. Adapters can also call build_filing_confirmation_payload()
+    # upstream and pass the resulting JSON if they want to control issued_at.
+    normalized_target = normalize_state(target)
+    confirmation_required_states = {"submitted", "approved", "documents_collected", "complete"}
+    if payload.filing_confirmation and payload.filing_confirmation.strip():
+        try:
+            confirmation_json = build_filing_confirmation_payload(
+                payload.filing_confirmation,
+                payload.filing_confirmation_source,
+            )
+        except ValueError as exc:
+            conn.close()
+            raise HTTPException(status_code=400, detail=f"filing_confirmation invalid: {exc}")
+        conn.execute(
+            "UPDATE orders SET filing_confirmation = ?, updated_at = datetime('now') WHERE id = ?",
+            (confirmation_json, job["order_id"]),
+        )
+    elif normalized_target in confirmation_required_states:
+        existing = read_filing_confirmation_value(job["order_id"] and conn.execute(
+            "SELECT filing_confirmation FROM orders WHERE id = ?", (job["order_id"],)
+        ).fetchone()["filing_confirmation"])
+        if not existing:
+            conn.close()
+            raise HTTPException(
+                status_code=409,
+                detail={
+                    "code": "MISSING_FILING_CONFIRMATION",
+                    "message": "filing_confirmation is required when transitioning into an evidence-required state",
+                },
+            )
     conn.execute("""
         UPDATE filing_jobs
         SET status = ?, evidence_summary = ?, updated_at = datetime('now')
@@ -9816,11 +9939,26 @@ async def add_filing_evidence(job_id: str, evidence: FilingEvidenceRequest, requ
     if not job:
         conn.close()
         raise HTTPException(status_code=404, detail="Filing job not found")
-    is_evidence = 1 if evidence.artifact_type in {"submitted_receipt", "approved_certificate", "state_correspondence", "rejection_notice", "ein_confirmation_letter"} else 0
+    # Plan v2.6 §4.2.3.1: state_acknowledgment + state_filed_document are now
+    # evidence-bearing for action-aware terminal transitions (annual_report,
+    # amendment, foreign_qualification, dissolution, reinstatement,
+    # certificate_of_good_standing). registered_agent_partner_order stays
+    # non-evidence (procurement artifact).
+    EVIDENCE_BEARING_ARTIFACT_TYPES = {
+        "submitted_receipt",
+        "approved_certificate",
+        "state_correspondence",
+        "state_acknowledgment",
+        "state_filed_document",
+        "rejection_notice",
+        "ein_confirmation_letter",
+    }
+    is_evidence = 1 if evidence.artifact_type in EVIDENCE_BEARING_ARTIFACT_TYPES else 0
+    sha256_hex = sha256_for_evidence_path(evidence.file_path) if is_evidence else None
     conn.execute("""
-        INSERT INTO filing_artifacts (filing_job_id, order_id, artifact_type, filename, file_path, is_evidence)
-        VALUES (?, ?, ?, ?, ?, ?)
-    """, (job_id, job["order_id"], evidence.artifact_type, evidence.filename, evidence.file_path, is_evidence))
+        INSERT INTO filing_artifacts (filing_job_id, order_id, artifact_type, filename, file_path, is_evidence, sha256_hex)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+    """, (job_id, job["order_id"], evidence.artifact_type, evidence.filename, evidence.file_path, is_evidence, sha256_hex))
     execution_dual_write("insert_artifact", {
         "filing_job_id": job_id,
         "order_id": job["order_id"],
@@ -9828,6 +9966,7 @@ async def add_filing_evidence(job_id: str, evidence: FilingEvidenceRequest, requ
         "filename": evidence.filename,
         "file_path": evidence.file_path,
         "is_evidence": bool(is_evidence),
+        "sha256_hex": sha256_hex,
     })
     if is_evidence:
         add_customer_document_if_missing(
@@ -10028,8 +10167,17 @@ async def mark_filing_approved(job_id: str, evidence: FilingEvidenceRequest, req
 async def mark_annual_report_complete(job_id: str, evidence: FilingEvidenceRequest, request: Request):
     """Complete an annual report only after official acceptance evidence is attached."""
     verify_admin_access(request)
-    if evidence.artifact_type not in {"approved_certificate", "state_correspondence"}:
-        raise HTTPException(status_code=400, detail="approved_certificate or state_correspondence evidence is required")
+    # Plan v2.6 §4.2.3 — annual-report terminal evidence is action-aware. Widened
+    # to accept state-issued acknowledgment / filed-document artifacts alongside
+    # the original approved_certificate / state_correspondence set.
+    annual_terminal_types = {
+        "approved_certificate",
+        "state_correspondence",
+        "state_acknowledgment",
+        "state_filed_document",
+    }
+    if evidence.artifact_type not in annual_terminal_types:
+        raise HTTPException(status_code=400, detail="Official annual-report completion evidence required (approved_certificate, state_correspondence, state_acknowledgment, or state_filed_document)")
     if not evidence.file_path:
         raise HTTPException(status_code=400, detail="Official completion evidence path is required")
     conn = get_db()

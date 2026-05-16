@@ -34,6 +34,8 @@ UNIVERSAL_FILING_STATES = (
     "documents_collected",
     "customer_notified",
     "complete",
+    "needs_evidence_reverification",
+    "closed_unfiled",
 )
 
 LEGACY_STATUS_ALIASES = {
@@ -57,14 +59,16 @@ ALLOWED_TRANSITIONS = {
     "payment_required": {"intake_complete", "operator_required"},
     "ready_to_file": {"automation_started", "operator_required", "submitted"},
     "automation_started": {"payment_required", "submitted", "operator_required", "rejected_or_needs_correction"},
-    "operator_required": {"ready_to_file", "automation_started", "submitted", "pending_government_review", "rejected_or_needs_correction"},
-    "submitted": {"pending_government_review", "rejected_or_needs_correction", "approved", "operator_required"},
-    "pending_government_review": {"approved", "rejected_or_needs_correction", "operator_required"},
-    "rejected_or_needs_correction": {"ready_to_file", "operator_required", "complete"},
-    "approved": {"documents_collected", "operator_required"},
-    "documents_collected": {"customer_notified", "complete"},
-    "customer_notified": {"complete"},
+    "operator_required": {"ready_to_file", "automation_started", "submitted", "pending_government_review", "rejected_or_needs_correction", "needs_evidence_reverification", "closed_unfiled"},
+    "submitted": {"pending_government_review", "rejected_or_needs_correction", "approved", "operator_required", "needs_evidence_reverification"},
+    "pending_government_review": {"approved", "rejected_or_needs_correction", "operator_required", "needs_evidence_reverification"},
+    "rejected_or_needs_correction": {"ready_to_file", "operator_required", "closed_unfiled"},
+    "approved": {"documents_collected", "operator_required", "needs_evidence_reverification"},
+    "documents_collected": {"customer_notified", "complete", "needs_evidence_reverification"},
+    "customer_notified": {"complete", "needs_evidence_reverification"},
     "complete": set(),
+    "needs_evidence_reverification": {"submitted", "approved", "complete", "closed_unfiled", "operator_required"},
+    "closed_unfiled": set(),
 }
 
 EVIDENCE_REQUIRED_STATES = {"submitted", "approved", "documents_collected", "complete"}

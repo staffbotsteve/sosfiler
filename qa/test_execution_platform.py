@@ -77,6 +77,54 @@ class ExecutionPlatformTests(unittest.TestCase):
         self.assertFalse(escalate)
         self.assertEqual(reason, "")
 
+    # --- v2.6 plan: closed_unfiled + needs_evidence_reverification ---
+
+    def test_closed_unfiled_is_registered_terminal(self):
+        from execution_platform import ALLOWED_TRANSITIONS, UNIVERSAL_FILING_STATES
+
+        self.assertIn("closed_unfiled", UNIVERSAL_FILING_STATES)
+        self.assertEqual(ALLOWED_TRANSITIONS["closed_unfiled"], set())
+
+    def test_needs_evidence_reverification_is_registered(self):
+        from execution_platform import ALLOWED_TRANSITIONS, UNIVERSAL_FILING_STATES
+
+        self.assertIn("needs_evidence_reverification", UNIVERSAL_FILING_STATES)
+        expected_targets = {"submitted", "approved", "complete", "closed_unfiled", "operator_required"}
+        self.assertEqual(ALLOWED_TRANSITIONS["needs_evidence_reverification"], expected_targets)
+
+    def test_rejected_to_complete_bypass_is_removed(self):
+        """Plan v2.6 §4.2.4: rejected_or_needs_correction must NOT transition to complete.
+
+        The legitimate terminal for a rejected-and-abandoned filing is closed_unfiled,
+        which carries no evidence requirement. Allowing rejected→complete was the
+        structural bypass behind the false-completion bug.
+        """
+        from execution_platform import ALLOWED_TRANSITIONS
+
+        targets = ALLOWED_TRANSITIONS["rejected_or_needs_correction"]
+        self.assertNotIn("complete", targets)
+        self.assertIn("closed_unfiled", targets)
+
+    def test_validate_transition_rejected_to_complete_blocked(self):
+        decision = validate_transition(
+            "rejected_or_needs_correction", "complete", evidence_path="/tmp/fake.pdf"
+        )
+        self.assertFalse(decision.ok)
+        self.assertIn("Cannot transition", decision.reason)
+
+    def test_validate_transition_rejected_to_closed_unfiled_allowed(self):
+        decision = validate_transition("rejected_or_needs_correction", "closed_unfiled")
+        self.assertTrue(decision.ok, decision.reason)
+
+    def test_closed_unfiled_does_not_require_evidence(self):
+        decision = validate_transition("rejected_or_needs_correction", "closed_unfiled")
+        self.assertTrue(decision.ok)
+        self.assertEqual(decision.reason, "")
+
+    def test_needs_evidence_reverification_to_closed_unfiled_allowed(self):
+        decision = validate_transition("needs_evidence_reverification", "closed_unfiled")
+        self.assertTrue(decision.ok, decision.reason)
+
 
 if __name__ == "__main__":
     unittest.main()
