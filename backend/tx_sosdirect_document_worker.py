@@ -488,16 +488,21 @@ async def process_job(page, conn: sqlite3.Connection, job: sqlite3.Row, order: s
         if dry_run:
             result["downloaded_documents"].append({"candidate": candidate.text, "href": candidate.href})
             continue
-        # Plan v2.6 §4.5 / PR6 codex round-2: capture the document detail
-        # page text BEFORE downloading. Many SOSDirect "View Document" links
-        # land on an HTML detail page that includes "Document Number: …"
-        # before serving the PDF. We try to navigate, capture text, and
-        # extract. Failures fall back to the briefcase row haystack.
+        # Plan v2.6 §4.5 / PR6 codex round-3 P1: fetch the document detail
+        # WITHOUT navigating the shared briefcase page. download_candidate()
+        # below resolves candidate.href against the current page URL and
+        # falls back to clicking the original briefcase link — both break
+        # if we move the page off the briefcase. Use the playwright request
+        # client so the page stays on the listing.
         from execution_platform import extract_filing_confirmation
         detail_text = ""
+        detail_url = urljoin(page.url, candidate.href)
         try:
-            await page.goto(urljoin(page.url, candidate.href), wait_until="domcontentloaded", timeout=20_000)
-            detail_text = await page.content()
+            detail_response = await page.context.request.get(detail_url, timeout=20_000)
+            detail_ctype = (detail_response.headers.get("content-type") or "").lower()
+            # Only treat HTML responses as text — PDFs/zips would give noise.
+            if detail_response.ok and ("html" in detail_ctype or detail_ctype == ""):
+                detail_text = await detail_response.text()
         except Exception:
             detail_text = ""
         downloaded = await download_candidate(page, order_id, candidate, index)
