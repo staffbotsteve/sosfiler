@@ -110,10 +110,17 @@ begin
 end;
 $$;
 
--- Plan v2.6 §4.2.4 step 4 / PR7 codex round-1 P2: fire on both INSERT and
--- UPDATE so first-time mirror/backfill writes that land directly in a
--- terminal status cannot bypass the predicate.
+-- Plan v2.6 §4.2.4 step 4 / PR7 codex round-5 P2: revert to BEFORE UPDATE.
+-- A BEFORE INSERT trigger creates a chicken-and-egg for recovery flows
+-- (first-time mirror writes whose artifacts cannot exist yet under the
+-- new UUID). The supported pattern is: every promotion to a terminal
+-- status updates an existing execution_filing_jobs row. The backfill
+-- route enforces this in app code (PR7 codex round-3) by skipping
+-- terminal jobs in core-only mode and deferring terminal promotion
+-- until artifacts are mirrored. App-layer + repository-layer code (PR4)
+-- enforces the same predicate before any code path can write directly
+-- in terminal status. The UPDATE trigger remains as belt-and-suspenders.
 drop trigger if exists trg_execution_filing_jobs_evidence on public.execution_filing_jobs;
 create trigger trg_execution_filing_jobs_evidence
-  before insert or update on public.execution_filing_jobs
+  before update on public.execution_filing_jobs
   for each row execute function public.enforce_filing_evidence_invariant();

@@ -733,15 +733,22 @@ def init_db():
         "NEW.status IN ('submitted','submitted_to_state','approved','state_approved',"
         "'documents_collected','complete')"
     )
+    # Codex PR7 round-5 P2: INSERT-time enforcement creates a chicken-and-egg
+    # for recovery flows. When a filing_artifact references a filing_job_id
+    # whose mirror row was lost / never created, the insert_artifact lookup
+    # leaves filing_job_id NULL; the first terminal upsert_filing_job then
+    # INSERTs a new UUID with no artifacts attached and the trigger ABORTs.
+    # The supported pattern is: every code path that promotes to a terminal
+    # status updates an EXISTING filing_jobs row. create_or_update_filing_job
+    # always inserts in ready_to_file; the backfill route (PR7 codex round-3)
+    # explicitly skips terminal jobs in core-only mode and defers terminal
+    # promotion until artifacts are mirrored. Drop the BEFORE INSERT trigger;
+    # rely on BEFORE UPDATE plus app-layer enforcement. Backfill bypass
+    # protection is enforced in the route, not the trigger.
+    conn.execute("DROP TRIGGER IF EXISTS filing_jobs_evidence_invariant_insert")
     conn.execute("DROP TRIGGER IF EXISTS filing_jobs_evidence_invariant")
     conn.execute(
         f"CREATE TRIGGER filing_jobs_evidence_invariant BEFORE UPDATE ON filing_jobs "
-        f"FOR EACH ROW WHEN {_evidence_states_filter} "
-        f"BEGIN {_evidence_predicate_body} END"
-    )
-    conn.execute("DROP TRIGGER IF EXISTS filing_jobs_evidence_invariant_insert")
-    conn.execute(
-        f"CREATE TRIGGER filing_jobs_evidence_invariant_insert BEFORE INSERT ON filing_jobs "
         f"FOR EACH ROW WHEN {_evidence_states_filter} "
         f"BEGIN {_evidence_predicate_body} END"
     )
