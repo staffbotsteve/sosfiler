@@ -2925,8 +2925,9 @@ async def prepare_order_for_filing(order_id: str, payload: FilingPrepRequest) ->
     updated_order = dict(conn.execute("SELECT * FROM orders WHERE id = ?", (order_id,)).fetchone())
     updated_job = dict(conn.execute("SELECT * FROM filing_jobs WHERE id = ?", (job["id"],)).fetchone())
     final_readiness = payment_execution_readiness(conn, updated_order, updated_job)
+    confirmation_payload = serialize_filing_job_with_confirmation(conn, updated_job)
     conn.close()
-    execution_dual_write("upsert_filing_job", serialize_filing_job(updated_job))
+    execution_dual_write("upsert_filing_job", confirmation_payload)
     execution_dual_write("insert_event", {
         "filing_job_id": job["id"],
         "order_id": order_id,
@@ -4800,6 +4801,22 @@ def serialize_filing_job(row) -> dict:
     item["route_metadata"] = parse_json_field(item.get("route_metadata"), {})
     item["readiness_checklist"] = build_filing_readiness_checklist(item)
     return item
+
+
+def serialize_filing_job_with_confirmation(conn, row) -> dict:
+    """Plan v2.6 §4.2.4 step 4 / PR5: serialize a filing_jobs row and merge in
+    the order's canonical filing_confirmation JSON blob so the Supabase mirror
+    upsert can persist it. Falls back to serialize_filing_job() shape when no
+    order row or confirmation is present.
+    """
+    payload = serialize_filing_job(row)
+    order_row = conn.execute(
+        "SELECT filing_confirmation FROM orders WHERE id = ?",
+        (payload.get("order_id"),),
+    ).fetchone()
+    if order_row and order_row["filing_confirmation"]:
+        payload["filing_confirmation_raw"] = order_row["filing_confirmation"]
+    return payload
 
 
 def annual_report_requirements_for_job(job: dict) -> dict:
@@ -10168,7 +10185,7 @@ async def mark_filing_submitted(job_id: str, evidence: FilingEvidenceRequest, re
         INSERT INTO filing_events (filing_job_id, order_id, event_type, message, actor, evidence_path)
         VALUES (?, ?, ?, ?, 'operator', ?)
     """, (job_id, job["order_id"], submitted_status, status_message, evidence.file_path))
-    execution_dual_write("upsert_filing_job", {**serialize_filing_job(job), "status": submitted_status})
+    execution_dual_write("upsert_filing_job", {**serialize_filing_job_with_confirmation(conn, job), "status": submitted_status})
     execution_dual_write("insert_event", {
         "filing_job_id": job_id,
         "order_id": job["order_id"],
@@ -10251,7 +10268,7 @@ async def mark_filing_approved(job_id: str, evidence: FilingEvidenceRequest, req
         INSERT INTO filing_events (filing_job_id, order_id, event_type, message, actor, evidence_path)
         VALUES (?, ?, ?, ?, 'operator', ?)
     """, (job_id, job["order_id"], approved_status, approval_message, evidence.file_path))
-    execution_dual_write("upsert_filing_job", {**serialize_filing_job(job), "status": approved_status})
+    execution_dual_write("upsert_filing_job", {**serialize_filing_job_with_confirmation(conn, job), "status": approved_status})
     execution_dual_write("insert_event", {
         "filing_job_id": job_id,
         "order_id": job["order_id"],
@@ -10337,11 +10354,14 @@ async def mark_annual_report_complete(job_id: str, evidence: FilingEvidenceReque
         INSERT INTO filing_events (filing_job_id, order_id, event_type, message, actor, evidence_path)
         VALUES (?, ?, 'complete', ?, 'operator', ?)
     """, (job_id, job["order_id"], message, evidence.file_path))
+    # Plan v2.6 §4.2.4 step 4 / PR5: snapshot the filing_confirmation BEFORE
+    # closing the connection so the dual-write payload below carries it.
+    completion_payload = {**serialize_filing_job_with_confirmation(conn, job), "status": "complete"}
     conn.commit()
     conn.close()
     if evidence.notify_customer:
         schedule_customer_status_email(job["order_id"], "complete", message)
-    execution_dual_write("upsert_filing_job", {**serialize_filing_job(job), "status": "complete"})
+    execution_dual_write("upsert_filing_job", completion_payload)
     execution_dual_write("insert_event", {
         "filing_job_id": job_id,
         "order_id": job["order_id"],

@@ -110,6 +110,11 @@ class SupabaseExecutionRepository:
             "portal_url": job.get("portal_url"),
             "portal_blockers": job.get("portal_blockers", []),
             "evidence_required": job.get("required_evidence", {}),
+            # Plan v2.6 §4.2.4 step 4 / PR5: mirror orders.filing_confirmation
+            # (canonical JSON shape) so Postgres-side invariants can read it.
+            # Callers populate `filing_confirmation_raw` on the job dict before
+            # dispatching the dual-write (see server.serialize_filing_job_with_confirmation).
+            "filing_confirmation": job.get("filing_confirmation_raw"),
             "metadata": job.get("route_metadata") or {
                 "office": job.get("office"),
                 "form_name": job.get("form_name"),
@@ -197,9 +202,9 @@ class SupabaseExecutionRepository:
                   legacy_job_id, order_id, product_type, action_type, state, entity_type,
                   status, automation_lane, automation_difficulty, adapter_key,
                   customer_status, portal_url, portal_blockers, evidence_required,
-                  metadata, updated_at
+                  filing_confirmation, metadata, updated_at
                 )
-                values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, now())
+                values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, now())
                 on conflict (legacy_job_id) do update set
                   status = excluded.status,
                   automation_lane = excluded.automation_lane,
@@ -209,6 +214,7 @@ class SupabaseExecutionRepository:
                   portal_url = excluded.portal_url,
                   portal_blockers = excluded.portal_blockers,
                   evidence_required = excluded.evidence_required,
+                  filing_confirmation = excluded.filing_confirmation,
                   metadata = excluded.metadata,
                   updated_at = now()
                 """,
@@ -218,7 +224,7 @@ class SupabaseExecutionRepository:
                     payload["status"], payload["automation_lane"], payload["automation_difficulty"],
                     payload["adapter_key"], payload["customer_status"], payload["portal_url"],
                     _jsonb(payload["portal_blockers"]), _jsonb(payload["evidence_required"]),
-                    _jsonb(payload["metadata"]),
+                    payload["filing_confirmation"], _jsonb(payload["metadata"]),
                 ),
             )
 
@@ -250,12 +256,13 @@ class SupabaseExecutionRepository:
                 """
                 insert into public.execution_artifacts (
                   order_id, filing_job_id, artifact_type, filename, storage_path,
-                  issuer, source_url, visibility, is_evidence
+                  issuer, source_url, visibility, is_evidence,
+                  sha256_hex, superseded_by_artifact_id
                 )
                 values (
                   %s,
                   (select id from public.execution_filing_jobs where legacy_job_id = %s limit 1),
-                  %s, %s, %s, %s, %s, %s, %s
+                  %s, %s, %s, %s, %s, %s, %s, %s, %s
                 )
                 """,
                 (
@@ -263,6 +270,10 @@ class SupabaseExecutionRepository:
                     artifact["artifact_type"], artifact["filename"], artifact["file_path"],
                     artifact.get("issuer"), artifact.get("source_url"),
                     artifact.get("visibility", "customer"), bool(artifact.get("is_evidence")),
+                    # Plan v2.6 §4.2.4 step 4 / PR5: persist evidence digest +
+                    # supersede link so mirror-side invariants see the same
+                    # tamper-evident fields the local SQLite store carries.
+                    artifact.get("sha256_hex"), artifact.get("superseded_by_artifact_id"),
                 ),
             )
 
