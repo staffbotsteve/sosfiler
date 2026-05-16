@@ -110,6 +110,11 @@ class SupabaseExecutionRepository:
             "portal_url": job.get("portal_url"),
             "portal_blockers": job.get("portal_blockers", []),
             "evidence_required": job.get("required_evidence", {}),
+            # Plan v2.6 §4.2.4 step 4 / PR5: mirror orders.filing_confirmation
+            # (canonical JSON shape) so Postgres-side invariants can read it.
+            # Callers populate `filing_confirmation_raw` on the job dict before
+            # dispatching the dual-write (see server.serialize_filing_job_with_confirmation).
+            "filing_confirmation": job.get("filing_confirmation_raw"),
             "metadata": job.get("route_metadata") or {
                 "office": job.get("office"),
                 "form_name": job.get("form_name"),
@@ -197,9 +202,9 @@ class SupabaseExecutionRepository:
                   legacy_job_id, order_id, product_type, action_type, state, entity_type,
                   status, automation_lane, automation_difficulty, adapter_key,
                   customer_status, portal_url, portal_blockers, evidence_required,
-                  metadata, updated_at
+                  filing_confirmation, metadata, updated_at
                 )
-                values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, now())
+                values (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, now())
                 on conflict (legacy_job_id) do update set
                   status = excluded.status,
                   automation_lane = excluded.automation_lane,
@@ -209,6 +214,12 @@ class SupabaseExecutionRepository:
                   portal_url = excluded.portal_url,
                   portal_blockers = excluded.portal_blockers,
                   evidence_required = excluded.evidence_required,
+                  -- Plan v2.6 PR5 codex round-1 P2 #2: COALESCE so callers
+                  -- that pass plain serialize_filing_job() (no _raw field)
+                  -- do not clobber an already-captured confirmation. A
+                  -- non-NULL excluded value still wins, so adapters that
+                  -- DO populate filing_confirmation_raw can update it.
+                  filing_confirmation = coalesce(excluded.filing_confirmation, public.execution_filing_jobs.filing_confirmation),
                   metadata = excluded.metadata,
                   updated_at = now()
                 """,
@@ -218,7 +229,7 @@ class SupabaseExecutionRepository:
                     payload["status"], payload["automation_lane"], payload["automation_difficulty"],
                     payload["adapter_key"], payload["customer_status"], payload["portal_url"],
                     _jsonb(payload["portal_blockers"]), _jsonb(payload["evidence_required"]),
-                    _jsonb(payload["metadata"]),
+                    payload["filing_confirmation"], _jsonb(payload["metadata"]),
                 ),
             )
 
@@ -246,16 +257,28 @@ class SupabaseExecutionRepository:
 
     def insert_artifact(self, artifact: dict[str, Any]) -> None:
         with self.connect() as conn:
+            # Plan v2.6 §4.2.4 step 4 / PR5: persist evidence digest so
+            # mirror-side invariants see the same tamper-evident fields the
+            # local SQLite store carries.
+            #
+            # NOTE: SQLite filing_artifacts.superseded_by_artifact_id is a
+            # local INTEGER row id; the Postgres column is a UUID FK to
+            # execution_artifacts(id). Writing the integer directly would
+            # fail type checks in Postgres. We deliberately do NOT propagate
+            # the supersession link here until a separate workstream wires
+            # an INTEGER → UUID mapping (codex PR5 round-2 P2). The column
+            # stays in the schema so the future mapping can populate it.
             conn.execute(
                 """
                 insert into public.execution_artifacts (
                   order_id, filing_job_id, artifact_type, filename, storage_path,
-                  issuer, source_url, visibility, is_evidence
+                  issuer, source_url, visibility, is_evidence,
+                  sha256_hex
                 )
                 values (
                   %s,
                   (select id from public.execution_filing_jobs where legacy_job_id = %s limit 1),
-                  %s, %s, %s, %s, %s, %s, %s
+                  %s, %s, %s, %s, %s, %s, %s, %s
                 )
                 """,
                 (
@@ -263,6 +286,7 @@ class SupabaseExecutionRepository:
                     artifact["artifact_type"], artifact["filename"], artifact["file_path"],
                     artifact.get("issuer"), artifact.get("source_url"),
                     artifact.get("visibility", "customer"), bool(artifact.get("is_evidence")),
+                    artifact.get("sha256_hex"),
                 ),
             )
 
