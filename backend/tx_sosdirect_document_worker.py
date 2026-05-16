@@ -206,12 +206,36 @@ def insert_event(
     )
 
 
+# Plan v2.6 §4.5 / PR6: Texas SOSDirect emits a numeric document number on the
+# Filed Document detail view. Patterns observed include "Document Number:
+# 123456789" and "Filing Number 987654321". Best-effort regex; refine after
+# the first live capture. The worker also tracks document_number / filing_number
+# in evidence_summary JSON, which is the preferred source when present
+# (see known_identifiers() in this module).
+CONFIRMATION_NUMBER_REGEX = r"(?:Document|Filing|Confirmation)\s*(?:Number|No\.?|#)\s*[:\-—]?\s*([0-9]{6,12})"
+
+
+def _persist_filing_confirmation(conn: sqlite3.Connection, order_id: str, value: str | None, source: str) -> None:
+    if not value:
+        return
+    from execution_platform import build_filing_confirmation_payload
+    try:
+        payload = build_filing_confirmation_payload(value, source)
+    except ValueError:
+        return
+    conn.execute(
+        "UPDATE orders SET filing_confirmation = ?, updated_at = datetime('now') WHERE id = ?",
+        (payload, order_id),
+    )
+
+
 def attach_approval_document(
     conn: sqlite3.Connection,
     job: sqlite3.Row,
     filename: str,
     file_path: str,
     message: str,
+    filing_confirmation: str | None = None,
 ) -> None:
     existing_artifact = conn.execute(
         "SELECT 1 FROM filing_artifacts WHERE order_id = ? AND filename = ? LIMIT 1",
@@ -244,6 +268,17 @@ def attach_approval_document(
             """,
             (job["order_id"], filename, file_path, fmt),
         )
+
+    # Plan v2.6 §4.2.5 / PR6: confirmation # falls back to the worker's
+    # evidence_summary tracking (document_number / filing_number) when the
+    # caller does not pass one explicitly.
+    if not filing_confirmation:
+        for key in ("document_number", "filing_number"):
+            extracted = evidence_value(job, key)
+            if extracted:
+                filing_confirmation = extracted
+                break
+    _persist_filing_confirmation(conn, job["order_id"], filing_confirmation, "adapter")
 
     conn.execute(
         """
@@ -453,12 +488,40 @@ async def process_job(page, conn: sqlite3.Connection, job: sqlite3.Row, order: s
         if dry_run:
             result["downloaded_documents"].append({"candidate": candidate.text, "href": candidate.href})
             continue
+        # Plan v2.6 §4.5 / PR6 codex round-3 P1: fetch the document detail
+        # WITHOUT navigating the shared briefcase page. download_candidate()
+        # below resolves candidate.href against the current page URL and
+        # falls back to clicking the original briefcase link — both break
+        # if we move the page off the briefcase. Use the playwright request
+        # client so the page stays on the listing.
+        from execution_platform import extract_filing_confirmation
+        detail_text = ""
+        detail_url = urljoin(page.url, candidate.href)
+        try:
+            detail_response = await page.context.request.get(detail_url, timeout=20_000)
+            detail_ctype = (detail_response.headers.get("content-type") or "").lower()
+            # Only treat HTML responses as text — PDFs/zips would give noise.
+            if detail_response.ok and ("html" in detail_ctype or detail_ctype == ""):
+                detail_text = await detail_response.text()
+        except Exception:
+            detail_text = ""
         downloaded = await download_candidate(page, order_id, candidate, index)
         if not downloaded:
             continue
         message = f"Texas SOSDirect approval document captured from Briefcase for {order['business_name']}."
-        attach_approval_document(conn, job, downloaded.name, str(downloaded), message)
-        result["downloaded_documents"].append({"filename": downloaded.name, "path": str(downloaded)})
+        candidate_haystack = (
+            f"{candidate.row_text}\n{candidate.text}\n{candidate.href}\n{detail_text}\n{content}"
+        )
+        extracted = extract_filing_confirmation(candidate_haystack, CONFIRMATION_NUMBER_REGEX)
+        attach_approval_document(
+            conn, job, downloaded.name, str(downloaded), message,
+            filing_confirmation=extracted,
+        )
+        result["downloaded_documents"].append({
+            "filename": downloaded.name,
+            "path": str(downloaded),
+            "filing_confirmation": extracted,
+        })
 
     if result["downloaded_documents"]:
         result["status"] = "state_approved" if not dry_run else "would_download"

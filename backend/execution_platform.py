@@ -387,6 +387,62 @@ def send_slack_ticket(ticket: dict[str, Any]) -> bool:
 # a circular import between server.py and the workers.
 
 
+_CONFIRMATION_ALLOWED_SOURCES = {"regex", "operator", "adapter"}
+
+
+def build_filing_confirmation_payload(value: str, source: str, issued_at: str | None = None) -> str:
+    """Build the canonical JSON shape stored in orders.filing_confirmation.
+
+    Plan v2.6 §4.2.5. Required shape:
+    `{"value":"<state-issued #>","issued_at":"<ISO8601>","source":"regex|operator|adapter"}`.
+    `value` must be a non-empty string. The DB trigger rejects malformed shapes.
+    """
+    if not isinstance(value, str) or not value.strip():
+        raise ValueError("filing_confirmation value must be a non-empty string")
+    if source not in _CONFIRMATION_ALLOWED_SOURCES:
+        raise ValueError(f"filing_confirmation source must be one of {sorted(_CONFIRMATION_ALLOWED_SOURCES)}")
+    return json.dumps({
+        "value": value.strip(),
+        "issued_at": issued_at or datetime.now(timezone.utc).isoformat(),
+        "source": source,
+    })
+
+
+def read_filing_confirmation_value(raw: str | None) -> str | None:
+    """Extract `$.value` from the canonical JSON shape; tolerate legacy null/empty."""
+    if not raw:
+        return None
+    try:
+        parsed = json.loads(raw)
+    except (ValueError, TypeError):
+        return None
+    if isinstance(parsed, dict):
+        value = parsed.get("value")
+        if isinstance(value, str) and value.strip():
+            return value.strip()
+    return None
+
+
+def extract_filing_confirmation(text: str | None, pattern: str | None) -> str | None:
+    """Run a state-specific regex against captured portal text and return the
+    first capture group (or full match) as the confirmation number.
+
+    Plan v2.6 §4.5 — each adapter declares confirmation_number_regex and runs
+    it against the receipt-page DOM or the captured receipt PDF text. Returns
+    None when text or pattern is empty, or when the regex does not match.
+    """
+    if not text or not pattern:
+        return None
+    try:
+        match = re.search(pattern, text)
+    except re.error:
+        return None
+    if not match:
+        return None
+    groups = match.groups()
+    return (groups[0] if groups else match.group(0)).strip() or None
+
+
 def sha256_for_file_path(file_path: str | Path | None) -> str | None:
     """Stream a SHA-256 digest from an absolute path. None when missing/unreadable."""
     if not file_path:

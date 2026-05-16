@@ -24,6 +24,15 @@ SILVERFLUME_URL = "https://www.nvsilverflume.gov/home"
 RECEIPTS_DIR = Path(__file__).resolve().parent.parent / "filing_receipts"
 RECEIPTS_DIR.mkdir(exist_ok=True)
 
+# Plan v2.6 §4.5 / PR6: Nevada SilverFlume emits a numeric receipt #
+# on the bundle confirmation page (Articles + Initial List + Business
+# License). Best-effort regex; refine after the first live capture.
+# Whoever consumes the file_llc() result dict and persists status MUST
+# pass result["confirmation_number"] forward to
+# execution_platform.build_filing_confirmation_payload so the order's
+# filing_confirmation column gets populated before any status promotion.
+CONFIRMATION_NUMBER_REGEX = r"(?:Receipt|Confirmation|Filing)\s*(?:Number|No\.?|#)\s*[:\-—]?\s*([0-9]{6,12})"
+
 
 class SilverFlumeFiler:
     """Automate Nevada LLC filing through SilverFlume portal."""
@@ -117,9 +126,20 @@ class SilverFlumeFiler:
                 if filed:
                     result["success"] = True
                     result["timestamps"]["completed"] = datetime.utcnow().isoformat()
+                    # Plan v2.6 §4.5 / PR6 codex round-2: extract NV receipt #
+                    # from the confirmation page so callers can forward it
+                    # into orders.filing_confirmation before promotion.
+                    try:
+                        from execution_platform import extract_filing_confirmation
+                        final_text = await page.inner_text("body", timeout=5_000)
+                        extracted = extract_filing_confirmation(final_text, CONFIRMATION_NUMBER_REGEX)
+                        if extracted:
+                            result["confirmation_number"] = extracted
+                    except Exception as exc:  # noqa: BLE001
+                        logger.warning(f"[{order_id}] confirmation extract failed: {exc}")
                 else:
                     result["needs_human_review"] = True
-                
+
                 await browser.close()
                 
         except Exception as e:

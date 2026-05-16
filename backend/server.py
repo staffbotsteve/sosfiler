@@ -1824,38 +1824,15 @@ def update_responsible_party_ssn(order_id: str, ssn_itin: str, user: dict | None
         conn.close()
 
 
-def build_filing_confirmation_payload(value: str, source: str, issued_at: str | None = None) -> str:
-    """Build the canonical JSON shape stored in orders.filing_confirmation.
-
-    Plan v2.6 §4.2.5. The trigger predicate requires this exact shape:
-    `{"value":"<state-issued #>","issued_at":"<ISO8601>","source":"regex|operator|adapter"}`.
-    `value` must be a non-empty string; the trigger rejects malformed shapes.
-    """
-    if not isinstance(value, str) or not value.strip():
-        raise ValueError("filing_confirmation value must be a non-empty string")
-    allowed_sources = {"regex", "operator", "adapter"}
-    if source not in allowed_sources:
-        raise ValueError(f"filing_confirmation source must be one of {sorted(allowed_sources)}")
-    return json.dumps({
-        "value": value.strip(),
-        "issued_at": issued_at or datetime.now(timezone.utc).isoformat(),
-        "source": source,
-    })
-
-
-def read_filing_confirmation_value(raw: str | None) -> str | None:
-    """Extract `$.value` from the canonical JSON shape; tolerate legacy null/empty."""
-    if not raw:
-        return None
-    try:
-        parsed = json.loads(raw)
-    except (ValueError, TypeError):
-        return None
-    if isinstance(parsed, dict):
-        value = parsed.get("value")
-        if isinstance(value, str) and value.strip():
-            return value.strip()
-    return None
+# Plan v2.6 §4.2.5 / PR6: filing_confirmation helpers moved to execution_platform
+# so workers (CA bizfile, NV silverflume, TX SOSDirect) can use them without
+# importing from server. Re-export the names so existing call sites in this
+# module keep working unchanged.
+from execution_platform import (  # noqa: E402
+    build_filing_confirmation_payload,
+    read_filing_confirmation_value,
+    extract_filing_confirmation,
+)
 
 
 def sha256_for_evidence_path(file_path: str) -> str | None:
