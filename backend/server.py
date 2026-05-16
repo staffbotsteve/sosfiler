@@ -1941,14 +1941,17 @@ def insert_filing_artifact(
     filename: str,
     file_path: str,
     is_evidence: bool | int,
+    visibility: str = "customer",
 ) -> str | None:
     """Canonical filing_artifacts INSERT for server-side routes.
 
     Auto-computes sha256_hex via sha256_for_evidence_path() when is_evidence is
     truthy, then INSERTs through execution_platform.insert_filing_artifact_row()
     and fans the same payload out through execution_dual_write() so the
-    Supabase mirror stays in sync. Returns the digest (or None when not
-    evidence / file unreadable).
+    Supabase mirror stays in sync. Pass `visibility="admin"` for admin-only
+    artifacts (partner-order intake, internal audit blobs) so the dual-write
+    mirror does not surface the row in the customer document vault. Returns
+    the digest (or None when not evidence / file unreadable).
     """
     from execution_platform import insert_filing_artifact_row
     is_evidence_int = 1 if is_evidence else 0
@@ -1971,6 +1974,7 @@ def insert_filing_artifact(
         "file_path": file_path,
         "is_evidence": bool(is_evidence_int),
         "sha256_hex": sha256_hex,
+        "visibility": visibility,
     })
     return sha256_hex
 
@@ -10529,6 +10533,7 @@ def _attach_registered_agent_artifact(
         filename=filename,
         file_path=str(path),
         is_evidence=(artifact_type == "registered_agent_assignment"),
+        visibility=visibility,
     )
     add_customer_document_if_missing(
         conn,
@@ -10555,15 +10560,9 @@ def _attach_registered_agent_artifact(
             str(path) if artifact_type == "registered_agent_assignment" else "",
         ),
     )
-    execution_dual_write("insert_artifact", {
-        "filing_job_id": job["id"],
-        "order_id": order["id"],
-        "artifact_type": artifact_type,
-        "filename": filename,
-        "file_path": str(path),
-        "is_evidence": artifact_type == "registered_agent_assignment",
-        "visibility": visibility,
-    })
+    # NOTE: insert_filing_artifact() above already fans the artifact row
+    # through execution_dual_write with the correct visibility — no second
+    # explicit insert_artifact dual-write here (codex PR4 round-1 P2).
     execution_dual_write("insert_event", {
         "filing_job_id": job["id"],
         "order_id": order["id"],
