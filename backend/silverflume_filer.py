@@ -126,9 +126,20 @@ class SilverFlumeFiler:
                 if filed:
                     result["success"] = True
                     result["timestamps"]["completed"] = datetime.utcnow().isoformat()
+                    # Plan v2.6 §4.5 / PR6 codex round-2: extract NV receipt #
+                    # from the confirmation page so callers can forward it
+                    # into orders.filing_confirmation before promotion.
+                    try:
+                        from execution_platform import extract_filing_confirmation
+                        final_text = await page.inner_text("body", timeout=5_000)
+                        extracted = extract_filing_confirmation(final_text, CONFIRMATION_NUMBER_REGEX)
+                        if extracted:
+                            result["confirmation_number"] = extracted
+                    except Exception as exc:  # noqa: BLE001
+                        logger.warning(f"[{order_id}] confirmation extract failed: {exc}")
                 else:
                     result["needs_human_review"] = True
-                
+
                 await browser.close()
                 
         except Exception as e:

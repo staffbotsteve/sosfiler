@@ -488,16 +488,25 @@ async def process_job(page, conn: sqlite3.Connection, job: sqlite3.Row, order: s
         if dry_run:
             result["downloaded_documents"].append({"candidate": candidate.text, "href": candidate.href})
             continue
+        # Plan v2.6 §4.5 / PR6 codex round-2: capture the document detail
+        # page text BEFORE downloading. Many SOSDirect "View Document" links
+        # land on an HTML detail page that includes "Document Number: …"
+        # before serving the PDF. We try to navigate, capture text, and
+        # extract. Failures fall back to the briefcase row haystack.
+        from execution_platform import extract_filing_confirmation
+        detail_text = ""
+        try:
+            await page.goto(urljoin(page.url, candidate.href), wait_until="domcontentloaded", timeout=20_000)
+            detail_text = await page.content()
+        except Exception:
+            detail_text = ""
         downloaded = await download_candidate(page, order_id, candidate, index)
         if not downloaded:
             continue
         message = f"Texas SOSDirect approval document captured from Briefcase for {order['business_name']}."
-        # Plan v2.6 §4.5 / PR6 codex round-1: extract document/filing number
-        # from the candidate row text + full page content before promotion.
-        # attach_approval_document still falls back to evidence_summary if
-        # nothing matches here.
-        from execution_platform import extract_filing_confirmation
-        candidate_haystack = f"{candidate.row_text}\n{candidate.text}\n{candidate.href}\n{content}"
+        candidate_haystack = (
+            f"{candidate.row_text}\n{candidate.text}\n{candidate.href}\n{detail_text}\n{content}"
+        )
         extracted = extract_filing_confirmation(candidate_haystack, CONFIRMATION_NUMBER_REGEX)
         attach_approval_document(
             conn, job, downloaded.name, str(downloaded), message,
