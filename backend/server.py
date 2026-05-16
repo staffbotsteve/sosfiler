@@ -1942,6 +1942,7 @@ def insert_filing_artifact(
     file_path: str,
     is_evidence: bool | int,
     visibility: str = "customer",
+    allow_unverified_sha256: bool = False,
 ) -> str | None:
     """Canonical filing_artifacts INSERT for server-side routes.
 
@@ -1952,10 +1953,24 @@ def insert_filing_artifact(
     artifacts (partner-order intake, internal audit blobs) so the dual-write
     mirror does not surface the row in the customer document vault. Returns
     the digest (or None when not evidence / file unreadable).
+
+    Plan v2.6 §4.2.3 invariant — when is_evidence is truthy and the supplied
+    file cannot be hashed (missing / unreadable), this helper raises HTTP 409
+    EVIDENCE_FILE_UNREADABLE instead of writing an undigested evidence row.
+    Pass `allow_unverified_sha256=True` only for explicit backfill / ingest
+    scenarios where the digest will be populated later by a separate job.
     """
     from execution_platform import insert_filing_artifact_row
     is_evidence_int = 1 if is_evidence else 0
     sha256_hex = sha256_for_evidence_path(file_path) if is_evidence_int else None
+    if is_evidence_int and sha256_hex is None and not allow_unverified_sha256:
+        raise HTTPException(
+            status_code=409,
+            detail={
+                "code": "EVIDENCE_FILE_UNREADABLE",
+                "message": f"evidence_path {file_path!r} could not be hashed; refuse to record an evidence-bearing artifact without a verifiable digest",
+            },
+        )
     insert_filing_artifact_row(
         conn,
         filing_job_id=filing_job_id,
@@ -9084,28 +9099,22 @@ async def transition_filing_job(job_id: str, payload: FilingTransitionRequest, r
     if evidence_path:
         filename = Path(evidence_path).name
         artifact_type = "approved_certificate" if normalize_state(target) in {"approved", "complete", "documents_collected"} else "submitted_receipt"
-        # Plan v2.6 / codex P2 #2: refuse to advance into an evidence-required
-        # state when the supplied evidence file cannot be hashed. Pre-hash so
-        # we can 409 before inserting the row.
-        precheck_hash = sha256_for_evidence_path(evidence_path)
-        if precheck_hash is None and normalize_state(target) in {"submitted", "approved", "documents_collected", "complete"}:
-            conn.close()
-            raise HTTPException(
-                status_code=409,
-                detail={
-                    "code": "EVIDENCE_FILE_UNREADABLE",
-                    "message": f"evidence_path {evidence_path!r} could not be hashed; refuse to record an evidence-required transition without a verifiable digest",
-                },
+        # Plan v2.6 §4.2.3: insert_filing_artifact() centrally raises
+        # HTTP 409 EVIDENCE_FILE_UNREADABLE when is_evidence is True and the
+        # file cannot be hashed. Close the connection on raise.
+        try:
+            insert_filing_artifact(
+                conn,
+                filing_job_id=job_id,
+                order_id=job["order_id"],
+                artifact_type=artifact_type,
+                filename=filename,
+                file_path=evidence_path,
+                is_evidence=True,
             )
-        insert_filing_artifact(
-            conn,
-            filing_job_id=job_id,
-            order_id=job["order_id"],
-            artifact_type=artifact_type,
-            filename=filename,
-            file_path=evidence_path,
-            is_evidence=True,
-        )
+        except HTTPException:
+            conn.close()
+            raise
         add_customer_document_if_missing(conn, job["order_id"], artifact_type, filename, evidence_path)
     # Plan v2.6 §4.2.5: filing_confirmation precondition + write (shared helper
     # used by mark-submitted / mark-approved / annual-report mark-complete).
@@ -10097,21 +10106,22 @@ async def mark_filing_submitted(job_id: str, evidence: FilingEvidenceRequest, re
     submitted_status = "submitted" if job["action_type"] == "annual_report" else "submitted_to_state"
     # Plan v2.6 §4.2.5 / PR4: capture filing_confirmation before inserting the
     # submitted_receipt artifact so a missing confirmation 409s without leaving
-    # an evidence row behind.
+    # an evidence row behind. insert_filing_artifact() also raises 409 when
+    # is_evidence and the file cannot be hashed.
     try:
         apply_filing_confirmation_for_transition(conn, job["order_id"], submitted_status, evidence)
+        insert_filing_artifact(
+            conn,
+            filing_job_id=job_id,
+            order_id=job["order_id"],
+            artifact_type=evidence.artifact_type,
+            filename=evidence.filename,
+            file_path=evidence.file_path,
+            is_evidence=True,
+        )
     except HTTPException:
         conn.close()
         raise
-    insert_filing_artifact(
-        conn,
-        filing_job_id=job_id,
-        order_id=job["order_id"],
-        artifact_type=evidence.artifact_type,
-        filename=evidence.filename,
-        file_path=evidence.file_path,
-        is_evidence=True,
-    )
     add_customer_document_if_missing(
         conn,
         job["order_id"],
@@ -10178,23 +10188,23 @@ async def mark_filing_approved(job_id: str, evidence: FilingEvidenceRequest, req
         raise HTTPException(status_code=404, detail="Filing job not found")
     order = conn.execute("SELECT * FROM orders WHERE id = ?", (job["order_id"],)).fetchone()
     approved_status = "approved" if job["action_type"] == "annual_report" else "state_approved"
-    # Plan v2.6 §4.2.5 / PR4: capture filing_confirmation before inserting the
-    # approved_certificate artifact so a missing confirmation 409s without
-    # leaving an evidence row behind.
+    # Plan v2.6 §4.2.5 / PR4: capture filing_confirmation + insert evidence
+    # under the same try/except so either failure path 409s with the conn
+    # cleanly closed.
     try:
         apply_filing_confirmation_for_transition(conn, job["order_id"], approved_status, evidence)
+        insert_filing_artifact(
+            conn,
+            filing_job_id=job_id,
+            order_id=job["order_id"],
+            artifact_type=evidence.artifact_type,
+            filename=evidence.filename,
+            file_path=evidence.file_path,
+            is_evidence=True,
+        )
     except HTTPException:
         conn.close()
         raise
-    insert_filing_artifact(
-        conn,
-        filing_job_id=job_id,
-        order_id=job["order_id"],
-        artifact_type=evidence.artifact_type,
-        filename=evidence.filename,
-        file_path=evidence.file_path,
-        is_evidence=True,
-    )
     add_customer_document_if_missing(
         conn,
         job["order_id"],
@@ -10276,23 +10286,23 @@ async def mark_annual_report_complete(job_id: str, evidence: FilingEvidenceReque
         conn.close()
         raise HTTPException(status_code=400, detail="Annual report completion is only available for annual_report jobs")
     order = conn.execute("SELECT * FROM orders WHERE id = ?", (job["order_id"],)).fetchone()
-    # Plan v2.6 §4.2.5 / PR4: capture filing_confirmation before inserting the
-    # terminal artifact so a missing confirmation 409s without leaving an
-    # evidence row behind.
+    # Plan v2.6 §4.2.5 / PR4: capture filing_confirmation + insert evidence
+    # under the same try/except so either failure path 409s with the conn
+    # cleanly closed.
     try:
         apply_filing_confirmation_for_transition(conn, job["order_id"], "complete", evidence)
+        insert_filing_artifact(
+            conn,
+            filing_job_id=job_id,
+            order_id=job["order_id"],
+            artifact_type=evidence.artifact_type,
+            filename=evidence.filename,
+            file_path=evidence.file_path,
+            is_evidence=True,
+        )
     except HTTPException:
         conn.close()
         raise
-    insert_filing_artifact(
-        conn,
-        filing_job_id=job_id,
-        order_id=job["order_id"],
-        artifact_type=evidence.artifact_type,
-        filename=evidence.filename,
-        file_path=evidence.file_path,
-        is_evidence=True,
-    )
     add_customer_document_if_missing(conn, job["order_id"], evidence.artifact_type, evidence.filename, evidence.file_path)
     message = evidence.message or "Annual report is complete with official acceptance evidence on file."
     conn.execute("""
