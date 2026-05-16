@@ -10047,12 +10047,17 @@ async def backfill_execution_persistence(payload: PersistenceBackfillRequest, re
         if not result.ok:
             errors.append({"table": "execution_quotes", "id": quote["quote_id"], "message": result.message})
 
-    # Plan v2.6 PR7 codex round-2 P2: insert filing_jobs into the mirror in
-    # a safe non-terminal status first. The evidence-invariant trigger now
-    # fires on INSERT, so a job that lands directly in submitted/approved/
-    # complete before its artifacts exist would be rejected. We promote each
-    # job to its real terminal status AFTER the artifacts pass below.
+    # Plan v2.6 PR7 codex round-3 P1: terminal-status jobs (submitted /
+    # approved / complete and their legacy aliases) require the artifact
+    # bundle to land BEFORE the trigger can validate the mirror row. We
+    # only ship them when include_append_only=true (which runs the
+    # artifacts pass below). In core-only mode, we SKIP terminal jobs
+    # entirely — writing them as ready_to_file would leave the mirror
+    # showing a downgraded status that lies about reality. The skip is
+    # reported via the errors list so cutover-readiness checks remain
+    # honest.
     deferred_terminal_jobs: list[dict] = []
+    skipped_terminal_jobs: list[dict] = []
     TERMINAL_STATUSES = {"submitted", "submitted_to_state", "approved", "state_approved",
                          "documents_collected", "complete"}
     for row in conn.execute("SELECT * FROM filing_jobs ORDER BY created_at LIMIT ?", (payload.limit,)).fetchall():
@@ -10060,12 +10065,23 @@ async def backfill_execution_persistence(payload: PersistenceBackfillRequest, re
         job = serialize_filing_job_with_confirmation(conn, row)
         original_status = job.get("status")
         if original_status in TERMINAL_STATUSES:
+            if not payload.include_append_only:
+                skipped_terminal_jobs.append({
+                    "table": "filing_jobs",
+                    "id": job["id"],
+                    "message": (
+                        f"terminal-status job {original_status!r} skipped in core-only mode; "
+                        "re-run with include_append_only=true so artifacts ship first"
+                    ),
+                })
+                continue
             deferred_terminal_jobs.append({"job": dict(job), "terminal_status": original_status})
             job["status"] = "ready_to_file"  # safe; promoted after artifacts
         result = execution_dual_write("upsert_filing_job", job)
         written["execution_filing_jobs"] += 1 if result.ok else 0
         if not result.ok:
             errors.append({"table": "filing_jobs", "id": job["id"], "message": result.message})
+    errors.extend(skipped_terminal_jobs)
 
     for row in conn.execute("SELECT * FROM support_tickets ORDER BY created_at LIMIT ?", (payload.limit,)).fetchall():
         ticket = dict(row)
@@ -10104,11 +10120,10 @@ async def backfill_execution_persistence(payload: PersistenceBackfillRequest, re
                 errors.append({"table": "filing_artifacts", "id": artifact["id"], "message": result.message})
 
     # Plan v2.6 PR7 codex round-2 P2: promote deferred terminal-status jobs
-    # now that their artifacts are mirrored. The trigger sees a fully-formed
-    # evidence bundle and allows the status promotion. Only fires when
-    # include_append_only is true (otherwise the artifacts pass was skipped
-    # and we cannot safely promote).
-    if payload.include_append_only:
+    # now that their artifacts are mirrored. Only runs when
+    # include_append_only=true; in core-only mode terminal jobs were
+    # skipped entirely above.
+    if payload.include_append_only and deferred_terminal_jobs:
         for entry in deferred_terminal_jobs:
             job = entry["job"]
             job["status"] = entry["terminal_status"]
