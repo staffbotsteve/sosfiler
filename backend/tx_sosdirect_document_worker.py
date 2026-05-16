@@ -218,12 +218,17 @@ def attach_approval_document(
         (job["order_id"], filename),
     ).fetchone()
     if not existing_artifact:
-        conn.execute(
-            """
-            INSERT INTO filing_artifacts (filing_job_id, order_id, artifact_type, filename, file_path, is_evidence)
-            VALUES (?, ?, 'approved_certificate', ?, ?, 1)
-            """,
-            (job["id"], job["order_id"], filename, file_path),
+        from execution_platform import insert_filing_artifact_row, sha256_for_file_path
+        sha256_hex = sha256_for_file_path(file_path)
+        insert_filing_artifact_row(
+            conn,
+            filing_job_id=job["id"],
+            order_id=job["order_id"],
+            artifact_type="approved_certificate",
+            filename=filename,
+            file_path=file_path,
+            is_evidence=True,
+            sha256_hex=sha256_hex,
         )
 
     existing_doc = conn.execute(

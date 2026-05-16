@@ -446,12 +446,20 @@ def add_document(
         (job["order_id"], filename),
     ).fetchone()
     if not existing_artifact:
-        conn.execute(
-            """
-            INSERT INTO filing_artifacts (filing_job_id, order_id, artifact_type, filename, file_path, is_evidence)
-            VALUES (?, ?, ?, ?, ?, 1)
-            """,
-            (job["id"], job["order_id"], artifact_type, filename, file_path),
+        # Plan v2.6 §4.2.2: every evidence-bearing artifact carries sha256_hex
+        # at write time. Workers operate on absolute paths under their own
+        # receipts directory; hash directly without server-side path resolution.
+        from execution_platform import insert_filing_artifact_row, sha256_for_file_path
+        sha256_hex = sha256_for_file_path(file_path)
+        insert_filing_artifact_row(
+            conn,
+            filing_job_id=job["id"],
+            order_id=job["order_id"],
+            artifact_type=artifact_type,
+            filename=filename,
+            file_path=file_path,
+            is_evidence=True,
+            sha256_hex=sha256_hex,
         )
     existing_doc = conn.execute(
         "SELECT 1 FROM documents WHERE order_id = ? AND filename = ? LIMIT 1",

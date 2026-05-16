@@ -340,7 +340,12 @@ class PlatformSafetyAndMetadataTests(unittest.TestCase):
         submitted = self.client.post(
             f"/api/admin/filing-jobs/{job['id']}/mark-submitted",
             headers=self.headers,
-            json={"artifact_type": "submitted_receipt", "filename": "receipt.pdf", "file_path": "/tmp/receipt.pdf"},
+            json={
+                "artifact_type": "submitted_receipt",
+                "filename": "receipt.pdf",
+                "file_path": "/tmp/receipt.pdf",
+                "filing_confirmation": "PR4-RA-EVIDENCE-OK",
+            },
         )
         self.assertEqual(submitted.status_code, 200, submitted.text)
         duplicate = self.client.post(
@@ -429,7 +434,12 @@ class PlatformSafetyAndMetadataTests(unittest.TestCase):
         submitted = self.client.post(
             f"/api/admin/filing-jobs/{job['id']}/mark-submitted",
             headers=self.headers,
-            json={"artifact_type": "submitted_receipt", "filename": "receipt.pdf", "file_path": "/tmp/receipt.pdf"},
+            json={
+                "artifact_type": "submitted_receipt",
+                "filename": "receipt.pdf",
+                "file_path": "/tmp/receipt.pdf",
+                "filing_confirmation": "PR4-CAPTURE-OK",
+            },
         )
         self.assertEqual(submitted.status_code, 200, submitted.text)
 

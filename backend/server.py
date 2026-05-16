@@ -995,6 +995,14 @@ class FilingEvidenceRequest(BaseModel):
     artifact_type: str = Field(..., pattern="^(submitted_receipt|submitted_document|approved_certificate|state_correspondence|state_acknowledgment|state_filed_document|rejection_notice|registered_agent_consent|registered_agent_assignment|registered_agent_partner_order|filing_authorization|annual_report_packet|ein_confirmation_letter|other)$")
     filename: str
     file_path: str
+    # Plan v2.6 §4.2.5 / PR4: capture filing_confirmation on the same routes
+    # that promote a job into an evidence-required state (mark-submitted,
+    # mark-approved, annual-report/mark-complete). Optional here so non-
+    # promoting evidence uploads (state_correspondence on an open job, etc.)
+    # do not have to supply a confirmation. Routes that mutate status to an
+    # evidence-required state will require it.
+    filing_confirmation: Optional[str] = None
+    filing_confirmation_source: str = "operator"
     message: str = ""
     notify_customer: bool = False
 
@@ -1851,11 +1859,13 @@ def read_filing_confirmation_value(raw: str | None) -> str | None:
 
 
 def sha256_for_evidence_path(file_path: str) -> str | None:
-    """SHA-256 of an evidence artifact. Returns None when the file is missing.
+    """SHA-256 of an evidence artifact resolved via document path conventions.
 
     Plan v2.6 §4.2.2: every evidence-bearing artifact must carry a hex digest
     at write time. Missing files yield None so callers can decide between
     rejecting the write and tolerating a placeholder during ingest backfills.
+    Thin wrapper that resolves relative paths via resolve_document_path() and
+    delegates the streamed hash to execution_platform.sha256_for_file_path().
     """
     if not file_path:
         return None
@@ -1863,14 +1873,106 @@ def sha256_for_evidence_path(file_path: str) -> str | None:
         resolved = resolve_document_path(file_path)
     except Exception:
         return None
-    try:
-        with open(resolved, "rb") as fh:
-            digest = hashlib.sha256()
-            for chunk in iter(lambda: fh.read(65536), b""):
-                digest.update(chunk)
-            return digest.hexdigest()
-    except (OSError, ValueError):
-        return None
+    from execution_platform import sha256_for_file_path  # local import; avoid cycles at module load
+    return sha256_for_file_path(resolved)
+
+
+CONFIRMATION_REQUIRED_NORMALIZED_STATES = {"submitted", "approved", "documents_collected", "complete"}
+
+
+def apply_filing_confirmation_for_transition(
+    conn,
+    order_id: str,
+    target_status: str,
+    payload,
+) -> None:
+    """Plan v2.6 §4.2.5 + PR4: ensure orders.filing_confirmation is populated
+    when a transition (or a mark-* route) is about to promote a job into an
+    evidence-required state.
+
+    Behavior:
+      - target_status not in CONFIRMATION_REQUIRED_NORMALIZED_STATES → noop.
+      - payload.filing_confirmation supplied → wrap with
+        build_filing_confirmation_payload + write to orders.
+      - payload.filing_confirmation absent AND orders.filing_confirmation
+        already holds a valid canonical shape → accept.
+      - otherwise → raise HTTPException(409, MISSING_FILING_CONFIRMATION).
+
+    The caller is responsible for closing the connection on HTTPException; the
+    helper does not perform cleanup.
+    """
+    normalized = normalize_state(target_status)
+    if normalized not in CONFIRMATION_REQUIRED_NORMALIZED_STATES:
+        return
+    raw_value = (getattr(payload, "filing_confirmation", None) or "").strip()
+    if raw_value:
+        try:
+            confirmation_json = build_filing_confirmation_payload(
+                raw_value,
+                getattr(payload, "filing_confirmation_source", "operator"),
+            )
+        except ValueError as exc:
+            raise HTTPException(status_code=400, detail=f"filing_confirmation invalid: {exc}")
+        conn.execute(
+            "UPDATE orders SET filing_confirmation = ?, updated_at = datetime('now') WHERE id = ?",
+            (confirmation_json, order_id),
+        )
+        return
+    row = conn.execute(
+        "SELECT filing_confirmation FROM orders WHERE id = ?", (order_id,)
+    ).fetchone()
+    existing = read_filing_confirmation_value(row["filing_confirmation"]) if row else None
+    if not existing:
+        raise HTTPException(
+            status_code=409,
+            detail={
+                "code": "MISSING_FILING_CONFIRMATION",
+                "message": "filing_confirmation is required when transitioning into an evidence-required state",
+            },
+        )
+
+
+def insert_filing_artifact(
+    conn,
+    *,
+    filing_job_id: str,
+    order_id: str,
+    artifact_type: str,
+    filename: str,
+    file_path: str,
+    is_evidence: bool | int,
+) -> str | None:
+    """Canonical filing_artifacts INSERT for server-side routes.
+
+    Auto-computes sha256_hex via sha256_for_evidence_path() when is_evidence is
+    truthy, then INSERTs through execution_platform.insert_filing_artifact_row()
+    and fans the same payload out through execution_dual_write() so the
+    Supabase mirror stays in sync. Returns the digest (or None when not
+    evidence / file unreadable).
+    """
+    from execution_platform import insert_filing_artifact_row
+    is_evidence_int = 1 if is_evidence else 0
+    sha256_hex = sha256_for_evidence_path(file_path) if is_evidence_int else None
+    insert_filing_artifact_row(
+        conn,
+        filing_job_id=filing_job_id,
+        order_id=order_id,
+        artifact_type=artifact_type,
+        filename=filename,
+        file_path=file_path,
+        is_evidence=is_evidence_int,
+        sha256_hex=sha256_hex,
+    )
+    execution_dual_write("insert_artifact", {
+        "filing_job_id": filing_job_id,
+        "order_id": order_id,
+        "artifact_type": artifact_type,
+        "filename": filename,
+        "file_path": file_path,
+        "is_evidence": bool(is_evidence_int),
+        "sha256_hex": sha256_hex,
+    })
+    return sha256_hex
 
 
 def add_customer_document_if_missing(
@@ -5726,10 +5828,15 @@ def prepare_annual_report_packet(job_id: str, actor: str = "operator", message: 
         WHERE filing_job_id = ? AND artifact_type = 'annual_report_packet' AND filename = ?
     """, (job_id, filename)).fetchone()
     if not existing_artifact:
-        conn.execute("""
-            INSERT INTO filing_artifacts (filing_job_id, order_id, artifact_type, filename, file_path, is_evidence)
-            VALUES (?, ?, 'annual_report_packet', ?, ?, 0)
-        """, (job_id, job["order_id"], filename, str(path)))
+        insert_filing_artifact(
+            conn,
+            filing_job_id=job_id,
+            order_id=job["order_id"],
+            artifact_type="annual_report_packet",
+            filename=filename,
+            file_path=str(path),
+            is_evidence=False,
+        )
     add_customer_document_if_missing(conn, job["order_id"], "annual_report_packet", filename, str(path), "text")
     conn.execute("""
         INSERT INTO filing_events (filing_job_id, order_id, event_type, message, actor, evidence_path)
@@ -8973,11 +9080,11 @@ async def transition_filing_job(job_id: str, payload: FilingTransitionRequest, r
     if evidence_path:
         filename = Path(evidence_path).name
         artifact_type = "approved_certificate" if normalize_state(target) in {"approved", "complete", "documents_collected"} else "submitted_receipt"
-        sha256_hex = sha256_for_evidence_path(evidence_path)
         # Plan v2.6 / codex P2 #2: refuse to advance into an evidence-required
-        # state when the supplied evidence file cannot be hashed. Missing /
-        # unreadable evidence must surface as a 4xx, not a silently-broken row.
-        if sha256_hex is None and normalize_state(target) in {"submitted", "approved", "documents_collected", "complete"}:
+        # state when the supplied evidence file cannot be hashed. Pre-hash so
+        # we can 409 before inserting the row.
+        precheck_hash = sha256_for_evidence_path(evidence_path)
+        if precheck_hash is None and normalize_state(target) in {"submitted", "approved", "documents_collected", "complete"}:
             conn.close()
             raise HTTPException(
                 status_code=409,
@@ -8986,52 +9093,23 @@ async def transition_filing_job(job_id: str, payload: FilingTransitionRequest, r
                     "message": f"evidence_path {evidence_path!r} could not be hashed; refuse to record an evidence-required transition without a verifiable digest",
                 },
             )
-        conn.execute("""
-            INSERT INTO filing_artifacts (filing_job_id, order_id, artifact_type, filename, file_path, is_evidence, sha256_hex)
-            VALUES (?, ?, ?, ?, ?, 1, ?)
-        """, (job_id, job["order_id"], artifact_type, filename, evidence_path, sha256_hex))
-        execution_dual_write("insert_artifact", {
-            "filing_job_id": job_id,
-            "order_id": job["order_id"],
-            "artifact_type": artifact_type,
-            "filename": filename,
-            "file_path": evidence_path,
-            "is_evidence": True,
-            "sha256_hex": sha256_hex,
-        })
-        add_customer_document_if_missing(conn, job["order_id"], artifact_type, filename, evidence_path)
-    # Plan v2.6 §4.2.5: write filing_confirmation when target enters an
-    # evidence-required state. Stored as canonical JSON; raw operator values get
-    # wrapped here. Adapters can also call build_filing_confirmation_payload()
-    # upstream and pass the resulting JSON if they want to control issued_at.
-    normalized_target = normalize_state(target)
-    confirmation_required_states = {"submitted", "approved", "documents_collected", "complete"}
-    if payload.filing_confirmation and payload.filing_confirmation.strip():
-        try:
-            confirmation_json = build_filing_confirmation_payload(
-                payload.filing_confirmation,
-                payload.filing_confirmation_source,
-            )
-        except ValueError as exc:
-            conn.close()
-            raise HTTPException(status_code=400, detail=f"filing_confirmation invalid: {exc}")
-        conn.execute(
-            "UPDATE orders SET filing_confirmation = ?, updated_at = datetime('now') WHERE id = ?",
-            (confirmation_json, job["order_id"]),
+        insert_filing_artifact(
+            conn,
+            filing_job_id=job_id,
+            order_id=job["order_id"],
+            artifact_type=artifact_type,
+            filename=filename,
+            file_path=evidence_path,
+            is_evidence=True,
         )
-    elif normalized_target in confirmation_required_states:
-        existing = read_filing_confirmation_value(job["order_id"] and conn.execute(
-            "SELECT filing_confirmation FROM orders WHERE id = ?", (job["order_id"],)
-        ).fetchone()["filing_confirmation"])
-        if not existing:
-            conn.close()
-            raise HTTPException(
-                status_code=409,
-                detail={
-                    "code": "MISSING_FILING_CONFIRMATION",
-                    "message": "filing_confirmation is required when transitioning into an evidence-required state",
-                },
-            )
+        add_customer_document_if_missing(conn, job["order_id"], artifact_type, filename, evidence_path)
+    # Plan v2.6 §4.2.5: filing_confirmation precondition + write (shared helper
+    # used by mark-submitted / mark-approved / annual-report mark-complete).
+    try:
+        apply_filing_confirmation_for_transition(conn, job["order_id"], target, payload)
+    except HTTPException:
+        conn.close()
+        raise
     conn.execute("""
         UPDATE filing_jobs
         SET status = ?, evidence_summary = ?, updated_at = datetime('now')
@@ -9954,20 +10032,15 @@ async def add_filing_evidence(job_id: str, evidence: FilingEvidenceRequest, requ
         "ein_confirmation_letter",
     }
     is_evidence = 1 if evidence.artifact_type in EVIDENCE_BEARING_ARTIFACT_TYPES else 0
-    sha256_hex = sha256_for_evidence_path(evidence.file_path) if is_evidence else None
-    conn.execute("""
-        INSERT INTO filing_artifacts (filing_job_id, order_id, artifact_type, filename, file_path, is_evidence, sha256_hex)
-        VALUES (?, ?, ?, ?, ?, ?, ?)
-    """, (job_id, job["order_id"], evidence.artifact_type, evidence.filename, evidence.file_path, is_evidence, sha256_hex))
-    execution_dual_write("insert_artifact", {
-        "filing_job_id": job_id,
-        "order_id": job["order_id"],
-        "artifact_type": evidence.artifact_type,
-        "filename": evidence.filename,
-        "file_path": evidence.file_path,
-        "is_evidence": bool(is_evidence),
-        "sha256_hex": sha256_hex,
-    })
+    insert_filing_artifact(
+        conn,
+        filing_job_id=job_id,
+        order_id=job["order_id"],
+        artifact_type=evidence.artifact_type,
+        filename=evidence.filename,
+        file_path=evidence.file_path,
+        is_evidence=bool(is_evidence),
+    )
     if is_evidence:
         add_customer_document_if_missing(
             conn,
@@ -10017,18 +10090,24 @@ async def mark_filing_submitted(job_id: str, evidence: FilingEvidenceRequest, re
     if not safety["passed"]:
         conn.close()
         raise HTTPException(status_code=400, detail={"message": "Submission safety gate blocked this filing.", "issues": safety["issues"]})
-    conn.execute("""
-        INSERT INTO filing_artifacts (filing_job_id, order_id, artifact_type, filename, file_path, is_evidence)
-        VALUES (?, ?, ?, ?, ?, 1)
-    """, (job_id, job["order_id"], evidence.artifact_type, evidence.filename, evidence.file_path))
-    execution_dual_write("insert_artifact", {
-        "filing_job_id": job_id,
-        "order_id": job["order_id"],
-        "artifact_type": evidence.artifact_type,
-        "filename": evidence.filename,
-        "file_path": evidence.file_path,
-        "is_evidence": True,
-    })
+    submitted_status = "submitted" if job["action_type"] == "annual_report" else "submitted_to_state"
+    # Plan v2.6 §4.2.5 / PR4: capture filing_confirmation before inserting the
+    # submitted_receipt artifact so a missing confirmation 409s without leaving
+    # an evidence row behind.
+    try:
+        apply_filing_confirmation_for_transition(conn, job["order_id"], submitted_status, evidence)
+    except HTTPException:
+        conn.close()
+        raise
+    insert_filing_artifact(
+        conn,
+        filing_job_id=job_id,
+        order_id=job["order_id"],
+        artifact_type=evidence.artifact_type,
+        filename=evidence.filename,
+        file_path=evidence.file_path,
+        is_evidence=True,
+    )
     add_customer_document_if_missing(
         conn,
         job["order_id"],
@@ -10036,7 +10115,6 @@ async def mark_filing_submitted(job_id: str, evidence: FilingEvidenceRequest, re
         evidence.filename,
         evidence.file_path,
     )
-    submitted_status = "submitted" if job["action_type"] == "annual_report" else "submitted_to_state"
     status_message = (
         evidence.message or "Annual report submitted with official receipt evidence."
         if job["action_type"] == "annual_report"
@@ -10095,18 +10173,24 @@ async def mark_filing_approved(job_id: str, evidence: FilingEvidenceRequest, req
         conn.close()
         raise HTTPException(status_code=404, detail="Filing job not found")
     order = conn.execute("SELECT * FROM orders WHERE id = ?", (job["order_id"],)).fetchone()
-    conn.execute("""
-        INSERT INTO filing_artifacts (filing_job_id, order_id, artifact_type, filename, file_path, is_evidence)
-        VALUES (?, ?, ?, ?, ?, 1)
-    """, (job_id, job["order_id"], evidence.artifact_type, evidence.filename, evidence.file_path))
-    execution_dual_write("insert_artifact", {
-        "filing_job_id": job_id,
-        "order_id": job["order_id"],
-        "artifact_type": evidence.artifact_type,
-        "filename": evidence.filename,
-        "file_path": evidence.file_path,
-        "is_evidence": True,
-    })
+    approved_status = "approved" if job["action_type"] == "annual_report" else "state_approved"
+    # Plan v2.6 §4.2.5 / PR4: capture filing_confirmation before inserting the
+    # approved_certificate artifact so a missing confirmation 409s without
+    # leaving an evidence row behind.
+    try:
+        apply_filing_confirmation_for_transition(conn, job["order_id"], approved_status, evidence)
+    except HTTPException:
+        conn.close()
+        raise
+    insert_filing_artifact(
+        conn,
+        filing_job_id=job_id,
+        order_id=job["order_id"],
+        artifact_type=evidence.artifact_type,
+        filename=evidence.filename,
+        file_path=evidence.file_path,
+        is_evidence=True,
+    )
     add_customer_document_if_missing(
         conn,
         job["order_id"],
@@ -10114,7 +10198,6 @@ async def mark_filing_approved(job_id: str, evidence: FilingEvidenceRequest, req
         evidence.filename,
         evidence.file_path,
     )
-    approved_status = "approved" if job["action_type"] == "annual_report" else "state_approved"
     approval_message = (
         evidence.message or "Annual report accepted with official evidence on file."
         if job["action_type"] == "annual_report"
@@ -10189,10 +10272,23 @@ async def mark_annual_report_complete(job_id: str, evidence: FilingEvidenceReque
         conn.close()
         raise HTTPException(status_code=400, detail="Annual report completion is only available for annual_report jobs")
     order = conn.execute("SELECT * FROM orders WHERE id = ?", (job["order_id"],)).fetchone()
-    conn.execute("""
-        INSERT INTO filing_artifacts (filing_job_id, order_id, artifact_type, filename, file_path, is_evidence)
-        VALUES (?, ?, ?, ?, ?, 1)
-    """, (job_id, job["order_id"], evidence.artifact_type, evidence.filename, evidence.file_path))
+    # Plan v2.6 §4.2.5 / PR4: capture filing_confirmation before inserting the
+    # terminal artifact so a missing confirmation 409s without leaving an
+    # evidence row behind.
+    try:
+        apply_filing_confirmation_for_transition(conn, job["order_id"], "complete", evidence)
+    except HTTPException:
+        conn.close()
+        raise
+    insert_filing_artifact(
+        conn,
+        filing_job_id=job_id,
+        order_id=job["order_id"],
+        artifact_type=evidence.artifact_type,
+        filename=evidence.filename,
+        file_path=evidence.file_path,
+        is_evidence=True,
+    )
     add_customer_document_if_missing(conn, job["order_id"], evidence.artifact_type, evidence.filename, evidence.file_path)
     message = evidence.message or "Annual report is complete with official acceptance evidence on file."
     conn.execute("""
@@ -10425,12 +10521,14 @@ def _attach_registered_agent_artifact(
         "provider_result": redact_sensitive(provider_result),
     }
     path.write_text(json.dumps(artifact_payload, indent=2), encoding="utf-8")
-    conn.execute(
-        """
-        INSERT INTO filing_artifacts (filing_job_id, order_id, artifact_type, filename, file_path, is_evidence)
-        VALUES (?, ?, ?, ?, ?, ?)
-        """,
-        (job["id"], order["id"], artifact_type, filename, str(path), 1 if artifact_type == "registered_agent_assignment" else 0),
+    insert_filing_artifact(
+        conn,
+        filing_job_id=job["id"],
+        order_id=order["id"],
+        artifact_type=artifact_type,
+        filename=filename,
+        file_path=str(path),
+        is_evidence=(artifact_type == "registered_agent_assignment"),
     )
     add_customer_document_if_missing(
         conn,
@@ -10917,10 +11015,15 @@ async def complete_admin_ein_queue(order_id: str, payload: EinCompletionRequest,
     add_customer_document_if_missing(conn, order_id, "ein_confirmation_letter", filename, payload.file_path, Path(filename).suffix.lstrip(".") or "pdf")
     job = conn.execute("SELECT id FROM filing_jobs WHERE order_id = ? ORDER BY created_at DESC LIMIT 1", (order_id,)).fetchone()
     if job:
-        conn.execute("""
-            INSERT INTO filing_artifacts (filing_job_id, order_id, artifact_type, filename, file_path, is_evidence)
-            VALUES (?, ?, 'ein_confirmation_letter', ?, ?, 1)
-        """, (job["id"], order_id, filename, payload.file_path))
+        insert_filing_artifact(
+            conn,
+            filing_job_id=job["id"],
+            order_id=order_id,
+            artifact_type="ein_confirmation_letter",
+            filename=filename,
+            file_path=payload.file_path,
+            is_evidence=True,
+        )
         conn.execute("""
             INSERT INTO filing_events (filing_job_id, order_id, event_type, message, actor, evidence_path)
             VALUES (?, ?, 'ein_received', ?, ?, ?)

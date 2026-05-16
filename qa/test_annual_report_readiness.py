@@ -142,6 +142,8 @@ class AnnualReportReadinessTests(unittest.TestCase):
                 "filename": "receipt.pdf",
                 "file_path": "/tmp/annual-report-receipt.pdf",
                 "message": "Annual report submitted.",
+                "filing_confirmation": "AR-2026-12345",
+                "filing_confirmation_source": "operator",
             },
         )
         self.assertEqual(submitted.status_code, 200, submitted.text)

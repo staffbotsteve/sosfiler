@@ -18,6 +18,7 @@ import urllib.request
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
+from pathlib import Path
 from typing import Any
 
 
@@ -377,3 +378,54 @@ def send_slack_ticket(ticket: dict[str, Any]) -> bool:
     req = urllib.request.Request(webhook, data=payload, headers={"Content-Type": "application/json"})
     with urllib.request.urlopen(req, timeout=10) as resp:
         return 200 <= resp.status < 300
+
+
+# Plan v2.6 §4.2.2 / PR4 — canonical filing_artifacts write helpers shared by
+# the server module and any worker. Workers pass absolute file paths (they own
+# their own receipts directories); the server passes paths that get resolved
+# via resolve_document_path() before hashing. Keeping the helpers here avoids
+# a circular import between server.py and the workers.
+
+
+def sha256_for_file_path(file_path: str | Path | None) -> str | None:
+    """Stream a SHA-256 digest from an absolute path. None when missing/unreadable."""
+    if not file_path:
+        return None
+    try:
+        with open(file_path, "rb") as fh:
+            digest = hashlib.sha256()
+            for chunk in iter(lambda: fh.read(65536), b""):
+                digest.update(chunk)
+            return digest.hexdigest()
+    except (OSError, ValueError):
+        return None
+
+
+def insert_filing_artifact_row(
+    conn,
+    *,
+    filing_job_id: str,
+    order_id: str,
+    artifact_type: str,
+    filename: str,
+    file_path: str,
+    is_evidence: bool | int,
+    sha256_hex: str | None = None,
+) -> int:
+    """Canonical SQLite INSERT for filing_artifacts.
+
+    Callers that have the absolute path should pre-compute `sha256_hex` (the
+    server module owns path resolution via resolve_document_path; workers
+    already operate on absolute paths). Dual-write to the Supabase mirror is
+    NOT performed here — see server.insert_filing_artifact() for the wrapper
+    that fans out via execution_dual_write.
+    """
+    is_evidence_int = 1 if is_evidence else 0
+    cursor = conn.execute(
+        """
+        INSERT INTO filing_artifacts (filing_job_id, order_id, artifact_type, filename, file_path, is_evidence, sha256_hex)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+        """,
+        (filing_job_id, order_id, artifact_type, filename, file_path, is_evidence_int, sha256_hex),
+    )
+    return cursor.lastrowid or 0
