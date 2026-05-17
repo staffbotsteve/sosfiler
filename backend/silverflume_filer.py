@@ -83,47 +83,52 @@ def _persist_filing_result(order_id: str, result: dict) -> None:
             insert_filing_artifact_row = None
             sha256_for_file_path = None
 
-        # Codex Track B follow-up round-3 P2: when SilverFlume reports
-        # success WITH a confirmation number, treat the captured screenshots
-        # as the submitted_receipt artifact bundle so the UPDATE trigger
-        # can later promote the job to submitted_to_state. Otherwise file
-        # as state_correspondence for operator review.
-        screenshot_artifact_type = (
-            "submitted_receipt"
-            if result.get("success") and (result.get("confirmation_number") or "").strip()
-            else "state_correspondence"
-        )
-        if insert_filing_artifact_row is not None:
-            for shot_path in result.get("screenshots") or []:
-                if not shot_path:
-                    continue
-                filename = Path(shot_path).name
-                fresh_hash = sha256_for_file_path(shot_path) if sha256_for_file_path else None
-                already = conn.execute(
-                    "SELECT id, sha256_hex FROM filing_artifacts "
-                    "WHERE filing_job_id = ? AND filename = ? LIMIT 1",
-                    (job_id, filename),
-                ).fetchone()
-                if already:
-                    # Codex Track B follow-up round-3 P2: file with same
-                    # name on retry; update the row's hash + path so
-                    # evidence integrity tracks the latest file content.
-                    if fresh_hash and fresh_hash != already["sha256_hex"]:
-                        conn.execute(
-                            "UPDATE filing_artifacts SET sha256_hex = ?, file_path = ? WHERE id = ?",
-                            (fresh_hash, str(shot_path), already["id"]),
-                        )
-                    continue
-                insert_filing_artifact_row(
-                    conn,
-                    filing_job_id=job_id,
-                    order_id=order_id,
-                    artifact_type=screenshot_artifact_type,
-                    filename=filename,
-                    file_path=str(shot_path),
-                    is_evidence=True,
-                    sha256_hex=fresh_hash,
-                )
+        # Codex Track B follow-up round-4 P1: the dedicated confirmation-
+        # page screenshot is the ONLY valid submitted_receipt. Other
+        # screenshots stay as state_correspondence regardless of run
+        # outcome — homepage / form-discovery shots cannot satisfy the
+        # evidence trigger.
+        confirmation_shot = result.get("confirmation_screenshot")
+        regular_screenshots = list(result.get("screenshots") or [])
+
+        def _insert_or_refresh_artifact(path_str: str, artifact_type: str) -> None:
+            if insert_filing_artifact_row is None or not path_str:
+                return
+            filename = Path(path_str).name
+            fresh_hash = sha256_for_file_path(path_str) if sha256_for_file_path else None
+            # Codex Track B follow-up round-4 P2: de-dupe on (filename,
+            # artifact_type) so a prior state_correspondence run does NOT
+            # block a subsequent submitted_receipt insert for the same
+            # filename. Same-type same-filename retries refresh the hash.
+            already = conn.execute(
+                "SELECT id, sha256_hex FROM filing_artifacts "
+                "WHERE filing_job_id = ? AND filename = ? AND artifact_type = ? LIMIT 1",
+                (job_id, filename, artifact_type),
+            ).fetchone()
+            if already:
+                if fresh_hash and fresh_hash != already["sha256_hex"]:
+                    conn.execute(
+                        "UPDATE filing_artifacts SET sha256_hex = ?, file_path = ? WHERE id = ?",
+                        (fresh_hash, path_str, already["id"]),
+                    )
+                return
+            insert_filing_artifact_row(
+                conn,
+                filing_job_id=job_id,
+                order_id=order_id,
+                artifact_type=artifact_type,
+                filename=filename,
+                file_path=path_str,
+                is_evidence=True,
+                sha256_hex=fresh_hash,
+            )
+
+        if confirmation_shot:
+            _insert_or_refresh_artifact(str(confirmation_shot), "submitted_receipt")
+        for shot_path in regular_screenshots:
+            if shot_path == confirmation_shot:
+                continue
+            _insert_or_refresh_artifact(str(shot_path), "state_correspondence")
 
         # If a confirmation number was extracted, write the canonical JSON.
         confirmation_value = (result.get("confirmation_number") or "").strip()
@@ -157,12 +162,21 @@ def _persist_filing_result(order_id: str, result: dict) -> None:
                 "reason",
                 "SilverFlume reported success but no confirmation number was extracted; operator review required.",
             )
-        elif result.get("success") and confirmation_value:
-            # Codex Track B follow-up round-3 P2 #1: successful filing with
-            # confirmation promotes the job to submitted_to_state via the
-            # UPDATE trigger (which now sees the submitted_receipt evidence
-            # we just inserted above).
+        elif result.get("success") and confirmation_value and confirmation_shot:
+            # Codex Track B follow-up round-3 P2 #1 + round-4 P1: only
+            # promote to submitted_to_state when we have BOTH a captured
+            # confirmation number AND a dedicated confirmation-page
+            # screenshot. The UPDATE trigger validates the
+            # submitted_receipt artifact we just wrote from that screenshot.
             target_status = "submitted_to_state"
+        elif result.get("success") and confirmation_value:
+            # Confirmation # extracted but no receipt screenshot — operator
+            # must verify and either re-capture or manually attach evidence.
+            target_status = "operator_required"
+            result.setdefault(
+                "reason",
+                "SilverFlume captured a confirmation number but no receipt-page screenshot; operator review required.",
+            )
         if target_status:
             default_message = (
                 f"Nevada SilverFlume submitted with confirmation {confirmation_value}."
@@ -291,15 +305,24 @@ class SilverFlumeFiler:
                     if filed:
                         result["success"] = True
                         result["timestamps"]["completed"] = datetime.utcnow().isoformat()
-                        # Plan v2.6 §4.5 / PR6 codex round-2: extract NV receipt #
-                        # from the confirmation page so callers can forward it
-                        # into orders.filing_confirmation before promotion.
+                        # Plan v2.6 §4.5 / PR6 codex round-2 + Track B
+                        # follow-up round-4 P1: extract NV receipt # AND
+                        # capture a dedicated confirmation-page screenshot
+                        # so the submitted_receipt evidence written by the
+                        # persistence helper IS the receipt page, not a
+                        # homepage / form-discovery shot.
                         try:
                             from execution_platform import extract_filing_confirmation
                             final_text = await page.inner_text("body", timeout=5_000)
                             extracted = extract_filing_confirmation(final_text, CONFIRMATION_NUMBER_REGEX)
                             if extracted:
                                 result["confirmation_number"] = extracted
+                                confirmation_shot = RECEIPTS_DIR / f"{order_id}_NV_confirmation.png"
+                                try:
+                                    await page.screenshot(path=str(confirmation_shot), full_page=True)
+                                    result["confirmation_screenshot"] = str(confirmation_shot)
+                                except Exception as shot_exc:  # noqa: BLE001
+                                    logger.warning(f"[{order_id}] confirmation screenshot failed: {shot_exc}")
                         except Exception as exc:  # noqa: BLE001
                             logger.warning(f"[{order_id}] confirmation extract failed: {exc}")
                     else:
