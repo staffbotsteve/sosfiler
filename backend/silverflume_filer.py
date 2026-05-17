@@ -122,9 +122,21 @@ def _persist_filing_result(order_id: str, result: dict) -> None:
         # operator should review even a "successful" run that did not yield
         # a confirmation. The PR7 trigger blocks INSERTs into terminal
         # statuses; UPDATEs to operator_required do not require evidence.
+        #
+        # Codex Track B follow-up round-2 P2: success=True without a
+        # confirmation # is also operator-required — the order cannot
+        # legitimately transition into submitted/approved without one,
+        # so flag it explicitly instead of leaving the job in its prior
+        # automation_started status.
         target_status = None
         if result.get("needs_human_review"):
             target_status = "operator_required"
+        elif result.get("success") and not confirmation_value:
+            target_status = "operator_required"
+            result.setdefault(
+                "reason",
+                "SilverFlume reported success but no confirmation number was extracted; operator review required.",
+            )
         if target_status:
             conn.execute(
                 "UPDATE filing_jobs SET status = ?, evidence_summary = ?, updated_at = datetime('now') WHERE id = ?",
