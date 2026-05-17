@@ -339,6 +339,39 @@ def active_texas_jobs(conn: sqlite3.Connection, order_id: str = "", limit: int =
     return [(row, row) for row in rows]
 
 
+# Track B follow-up #3: signals SOSDirect emits when the login response
+# routes us into an MFA / one-time-code / device-verification flow.
+# Best-effort patterns; refine after we see a real challenge page.
+MFA_CHALLENGE_TOKENS = (
+    "Multi-Factor Authentication",
+    "Multi-factor Authentication",
+    "Two-Factor Authentication",
+    "Two-factor Authentication",
+    "verification code",
+    "Verification Code",
+    "one-time passcode",
+    "One-Time Passcode",
+    "Identity Verification",
+    "identity verification",
+    "Enter the code we sent",
+    "Authenticator code",
+    "MFA",
+)
+
+
+class TexasMfaChallenge(RuntimeError):
+    """Raised when SOSDirect routes login into an MFA/identity flow.
+
+    The cockpit-side except handler escalates to operator_required via
+    escalate_to_operator_required so the operator can complete the
+    challenge in a trusted browser profile.
+    """
+
+    def __init__(self, message: str, evidence_path: str = ""):
+        super().__init__(message)
+        self.evidence_path = evidence_path
+
+
 async def login(page, user_id: str, password: str) -> str:
     await page.goto(LOGIN_URL, wait_until="domcontentloaded", timeout=45_000)
     await page.fill('input[name="client_id"]', user_id)
@@ -346,6 +379,29 @@ async def login(page, user_id: str, password: str) -> str:
     await page.click('input[type="submit"][name="submit"], input[type="Submit"][name="submit"]')
     await page.wait_for_load_state("domcontentloaded", timeout=45_000)
     content = await page.content()
+
+    # Track B follow-up #3 / audit doc recommendation #3: detect MFA / 2FA /
+    # identity-verification prompts BEFORE attempting to navigate further.
+    # Mirror CA bizfile's body-text gate; emit a typed exception so the
+    # worker-level except can escalate cleanly to operator_required.
+    lowered_content = content.lower()
+    for token in MFA_CHALLENGE_TOKENS:
+        if token.lower() in lowered_content:
+            mfa_dir = RUN_DIR / "mfa"
+            mfa_dir.mkdir(parents=True, exist_ok=True)
+            stamp = datetime.utcnow().strftime("%Y%m%dT%H%M%SZ")
+            html_path = mfa_dir / f"{stamp}-mfa-detected.html"
+            screenshot_path = mfa_dir / f"{stamp}-mfa-detected.png"
+            html_path.write_text(redact_sensitive_html(content), errors="ignore")
+            try:
+                await page.screenshot(path=str(screenshot_path), full_page=True)
+            except Exception:  # noqa: BLE001
+                pass
+            raise TexasMfaChallenge(
+                f"SOSDirect login returned an MFA/identity challenge ({token!r}); operator must complete in a trusted browser profile.",
+                evidence_path=str(screenshot_path),
+            )
+
     if await page.locator('select[name="payment_type_id"]').count():
         payment_type = os.environ.get("TX_SOSDIRECT_PAYMENT_TYPE_ID", "5")
         await page.select_option('select[name="payment_type_id"]', payment_type)
