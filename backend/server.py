@@ -4921,12 +4921,20 @@ def create_or_update_filing_job(order: dict, action_type: str = "formation", sta
     conn.commit()
     conn.close()
     job = serialize_filing_job(row)
-    # Codex PR7 round-13 P2: only mirror the non-terminal seed now that the
-    # local SQLite upsert is known to have committed cleanly. Order: seed →
-    # terminal upsert, so the Postgres trigger sees an existing legacy_job_id.
+    # Codex PR7 round-13 P2 + round-14 P2: mirror the non-terminal seed only
+    # after the SQLite commit succeeds. Then upsert the terminal status. If
+    # the Postgres trigger rejects the terminal promotion, quarantine the
+    # mirror row to needs_evidence_reverification so cutover-readiness sees
+    # the honest state (same pattern as backfill route round-10).
     if pending_terminal_seed_dual_write is not None:
         execution_dual_write("upsert_filing_job", pending_terminal_seed_dual_write)
-    execution_dual_write("upsert_filing_job", job)
+        terminal_result = execution_dual_write("upsert_filing_job", job)
+        if not terminal_result.ok:
+            quarantine = dict(job)
+            quarantine["status"] = "needs_evidence_reverification"
+            execution_dual_write("upsert_filing_job", quarantine)
+    else:
+        execution_dual_write("upsert_filing_job", job)
     return dict(row)
 
 
