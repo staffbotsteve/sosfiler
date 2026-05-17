@@ -611,7 +611,38 @@ async def run_worker(limit: int = 25, order_id: str = "", dry_run: bool = False,
             browser = await p.chromium.launch(headless=headless)
             context = await browser.new_context(accept_downloads=True)
             page = await context.new_page()
-            session_code = await login(page, user_id, password)
+            try:
+                session_code = await login(page, user_id, password)
+            except TexasMfaChallenge as mfa_exc:
+                # Track B follow-up #3 codex round-1 P1: login() raises
+                # BEFORE the per-job try/except. Catch the MFA challenge
+                # here and escalate every queued job; without this every
+                # active filing would be stranded and the worker would
+                # crash without ever surfacing the prompt in the cockpit.
+                from execution_platform import escalate_to_operator_required
+                message = f"TexasMfaChallenge: {mfa_exc}"
+                results = []
+                for job, order in jobs:
+                    if not dry_run:
+                        escalate_to_operator_required(
+                            conn,
+                            filing_job_id=job["id"],
+                            order_id=job["order_id"],
+                            source="sosdirect",
+                            error_message=message,
+                        )
+                    results.append({
+                        "order_id": job["order_id"],
+                        "business_name": order["business_name"],
+                        "status": "operator_required",
+                        "message": message,
+                        "evidence_path": mfa_exc.evidence_path,
+                    })
+                if not dry_run:
+                    conn.commit()
+                await context.close()
+                await browser.close()
+                return {"ran_at": utc_now(), "status": "mfa_challenge", "results": results}
             for job, order in jobs:
                 try:
                     results.append(await process_job(page, conn, job, order, dry_run=dry_run))
