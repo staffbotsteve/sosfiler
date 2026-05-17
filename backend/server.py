@@ -4843,6 +4843,27 @@ def create_or_update_filing_job(order: dict, action_type: str = "formation", sta
                 int(order.get("state_fee_cents") or 0) + processing_fee_cents,
             ),
         )
+        # Codex PR7 round-11 P2: mirror the non-terminal seed to Supabase
+        # so its BEFORE INSERT trigger sees an existing legacy_job_id when
+        # the main terminal upsert below arrives. Otherwise dual-write
+        # recovery paths would abort against the Postgres trigger.
+        execution_dual_write("upsert_filing_job", {
+            "id": job_id,
+            "order_id": order["id"],
+            "product_type": order.get("product_type", "formation"),
+            "action_type": action_type,
+            "state": order["state"],
+            "entity_type": order["entity_type"],
+            "status": "ready_to_file",
+            "automation_lane": action.get("automation_lane", "operator_assisted"),
+            "automation_difficulty": action.get("automation_difficulty", "unknown"),
+            "adapter_key": action.get("adapter_key"),
+            "customer_status": action.get("customer_status"),
+            "portal_url": action.get("portal_url"),
+            "portal_blockers": action.get("portal_blockers", []),
+            "required_evidence": required_evidence,
+            "route_metadata": action.get("route_metadata") or {},
+        })
     conn.execute("""
         INSERT INTO filing_jobs (
             id, order_id, action_type, state, entity_type, status, automation_level,
