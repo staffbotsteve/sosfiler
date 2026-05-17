@@ -529,9 +529,12 @@ def escalate_to_operator_required(
             """,
             (filing_job_id, order_id, safe_event_type, safe_message, source or "worker", safe_evidence_path),
         )
-        # Track B follow-up #3 codex round-2 P2: persist the captured
-        # checkpoint screenshot/html as a state_correspondence artifact
-        # so the operator cockpit's detail view has something to inspect.
+        # Track B follow-up #3 codex round-2 P2 + round-3 P2: persist the
+        # captured checkpoint screenshot/html as a state_correspondence
+        # artifact so the operator cockpit's detail view has something to
+        # inspect. The inner try/except guarantees that an artifact-write
+        # failure (lagging schema, trigger error, missing column) does NOT
+        # short-circuit the status_promotion below — escalation MUST run.
         if safe_evidence_path:
             try:
                 resolved = Path(safe_evidence_path)
@@ -552,7 +555,9 @@ def escalate_to_operator_required(
                             is_evidence=True,
                             sha256_hex=digest,
                         )
-            except (OSError, ValueError):
+            except (OSError, ValueError, _sqlite3.Error):
+                # Best-effort artifact insert. Never let it block the
+                # status_promotion that follows.
                 pass
         conn.execute(
             "UPDATE filing_jobs SET status = 'operator_required', evidence_summary = ?, updated_at = datetime('now') WHERE id = ?",
