@@ -387,19 +387,31 @@ async def login(page, user_id: str, password: str) -> str:
     lowered_content = content.lower()
     for token in MFA_CHALLENGE_TOKENS:
         if token.lower() in lowered_content:
-            mfa_dir = RUN_DIR / "mfa"
-            mfa_dir.mkdir(parents=True, exist_ok=True)
-            stamp = datetime.utcnow().strftime("%Y%m%dT%H%M%SZ")
-            html_path = mfa_dir / f"{stamp}-mfa-detected.html"
-            screenshot_path = mfa_dir / f"{stamp}-mfa-detected.png"
-            html_path.write_text(redact_sensitive_html(content), errors="ignore")
+            # Codex Track B follow-up #3 round-4 P2: checkpoint persistence
+            # is best-effort. OSError / permission / disk-full must not
+            # block the TexasMfaChallenge raise — losing the screenshot is
+            # acceptable; losing the escalation is not.
+            screenshot_path_str = ""
             try:
-                await page.screenshot(path=str(screenshot_path), full_page=True)
-            except Exception:  # noqa: BLE001
-                pass
+                mfa_dir = RUN_DIR / "mfa"
+                mfa_dir.mkdir(parents=True, exist_ok=True)
+                stamp = datetime.utcnow().strftime("%Y%m%dT%H%M%SZ")
+                html_path = mfa_dir / f"{stamp}-mfa-detected.html"
+                screenshot_path = mfa_dir / f"{stamp}-mfa-detected.png"
+                try:
+                    html_path.write_text(redact_sensitive_html(content), errors="ignore")
+                except OSError:
+                    pass
+                try:
+                    await page.screenshot(path=str(screenshot_path), full_page=True)
+                    screenshot_path_str = str(screenshot_path)
+                except Exception:  # noqa: BLE001
+                    screenshot_path_str = ""
+            except OSError:
+                screenshot_path_str = ""
             raise TexasMfaChallenge(
                 f"SOSDirect login returned an MFA/identity challenge ({token!r}); operator must complete in a trusted browser profile.",
-                evidence_path=str(screenshot_path),
+                evidence_path=screenshot_path_str,
             )
 
     if await page.locator('select[name="payment_type_id"]').count():
