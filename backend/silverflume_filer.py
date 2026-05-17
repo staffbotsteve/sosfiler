@@ -8,6 +8,7 @@ import os
 import json
 import asyncio
 import logging
+import sqlite3
 import time
 from datetime import datetime
 from pathlib import Path
@@ -21,17 +22,128 @@ logger = logging.getLogger(__name__)
 
 TWOCAPTCHA_API_KEY = os.getenv("TWOCAPTCHA_API_KEY", "")
 SILVERFLUME_URL = "https://www.nvsilverflume.gov/home"
-RECEIPTS_DIR = Path(__file__).resolve().parent.parent / "filing_receipts"
+BASE_DIR = Path(__file__).resolve().parent.parent
+DB_PATH = BASE_DIR / "sosfiler.db"
+RECEIPTS_DIR = BASE_DIR / "filing_receipts"
 RECEIPTS_DIR.mkdir(exist_ok=True)
 
 # Plan v2.6 §4.5 / PR6: Nevada SilverFlume emits a numeric receipt #
 # on the bundle confirmation page (Articles + Initial List + Business
 # License). Best-effort regex; refine after the first live capture.
-# Whoever consumes the file_llc() result dict and persists status MUST
-# pass result["confirmation_number"] forward to
-# execution_platform.build_filing_confirmation_payload so the order's
-# filing_confirmation column gets populated before any status promotion.
 CONFIRMATION_NUMBER_REGEX = r"(?:Receipt|Confirmation|Filing)\s*(?:Number|No\.?|#)\s*[:\-—]?\s*([0-9]{6,12})"
+
+
+def _persist_filing_result(order_id: str, result: dict) -> None:
+    """Track B follow-up: write SilverFlume run outcome to SQLite.
+
+    Audit doc (docs/track_b_adapter_audit_2026-05-16.md, recommendation #1)
+    flagged NV as the highest-impact gap — the worker returned a result
+    dict but never updated the database, so a needs_human_review run left
+    the job stuck in `automation_started` forever. This helper closes the
+    loop:
+
+    - Success + confirmation_number → write orders.filing_confirmation
+      via the canonical JSON shape so the trigger can later validate.
+    - needs_human_review → flip the most-recent NV filing_job to
+      `operator_required` so it surfaces in the cockpit work queue.
+    - Either path → persist any captured screenshots as state_correspondence
+      artifacts so the operator has evidence.
+
+    Best-effort: silently skips if DB is unavailable or no matching job
+    exists. Status writes never INSERT into a terminal status; they
+    UPDATE the existing row so the PR7 INSERT guard stays out of the way.
+    """
+    if not order_id:
+        return
+    try:
+        conn = sqlite3.connect(DB_PATH)
+        conn.row_factory = sqlite3.Row
+    except sqlite3.Error as exc:
+        logger.warning(f"[{order_id}] silverflume persistence skipped (db open failed): {exc}")
+        return
+    try:
+        job_row = conn.execute(
+            """
+            SELECT id FROM filing_jobs
+            WHERE order_id = ? AND state = 'NV' AND action_type = 'formation'
+            ORDER BY created_at DESC
+            LIMIT 1
+            """,
+            (order_id,),
+        ).fetchone()
+        if not job_row:
+            return
+        job_id = job_row["id"]
+
+        # Capture screenshots as state_correspondence artifacts so the
+        # operator cockpit has at least one piece of evidence to review.
+        try:
+            from execution_platform import insert_filing_artifact_row, sha256_for_file_path
+        except ImportError:
+            insert_filing_artifact_row = None
+            sha256_for_file_path = None
+
+        if insert_filing_artifact_row is not None:
+            for shot_path in result.get("screenshots") or []:
+                if not shot_path:
+                    continue
+                filename = Path(shot_path).name
+                already = conn.execute(
+                    "SELECT 1 FROM filing_artifacts WHERE filing_job_id = ? AND filename = ? LIMIT 1",
+                    (job_id, filename),
+                ).fetchone()
+                if already:
+                    continue
+                insert_filing_artifact_row(
+                    conn,
+                    filing_job_id=job_id,
+                    order_id=order_id,
+                    artifact_type="state_correspondence",
+                    filename=filename,
+                    file_path=str(shot_path),
+                    is_evidence=True,
+                    sha256_hex=sha256_for_file_path(shot_path) if sha256_for_file_path else None,
+                )
+
+        # If a confirmation number was extracted, write the canonical JSON.
+        confirmation_value = (result.get("confirmation_number") or "").strip()
+        if confirmation_value:
+            try:
+                from execution_platform import build_filing_confirmation_payload
+                payload = build_filing_confirmation_payload(confirmation_value, "adapter")
+                conn.execute(
+                    "UPDATE orders SET filing_confirmation = ?, updated_at = datetime('now') WHERE id = ?",
+                    (payload, order_id),
+                )
+            except (ImportError, ValueError) as exc:
+                logger.warning(f"[{order_id}] silverflume confirmation persistence skipped: {exc}")
+
+        # needs_human_review takes precedence over the success path: an
+        # operator should review even a "successful" run that did not yield
+        # a confirmation. The PR7 trigger blocks INSERTs into terminal
+        # statuses; UPDATEs to operator_required do not require evidence.
+        target_status = None
+        if result.get("needs_human_review"):
+            target_status = "operator_required"
+        if target_status:
+            conn.execute(
+                "UPDATE filing_jobs SET status = ?, evidence_summary = ?, updated_at = datetime('now') WHERE id = ?",
+                (target_status, (result.get("reason") or "SilverFlume needs human review."), job_id),
+            )
+            conn.execute(
+                "UPDATE orders SET status = ?, updated_at = datetime('now') WHERE id = ?",
+                (target_status, order_id),
+            )
+            conn.execute(
+                "INSERT INTO status_updates (order_id, status, message) VALUES (?, ?, ?)",
+                (order_id, target_status, (result.get("reason") or "SilverFlume needs human review.")),
+            )
+
+        conn.commit()
+    except sqlite3.Error as exc:
+        logger.warning(f"[{order_id}] silverflume persistence failed mid-write: {exc}")
+    finally:
+        conn.close()
 
 
 class SilverFlumeFiler:
@@ -146,11 +258,16 @@ class SilverFlumeFiler:
             logger.error(f"[{order_id}] SilverFlume filing error: {e}")
             result["errors"].append(str(e))
             result["needs_human_review"] = True
-        
+
         # Save receipt
         receipt_path = RECEIPTS_DIR / f"{order_id}_NV_receipt.json"
         receipt_path.write_text(json.dumps(result, indent=2))
-        
+
+        # Track B follow-up: persist run outcome to SQLite so a needs_human_
+        # review filing is actually visible in the operator cockpit instead
+        # of stranded in the receipt JSON.
+        _persist_filing_result(order_id, result)
+
         return result
 
     async def _solve_incapsula_captcha(self, page, order_id: str) -> bool:
