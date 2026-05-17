@@ -4843,12 +4843,11 @@ def create_or_update_filing_job(order: dict, action_type: str = "formation", sta
                 int(order.get("state_fee_cents") or 0) + processing_fee_cents,
             ),
         )
-        # Codex PR7 round-11 P2 + round-12 P2: mirror the non-terminal seed
-        # to Supabase so its BEFORE INSERT guard sees an existing
-        # legacy_job_id when the main terminal upsert arrives. If the
-        # order already carries a filing_confirmation, include it in the
-        # seed so the mirror evidence trigger does not later reject the
-        # terminal UPDATE for an empty value.
+    # Codex PR7 round-13 P2: prepare the mirror seed payload now but defer
+    # the dual-write until AFTER the SQLite upsert succeeds. If the local
+    # UPDATE trigger rejects the terminal status, we never seed the mirror.
+    pending_terminal_seed_dual_write: dict | None = None
+    if job_status in TERMINAL_STATUSES:
         seed_payload = {
             "id": job_id,
             "order_id": order["id"],
@@ -4868,7 +4867,7 @@ def create_or_update_filing_job(order: dict, action_type: str = "formation", sta
         }
         if order.get("filing_confirmation"):
             seed_payload["filing_confirmation_raw"] = order["filing_confirmation"]
-        execution_dual_write("upsert_filing_job", seed_payload)
+        pending_terminal_seed_dual_write = seed_payload
     conn.execute("""
         INSERT INTO filing_jobs (
             id, order_id, action_type, state, entity_type, status, automation_level,
@@ -4922,6 +4921,11 @@ def create_or_update_filing_job(order: dict, action_type: str = "formation", sta
     conn.commit()
     conn.close()
     job = serialize_filing_job(row)
+    # Codex PR7 round-13 P2: only mirror the non-terminal seed now that the
+    # local SQLite upsert is known to have committed cleanly. Order: seed →
+    # terminal upsert, so the Postgres trigger sees an existing legacy_job_id.
+    if pending_terminal_seed_dual_write is not None:
+        execution_dual_write("upsert_filing_job", pending_terminal_seed_dual_write)
     execution_dual_write("upsert_filing_job", job)
     return dict(row)
 
