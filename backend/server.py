@@ -10189,10 +10189,21 @@ async def backfill_execution_persistence(payload: PersistenceBackfillRequest, re
             job["status"] = entry["terminal_status"]
             result = execution_dual_write("upsert_filing_job", job)
             if not result.ok:
+                # Codex PR7 round-10 P2: don't leave the mirror lying with
+                # ready_to_file when the terminal promotion failed (artifact
+                # missing, predicate violation, etc.). Flip the row to
+                # needs_evidence_reverification so cutover-readiness sees
+                # the honest state.
+                quarantine_job = dict(job)
+                quarantine_job["status"] = "needs_evidence_reverification"
+                quarantine_result = execution_dual_write("upsert_filing_job", quarantine_job)
                 errors.append({
                     "table": "filing_jobs_promote",
                     "id": job["id"],
-                    "message": result.message,
+                    "message": (
+                        f"terminal promotion failed: {result.message}; "
+                        f"quarantined to needs_evidence_reverification (ok={quarantine_result.ok})"
+                    ),
                 })
 
     conn.close()
