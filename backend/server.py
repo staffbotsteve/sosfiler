@@ -694,7 +694,7 @@ def init_db():
                    WHERE filing_job_id = NEW.id
                      AND artifact_type = 'submitted_receipt'
                      AND is_evidence = 1
-                     AND sha256_hex IS NOT NULL
+                     AND sha256_hex IS NOT NULL AND length(sha256_hex) > 0
                  )
               THEN RAISE(ABORT, 'evidence_invariant: missing submitted_receipt artifact')
             WHEN NEW.status IN ('approved','state_approved','documents_collected','complete')
@@ -703,7 +703,7 @@ def init_db():
                    WHERE filing_job_id = NEW.id
                      AND artifact_type = 'submitted_receipt'
                      AND is_evidence = 1
-                     AND sha256_hex IS NOT NULL
+                     AND sha256_hex IS NOT NULL AND length(sha256_hex) > 0
                  )
               THEN RAISE(ABORT, 'evidence_invariant: approved status requires submitted_receipt and an action_type-appropriate terminal artifact')
             WHEN NEW.status IN ('approved','state_approved','documents_collected','complete')
@@ -711,7 +711,7 @@ def init_db():
                    SELECT 1 FROM filing_artifacts
                    WHERE filing_job_id = NEW.id
                      AND is_evidence = 1
-                     AND sha256_hex IS NOT NULL
+                     AND sha256_hex IS NOT NULL AND length(sha256_hex) > 0
                      AND (
                        (NEW.action_type = 'formation' AND artifact_type = 'approved_certificate')
                        OR (NEW.action_type = 'annual_report'

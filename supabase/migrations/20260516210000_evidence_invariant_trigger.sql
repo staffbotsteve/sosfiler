@@ -67,7 +67,7 @@ begin
       where filing_job_id = new.id
         and artifact_type = 'submitted_receipt'
         and is_evidence = true
-        and sha256_hex is not null
+        and sha256_hex is not null and length(sha256_hex) > 0
     ) then
       raise exception 'evidence_invariant: missing submitted_receipt artifact' using errcode = '23514';
     end if;
@@ -91,14 +91,14 @@ begin
     where filing_job_id = new.id
       and artifact_type = 'submitted_receipt'
       and is_evidence = true
-      and sha256_hex is not null
+      and sha256_hex is not null and length(sha256_hex) > 0
   );
   has_terminal := exists (
     select 1 from public.execution_artifacts
     where filing_job_id = new.id
       and artifact_type = any(terminal_types)
       and is_evidence = true
-      and sha256_hex is not null
+      and sha256_hex is not null and length(sha256_hex) > 0
   );
 
   if not has_submitted_receipt or not has_terminal then

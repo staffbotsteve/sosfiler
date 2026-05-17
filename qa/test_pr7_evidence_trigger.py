@@ -173,6 +173,17 @@ class EvidenceInvariantTriggerTests(unittest.TestCase):
         err = self._attempt_update("submitted")
         self.assertIn("missing submitted_receipt", err)
 
+    def test_submitted_with_empty_string_sha256_blocks(self):
+        """Plan v2.6 PR7 round-9: sha256_hex='' must not satisfy the predicate.
+
+        IS NOT NULL alone wasn't enough — empty/whitespace placeholders
+        could slip through direct SQL writes.
+        """
+        self._set_filing_confirmation()
+        self._insert_artifact("submitted_receipt", sha256_hex="")
+        err = self._attempt_update("submitted")
+        self.assertIn("missing submitted_receipt", err)
+
     def test_submitted_with_everything_passes(self):
         self._set_filing_confirmation()
         self._insert_artifact("submitted_receipt")
