@@ -100,10 +100,35 @@ class FilingActionResult:
     metadata: dict[str, Any] = field(default_factory=dict)
 
 
+@dataclass(frozen=True)
+class SelectorContractEntry:
+    """A single declared selector the adapter relies on at runtime.
+
+    Plan v2.6 §4.3 + §4.5. The drift canary reads each adapter's
+    selectors_contract and asserts at runtime that the live portal still
+    matches. Track B (docs/track_b_adapter_audit_2026-05-16.md) carries
+    the inventory; this dataclass is the on-disk shape adapters use to
+    declare it.
+    """
+
+    page: str          # logical page label, e.g. "login", "payment", "receipt"
+    selector: str      # CSS / role / XPath — matches the production call
+    purpose: str       # short imperative: "fill credentials", "click submit"
+    interaction: str = "click"   # one of: click, fill, assert, extract, check
+    required: bool = True        # canary fails the adapter when missing if True
+    fail_behavior: str = "raise" # one of: raise, graceful_skip, soft_fail
+
+
 class FilingAdapter(ABC):
     """Contract every state/product automation lane must implement."""
 
     lane = "operator_assisted"
+
+    # Plan v2.6 §4.3 / Track B: each adapter declares its selector contract
+    # so the drift canary can assert the live portal still matches. Empty
+    # tuple by default (e.g. for operator-assisted and dry-run adapters
+    # that drive no portal). Live adapters override.
+    selectors_contract: tuple[SelectorContractEntry, ...] = ()
 
     @abstractmethod
     async def preflight(self, filing_job: dict[str, Any]) -> FilingActionResult:
