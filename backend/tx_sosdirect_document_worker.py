@@ -372,25 +372,21 @@ class TexasMfaChallenge(RuntimeError):
         self.evidence_path = evidence_path
 
 
-async def login(page, user_id: str, password: str) -> str:
-    await page.goto(LOGIN_URL, wait_until="domcontentloaded", timeout=45_000)
-    await page.fill('input[name="client_id"]', user_id)
-    await page.fill('input[name="web_password"]', password)
-    await page.click('input[type="submit"][name="submit"], input[type="Submit"][name="submit"]')
-    await page.wait_for_load_state("domcontentloaded", timeout=45_000)
-    content = await page.content()
+async def _raise_if_mfa_challenge(page, content: str) -> None:
+    """Scan a SOSDirect response body for MFA / verification tokens.
 
-    # Track B follow-up #3 / audit doc recommendation #3: detect MFA / 2FA /
-    # identity-verification prompts BEFORE attempting to navigate further.
-    # Mirror CA bizfile's body-text gate; emit a typed exception so the
-    # worker-level except can escalate cleanly to operator_required.
+    Track B follow-up #3 round-5: SOSDirect can route into MFA either
+    on the first login response OR after the payment/contact
+    continuation. login() calls this helper after every content load.
+
+    Best-effort checkpoint persistence — OSError / disk-full / permission
+    failures must NOT block the TexasMfaChallenge raise.
+    """
+    if not content:
+        return
     lowered_content = content.lower()
     for token in MFA_CHALLENGE_TOKENS:
         if token.lower() in lowered_content:
-            # Codex Track B follow-up #3 round-4 P2: checkpoint persistence
-            # is best-effort. OSError / permission / disk-full must not
-            # block the TexasMfaChallenge raise — losing the screenshot is
-            # acceptable; losing the escalation is not.
             screenshot_path_str = ""
             try:
                 mfa_dir = RUN_DIR / "mfa"
@@ -410,9 +406,24 @@ async def login(page, user_id: str, password: str) -> str:
             except OSError:
                 screenshot_path_str = ""
             raise TexasMfaChallenge(
-                f"SOSDirect login returned an MFA/identity challenge ({token!r}); operator must complete in a trusted browser profile.",
+                f"SOSDirect routed into an MFA/identity challenge ({token!r}); operator must complete in a trusted browser profile.",
                 evidence_path=screenshot_path_str,
             )
+
+
+async def login(page, user_id: str, password: str) -> str:
+    await page.goto(LOGIN_URL, wait_until="domcontentloaded", timeout=45_000)
+    await page.fill('input[name="client_id"]', user_id)
+    await page.fill('input[name="web_password"]', password)
+    await page.click('input[type="submit"][name="submit"], input[type="Submit"][name="submit"]')
+    await page.wait_for_load_state("domcontentloaded", timeout=45_000)
+    content = await page.content()
+
+    # Track B follow-up #3 / audit doc recommendation #3: detect MFA / 2FA /
+    # identity-verification prompts BEFORE attempting to navigate further.
+    # Mirror CA bizfile's body-text gate; emit a typed exception so the
+    # worker-level except can escalate cleanly to operator_required.
+    await _raise_if_mfa_challenge(page, content)
 
     if await page.locator('select[name="payment_type_id"]').count():
         payment_type = os.environ.get("TX_SOSDIRECT_PAYMENT_TYPE_ID", "5")
@@ -429,6 +440,10 @@ async def login(page, user_id: str, password: str) -> str:
         await page.click('input[type="submit"][name="Submit"][value="Continue"]')
         await page.wait_for_load_state("domcontentloaded", timeout=45_000)
         content = await page.content()
+        # Codex Track B follow-up #3 round-5 P2: SOSDirect can route into
+        # MFA AFTER the payment/contact continuation, not just on the
+        # first response. Re-check here so the detector covers both flows.
+        await _raise_if_mfa_challenge(page, content)
     if "SOSDirect Account Login" in content and 'input type="text" name="client_id"' in content:
         failure_dir = RUN_DIR / "login"
         failure_dir.mkdir(parents=True, exist_ok=True)
