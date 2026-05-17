@@ -8,6 +8,7 @@ import os
 import json
 import asyncio
 import logging
+import sqlite3
 import time
 from datetime import datetime
 from pathlib import Path
@@ -21,17 +22,212 @@ logger = logging.getLogger(__name__)
 
 TWOCAPTCHA_API_KEY = os.getenv("TWOCAPTCHA_API_KEY", "")
 SILVERFLUME_URL = "https://www.nvsilverflume.gov/home"
-RECEIPTS_DIR = Path(__file__).resolve().parent.parent / "filing_receipts"
+BASE_DIR = Path(__file__).resolve().parent.parent
+DB_PATH = BASE_DIR / "sosfiler.db"
+RECEIPTS_DIR = BASE_DIR / "filing_receipts"
 RECEIPTS_DIR.mkdir(exist_ok=True)
 
 # Plan v2.6 §4.5 / PR6: Nevada SilverFlume emits a numeric receipt #
 # on the bundle confirmation page (Articles + Initial List + Business
 # License). Best-effort regex; refine after the first live capture.
-# Whoever consumes the file_llc() result dict and persists status MUST
-# pass result["confirmation_number"] forward to
-# execution_platform.build_filing_confirmation_payload so the order's
-# filing_confirmation column gets populated before any status promotion.
 CONFIRMATION_NUMBER_REGEX = r"(?:Receipt|Confirmation|Filing)\s*(?:Number|No\.?|#)\s*[:\-—]?\s*([0-9]{6,12})"
+
+
+def _persist_filing_result(order_id: str, result: dict) -> None:
+    """Track B follow-up: write SilverFlume run outcome to SQLite.
+
+    Audit doc (docs/track_b_adapter_audit_2026-05-16.md, recommendation #1)
+    flagged NV as the highest-impact gap — the worker returned a result
+    dict but never updated the database, so a needs_human_review run left
+    the job stuck in `automation_started` forever. This helper closes the
+    loop:
+
+    - Success + confirmation_number → write orders.filing_confirmation
+      via the canonical JSON shape so the trigger can later validate.
+    - needs_human_review → flip the most-recent NV filing_job to
+      `operator_required` so it surfaces in the cockpit work queue.
+    - Either path → persist any captured screenshots as state_correspondence
+      artifacts so the operator has evidence.
+
+    Best-effort: silently skips if DB is unavailable or no matching job
+    exists. Status writes never INSERT into a terminal status; they
+    UPDATE the existing row so the PR7 INSERT guard stays out of the way.
+    """
+    if not order_id:
+        return
+    try:
+        conn = sqlite3.connect(DB_PATH)
+        conn.row_factory = sqlite3.Row
+    except sqlite3.Error as exc:
+        logger.warning(f"[{order_id}] silverflume persistence skipped (db open failed): {exc}")
+        return
+    try:
+        job_row = conn.execute(
+            """
+            SELECT id, status FROM filing_jobs
+            WHERE order_id = ? AND state = 'NV' AND action_type = 'formation'
+            ORDER BY created_at DESC
+            LIMIT 1
+            """,
+            (order_id,),
+        ).fetchone()
+        if not job_row:
+            return
+        job_id = job_row["id"]
+        # Codex Track B follow-up round-6 P2: never downgrade a job that
+        # has already reached a terminal status. A retry of a previously
+        # submitted/approved/complete filing should leave the existing
+        # row alone; the operator can re-open it manually if needed.
+        TERMINAL_DOWNGRADE_GUARD = {
+            "submitted", "submitted_to_state", "approved", "state_approved",
+            "documents_collected", "complete",
+        }
+        if job_row["status"] in TERMINAL_DOWNGRADE_GUARD:
+            logger.info(
+                f"[{order_id}] silverflume retry detected; filing_job already in "
+                f"terminal status {job_row['status']!r}, skipping persistence"
+            )
+            return
+
+        # Capture screenshots as state_correspondence artifacts so the
+        # operator cockpit has at least one piece of evidence to review.
+        try:
+            from execution_platform import insert_filing_artifact_row, sha256_for_file_path
+        except ImportError:
+            insert_filing_artifact_row = None
+            sha256_for_file_path = None
+
+        # Codex Track B follow-up round-4 P1: the dedicated confirmation-
+        # page screenshot is the ONLY valid submitted_receipt. Other
+        # screenshots stay as state_correspondence regardless of run
+        # outcome — homepage / form-discovery shots cannot satisfy the
+        # evidence trigger.
+        confirmation_shot = result.get("confirmation_screenshot")
+        regular_screenshots = list(result.get("screenshots") or [])
+
+        def _insert_or_refresh_artifact(path_str: str, artifact_type: str) -> None:
+            if insert_filing_artifact_row is None or not path_str:
+                return
+            filename = Path(path_str).name
+            fresh_hash = sha256_for_file_path(path_str) if sha256_for_file_path else None
+            # Codex Track B follow-up round-4 P2: de-dupe on (filename,
+            # artifact_type) so a prior state_correspondence run does NOT
+            # block a subsequent submitted_receipt insert for the same
+            # filename. Same-type same-filename retries refresh the hash.
+            already = conn.execute(
+                "SELECT id, sha256_hex FROM filing_artifacts "
+                "WHERE filing_job_id = ? AND filename = ? AND artifact_type = ? LIMIT 1",
+                (job_id, filename, artifact_type),
+            ).fetchone()
+            if already:
+                if fresh_hash and fresh_hash != already["sha256_hex"]:
+                    conn.execute(
+                        "UPDATE filing_artifacts SET sha256_hex = ?, file_path = ? WHERE id = ?",
+                        (fresh_hash, path_str, already["id"]),
+                    )
+                return
+            insert_filing_artifact_row(
+                conn,
+                filing_job_id=job_id,
+                order_id=order_id,
+                artifact_type=artifact_type,
+                filename=filename,
+                file_path=path_str,
+                is_evidence=True,
+                sha256_hex=fresh_hash,
+            )
+
+        if confirmation_shot:
+            _insert_or_refresh_artifact(str(confirmation_shot), "submitted_receipt")
+        for shot_path in regular_screenshots:
+            if shot_path == confirmation_shot:
+                continue
+            _insert_or_refresh_artifact(str(shot_path), "state_correspondence")
+
+        # If a confirmation number was extracted, write the canonical JSON.
+        confirmation_value = (result.get("confirmation_number") or "").strip()
+        if confirmation_value:
+            try:
+                from execution_platform import build_filing_confirmation_payload
+                payload = build_filing_confirmation_payload(confirmation_value, "adapter")
+                conn.execute(
+                    "UPDATE orders SET filing_confirmation = ?, updated_at = datetime('now') WHERE id = ?",
+                    (payload, order_id),
+                )
+            except (ImportError, ValueError) as exc:
+                logger.warning(f"[{order_id}] silverflume confirmation persistence skipped: {exc}")
+
+        # needs_human_review takes precedence over the success path: an
+        # operator should review even a "successful" run that did not yield
+        # a confirmation. The PR7 trigger blocks INSERTs into terminal
+        # statuses; UPDATEs to operator_required do not require evidence.
+        #
+        # Codex Track B follow-up round-2 P2: success=True without a
+        # confirmation # is also operator-required — the order cannot
+        # legitimately transition into submitted/approved without one,
+        # so flag it explicitly instead of leaving the job in its prior
+        # automation_started status.
+        # Codex Track B follow-up round-5 P1: keep the result dict consistent
+        # with the DB target_status. backend/state_filing._flow_nevada checks
+        # result['success'] BEFORE needs_human_review, so any operator-required
+        # escalation must flip success→False and set needs_human_review→True.
+        target_status = None
+        if result.get("needs_human_review"):
+            target_status = "operator_required"
+        elif result.get("success") and not confirmation_value:
+            target_status = "operator_required"
+            result["success"] = False
+            result["needs_human_review"] = True
+            result.setdefault(
+                "reason",
+                "SilverFlume reported success but no confirmation number was extracted; operator review required.",
+            )
+        elif result.get("success") and confirmation_value and confirmation_shot:
+            # Codex Track B follow-up round-3 P2 #1 + round-4 P1: only
+            # promote to submitted_to_state when we have BOTH a captured
+            # confirmation number AND a dedicated confirmation-page
+            # screenshot. The UPDATE trigger validates the
+            # submitted_receipt artifact we just wrote from that screenshot.
+            target_status = "submitted_to_state"
+        elif result.get("success") and confirmation_value:
+            # Confirmation # extracted but no receipt screenshot — operator
+            # must verify and either re-capture or manually attach evidence.
+            target_status = "operator_required"
+            result["success"] = False
+            result["needs_human_review"] = True
+            result.setdefault(
+                "reason",
+                "SilverFlume captured a confirmation number but no receipt-page screenshot; operator review required.",
+            )
+        if target_status:
+            default_message = (
+                f"Nevada SilverFlume submitted with confirmation {confirmation_value}."
+                if target_status == "submitted_to_state"
+                else "SilverFlume needs human review."
+            )
+            status_message = result.get("reason") or default_message
+            conn.execute(
+                "UPDATE filing_jobs SET status = ?, evidence_summary = ?, submitted_at = COALESCE(submitted_at, datetime('now')), updated_at = datetime('now') WHERE id = ?"
+                if target_status == "submitted_to_state"
+                else "UPDATE filing_jobs SET status = ?, evidence_summary = ?, updated_at = datetime('now') WHERE id = ?",
+                (target_status, status_message, job_id),
+            )
+            conn.execute(
+                "UPDATE orders SET status = ?, filed_at = COALESCE(filed_at, datetime('now')), updated_at = datetime('now') WHERE id = ?"
+                if target_status == "submitted_to_state"
+                else "UPDATE orders SET status = ?, updated_at = datetime('now') WHERE id = ?",
+                (target_status, order_id),
+            )
+            conn.execute(
+                "INSERT INTO status_updates (order_id, status, message) VALUES (?, ?, ?)",
+                (order_id, target_status, status_message),
+            )
+
+        conn.commit()
+    except sqlite3.Error as exc:
+        logger.warning(f"[{order_id}] silverflume persistence failed mid-write: {exc}")
+    finally:
+        conn.close()
 
 
 class SilverFlumeFiler:
@@ -101,7 +297,12 @@ class SilverFlumeFiler:
                 await page.goto(SILVERFLUME_URL, timeout=60000)
                 await asyncio.sleep(5)
                 
-                # Check for Incapsula challenge
+                # Track B follow-up codex round-1 P1: do NOT early-return
+                # on WAF failure. Set needs_human_review and let control
+                # fall through to the receipt-persist + DB-persist block
+                # at the function tail so the operator cockpit sees the
+                # blocked filing.
+                waf_blocked = False
                 html = await page.content()
                 if 'Incapsula' in html or '_Incapsula' in html:
                     logger.info(f"[{order_id}] Incapsula WAF detected, solving hCaptcha...")
@@ -110,47 +311,67 @@ class SilverFlumeFiler:
                         result["errors"].append("Failed to bypass Incapsula WAF/hCaptcha")
                         result["needs_human_review"] = True
                         await self._screenshot(page, order_id, "waf_blocked", result)
-                        await browser.close()
-                        return result
-                    
-                    result["timestamps"]["waf_bypassed"] = datetime.utcnow().isoformat()
-                    logger.info(f"[{order_id}] WAF bypassed successfully")
-                
-                # Step 2: Wait for SilverFlume to load
-                await asyncio.sleep(5)
-                await self._screenshot(page, order_id, "01_homepage", result)
-                
-                # Step 3: Navigate to Start Your Business / LLC filing
-                filed = await self._navigate_to_llc_filing(page, formation_data, order_id, result)
-                
-                if filed:
-                    result["success"] = True
-                    result["timestamps"]["completed"] = datetime.utcnow().isoformat()
-                    # Plan v2.6 §4.5 / PR6 codex round-2: extract NV receipt #
-                    # from the confirmation page so callers can forward it
-                    # into orders.filing_confirmation before promotion.
-                    try:
-                        from execution_platform import extract_filing_confirmation
-                        final_text = await page.inner_text("body", timeout=5_000)
-                        extracted = extract_filing_confirmation(final_text, CONFIRMATION_NUMBER_REGEX)
-                        if extracted:
-                            result["confirmation_number"] = extracted
-                    except Exception as exc:  # noqa: BLE001
-                        logger.warning(f"[{order_id}] confirmation extract failed: {exc}")
-                else:
-                    result["needs_human_review"] = True
+                        waf_blocked = True
+                    else:
+                        result["timestamps"]["waf_bypassed"] = datetime.utcnow().isoformat()
+                        logger.info(f"[{order_id}] WAF bypassed successfully")
+
+                if not waf_blocked:
+                    # Step 2: Wait for SilverFlume to load
+                    await asyncio.sleep(5)
+                    await self._screenshot(page, order_id, "01_homepage", result)
+
+                    # Step 3: Navigate to Start Your Business / LLC filing
+                    filed = await self._navigate_to_llc_filing(page, formation_data, order_id, result)
+
+                    if filed:
+                        result["success"] = True
+                        result["timestamps"]["completed"] = datetime.utcnow().isoformat()
+                        # Plan v2.6 §4.5 / PR6 codex round-2 + Track B
+                        # follow-up round-4 P1: extract NV receipt # AND
+                        # capture a dedicated confirmation-page screenshot
+                        # so the submitted_receipt evidence written by the
+                        # persistence helper IS the receipt page, not a
+                        # homepage / form-discovery shot.
+                        try:
+                            from execution_platform import extract_filing_confirmation
+                            final_text = await page.inner_text("body", timeout=5_000)
+                            extracted = extract_filing_confirmation(final_text, CONFIRMATION_NUMBER_REGEX)
+                            if extracted:
+                                result["confirmation_number"] = extracted
+                                confirmation_shot = RECEIPTS_DIR / f"{order_id}_NV_confirmation.png"
+                                try:
+                                    await page.screenshot(path=str(confirmation_shot), full_page=True)
+                                    result["confirmation_screenshot"] = str(confirmation_shot)
+                                except Exception as shot_exc:  # noqa: BLE001
+                                    logger.warning(f"[{order_id}] confirmation screenshot failed: {shot_exc}")
+                        except Exception as exc:  # noqa: BLE001
+                            logger.warning(f"[{order_id}] confirmation extract failed: {exc}")
+                    else:
+                        result["needs_human_review"] = True
 
                 await browser.close()
-                
+
         except Exception as e:
             logger.error(f"[{order_id}] SilverFlume filing error: {e}")
             result["errors"].append(str(e))
             result["needs_human_review"] = True
-        
-        # Save receipt
+
+        # Track B follow-up: persist run outcome to SQLite so a needs_human_
+        # review filing is actually visible in the operator cockpit instead
+        # of stranded in the receipt JSON. Also runs after WAF failures
+        # thanks to the codex round-1 P1 fix above.
+        #
+        # Codex Track B follow-up round-6 P2: persist BEFORE writing the
+        # receipt JSON so any mutation _persist_filing_result makes to
+        # result (e.g. flipping success=False / needs_human_review=True
+        # when evidence is incomplete) is reflected on disk too.
+        _persist_filing_result(order_id, result)
+
+        # Save receipt — always runs whether or not the browser block raised.
         receipt_path = RECEIPTS_DIR / f"{order_id}_NV_receipt.json"
         receipt_path.write_text(json.dumps(result, indent=2))
-        
+
         return result
 
     async def _solve_incapsula_captcha(self, page, order_id: str) -> bool:
