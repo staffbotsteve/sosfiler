@@ -630,6 +630,7 @@ async def run_worker(limit: int = 25, order_id: str = "", dry_run: bool = False,
                             order_id=job["order_id"],
                             source="sosdirect",
                             error_message=message,
+                            evidence_path=mfa_exc.evidence_path,
                         )
                     results.append({
                         "order_id": job["order_id"],
