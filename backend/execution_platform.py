@@ -482,6 +482,65 @@ def sha256_for_file_path(file_path: str | Path | None) -> str | None:
         return None
 
 
+def escalate_to_operator_required(
+    conn,
+    *,
+    filing_job_id: str,
+    order_id: str,
+    source: str,
+    error_message: str,
+) -> None:
+    """Track B follow-up #2: catch-all path for worker `except Exception`.
+
+    Audit doc recommendation #2 — CA, NV, TX workers used to log an event
+    and append `status='error'` to a results list without updating
+    filing_jobs.status / orders.status. The cockpit never surfaced the
+    failure for operator review.
+
+    This helper:
+      1. INSERTs a `<source>_worker_error` event so the timeline records
+         the failure with the error message and the source worker.
+      2. UPDATEs filing_jobs.status + orders.status to `operator_required`
+         (a non-terminal status — the PR7 evidence trigger never fires on
+         this UPDATE because the target is not in the evidence set).
+      3. Writes a status_updates row so the customer dashboard timeline
+         reflects the escalation.
+
+    Best-effort: any sqlite3.Error inside the function is swallowed; the
+    worker has already failed and we don't want this helper to mask the
+    original exception in the caller's try/except.
+    """
+    import sqlite3 as _sqlite3
+    if not (conn and filing_job_id and order_id):
+        return
+    safe_message = (error_message or f"{source} worker raised unhandled exception").strip()
+    safe_event_type = f"{source}_worker_error" if source else "worker_error"
+    try:
+        conn.execute(
+            """
+            INSERT INTO filing_events (filing_job_id, order_id, event_type, message, actor, evidence_path)
+            VALUES (?, ?, ?, ?, ?, ?)
+            """,
+            (filing_job_id, order_id, safe_event_type, safe_message, source or "worker", ""),
+        )
+        conn.execute(
+            "UPDATE filing_jobs SET status = 'operator_required', evidence_summary = ?, updated_at = datetime('now') WHERE id = ?",
+            (safe_message, filing_job_id),
+        )
+        conn.execute(
+            "UPDATE orders SET status = 'operator_required', updated_at = datetime('now') WHERE id = ?",
+            (order_id,),
+        )
+        conn.execute(
+            "INSERT INTO status_updates (order_id, status, message) VALUES (?, 'operator_required', ?)",
+            (order_id, safe_message),
+        )
+    except _sqlite3.Error:
+        # Worker is already in a failed state; do not raise from the
+        # escalation helper. Callers see the original exception traceback.
+        pass
+
+
 def insert_filing_artifact_row(
     conn,
     *,

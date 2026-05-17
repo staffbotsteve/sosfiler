@@ -564,12 +564,22 @@ async def run_worker(limit: int = 25, order_id: str = "", dry_run: bool = False,
                 except Exception as exc:
                     message = f"{type(exc).__name__}: {exc}"
                     if not dry_run:
-                        insert_event(conn, job["id"], job["order_id"], "sosdirect_worker_error", message)
+                        # Track B follow-up #2: escalate to operator_required
+                        # so the cockpit surfaces the failure. PR7 trigger
+                        # never fires on operator_required (non-evidence).
+                        from execution_platform import escalate_to_operator_required
+                        escalate_to_operator_required(
+                            conn,
+                            filing_job_id=job["id"],
+                            order_id=job["order_id"],
+                            source="sosdirect",
+                            error_message=message,
+                        )
                         conn.commit()
                     results.append({
                         "order_id": job["order_id"],
                         "business_name": order["business_name"],
-                        "status": "error",
+                        "status": "operator_required",
                         "message": message,
                     })
             await browser.close()
