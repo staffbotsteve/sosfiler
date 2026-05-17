@@ -38,6 +38,7 @@ def _bootstrap_schema(conn):
             business_name TEXT NOT NULL DEFAULT 'Track B LLC',
             filing_confirmation TEXT,
             submitted_at TEXT,
+            filed_at TEXT,
             approved_at TEXT,
             updated_at TEXT
         );

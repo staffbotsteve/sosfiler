@@ -83,26 +83,46 @@ def _persist_filing_result(order_id: str, result: dict) -> None:
             insert_filing_artifact_row = None
             sha256_for_file_path = None
 
+        # Codex Track B follow-up round-3 P2: when SilverFlume reports
+        # success WITH a confirmation number, treat the captured screenshots
+        # as the submitted_receipt artifact bundle so the UPDATE trigger
+        # can later promote the job to submitted_to_state. Otherwise file
+        # as state_correspondence for operator review.
+        screenshot_artifact_type = (
+            "submitted_receipt"
+            if result.get("success") and (result.get("confirmation_number") or "").strip()
+            else "state_correspondence"
+        )
         if insert_filing_artifact_row is not None:
             for shot_path in result.get("screenshots") or []:
                 if not shot_path:
                     continue
                 filename = Path(shot_path).name
+                fresh_hash = sha256_for_file_path(shot_path) if sha256_for_file_path else None
                 already = conn.execute(
-                    "SELECT 1 FROM filing_artifacts WHERE filing_job_id = ? AND filename = ? LIMIT 1",
+                    "SELECT id, sha256_hex FROM filing_artifacts "
+                    "WHERE filing_job_id = ? AND filename = ? LIMIT 1",
                     (job_id, filename),
                 ).fetchone()
                 if already:
+                    # Codex Track B follow-up round-3 P2: file with same
+                    # name on retry; update the row's hash + path so
+                    # evidence integrity tracks the latest file content.
+                    if fresh_hash and fresh_hash != already["sha256_hex"]:
+                        conn.execute(
+                            "UPDATE filing_artifacts SET sha256_hex = ?, file_path = ? WHERE id = ?",
+                            (fresh_hash, str(shot_path), already["id"]),
+                        )
                     continue
                 insert_filing_artifact_row(
                     conn,
                     filing_job_id=job_id,
                     order_id=order_id,
-                    artifact_type="state_correspondence",
+                    artifact_type=screenshot_artifact_type,
                     filename=filename,
                     file_path=str(shot_path),
                     is_evidence=True,
-                    sha256_hex=sha256_for_file_path(shot_path) if sha256_for_file_path else None,
+                    sha256_hex=fresh_hash,
                 )
 
         # If a confirmation number was extracted, write the canonical JSON.
@@ -137,18 +157,34 @@ def _persist_filing_result(order_id: str, result: dict) -> None:
                 "reason",
                 "SilverFlume reported success but no confirmation number was extracted; operator review required.",
             )
+        elif result.get("success") and confirmation_value:
+            # Codex Track B follow-up round-3 P2 #1: successful filing with
+            # confirmation promotes the job to submitted_to_state via the
+            # UPDATE trigger (which now sees the submitted_receipt evidence
+            # we just inserted above).
+            target_status = "submitted_to_state"
         if target_status:
+            default_message = (
+                f"Nevada SilverFlume submitted with confirmation {confirmation_value}."
+                if target_status == "submitted_to_state"
+                else "SilverFlume needs human review."
+            )
+            status_message = result.get("reason") or default_message
             conn.execute(
-                "UPDATE filing_jobs SET status = ?, evidence_summary = ?, updated_at = datetime('now') WHERE id = ?",
-                (target_status, (result.get("reason") or "SilverFlume needs human review."), job_id),
+                "UPDATE filing_jobs SET status = ?, evidence_summary = ?, submitted_at = COALESCE(submitted_at, datetime('now')), updated_at = datetime('now') WHERE id = ?"
+                if target_status == "submitted_to_state"
+                else "UPDATE filing_jobs SET status = ?, evidence_summary = ?, updated_at = datetime('now') WHERE id = ?",
+                (target_status, status_message, job_id),
             )
             conn.execute(
-                "UPDATE orders SET status = ?, updated_at = datetime('now') WHERE id = ?",
+                "UPDATE orders SET status = ?, filed_at = COALESCE(filed_at, datetime('now')), updated_at = datetime('now') WHERE id = ?"
+                if target_status == "submitted_to_state"
+                else "UPDATE orders SET status = ?, updated_at = datetime('now') WHERE id = ?",
                 (target_status, order_id),
             )
             conn.execute(
                 "INSERT INTO status_updates (order_id, status, message) VALUES (?, ?, ?)",
-                (order_id, target_status, (result.get("reason") or "SilverFlume needs human review.")),
+                (order_id, target_status, status_message),
             )
 
         conn.commit()
