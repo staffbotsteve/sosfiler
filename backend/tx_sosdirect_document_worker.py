@@ -339,6 +339,78 @@ def active_texas_jobs(conn: sqlite3.Connection, order_id: str = "", limit: int =
     return [(row, row) for row in rows]
 
 
+# Track B follow-up #3: signals SOSDirect emits when the login response
+# routes us into an MFA / one-time-code / device-verification flow.
+# Best-effort patterns; refine after we see a real challenge page.
+MFA_CHALLENGE_TOKENS = (
+    "Multi-Factor Authentication",
+    "Multi-factor Authentication",
+    "Two-Factor Authentication",
+    "Two-factor Authentication",
+    "verification code",
+    "Verification Code",
+    "one-time passcode",
+    "One-Time Passcode",
+    "Identity Verification",
+    "identity verification",
+    "Enter the code we sent",
+    "Authenticator code",
+    "MFA",
+)
+
+
+class TexasMfaChallenge(RuntimeError):
+    """Raised when SOSDirect routes login into an MFA/identity flow.
+
+    The cockpit-side except handler escalates to operator_required via
+    escalate_to_operator_required so the operator can complete the
+    challenge in a trusted browser profile.
+    """
+
+    def __init__(self, message: str, evidence_path: str = ""):
+        super().__init__(message)
+        self.evidence_path = evidence_path
+
+
+async def _raise_if_mfa_challenge(page, content: str) -> None:
+    """Scan a SOSDirect response body for MFA / verification tokens.
+
+    Track B follow-up #3 round-5: SOSDirect can route into MFA either
+    on the first login response OR after the payment/contact
+    continuation. login() calls this helper after every content load.
+
+    Best-effort checkpoint persistence — OSError / disk-full / permission
+    failures must NOT block the TexasMfaChallenge raise.
+    """
+    if not content:
+        return
+    lowered_content = content.lower()
+    for token in MFA_CHALLENGE_TOKENS:
+        if token.lower() in lowered_content:
+            screenshot_path_str = ""
+            try:
+                mfa_dir = RUN_DIR / "mfa"
+                mfa_dir.mkdir(parents=True, exist_ok=True)
+                stamp = datetime.utcnow().strftime("%Y%m%dT%H%M%SZ")
+                html_path = mfa_dir / f"{stamp}-mfa-detected.html"
+                screenshot_path = mfa_dir / f"{stamp}-mfa-detected.png"
+                try:
+                    html_path.write_text(redact_sensitive_html(content), errors="ignore")
+                except OSError:
+                    pass
+                try:
+                    await page.screenshot(path=str(screenshot_path), full_page=True)
+                    screenshot_path_str = str(screenshot_path)
+                except Exception:  # noqa: BLE001
+                    screenshot_path_str = ""
+            except OSError:
+                screenshot_path_str = ""
+            raise TexasMfaChallenge(
+                f"SOSDirect routed into an MFA/identity challenge ({token!r}); operator must complete in a trusted browser profile.",
+                evidence_path=screenshot_path_str,
+            )
+
+
 async def login(page, user_id: str, password: str) -> str:
     await page.goto(LOGIN_URL, wait_until="domcontentloaded", timeout=45_000)
     await page.fill('input[name="client_id"]', user_id)
@@ -346,6 +418,13 @@ async def login(page, user_id: str, password: str) -> str:
     await page.click('input[type="submit"][name="submit"], input[type="Submit"][name="submit"]')
     await page.wait_for_load_state("domcontentloaded", timeout=45_000)
     content = await page.content()
+
+    # Track B follow-up #3 / audit doc recommendation #3: detect MFA / 2FA /
+    # identity-verification prompts BEFORE attempting to navigate further.
+    # Mirror CA bizfile's body-text gate; emit a typed exception so the
+    # worker-level except can escalate cleanly to operator_required.
+    await _raise_if_mfa_challenge(page, content)
+
     if await page.locator('select[name="payment_type_id"]').count():
         payment_type = os.environ.get("TX_SOSDIRECT_PAYMENT_TYPE_ID", "5")
         await page.select_option('select[name="payment_type_id"]', payment_type)
@@ -361,6 +440,10 @@ async def login(page, user_id: str, password: str) -> str:
         await page.click('input[type="submit"][name="Submit"][value="Continue"]')
         await page.wait_for_load_state("domcontentloaded", timeout=45_000)
         content = await page.content()
+        # Codex Track B follow-up #3 round-5 P2: SOSDirect can route into
+        # MFA AFTER the payment/contact continuation, not just on the
+        # first response. Re-check here so the detector covers both flows.
+        await _raise_if_mfa_challenge(page, content)
     if "SOSDirect Account Login" in content and 'input type="text" name="client_id"' in content:
         failure_dir = RUN_DIR / "login"
         failure_dir.mkdir(parents=True, exist_ok=True)
@@ -555,7 +638,39 @@ async def run_worker(limit: int = 25, order_id: str = "", dry_run: bool = False,
             browser = await p.chromium.launch(headless=headless)
             context = await browser.new_context(accept_downloads=True)
             page = await context.new_page()
-            session_code = await login(page, user_id, password)
+            try:
+                session_code = await login(page, user_id, password)
+            except TexasMfaChallenge as mfa_exc:
+                # Track B follow-up #3 codex round-1 P1: login() raises
+                # BEFORE the per-job try/except. Catch the MFA challenge
+                # here and escalate every queued job; without this every
+                # active filing would be stranded and the worker would
+                # crash without ever surfacing the prompt in the cockpit.
+                from execution_platform import escalate_to_operator_required
+                message = f"TexasMfaChallenge: {mfa_exc}"
+                results = []
+                for job, order in jobs:
+                    if not dry_run:
+                        escalate_to_operator_required(
+                            conn,
+                            filing_job_id=job["id"],
+                            order_id=job["order_id"],
+                            source="sosdirect",
+                            error_message=message,
+                            evidence_path=mfa_exc.evidence_path,
+                        )
+                    results.append({
+                        "order_id": job["order_id"],
+                        "business_name": order["business_name"],
+                        "status": "operator_required",
+                        "message": message,
+                        "evidence_path": mfa_exc.evidence_path,
+                    })
+                if not dry_run:
+                    conn.commit()
+                await context.close()
+                await browser.close()
+                return {"ran_at": utc_now(), "status": "mfa_challenge", "results": results}
             for job, order in jobs:
                 try:
                     results.append(await process_job(page, conn, job, order, dry_run=dry_run))

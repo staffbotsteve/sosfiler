@@ -489,6 +489,7 @@ def escalate_to_operator_required(
     order_id: str,
     source: str,
     error_message: str,
+    evidence_path: str = "",
 ) -> None:
     """Track B follow-up #2: catch-all path for worker `except Exception`.
 
@@ -498,12 +499,16 @@ def escalate_to_operator_required(
     failure for operator review.
 
     This helper:
-      1. INSERTs a `<source>_worker_error` event so the timeline records
-         the failure with the error message and the source worker.
-      2. UPDATEs filing_jobs.status + orders.status to `operator_required`
+      1. INSERTs a `<source>_worker_error` event with the optional
+         evidence_path so operators can navigate straight to the
+         captured screenshot/html.
+      2. When evidence_path resolves to a real file, also INSERTs a
+         state_correspondence `filing_artifacts` row (with sha256_hex)
+         so the cockpit detail view surfaces the checkpoint.
+      3. UPDATEs filing_jobs.status + orders.status to `operator_required`
          (a non-terminal status — the PR7 evidence trigger never fires on
          this UPDATE because the target is not in the evidence set).
-      3. Writes a status_updates row so the customer dashboard timeline
+      4. Writes a status_updates row so the customer dashboard timeline
          reflects the escalation.
 
     Best-effort: any sqlite3.Error inside the function is swallowed; the
@@ -515,14 +520,45 @@ def escalate_to_operator_required(
         return
     safe_message = (error_message or f"{source} worker raised unhandled exception").strip()
     safe_event_type = f"{source}_worker_error" if source else "worker_error"
+    safe_evidence_path = (evidence_path or "").strip()
     try:
         conn.execute(
             """
             INSERT INTO filing_events (filing_job_id, order_id, event_type, message, actor, evidence_path)
             VALUES (?, ?, ?, ?, ?, ?)
             """,
-            (filing_job_id, order_id, safe_event_type, safe_message, source or "worker", ""),
+            (filing_job_id, order_id, safe_event_type, safe_message, source or "worker", safe_evidence_path),
         )
+        # Track B follow-up #3 codex round-2 P2 + round-3 P2: persist the
+        # captured checkpoint screenshot/html as a state_correspondence
+        # artifact so the operator cockpit's detail view has something to
+        # inspect. The inner try/except guarantees that an artifact-write
+        # failure (lagging schema, trigger error, missing column) does NOT
+        # short-circuit the status_promotion below — escalation MUST run.
+        if safe_evidence_path:
+            try:
+                resolved = Path(safe_evidence_path)
+                if resolved.exists():
+                    digest = sha256_for_file_path(safe_evidence_path)
+                    existing = conn.execute(
+                        "SELECT 1 FROM filing_artifacts WHERE filing_job_id = ? AND filename = ? AND artifact_type = ? LIMIT 1",
+                        (filing_job_id, resolved.name, "state_correspondence"),
+                    ).fetchone()
+                    if not existing:
+                        insert_filing_artifact_row(
+                            conn,
+                            filing_job_id=filing_job_id,
+                            order_id=order_id,
+                            artifact_type="state_correspondence",
+                            filename=resolved.name,
+                            file_path=safe_evidence_path,
+                            is_evidence=True,
+                            sha256_hex=digest,
+                        )
+            except (OSError, ValueError, _sqlite3.Error):
+                # Best-effort artifact insert. Never let it block the
+                # status_promotion that follows.
+                pass
         conn.execute(
             "UPDATE filing_jobs SET status = 'operator_required', evidence_summary = ?, updated_at = datetime('now') WHERE id = ?",
             (safe_message, filing_job_id),
