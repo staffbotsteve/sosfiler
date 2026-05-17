@@ -64,7 +64,7 @@ def _persist_filing_result(order_id: str, result: dict) -> None:
     try:
         job_row = conn.execute(
             """
-            SELECT id FROM filing_jobs
+            SELECT id, status FROM filing_jobs
             WHERE order_id = ? AND state = 'NV' AND action_type = 'formation'
             ORDER BY created_at DESC
             LIMIT 1
@@ -74,6 +74,20 @@ def _persist_filing_result(order_id: str, result: dict) -> None:
         if not job_row:
             return
         job_id = job_row["id"]
+        # Codex Track B follow-up round-6 P2: never downgrade a job that
+        # has already reached a terminal status. A retry of a previously
+        # submitted/approved/complete filing should leave the existing
+        # row alone; the operator can re-open it manually if needed.
+        TERMINAL_DOWNGRADE_GUARD = {
+            "submitted", "submitted_to_state", "approved", "state_approved",
+            "documents_collected", "complete",
+        }
+        if job_row["status"] in TERMINAL_DOWNGRADE_GUARD:
+            logger.info(
+                f"[{order_id}] silverflume retry detected; filing_job already in "
+                f"terminal status {job_row['status']!r}, skipping persistence"
+            )
+            return
 
         # Capture screenshots as state_correspondence artifacts so the
         # operator cockpit has at least one piece of evidence to review.
@@ -343,15 +357,20 @@ class SilverFlumeFiler:
             result["errors"].append(str(e))
             result["needs_human_review"] = True
 
-        # Save receipt — always runs whether or not the browser block raised.
-        receipt_path = RECEIPTS_DIR / f"{order_id}_NV_receipt.json"
-        receipt_path.write_text(json.dumps(result, indent=2))
-
         # Track B follow-up: persist run outcome to SQLite so a needs_human_
         # review filing is actually visible in the operator cockpit instead
         # of stranded in the receipt JSON. Also runs after WAF failures
         # thanks to the codex round-1 P1 fix above.
+        #
+        # Codex Track B follow-up round-6 P2: persist BEFORE writing the
+        # receipt JSON so any mutation _persist_filing_result makes to
+        # result (e.g. flipping success=False / needs_human_review=True
+        # when evidence is incomplete) is reflected on disk too.
         _persist_filing_result(order_id, result)
+
+        # Save receipt — always runs whether or not the browser block raised.
+        receipt_path = RECEIPTS_DIR / f"{order_id}_NV_receipt.json"
+        receipt_path.write_text(json.dumps(result, indent=2))
 
         return result
 
