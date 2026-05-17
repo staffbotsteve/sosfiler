@@ -414,11 +414,20 @@ class SilverFlumeFiler:
                     sitekey = match.group(1)
             
             if not sitekey:
-                # Incapsula often uses a known sitekey
-                # Try the common Incapsula hCaptcha sitekey
-                logger.warning(f"[{order_id}] Could not extract hCaptcha sitekey, trying common Incapsula key")
-                sitekey = "20000000-ffff-ffff-ffff-000000000002"  # Incapsula default test key
-            
+                # Track B follow-up #4: refuse to fall back to a hardcoded
+                # hCaptcha test sitekey. A 2Captcha solve against the test
+                # key (20000000-ffff-ffff-ffff-000000000002) returns a
+                # valid-looking token that never clears a real Incapsula
+                # challenge — the original implementation would log
+                # "success" while the page was still WAF-blocked. Surface
+                # the failure cleanly so _persist_filing_result escalates
+                # to operator_required.
+                logger.error(
+                    f"[{order_id}] hCaptcha sitekey extraction failed; refusing test-key "
+                    "fallback. Operator must complete in a trusted browser profile."
+                )
+                return False
+
             logger.info(f"[{order_id}] Solving hCaptcha with sitekey: {sitekey[:20]}...")
             
             # Solve using 2Captcha (runs in thread pool since it's blocking)
