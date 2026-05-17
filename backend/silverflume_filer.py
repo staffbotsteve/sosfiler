@@ -213,7 +213,12 @@ class SilverFlumeFiler:
                 await page.goto(SILVERFLUME_URL, timeout=60000)
                 await asyncio.sleep(5)
                 
-                # Check for Incapsula challenge
+                # Track B follow-up codex round-1 P1: do NOT early-return
+                # on WAF failure. Set needs_human_review and let control
+                # fall through to the receipt-persist + DB-persist block
+                # at the function tail so the operator cockpit sees the
+                # blocked filing.
+                waf_blocked = False
                 html = await page.content()
                 if 'Incapsula' in html or '_Incapsula' in html:
                     logger.info(f"[{order_id}] Incapsula WAF detected, solving hCaptcha...")
@@ -222,50 +227,51 @@ class SilverFlumeFiler:
                         result["errors"].append("Failed to bypass Incapsula WAF/hCaptcha")
                         result["needs_human_review"] = True
                         await self._screenshot(page, order_id, "waf_blocked", result)
-                        await browser.close()
-                        return result
-                    
-                    result["timestamps"]["waf_bypassed"] = datetime.utcnow().isoformat()
-                    logger.info(f"[{order_id}] WAF bypassed successfully")
-                
-                # Step 2: Wait for SilverFlume to load
-                await asyncio.sleep(5)
-                await self._screenshot(page, order_id, "01_homepage", result)
-                
-                # Step 3: Navigate to Start Your Business / LLC filing
-                filed = await self._navigate_to_llc_filing(page, formation_data, order_id, result)
-                
-                if filed:
-                    result["success"] = True
-                    result["timestamps"]["completed"] = datetime.utcnow().isoformat()
-                    # Plan v2.6 §4.5 / PR6 codex round-2: extract NV receipt #
-                    # from the confirmation page so callers can forward it
-                    # into orders.filing_confirmation before promotion.
-                    try:
-                        from execution_platform import extract_filing_confirmation
-                        final_text = await page.inner_text("body", timeout=5_000)
-                        extracted = extract_filing_confirmation(final_text, CONFIRMATION_NUMBER_REGEX)
-                        if extracted:
-                            result["confirmation_number"] = extracted
-                    except Exception as exc:  # noqa: BLE001
-                        logger.warning(f"[{order_id}] confirmation extract failed: {exc}")
-                else:
-                    result["needs_human_review"] = True
+                        waf_blocked = True
+                    else:
+                        result["timestamps"]["waf_bypassed"] = datetime.utcnow().isoformat()
+                        logger.info(f"[{order_id}] WAF bypassed successfully")
+
+                if not waf_blocked:
+                    # Step 2: Wait for SilverFlume to load
+                    await asyncio.sleep(5)
+                    await self._screenshot(page, order_id, "01_homepage", result)
+
+                    # Step 3: Navigate to Start Your Business / LLC filing
+                    filed = await self._navigate_to_llc_filing(page, formation_data, order_id, result)
+
+                    if filed:
+                        result["success"] = True
+                        result["timestamps"]["completed"] = datetime.utcnow().isoformat()
+                        # Plan v2.6 §4.5 / PR6 codex round-2: extract NV receipt #
+                        # from the confirmation page so callers can forward it
+                        # into orders.filing_confirmation before promotion.
+                        try:
+                            from execution_platform import extract_filing_confirmation
+                            final_text = await page.inner_text("body", timeout=5_000)
+                            extracted = extract_filing_confirmation(final_text, CONFIRMATION_NUMBER_REGEX)
+                            if extracted:
+                                result["confirmation_number"] = extracted
+                        except Exception as exc:  # noqa: BLE001
+                            logger.warning(f"[{order_id}] confirmation extract failed: {exc}")
+                    else:
+                        result["needs_human_review"] = True
 
                 await browser.close()
-                
+
         except Exception as e:
             logger.error(f"[{order_id}] SilverFlume filing error: {e}")
             result["errors"].append(str(e))
             result["needs_human_review"] = True
 
-        # Save receipt
+        # Save receipt — always runs whether or not the browser block raised.
         receipt_path = RECEIPTS_DIR / f"{order_id}_NV_receipt.json"
         receipt_path.write_text(json.dumps(result, indent=2))
 
         # Track B follow-up: persist run outcome to SQLite so a needs_human_
         # review filing is actually visible in the operator cockpit instead
-        # of stranded in the receipt JSON.
+        # of stranded in the receipt JSON. Also runs after WAF failures
+        # thanks to the codex round-1 P1 fix above.
         _persist_filing_result(order_id, result)
 
         return result
