@@ -153,11 +153,17 @@ def _persist_filing_result(order_id: str, result: dict) -> None:
         # legitimately transition into submitted/approved without one,
         # so flag it explicitly instead of leaving the job in its prior
         # automation_started status.
+        # Codex Track B follow-up round-5 P1: keep the result dict consistent
+        # with the DB target_status. backend/state_filing._flow_nevada checks
+        # result['success'] BEFORE needs_human_review, so any operator-required
+        # escalation must flip success→False and set needs_human_review→True.
         target_status = None
         if result.get("needs_human_review"):
             target_status = "operator_required"
         elif result.get("success") and not confirmation_value:
             target_status = "operator_required"
+            result["success"] = False
+            result["needs_human_review"] = True
             result.setdefault(
                 "reason",
                 "SilverFlume reported success but no confirmation number was extracted; operator review required.",
@@ -173,6 +179,8 @@ def _persist_filing_result(order_id: str, result: dict) -> None:
             # Confirmation # extracted but no receipt screenshot — operator
             # must verify and either re-capture or manually attach evidence.
             target_status = "operator_required"
+            result["success"] = False
+            result["needs_human_review"] = True
             result.setdefault(
                 "reason",
                 "SilverFlume captured a confirmation number but no receipt-page screenshot; operator review required.",
