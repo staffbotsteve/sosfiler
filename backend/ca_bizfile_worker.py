@@ -1236,12 +1236,22 @@ async def run_browser_worker(operation: str, jobs: list[tuple[sqlite3.Row, sqlit
             except Exception as exc:
                 message = f"{type(exc).__name__}: {exc}"
                 if not dry_run:
-                    insert_event(conn, job["id"], job["order_id"], "ca_bizfile_worker_error", message)
+                    # Track B follow-up #2: escalate to operator_required so
+                    # the cockpit work queue surfaces the failure. The
+                    # PR7 trigger never fires on operator_required.
+                    from execution_platform import escalate_to_operator_required
+                    escalate_to_operator_required(
+                        conn,
+                        filing_job_id=job["id"],
+                        order_id=job["order_id"],
+                        source="ca_bizfile",
+                        error_message=message,
+                    )
                     conn.commit()
                 results.append({
                     "order_id": job["order_id"],
                     "business_name": order["business_name"],
-                    "status": "error",
+                    "status": "operator_required",
                     "message": message,
                 })
         await context.close()
