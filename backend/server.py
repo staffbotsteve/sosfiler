@@ -4843,11 +4843,13 @@ def create_or_update_filing_job(order: dict, action_type: str = "formation", sta
                 int(order.get("state_fee_cents") or 0) + processing_fee_cents,
             ),
         )
-        # Codex PR7 round-11 P2: mirror the non-terminal seed to Supabase
-        # so its BEFORE INSERT trigger sees an existing legacy_job_id when
-        # the main terminal upsert below arrives. Otherwise dual-write
-        # recovery paths would abort against the Postgres trigger.
-        execution_dual_write("upsert_filing_job", {
+        # Codex PR7 round-11 P2 + round-12 P2: mirror the non-terminal seed
+        # to Supabase so its BEFORE INSERT guard sees an existing
+        # legacy_job_id when the main terminal upsert arrives. If the
+        # order already carries a filing_confirmation, include it in the
+        # seed so the mirror evidence trigger does not later reject the
+        # terminal UPDATE for an empty value.
+        seed_payload = {
             "id": job_id,
             "order_id": order["id"],
             "product_type": order.get("product_type", "formation"),
@@ -4863,7 +4865,10 @@ def create_or_update_filing_job(order: dict, action_type: str = "formation", sta
             "portal_blockers": action.get("portal_blockers", []),
             "required_evidence": required_evidence,
             "route_metadata": action.get("route_metadata") or {},
-        })
+        }
+        if order.get("filing_confirmation"):
+            seed_payload["filing_confirmation_raw"] = order["filing_confirmation"]
+        execution_dual_write("upsert_filing_job", seed_payload)
     conn.execute("""
         INSERT INTO filing_jobs (
             id, order_id, action_type, state, entity_type, status, automation_level,
