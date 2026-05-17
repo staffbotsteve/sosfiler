@@ -664,6 +664,106 @@ def init_db():
         "CREATE INDEX IF NOT EXISTS idx_filing_artifacts_job_type "
         "ON filing_artifacts(filing_job_id, artifact_type, is_evidence)"
     )
+    # Plan v2.6 §4.2.4 step 3 / PR7 — evidence-invariant trigger.
+    # Belt-and-suspenders enforcement: app/repo layers already validate the
+    # same predicate, but the trigger blocks ANY direct INSERT or UPDATE
+    # that bypasses them. orders.filing_confirmation must be a JSON object
+    # with a non-empty string value. Submitted requires submitted_receipt +
+    # sha256; approved/complete adds action-aware terminal artifact. SQLite
+    # does not support `BEFORE INSERT OR UPDATE`, so we install two
+    # triggers with identical predicate bodies.
+    # Codex PR7 round-4 P2: SQLite does not guarantee short-circuit
+    # evaluation of OR within a single CASE WHEN. Calling json_type /
+    # json_extract on an invalid-JSON column raises a SQLite error before
+    # the intended RAISE(ABORT) fires. Split each precondition into its
+    # own CASE WHEN branch; CASE evaluates branches top-to-bottom and
+    # stops at the first match.
+    _evidence_predicate_body = """
+          SELECT CASE
+            WHEN (SELECT filing_confirmation FROM orders WHERE id = NEW.order_id) IS NULL
+              THEN RAISE(ABORT, 'evidence_invariant: missing or malformed filing_confirmation')
+            WHEN NOT json_valid((SELECT filing_confirmation FROM orders WHERE id = NEW.order_id))
+              THEN RAISE(ABORT, 'evidence_invariant: missing or malformed filing_confirmation')
+            WHEN json_type((SELECT filing_confirmation FROM orders WHERE id = NEW.order_id), '$.value') != 'text'
+              THEN RAISE(ABORT, 'evidence_invariant: missing or malformed filing_confirmation')
+            WHEN coalesce(length(json_extract((SELECT filing_confirmation FROM orders WHERE id = NEW.order_id), '$.value')), 0) = 0
+              THEN RAISE(ABORT, 'evidence_invariant: missing or malformed filing_confirmation')
+            WHEN NEW.status IN ('submitted','submitted_to_state')
+                 AND NOT EXISTS (
+                   SELECT 1 FROM filing_artifacts
+                   WHERE filing_job_id = NEW.id
+                     AND artifact_type = 'submitted_receipt'
+                     AND is_evidence = 1
+                     AND sha256_hex IS NOT NULL AND length(sha256_hex) > 0
+                 )
+              THEN RAISE(ABORT, 'evidence_invariant: missing submitted_receipt artifact')
+            WHEN NEW.status IN ('approved','state_approved','documents_collected','complete')
+                 AND NOT EXISTS (
+                   SELECT 1 FROM filing_artifacts
+                   WHERE filing_job_id = NEW.id
+                     AND artifact_type = 'submitted_receipt'
+                     AND is_evidence = 1
+                     AND sha256_hex IS NOT NULL AND length(sha256_hex) > 0
+                 )
+              THEN RAISE(ABORT, 'evidence_invariant: approved status requires submitted_receipt and an action_type-appropriate terminal artifact')
+            WHEN NEW.status IN ('approved','state_approved','documents_collected','complete')
+                 AND NOT EXISTS (
+                   SELECT 1 FROM filing_artifacts
+                   WHERE filing_job_id = NEW.id
+                     AND is_evidence = 1
+                     AND sha256_hex IS NOT NULL AND length(sha256_hex) > 0
+                     AND (
+                       (NEW.action_type = 'formation' AND artifact_type = 'approved_certificate')
+                       OR (NEW.action_type = 'annual_report'
+                           AND artifact_type IN ('approved_certificate','state_correspondence',
+                                                 'state_acknowledgment','state_filed_document'))
+                       OR (NEW.action_type IN ('amendment','foreign_qualification','dissolution',
+                                               'reinstatement','certificate_of_good_standing')
+                           AND artifact_type IN ('approved_certificate','state_filed_document'))
+                       OR (NEW.action_type NOT IN ('formation','annual_report','amendment',
+                                                   'foreign_qualification','dissolution',
+                                                   'reinstatement','certificate_of_good_standing')
+                           AND artifact_type = 'approved_certificate')
+                     )
+                 )
+              THEN RAISE(ABORT, 'evidence_invariant: approved status requires submitted_receipt and an action_type-appropriate terminal artifact')
+          END;
+    """
+    _evidence_states_filter = (
+        "NEW.status IN ('submitted','submitted_to_state','approved','state_approved',"
+        "'documents_collected','complete')"
+    )
+    # Codex PR7 round-6 P1: INSERT-time enforcement is back, but takes a
+    # different shape. The chicken-and-egg with artifacts (round-5) is
+    # avoided by REJECTING any INSERT that lands in a terminal status —
+    # without inspecting artifacts at all. Every code path must:
+    #   1. INSERT the job in a non-terminal status (ready_to_file etc.)
+    #   2. INSERT the evidence artifacts
+    #   3. UPDATE the job to the terminal status (UPDATE trigger validates)
+    # This is already the pattern in create_or_update_filing_job, mark_*
+    # routes, and the backfill route's deferred-promotion logic. The
+    # INSERT trigger blocks direct-terminal-INSERT bypass paths that
+    # codex flagged in rounds 1 + 6. The artifact check lives entirely
+    # on the UPDATE trigger so first-time recovery flows can still seed
+    # ready_to_file → artifacts → terminal.
+    conn.execute("DROP TRIGGER IF EXISTS filing_jobs_evidence_invariant_insert")
+    conn.execute("DROP TRIGGER IF EXISTS filing_jobs_evidence_invariant")
+    conn.execute(
+        f"CREATE TRIGGER filing_jobs_evidence_invariant BEFORE UPDATE ON filing_jobs "
+        f"FOR EACH ROW WHEN {_evidence_states_filter} "
+        f"BEGIN {_evidence_predicate_body} END"
+    )
+    # Codex PR7 round-8 P2: SQLite BEFORE INSERT fires before ON CONFLICT
+    # resolution. INSERT ... ON CONFLICT DO UPDATE in upserts triggers this
+    # before checking if the row exists. Look up by id ourselves; if the
+    # row already exists, this is the upsert-update path (UPDATE trigger
+    # validates). Only true first-time INSERTs with terminal status abort.
+    conn.execute(
+        f"CREATE TRIGGER filing_jobs_evidence_invariant_insert BEFORE INSERT ON filing_jobs "
+        f"FOR EACH ROW WHEN {_evidence_states_filter} "
+        f"AND NOT EXISTS (SELECT 1 FROM filing_jobs WHERE id = NEW.id) "
+        f"BEGIN SELECT RAISE(ABORT, 'evidence_invariant: filing_jobs cannot be INSERTed in a terminal status without a prior non-terminal row; INSERT non-terminal then UPDATE'); END"
+    )
     conn.commit()
     conn.close()
 
@@ -4708,11 +4808,66 @@ def create_or_update_filing_job(order: dict, action_type: str = "formation", sta
         processing_fee_cents = calculate_processing_fee_cents(action, int(order.get("state_fee_cents") or 0))
     job_id = f"FIL-{order['id']}-{action_type}".replace("_", "-")
     job_status = status or order.get("status", "pending_payment")
+    # Plan v2.6 PR7 codex round-7 P2: when a fresh INSERT lands here with
+    # a terminal status (recovery / rehydration paths inherit order.status),
+    # the BEFORE INSERT trigger would abort. Seed the row first with a
+    # safe non-terminal status using INSERT OR IGNORE; the main upsert
+    # below then resolves as an UPDATE (which the UPDATE trigger
+    # validates).
+    TERMINAL_STATUSES = {"submitted", "submitted_to_state", "approved", "state_approved",
+                         "documents_collected", "complete"}
     required_evidence = {
         "submitted": action.get("required_evidence", {}).get("submitted", []),
         "approved": action.get("required_evidence", {}).get("approved", []),
     }
     conn = get_db()
+    # Codex PR7 round-7 P2: pre-seed a non-terminal row when callers ask
+    # for a terminal status. INSERT OR IGNORE is a no-op when the row
+    # already exists, so the main upsert below resolves as the UPDATE
+    # path and the BEFORE INSERT trigger never sees a terminal value.
+    if job_status in TERMINAL_STATUSES:
+        conn.execute(
+            """
+            INSERT OR IGNORE INTO filing_jobs (
+                id, order_id, action_type, state, entity_type, status, automation_level,
+                filing_method, state_fee_cents, processing_fee_cents, total_government_cents
+            )
+            VALUES (?, ?, ?, ?, ?, 'ready_to_file', ?, ?, ?, ?, ?)
+            """,
+            (
+                job_id, order["id"], action_type, order["state"], order["entity_type"],
+                action.get("automation_level", "operator_assisted"),
+                action.get("filing_method", "web_portal"),
+                int(order.get("state_fee_cents") or 0),
+                processing_fee_cents,
+                int(order.get("state_fee_cents") or 0) + processing_fee_cents,
+            ),
+        )
+    # Codex PR7 round-13 P2: prepare the mirror seed payload now but defer
+    # the dual-write until AFTER the SQLite upsert succeeds. If the local
+    # UPDATE trigger rejects the terminal status, we never seed the mirror.
+    pending_terminal_seed_dual_write: dict | None = None
+    if job_status in TERMINAL_STATUSES:
+        seed_payload = {
+            "id": job_id,
+            "order_id": order["id"],
+            "product_type": order.get("product_type", "formation"),
+            "action_type": action_type,
+            "state": order["state"],
+            "entity_type": order["entity_type"],
+            "status": "ready_to_file",
+            "automation_lane": action.get("automation_lane", "operator_assisted"),
+            "automation_difficulty": action.get("automation_difficulty", "unknown"),
+            "adapter_key": action.get("adapter_key"),
+            "customer_status": action.get("customer_status"),
+            "portal_url": action.get("portal_url"),
+            "portal_blockers": action.get("portal_blockers", []),
+            "required_evidence": required_evidence,
+            "route_metadata": action.get("route_metadata") or {},
+        }
+        if order.get("filing_confirmation"):
+            seed_payload["filing_confirmation_raw"] = order["filing_confirmation"]
+        pending_terminal_seed_dual_write = seed_payload
     conn.execute("""
         INSERT INTO filing_jobs (
             id, order_id, action_type, state, entity_type, status, automation_level,
@@ -4766,7 +4921,20 @@ def create_or_update_filing_job(order: dict, action_type: str = "formation", sta
     conn.commit()
     conn.close()
     job = serialize_filing_job(row)
-    execution_dual_write("upsert_filing_job", job)
+    # Codex PR7 round-13 P2 + round-14 P2: mirror the non-terminal seed only
+    # after the SQLite commit succeeds. Then upsert the terminal status. If
+    # the Postgres trigger rejects the terminal promotion, quarantine the
+    # mirror row to needs_evidence_reverification so cutover-readiness sees
+    # the honest state (same pattern as backfill route round-10).
+    if pending_terminal_seed_dual_write is not None:
+        execution_dual_write("upsert_filing_job", pending_terminal_seed_dual_write)
+        terminal_result = execution_dual_write("upsert_filing_job", job)
+        if not terminal_result.ok:
+            quarantine = dict(job)
+            quarantine["status"] = "needs_evidence_reverification"
+            execution_dual_write("upsert_filing_job", quarantine)
+    else:
+        execution_dual_write("upsert_filing_job", job)
     return dict(row)
 
 
@@ -9977,17 +10145,41 @@ async def backfill_execution_persistence(payload: PersistenceBackfillRequest, re
         if not result.ok:
             errors.append({"table": "execution_quotes", "id": quote["quote_id"], "message": result.message})
 
+    # Plan v2.6 PR7 codex round-3 P1: terminal-status jobs (submitted /
+    # approved / complete and their legacy aliases) require the artifact
+    # bundle to land BEFORE the trigger can validate the mirror row. We
+    # only ship them when include_append_only=true (which runs the
+    # artifacts pass below). In core-only mode, we SKIP terminal jobs
+    # entirely — writing them as ready_to_file would leave the mirror
+    # showing a downgraded status that lies about reality. The skip is
+    # reported via the errors list so cutover-readiness checks remain
+    # honest.
+    deferred_terminal_jobs: list[dict] = []
+    skipped_terminal_jobs: list[dict] = []
+    TERMINAL_STATUSES = {"submitted", "submitted_to_state", "approved", "state_approved",
+                         "documents_collected", "complete"}
     for row in conn.execute("SELECT * FROM filing_jobs ORDER BY created_at LIMIT ?", (payload.limit,)).fetchall():
-        # Plan v2.6 PR5 codex round-3 P2: backfill must carry the order's
-        # filing_confirmation so historical submitted/approved jobs land in
-        # the mirror with the same canonical JSON the local store holds.
-        # Without this, COALESCE on the upsert cannot recover the value
-        # later and the mirror evidence invariant has nothing to read.
+        # PR5 codex round-3 P2: carry orders.filing_confirmation forward.
         job = serialize_filing_job_with_confirmation(conn, row)
+        original_status = job.get("status")
+        if original_status in TERMINAL_STATUSES:
+            if not payload.include_append_only:
+                skipped_terminal_jobs.append({
+                    "table": "filing_jobs",
+                    "id": job["id"],
+                    "message": (
+                        f"terminal-status job {original_status!r} skipped in core-only mode; "
+                        "re-run with include_append_only=true so artifacts ship first"
+                    ),
+                })
+                continue
+            deferred_terminal_jobs.append({"job": dict(job), "terminal_status": original_status})
+            job["status"] = "ready_to_file"  # safe; promoted after artifacts
         result = execution_dual_write("upsert_filing_job", job)
         written["execution_filing_jobs"] += 1 if result.ok else 0
         if not result.ok:
             errors.append({"table": "filing_jobs", "id": job["id"], "message": result.message})
+    errors.extend(skipped_terminal_jobs)
 
     for row in conn.execute("SELECT * FROM support_tickets ORDER BY created_at LIMIT ?", (payload.limit,)).fetchall():
         ticket = dict(row)
@@ -10024,6 +10216,33 @@ async def backfill_execution_persistence(payload: PersistenceBackfillRequest, re
             written["execution_artifacts"] += 1 if result.ok else 0
             if not result.ok:
                 errors.append({"table": "filing_artifacts", "id": artifact["id"], "message": result.message})
+
+    # Plan v2.6 PR7 codex round-2 P2: promote deferred terminal-status jobs
+    # now that their artifacts are mirrored. Only runs when
+    # include_append_only=true; in core-only mode terminal jobs were
+    # skipped entirely above.
+    if payload.include_append_only and deferred_terminal_jobs:
+        for entry in deferred_terminal_jobs:
+            job = entry["job"]
+            job["status"] = entry["terminal_status"]
+            result = execution_dual_write("upsert_filing_job", job)
+            if not result.ok:
+                # Codex PR7 round-10 P2: don't leave the mirror lying with
+                # ready_to_file when the terminal promotion failed (artifact
+                # missing, predicate violation, etc.). Flip the row to
+                # needs_evidence_reverification so cutover-readiness sees
+                # the honest state.
+                quarantine_job = dict(job)
+                quarantine_job["status"] = "needs_evidence_reverification"
+                quarantine_result = execution_dual_write("upsert_filing_job", quarantine_job)
+                errors.append({
+                    "table": "filing_jobs_promote",
+                    "id": job["id"],
+                    "message": (
+                        f"terminal promotion failed: {result.message}; "
+                        f"quarantined to needs_evidence_reverification (ok={quarantine_result.ok})"
+                    ),
+                })
 
     conn.close()
     return {

@@ -61,19 +61,49 @@ class EinQueueHardeningTests(unittest.TestCase):
             "responsible_party_ssn_last4": "6789",
             "members": [{"name": "Test Owner", "is_responsible_party": True, "ssn_last4": "6789"}],
         }
+        # Plan v2.6 §4.2.5 / PR7: orders seeded directly into state_approved
+        # must carry filing_confirmation in the canonical JSON shape, or the
+        # evidence-invariant trigger ABORTs the filing_jobs insert.
+        confirmation_payload = server.build_filing_confirmation_payload("EIN-FIXTURE-12345", "operator")
         conn = server.get_db()
         conn.execute("""
             INSERT INTO orders (
                 id, email, token, status, entity_type, state, business_name,
                 formation_data, state_fee_cents, gov_processing_fee_cents,
-                platform_fee_cents, total_cents, paid_at, approved_at
+                platform_fee_cents, total_cents, paid_at, approved_at, filing_confirmation
             )
-            VALUES (?, 'ein-test@sosfiler.com', 'tok-ein', 'state_approved', 'LLC', 'CA', 'EIN Test LLC', ?, 0, 0, 4900, 4900, datetime('now'), datetime('now'))
-        """, (order_id, json.dumps(formation_data)))
+            VALUES (?, 'ein-test@sosfiler.com', 'tok-ein', 'state_approved', 'LLC', 'CA', 'EIN Test LLC', ?, 0, 0, 4900, 4900, datetime('now'), datetime('now'), ?)
+        """, (order_id, json.dumps(formation_data), confirmation_payload))
         order = dict(conn.execute("SELECT * FROM orders WHERE id = ?", (order_id,)).fetchone())
+        # Pre-seed the receipt + certificate artifacts so the trigger's
+        # action-aware predicate (formation -> approved_certificate) is
+        # satisfied. create_or_update_filing_job uses the job's id which is
+        # deterministic given (order_id, action_type), so we look it up
+        # after the insert below; but seeding the artifacts on the order_id
+        # first is fine because filing_artifacts.filing_job_id is opaque
+        # until the row exists. Insert artifacts AFTER the filing_job
+        # insert.
         conn.commit()
         conn.close()
-        server.create_or_update_filing_job(order, "formation", "state_approved")
+        server.create_or_update_filing_job(order, "formation", "ready_to_file")
+        conn = server.get_db()
+        job_row = conn.execute(
+            "SELECT id FROM filing_jobs WHERE order_id = ? AND action_type = 'formation'",
+            (order_id,),
+        ).fetchone()
+        for artifact_type in ("submitted_receipt", "approved_certificate"):
+            conn.execute(
+                """
+                INSERT INTO filing_artifacts
+                    (filing_job_id, order_id, artifact_type, filename, file_path, is_evidence, sha256_hex)
+                VALUES (?, ?, ?, ?, ?, 1, 'fixturehash')
+                """,
+                (job_row["id"], order_id, artifact_type, f"{artifact_type}.pdf", f"/tmp/{artifact_type}.pdf"),
+            )
+        # Promote job to state_approved AFTER artifacts exist.
+        conn.execute("UPDATE filing_jobs SET status = 'state_approved' WHERE id = ?", (job_row["id"],))
+        conn.commit()
+        conn.close()
         queue = {
             "order_id": order_id,
             "status": "ready_for_submission",
