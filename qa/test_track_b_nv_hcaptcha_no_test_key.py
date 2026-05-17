@@ -32,6 +32,27 @@ os.environ.setdefault("TWOCAPTCHA_API_KEY", "test-key-for-track-b-no-test-key-te
 BACKEND = Path(__file__).resolve().parents[1] / "backend"
 sys.path.insert(0, str(BACKEND))
 
+# Stub the twocaptcha module BEFORE silverflume_filer is imported so the
+# function-level `from twocaptcha import TwoCaptcha` succeeds and control
+# actually reaches the no-sitekey branch this PR pins. Codex review
+# round-1 P2 flagged that the broad except handler was catching the
+# ImportError before the changed code ever ran.
+import types as _types
+if "twocaptcha" not in sys.modules:
+    _stub = _types.ModuleType("twocaptcha")
+
+    class _FakeTwoCaptcha:
+        def __init__(self, *args, **kwargs):
+            pass
+
+        def hcaptcha(self, **kwargs):
+            # Never reached by the no-sitekey test (function returns
+            # before this). If reached by another path, return empty.
+            return {"code": ""}
+
+    _stub.TwoCaptcha = _FakeTwoCaptcha
+    sys.modules["twocaptcha"] = _stub
+
 
 class FakeIframeList(list):
     """Awaitable wrapper to mimic locator(...).all() shape."""
@@ -56,16 +77,26 @@ class FakeIframe:
         return self._src if name == "src" else None
 
 
+class FakeFrame:
+    def __init__(self, url=""):
+        self.url = url
+
+
 class FakePage:
-    def __init__(self, html: str = "", iframe_srcs=None):
+    def __init__(self, html: str = "", iframe_srcs=None, frame_urls=None):
         self.html = html
         self.iframe_srcs = iframe_srcs or []
+        # Codex Track B follow-up #4 review: _solve_incapsula_captcha
+        # reads page.frames BEFORE falling back to data-sitekey scrape.
+        # Without `frames` the implementation hits AttributeError and
+        # the test would still pass via the broad except handler, never
+        # exercising the no-sitekey branch this PR pins.
+        self.frames = [FakeFrame(url) for url in (frame_urls or [])]
         self.url = "https://nvsilverflume.gov/test"
         self.evaluate_calls = []
         self.reload_called = False
 
     def locator(self, selector):
-        # silverflume_filer queries iframe[src*=hcaptcha], iframe[src*=Incapsula]
         return FakeLocator(self.iframe_srcs)
 
     async def content(self):
